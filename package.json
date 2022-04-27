@@ -1,20 +1,24 @@
 {
-  "name": "basic-mmo-phaser",
+  "name": "project-virtual-pond",
   "version": "1.0.0",
-  "description": " Very basic multiplayer online game example made with Phaser, Node.js and Socket.io ",
+  "description": "A Physical Space for Twitch Frogs to Hang and Chat.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },
   "keywords": [
-    "Phaser",
-    "Multiplayer",
-    "game",
     "Node.js",
-    "socket.io"
+    "socket.io",
+    "Phaser",
+    "Firebase",
+    "Multiplayer",
+    "Virtual World",
+    "Minigames",
+    "Twitch",
+    "Chatting"
   ],
-  "license": "MIT",
+  "license": "GNU GPL V3.0",
   "dependencies": {
     "express": "^4.15.2",
     "socket.io": "^1.7.3"
