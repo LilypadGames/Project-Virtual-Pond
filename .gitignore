@@ -10,3 +10,4 @@ node_modules
 
 # Sensitive Data
 database_auth.js
+js/config.js

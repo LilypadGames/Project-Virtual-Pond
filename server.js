@@ -4,8 +4,9 @@
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
-var io = require('socket.io').listen(server);
-var util = require('./js/utility.js');
+var io = require('socket.io')(server);
+var util = require('./js/utility');
+var config = require('./js/config');
 
 //get styles
 app.use('/css',express.static(__dirname + '/css'));
@@ -25,8 +26,8 @@ app.get('/',function(req,res){
 server.lastPlayerID = 0;
 
 //init server
-server.listen(process.env.PORT || 5500,function(){
-    console.log('Listening on '+server.address().port);
+server.listen(process.env.PORT || config.server.port,function(){
+    console.log('Listening on Port: '+server.address().port);
 });
 
 //sustain player connection
