@@ -8,16 +8,16 @@ var io = require('socket.io')(server);
 var util = require('./js/utility');
 var config = require('./js/config');
 
-//get styles
+//send styles to client
 app.use('/css',express.static(__dirname + '/css'));
 
-//get javascript
+//send javascript to client
 app.use('/js',express.static(__dirname + '/js'));
 
-//get game assets
+//send game assets to client
 app.use('/assets',express.static(__dirname + '/assets'));
 
-//get site HTML
+//send site HTML to client
 app.get('/',function(req,res){
     res.sendFile(__dirname+'/index.html');
 });
@@ -34,7 +34,8 @@ server.listen(process.env.PORT || config.server.port,function(){
 io.on('connection',function(socket){
 
     //handle player
-    socket.on('addNewPlayer',function(){
+    socket.on('newPlayerJoined',function(){
+
         //set up player data
         socket.player = {
             //generate ID
@@ -53,41 +54,43 @@ io.on('connection',function(socket){
 
         //update player location + trigger player move
         socket.on('click',function(data){
-            console.log('PLAYER ID: '+socket.player.id+' - Moving to> x:'+data.x+', y:'+data.y);
+            console.log('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y);
             socket.player.x = data.x;
             socket.player.y = data.y;
-            io.emit('movePlayer',socket.player);
+            io.emit('movePlayer', socket.player);
         });
 
         //update player direction
         socket.on('changePlayerDirection',function(newDirection){
-            console.log('PLAYER ID: '+socket.player.id+' - Changed Direction: '+newDirection);
+            console.log('PLAYER ID: ' + socket.player.id + ' - Changed Direction: ' + newDirection);
             socket.player.direction = newDirection;
-            io.emit('updatePlayerLook',socket.player);
+            io.emit('updatePlayerLook', socket.player);
         });
 
         //update player tint + trigger change player look
         socket.on('changePlayerColor',function(newTint){
-            console.log('PLAYER ID: '+socket.player.id+' - Changed Tint: '+newTint);
+            console.log('PLAYER ID: ' + socket.player.id + ' - Changed Tint: ' + newTint);
             socket.player.tint = newTint;
-            io.emit('updatePlayerLook',socket.player);
+            io.emit('updatePlayerLook', socket.player);
         });
 
         //trigger player disconnect/removed
         socket.on('disconnect',function(){
-            io.emit('removePlayer',socket.player.id);
+            io.emit('removePlayer', socket.player.id);
         });
 
         //update players for all clients
         socket.emit('getAllPlayers',getAllPlayers());
 
         //trigger new player for all other clients
-        socket.broadcast.emit('addNewPlayer',socket.player);
+        socket.broadcast.emit('addNewPlayer', socket.player);
+
     });
 });
 
 //get currently connected players as an array
 function getAllPlayers(){
+
     //init empty array
     var players = [];
 

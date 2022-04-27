@@ -2,6 +2,7 @@
 
 var Game = {};
 
+// PHASER INIT
 //initial game parameters
 Game.init = function(){
     game.stage.disableVisibilityChange = true;
@@ -41,13 +42,25 @@ Game.create = function(){
     Client.onPlayerJoin();
 };
 
+// UTILITY
 //get coordinates of mouse down click
 Game.getCoordinates = function(layer, pointer){
-    Client.sendClick(pointer.worldX,pointer.worldY);
+    Client.sendClick(pointer.worldX, pointer.worldY);
 };
 
+//get players current direction
+Game.getPlayerDirection = function(id){
+    if (Game.playerMap[id].scale.x > 0) {
+        return 'right'
+    } else if (Game.playerMap[id].scale.x < 0) {
+        return 'left'
+    }
+}
+
+// GAME FUNCTIONS
 //add player character to game at specific coordinates
 Game.addNewPlayer = function(data){
+
     //add main features for character (this sprite gets tinted whenever the player changed their color)
     Game.playerMap[data.id] = game.add.sprite(data.x,data.y,'frog_body');
     Game.playerMap[data.id].smoothed = false;
@@ -67,6 +80,7 @@ Game.addNewPlayer = function(data){
 
 //move player character to specific coordinates
 Game.movePlayer = function(id, x, y){
+
     //get sprite
     var player = Game.playerMap[id];
 
@@ -81,27 +95,13 @@ Game.movePlayer = function(id, x, y){
 
     //move sprite
     var tween = game.add.tween(player);
-    tween.to({x:x,y:y}, duration);
+    tween.to({x:x, y:y}, duration);
     tween.start();
 };
 
-//remove player character from game
-Game.removePlayer = function(id){
-    Game.playerMap[id].destroy();
-    delete Game.playerMap[id];
-};
-
-//get players current direction
-Game.getPlayerDirection = function(id){
-    if (Game.playerMap[id].scale.x > 0) {
-        return 'right'
-    } else if (Game.playerMap[id].scale.x < 0) {
-        return 'left'
-    }
-}
-
 //update player characters
 Game.updatePlayerLook = function(data){
+
     //update players color
     Game.playerMap[data.id].tint = data.tint;
 
@@ -111,4 +111,10 @@ Game.updatePlayerLook = function(data){
     } else if (data.direction == 'left' && Game.getPlayerDirection(data.id) == 'right'){
         Game.playerMap[data.id].scale.x *= -1;
     }
+};
+
+//remove player character from game
+Game.removePlayer = function(id){
+    Game.playerMap[id].destroy();
+    delete Game.playerMap[id];
 };
