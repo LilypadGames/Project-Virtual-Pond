@@ -1,2 +1,14 @@
+.idea
+
+#directories
+node_modules
+
+#files
+*.tgz
+*.log
+
+#macOS files
+.DS_Store
+
 # Sensitive Data
 database_auth.js
