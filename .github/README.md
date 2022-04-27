@@ -12,4 +12,4 @@ A Virtual World game written in HTML/CSS/JS using the Socket.io and Phaser frame
 ### Tests:
 
 **Player Movement/Direction + Color Changing**
-![Player Movement/Direction + Color Changing](github_assets\Frog Movement and Color Test.gif)
+![Player Movement/Direction and Color Changing](Frog_Movement_and_Color_Test.gif)
