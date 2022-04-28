@@ -1,25 +1,21 @@
 // Handles Server
 
-//imports
+//frameworks
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var util = require('./js/utility');
-var config = require('./config');
 
-//send styles to client
-app.use('/css',express.static(__dirname + '/css'));
+//imports
+var util = require('./client/js/utility');
+var config = require('./config/config');
 
-//send javascript to client
-app.use('/js',express.static(__dirname + '/js'));
+//send client files (html/css/js/assets)
+app.use('/',express.static(__dirname + '/client'));
 
-//send game assets to client
-app.use('/assets',express.static(__dirname + '/assets'));
-
-//send site HTML to client
+//send main HTML file to client
 app.get('/',function(req,res){
-    res.sendFile(__dirname+'/index.html');
+    res.sendFile('index.html', { root: 'client/html' });
 });
 
 //init ID

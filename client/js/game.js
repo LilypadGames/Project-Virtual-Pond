@@ -11,11 +11,11 @@ Game.init = function(){
 
 //load game assets
 Game.preload = function() {
-    game.load.tilemap('map', 'assets/room/house_on_the_river/example_map.json', null, Phaser.Tilemap.TILED_JSON);
-    game.load.spritesheet('tileset', 'assets/room/house_on_the_river/tilesheet.png',32,32);
-    game.load.image('frog_body','assets/character/frog_body.png');
-    game.load.image('frog_belly','assets/character/frog_belly.png');
-    game.load.image('frog_eyes','assets/character/frog_eyes.png');
+    game.load.tilemap('map', '../assets/room/house_on_the_river/example_map.json', null, Phaser.Tilemap.TILED_JSON);
+    game.load.spritesheet('tileset', '../assets/room/house_on_the_river/tilesheet.png',32,32);
+    game.load.image('frog_body','../assets/character/frog_body.png');
+    game.load.image('frog_belly','../assets/character/frog_belly.png');
+    game.load.image('frog_eyes','../assets/character/frog_eyes.png');
 };
 
 //set up game
