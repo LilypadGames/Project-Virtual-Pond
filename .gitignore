@@ -8,6 +8,5 @@ node_modules
 #macOS files
 .DS_Store
 
-# Sensitive Data
-database_auth.js
-js/config.js
+#config
+config.js

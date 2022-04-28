@@ -6,7 +6,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var util = require('./js/utility');
-var config = require('./js/config');
+var config = require('./config');
 
 //send styles to client
 app.use('/css',express.static(__dirname + '/css'));
