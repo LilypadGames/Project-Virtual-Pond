@@ -26,14 +26,15 @@ server.listen(process.env.PORT || config.server.port,function(){
     console.log('Listening on Port: '+server.address().port);
 });
 
-//sustain player connection
-io.on('connection',function(socket){
+//on new connection
+io.on('connection', async function(socket){
 
-    //handle player
-    socket.on('newPlayerJoined',function(){
+    //triggers on new player loading the world
+    socket.on('playerLoadedWorld', async function(){
 
         //set up player data
         socket.player = {
+
             //generate ID
             id: server.lastPlayerID++,
             
@@ -48,54 +49,68 @@ io.on('connection',function(socket){
             tint: Math.random() * 0xffffff
         };
 
-        //update player location + trigger player move
+        //triggers when player clicks on the game world
         socket.on('click',function(data){
             console.log('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y);
             socket.player.x = data.x;
             socket.player.y = data.y;
+            //send the players movement for all players
             io.emit('movePlayer', socket.player);
         });
 
-        //update player direction
+        //triggers when players direction has changed
         socket.on('changePlayerDirection',function(newDirection){
             console.log('PLAYER ID: ' + socket.player.id + ' - Changed Direction: ' + newDirection);
             socket.player.direction = newDirection;
+            //send the new player look for all clients
             io.emit('updatePlayerLook', socket.player);
         });
 
-        //update player tint + trigger change player look
+        //triggers when players color has changed
         socket.on('changePlayerColor',function(newTint){
             console.log('PLAYER ID: ' + socket.player.id + ' - Changed Tint: ' + newTint);
             socket.player.tint = newTint;
+            //send the new player look for all clients
             io.emit('updatePlayerLook', socket.player);
         });
 
-        //trigger player disconnect/removed
+        //triggers when player disconnects their client
         socket.on('disconnect',function(){
+            //send the removal of the player for all clients
             io.emit('removePlayer', socket.player.id);
         });
+        
+        //send all currently connected players for all clients
+        socket.emit('getAllPlayers', await getAllPlayers());
 
-        //update players for all clients
-        socket.emit('getAllPlayers',getAllPlayers());
-
-        //trigger new player for all other clients
+        //send new player for all OTHER clients
         socket.broadcast.emit('addNewPlayer', socket.player);
 
     });
 });
 
 //get currently connected players as an array
-function getAllPlayers(){
+async function getAllPlayers(){
 
-    //init empty array
-    var players = [];
+    //init connected player list
+    var connectedPlayers = [];
 
-    //fill array with currently connected players
-    Object.keys(io.sockets.connected).forEach(function(socketID){
-        var player = io.sockets.connected[socketID].player;
-        if(player) players.push(player);
-    });
+    //get connected clients
+    const connectedClients = await io.fetchSockets();
 
-    //return all curently connected players
-    return players;
+    //loop through connected clients
+    for (const client of connectedClients) {
+
+        //get player information from this client
+        var player = client.player
+
+        //if there is player information, add them to the connected player list
+        if(player){
+            connectedPlayers.push(player);
+        }
+    }
+
+    //return list of connected players
+    return connectedPlayers;
+
 }

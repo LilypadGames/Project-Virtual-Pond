@@ -17,7 +17,7 @@ Client.onKeyPress = function(key){
 
 //tell server that this client just joined
 Client.onPlayerJoin = function(){
-    Client.socket.emit('newPlayerJoined');
+    Client.socket.emit('playerLoadedWorld');
 };
 
 //tell server that the client has clicked at a specific coordinate
@@ -56,24 +56,24 @@ Client.socket.on('addNewPlayer',function(data){
 //update all players
 Client.socket.on('getAllPlayers',function(data){
 
-    //add new players
+    //populate game world with currently connected players
     for(var i = 0; i < data.length; i++){
         Game.addNewPlayer(data[i]);
     }
 
-    //update player look
+    //trigger specified player's look change
     Client.socket.on('updatePlayerLook',function(data){
         console.log('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint + ' Direction: ' + data.direction);
         Game.updatePlayerLook(data);
     });
 
-    //move players
+    //trigger specified player's movement
     Client.socket.on('movePlayer',function(data){
         console.log('PLAYER ID: ' + data.id + ' - Moving to> x:' + data.x + ', y:' + data.y);
         Game.movePlayer(data.id, data.x, data.y);
     });
 
-    //remove players
+    //trigger removal of specified player
     Client.socket.on('removePlayer',function(id){
         Game.removePlayer(id);
     });
