@@ -2,10 +2,10 @@
   "name": "project-virtual-pond",
   "version": "1.0.0",
   "description": "A Physical Space for Twitch Frogs to Hang and Chat.",
-  "main": "server.js",
+  "main": "server/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server/server.js"
   },
   "keywords": [
     "Node.js",

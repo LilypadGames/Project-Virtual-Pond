@@ -7,11 +7,11 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 //imports
-var util = require('./client/js/utility');
-var config = require('./config/config');
+var util = require('../client/js/utility');
+var config = require('../config/config');
 
 //send client files (html/css/js/assets)
-app.use('/',express.static(__dirname + '/client'));
+app.use('/',express.static(__dirname + '/../client'));
 
 //send main HTML file to client
 app.get('/',function(req,res){
