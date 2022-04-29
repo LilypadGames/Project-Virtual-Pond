@@ -37,6 +37,8 @@ io.on('connection', async function(socket){
 
             //generate ID
             id: server.lastPlayerID++,
+
+            name: 'DanMizu',
             
             //generate starting location
             x: util.getRandomInt(100,400),

@@ -4,7 +4,8 @@
 var Game = new Phaser.Scene('Game');
 
 //initialize scene variables
-var playerMap = {};
+var playerCharacter = {};
+var playerData = {};
 
 // LOGIC
 //load game assets
@@ -52,7 +53,7 @@ Game.create = function(){
 Game.getPlayerDirection = function(id) {
 
     //get player sprite container
-    var playerSprites = playerMap[id].list[0];
+    var playerSprites = playerCharacter[id].list[0];
 
     //player character is facing right
     if (playerSprites.scaleX > 0) {
@@ -74,41 +75,45 @@ Game.addNewPlayer = function(data) {
     var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1);
 
     //player name
-    var playerName = this.add.text(0, 0, 'Guest',{
+    var playerName = this.add.text(0, 18, data.name, {
         fontFamily: 'Arial',
-        color: '#ffffff'
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 4,
     }).setFontSize(12).setOrigin(0.5, 1);
 
     //create player container
-    playerMap[data.id] = this.add.container(data.x, data.y).setSize(playerBody.width, playerBody.height);
+    playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(playerBody.width, playerBody.height);
 
     //create player sprite container
-    playerMap[data.id].add(this.add.container(0, 0).setSize(playerBody.width, playerBody.height));
+    playerCharacter[data.id].add(this.add.container(0, 0).setSize(playerBody.width, playerBody.height));
 
     //add player sprites to player sprite container
-    playerMap[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
+    playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
 
     //create player overlay container
-    playerMap[data.id].add(this.add.container(0, 15).setSize(playerName.width, playerName.height));
+    playerCharacter[data.id].add(this.add.container(0, 0).setSize(playerBody.width, playerBody.height));
 
     //add player name to player overlay container
-    playerMap[data.id].list[1].add([playerName]);
+    playerCharacter[data.id].list[1].add([playerName]);
 
-    // [IMPORTANT] - playerMap is an array of nested Phaser3 containers
+    // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
     //
-    // playerMap[<Player ID>] = Player Container
+    // playerCharacter[<Player ID>] = Player Container
     //
-    // playerMap[<Player ID>].list[0] = Player Sprite Container
-    // playerMap[<Player ID>].list[0].list[0] = frog_body Sprite
-    // playerMap[<Player ID>].list[0].list[1] = frog_belly Sprite
-    // playerMap[<Player ID>].list[0].list[2] = frog_eyes Sprite
+    // playerCharacter[<Player ID>].list[0] = Player Sprite Container
+    // playerCharacter[<Player ID>].list[0].list[0] = frog_body Sprite
+    // playerCharacter[<Player ID>].list[0].list[1] = frog_belly Sprite
+    // playerCharacter[<Player ID>].list[0].list[2] = frog_eyes Sprite
     //
-    // playerMap[<Player ID>].list[1] = Player Overlay Container
-    // playerMap[<Player ID>].list[1].list[0] = playerName Text
+    // playerCharacter[<Player ID>].list[1] = Player Overlay Container
+    // playerCharacter[<Player ID>].list[1].list[0] = playerName Text
     //
     // This was done so that everything in the Player Sprite Container can be altered/transformed without altering stuff 
     // that should remain untouched like the Player Overlay Container's player name. However, they all stay together when
     // the entire Player Container needs to be moved.
+
+    this.displayMessage(data.id, 'Sup frogs. ppL SmokeTime')
 
     //update the look of the character from the provided server data
     this.updatePlayerLook(data);
@@ -118,7 +123,7 @@ Game.addNewPlayer = function(data) {
 Game.movePlayer = function(id, x, y) {
 
     //get player container
-    var player = playerMap[id];
+    var player = playerCharacter[id];
 
     //update player direction
     Client.updatePlayerDirection(this.getPlayerDirection(id), player.x, player.y, x, y);
@@ -142,13 +147,13 @@ Game.movePlayer = function(id, x, y) {
 Game.updatePlayerLook = function(data) {
 
     //get player container
-    var player = playerMap[data.id];
+    var player = playerCharacter[data.id];
 
     //get player sprite container
-    var playerSprites = playerMap[data.id].list[0];
+    var playerSprites = player.list[0];
 
     //get player body layer (inside sprite container)
-    var playerBody = playerMap[data.id].list[0].list[0];
+    var playerBody = playerSprites.list[0];
 
     //update players color
     playerBody.tint = data.tint;
@@ -158,10 +163,88 @@ Game.updatePlayerLook = function(data) {
     else if (data.direction == 'left' && this.getPlayerDirection(data.id) == 'right') { playerSprites.scaleX *= -1; };
 };
 
+//display player message
+Game.displayMessage = function(id, message) {
+
+    //store message data
+    playerData[id] = {
+        message: message,
+        messageDuration: 5000
+    };
+
+    //get player overlay container
+    var playerOverlay = playerCharacter[id].list[1];
+
+    //format message
+    var playerMessage = this.add.text(0, 0, message, {
+        fontFamily: 'Arial',
+        color: '#000000',
+        lineSpacing: 2,
+        align: 'center',
+        padding: { left: 8, right: 8, top: 6, bottom: 6 },
+        wordWrap: { width: 130 }
+    }).setFontSize(12).setOrigin(0.5, 0);
+
+    //calculate size of message
+    var messageWidth = (playerMessage.width/2) * -1
+    var messageHeight = (playerMessage.height * -1) - 30;
+
+    //reposition text
+    playerMessage.setY(messageHeight);
+
+    //create background for message
+    var playerMessageBackground = this.add.graphics().fillStyle(0xffffff, 0.80).fillRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8).lineStyle(1, 0xb8b8b8, 1).strokeRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8);;
+
+    //remove old messages from player (if any)
+    playerOverlay.list[1].setVisible(true)
+    //playerOverlay.list[2].destroy();
+
+    //add message to player overlay container
+    playerOverlay.addAt([playerMessageBackground], 1);
+    playerOverlay.addAt([playerMessage], 2);
+
+    console.log(playerData[id].messageDuration)
+
+    //schedule message for removal
+    this.time.delayedCall(playerData[id].messageDuration, this.removeMessage(id, message));
+
+}
+
+//remove player message
+Game.removeMessage = function(id, message) {
+
+    //check if the message scheduled for removal is the same as the players current message shown
+    if (playerData[id].message === message) {
+
+        console.log('Removing Message')
+
+        //reset chat data
+        playerData[id] = {
+            message: '',
+            messageDuration: 0
+        }
+
+        //get player overlay container
+        var playerOverlay = playerCharacter[id].list[1];
+
+        // console.log(playerOverlay.list[1]);
+        // console.log(playerOverlay.list[2]);
+
+        //remove message from player character
+        // playerOverlay.
+        playerOverlay.list[1].setVisible(false);
+        playerOverlay.list[2].destroy();
+
+    } else {
+        return;
+    }
+
+}
+
 //remove player character from game
 Game.removePlayer = function(id) {
-    playerMap[id].destroy();
-    delete playerMap[id];
+    playerCharacter[id].destroy();
+    delete playerCharacter[id];
 };
 
 //config
@@ -257,135 +340,3 @@ Client.socket.on('getAllPlayers',function(data){
     });
 
 });
-
-// // GAME INIT
-// //init game with config
-// var game = new Phaser.Game(gameConfig);
-// var Game = {};
-
-// // //initial game parameters
-// // function init(){
-// //     this.stage.disableVisibilityChange = true;
-// //     this.tweens.frameBased = true;
-// // };
-
-// //load game assets
-// Game.preload = function() {
-//     //tilemaps
-//     this.load.image("tileset", "assets/room/house_on_the_river/tilesheet.png");
-//     this.load.tilemapTiledJSON('map', 'assets/room/house_on_the_river/example_map.json');
-
-//     //character
-//     this.load.image('frog_body','assets/character/frog_body.png');
-//     this.load.image('frog_belly','assets/character/frog_belly.png');
-//     this.load.image('frog_eyes','assets/character/frog_eyes.png');
-// };
-
-// //set up game
-// Game.create() = function() {
-//     //set up client-side stored player character array 
-//     playerMap = {};
-
-//     //generate tilemap
-//     var map = this.make.tilemap({ key: "map", tileWidth: 32, tileHeight: 32});
-//     map.addTilesetImage('tilesheet', 'tileset'); // 'tilesheet' is the key of the tileset in map's JSON file
-
-//     //create tilemap layers
-//     var layer;
-//     for(var i = 0; i < map.layers.length; i++) {
-//         layer = map.createLayer(i);
-//     }
-
-//     //detect left click
-//     this.input.on('pointerdown', () => getCoordinates());
-
-//     //detect enter key
-//     keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER)
-
-//     //add player's character to world
-//     Client.onPlayerJoin();
-// };
-
-// //runs continously
-// Game.update() = function() {
-    
-//     //detect inputs
-//     if (keyEnter.isDown) { Client.onKeyPress('enter') }
-
-// }
-
-// // UTILITY
-// //get coordinates of mouse down click
-// Game.getCoordinates(layer, pointer) = function() {
-//     Client.sendClick(pointer.worldX, pointer.worldY);
-// };
-
-// //get players current direction
-// Game.getPlayerDirection(id) = function() {
-//     if (playerMap[id].scale.x > 0) {
-//         return 'right'
-//     } else if (playerMap[id].scale.x < 0) {
-//         return 'left'
-//     }
-// }
-
-// // GAME FUNCTIONS
-// //add player character to game at specific coordinates
-// Game.addNewPlayer(data) = function() {
-
-//     //add main features for character (this sprite gets tinted whenever the player changed their color)
-//     playerMap[data.id] = game.add.sprite(data.x,data.y,'frog_body');
-//     playerMap[data.id].smoothed = false;
-//     playerMap[data.id].anchor.setTo(0.5);
-
-//     //add other features of character
-//     playerMap[data.id].addChild(game.add.sprite(0,0,'frog_belly'));
-//     playerMap[data.id].addChild(game.add.sprite(0,0,'frog_eyes'));
-//     for (var i = 0; i < playerMap[data.id].children.length; i++) {
-//         playerMap[data.id].children[i].smoothed = false;
-//         playerMap[data.id].children[i].anchor.setTo(0.5);
-//     }
-
-//     //update the look of the character from server data
-//     updatePlayerLook(data);
-// };
-
-// //move player character to specific coordinates
-// Game.movePlayer(id, x, y) = function() {
-//     //get sprite
-//     var player = playerMap[id];
-
-//     //get distance
-//     var distance = Phaser.Math.distance(player.x, player.y, x, y);
-
-//     //update player direction
-//     Client.updatePlayerDirection(getPlayerDirection(id), player.x, player.y, x, y);
-
-//     //set up duration of movement
-//     var duration = distance*5;
-
-//     //move sprite
-//     var tween = game.add.tween(player);
-//     tween.to({x:x, y:y}, duration);
-//     tween.start();
-// };
-
-// //update player characters
-// Game.updatePlayerLook(data) = function() {
-
-//     //update players color
-//     playerMap[data.id].tint = data.tint;
-
-//     //update players look direction
-//     if (data.direction == 'right' && getPlayerDirection(data.id) == 'left'){
-//         playerMap[data.id].scale.x *= -1;
-//     } else if (data.direction == 'left' && getPlayerDirection(data.id) == 'right'){
-//         playerMap[data.id].scale.x *= -1;
-//     }
-// };
-
-// //remove player character from game
-// Game.removePlayer(id) = function() {
-//     playerMap[id].destroy();
-//     delete playerMap[id];
-// };
