@@ -1,6 +1,12 @@
 // Handles Client
 
+//import
+import * as Game from './scene/game.js';
+
+//initialize client
 var Client = {};
+
+//connect to socket.io
 Client.socket = io.connect();
 
 //tell server that this client just pressed a key

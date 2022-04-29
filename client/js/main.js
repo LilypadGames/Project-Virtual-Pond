@@ -1,5 +1,14 @@
-// Initializes Game and ties it to game div in index HTML file
+// Initializes Game
 
-var game = new Phaser.Game(24*32, 17*32, Phaser.AUTO, document.getElementById('game'));
-game.state.add('Game',Game);
-game.state.start('Game');
+//scenes
+import * as Game from './scene/game.js';
+
+//config
+var config = {
+    width: 24*32,
+    height: 17*32,
+    scene: [ Game ]
+};
+
+//set up game
+var game = new Phaser.Game(config);

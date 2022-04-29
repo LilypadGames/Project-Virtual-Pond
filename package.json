@@ -21,6 +21,7 @@
   "license": "GNU GPL V3.0",
   "dependencies": {
     "express": "^4.15.2",
+    "phaser": "^3.55.2",
     "socket.io": "^4.5.0"
   }
 }

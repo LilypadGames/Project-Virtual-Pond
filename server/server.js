@@ -49,7 +49,7 @@ io.on('connection', async function(socket){
             tint: Math.random() * 0xffffff
         };
 
-        console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Joined the Pond.'));
+        console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Joined the Pond'));
 
         //triggers when player clicks on the game world
         socket.on('click',function(data){
@@ -62,7 +62,7 @@ io.on('connection', async function(socket){
 
         //triggers when players direction has changed
         socket.on('changePlayerDirection',function(newDirection){
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Direction: ' + newDirection));
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Direction> ' + newDirection));
             socket.player.direction = newDirection;
             //send the new player look for all clients
             io.emit('updatePlayerLook', socket.player);
@@ -70,7 +70,7 @@ io.on('connection', async function(socket){
 
         //triggers when players color has changed
         socket.on('changePlayerColor',function(newTint){
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Tint: ' + newTint));
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Tint> ' + newTint));
             socket.player.tint = newTint;
             //send the new player look for all clients
             io.emit('updatePlayerLook', socket.player);
@@ -78,6 +78,7 @@ io.on('connection', async function(socket){
 
         //triggers when player disconnects their client
         socket.on('disconnect',function(){
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Left the Pond'));
             //send the removal of the player for all clients
             io.emit('removePlayer', socket.player.id);
         });
