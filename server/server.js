@@ -7,8 +7,8 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 //imports
-var util = require('../client/js/utility');
-var config = require('../config/config');
+var util = require(__dirname + '/../client/js/utility');
+var config = require(__dirname + '/config/config');
 
 //send client files (html/css/js/assets)
 app.use('/',express.static(__dirname + '/../client'));
@@ -23,7 +23,7 @@ server.lastPlayerID = 0;
 
 //init server
 server.listen(process.env.PORT || config.server.port,function(){
-    console.log('Listening on Port: '+server.address().port);
+    console.log(util.timestampString('Listening on Port: '+server.address().port));
 });
 
 //on new connection
@@ -49,9 +49,11 @@ io.on('connection', async function(socket){
             tint: Math.random() * 0xffffff
         };
 
+        console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Joined the Pond.'));
+
         //triggers when player clicks on the game world
         socket.on('click',function(data){
-            console.log('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y);
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
             socket.player.x = data.x;
             socket.player.y = data.y;
             //send the players movement for all players
@@ -60,7 +62,7 @@ io.on('connection', async function(socket){
 
         //triggers when players direction has changed
         socket.on('changePlayerDirection',function(newDirection){
-            console.log('PLAYER ID: ' + socket.player.id + ' - Changed Direction: ' + newDirection);
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Direction: ' + newDirection));
             socket.player.direction = newDirection;
             //send the new player look for all clients
             io.emit('updatePlayerLook', socket.player);
@@ -68,7 +70,7 @@ io.on('connection', async function(socket){
 
         //triggers when players color has changed
         socket.on('changePlayerColor',function(newTint){
-            console.log('PLAYER ID: ' + socket.player.id + ' - Changed Tint: ' + newTint);
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Tint: ' + newTint));
             socket.player.tint = newTint;
             //send the new player look for all clients
             io.emit('updatePlayerLook', socket.player);
