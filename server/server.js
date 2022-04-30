@@ -7,7 +7,7 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 //imports
-var util = require(__dirname + '/../client/js/utility');
+var util = require(__dirname + '/utility');
 var config = require(__dirname + '/config/config');
 
 //send client files (html/css/js/assets)
@@ -60,6 +60,13 @@ io.on('connection', async function(socket){
             socket.player.y = data.y;
             //send the players movement for all players
             io.emit('movePlayer', socket.player);
+        });
+
+        //triggers when player sends a message
+        socket.on('sendPlayerMessage',function(message){
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Sending Message> ' + message));
+            //send the new player look for all clients
+            io.emit('showPlayerMessage', {id: socket.player.id, message: message });
         });
 
         //triggers when players direction has changed

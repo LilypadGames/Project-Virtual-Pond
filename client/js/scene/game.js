@@ -1,5 +1,8 @@
 // Game Scene
 
+//imports
+import * as util from '../utility.js';
+
 //initialize scene
 var Game = new Phaser.Scene('Game');
 
@@ -10,6 +13,7 @@ var playerData = {};
 // LOGIC
 //load game assets
 Game.preload = function(){
+
     //tilemaps
     this.load.image("tileset", "assets/room/house_on_the_river/tilesheet.png");
     this.load.tilemapTiledJSON('map', 'assets/room/house_on_the_river/example_map.json');
@@ -41,6 +45,9 @@ Game.create = function(){
 
         //Enter
         if (event.key == 'Enter') { Client.onKeyPress(event.key); };
+
+        //Shift
+        if (event.key == 'Shift') { Client.onKeyPress(event.key); };
 
     });
 
@@ -113,8 +120,6 @@ Game.addNewPlayer = function(data) {
     // that should remain untouched like the Player Overlay Container's player name. However, they all stay together when
     // the entire Player Container needs to be moved.
 
-    this.displayMessage(data.id, 'Sup frogs. ppL SmokeTime')
-
     //update the look of the character from the provided server data
     this.updatePlayerLook(data);
 };
@@ -166,14 +171,19 @@ Game.updatePlayerLook = function(data) {
 //display player message
 Game.displayMessage = function(id, message) {
 
+    //get player overlay container
+    var playerOverlay = playerCharacter[id].list[1];
+
+    //remove older messages
+    if (playerOverlay.list[1]) { playerOverlay.list[1].setVisible(false); }
+    if (playerOverlay.list[2]) { playerOverlay.list[2].destroy(); }
+
     //store message data
     playerData[id] = {
         message: message,
+        messageID: this.time.now,
         messageDuration: 5000
     };
-
-    //get player overlay container
-    var playerOverlay = playerCharacter[id].list[1];
 
     //format message
     var playerMessage = this.add.text(0, 0, message, {
@@ -193,52 +203,42 @@ Game.displayMessage = function(id, message) {
     playerMessage.setY(messageHeight);
 
     //create background for message
-    var playerMessageBackground = this.add.graphics().fillStyle(0xffffff, 0.80).fillRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8).lineStyle(1, 0xb8b8b8, 1).strokeRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8);;
-
-    //remove old messages from player (if any)
-    playerOverlay.list[1].setVisible(true)
-    //playerOverlay.list[2].destroy();
+    var playerMessageBackground = this.add.graphics().fillStyle(0xffffff, 0.80).fillRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8).lineStyle(1, 0xb8b8b8, 1).strokeRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8);
 
     //add message to player overlay container
     playerOverlay.addAt([playerMessageBackground], 1);
     playerOverlay.addAt([playerMessage], 2);
 
-    console.log(playerData[id].messageDuration)
+    //make sure message is visible
+    playerOverlay.list[1].setVisible(true);
 
     //schedule message for removal
-    this.time.delayedCall(playerData[id].messageDuration, this.removeMessage(id, message));
-
+    this.time.delayedCall(playerData[id].messageDuration, this.removeMessage, [id, this.time.now], this);
 }
 
 //remove player message
-Game.removeMessage = function(id, message) {
+Game.removeMessage = function(id, messageID) {
 
     //check if the message scheduled for removal is the same as the players current message shown
-    if (playerData[id].message === message) {
-
-        console.log('Removing Message')
+    if (playerData[id].messageID === messageID) {
 
         //reset chat data
         playerData[id] = {
             message: '',
+            messageID: 0,
             messageDuration: 0
         }
 
         //get player overlay container
         var playerOverlay = playerCharacter[id].list[1];
 
-        // console.log(playerOverlay.list[1]);
-        // console.log(playerOverlay.list[2]);
-
         //remove message from player character
-        // playerOverlay.
         playerOverlay.list[1].setVisible(false);
         playerOverlay.list[2].destroy();
 
     } else {
         return;
     }
-
 }
 
 //remove player character from game
@@ -251,7 +251,10 @@ Game.removePlayer = function(id) {
 var config = {
     width: 24*32,
     height: 17*32,
-    scene: [ Game ]
+    scene: [ Game ],
+    render: {
+        pixelArt: true
+    }
 };
 
 //set up game
@@ -266,13 +269,20 @@ Client.socket = io.connect();
 
 //tell server that this client just pressed a key
 Client.onKeyPress = function(key){
-    if (key == 'Enter'){
+    if (key === 'Enter'){
         
         //generate random hex code color
         var tint = Math.random() * 0xffffff;
 
         //tell server that the player has changed its color
         Client.socket.emit('changePlayerColor', tint);
+
+    } else if (key === 'Shift'){
+
+        var message = 'Sup Frogs. ppL SmokeTime'
+
+        //tell server that the player has changed its color
+        Client.socket.emit('sendPlayerMessage', message);
     }
 };
 
@@ -319,23 +329,31 @@ Client.socket.on('getAllPlayers',function(data){
 
     //populate game world with currently connected players
     for(var i = 0; i < data.length; i++){
+        console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond'));
         Game.addNewPlayer(data[i]);
     }
 
+    //show players message
+    Client.socket.on('showPlayerMessage',function(data){
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message));
+        Game.displayMessage(data.id, data.message);
+    });
+
     //trigger specified player's look change
     Client.socket.on('updatePlayerLook',function(data){
-        console.log('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint + ' Direction: ' + data.direction);
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint + ' Direction: ' + data.direction));
         Game.updatePlayerLook(data);
     });
 
     //trigger specified player's movement
     Client.socket.on('movePlayer',function(data){
-        console.log('PLAYER ID: ' + data.id + ' - Moving to> x:' + data.x + ', y:' + data.y);
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
         Game.movePlayer(data.id, data.x, data.y);
     });
 
     //trigger removal of specified player
     Client.socket.on('removePlayer',function(id){
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Left the Pond'));
         Game.removePlayer(id);
     });
 

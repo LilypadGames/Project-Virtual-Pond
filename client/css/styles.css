@@ -22,7 +22,7 @@ label {
   display: block;
   font-weight: bold;
 }
- 
+
 input[type="text"],
 button {
   font-family: inherit;
@@ -39,6 +39,7 @@ input[type="text"] {
   border: 3px solid #222034;
   width: 150px;
 }
+
 input[type="text"]:focus {
   border-color: #f000ff;
 }
