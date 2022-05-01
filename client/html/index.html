@@ -20,16 +20,18 @@
 
     <!-- Game Canvas -->
     <div class="game-container" id='game-canvas'></div>
-    <br>
-    <div class="chat-box-container"><input id="chat-message" placeholder="Type here..."/></div>
+
+    <input type="text" name="username" id="utext"/>
 
 </body>
 
     <!-- Game Logic -->
-    <script type="module" src="js/utility.js" type="text/javascript"></script>
-    <script type="module" src="js/scene/game.js" type="text/javascript"></script>
-    <!-- <script type="module" src="js/main.js" type="text/javascript"></script> -->
-    <!-- <script type="module" src="js/client.js" type="text/javascript"></script> -->
+    <script src="js/scene/game.js" type="text/javascript"></script>
+    <script src="js/main.js" type="text/javascript"></script>
+    <script src="js/client.js" type="text/javascript"></script>
+    <script src="js/utility.js" type="text/javascript"></script>
+    <script src="js/util/formUtil.js" type="text/javascript"></script>
+    <script src="js/util/alignGrid.js" type="text/javascript"></script>
 
     <!-- Database -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>

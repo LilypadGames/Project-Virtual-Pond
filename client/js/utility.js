@@ -1,12 +1,13 @@
 // Utility Functions
 
-//get a random integer
-export function getRandomInt(low, high) {
-    return Math.floor(Math.random() * (high - low) + low);
-}
+class Utility {
+    //get a random integer
+    getRandomInt(low, high) {
+        return Math.floor(Math.random() * (high - low) + low);
+    }
 
-//return timestamped string
-export function timestampString(string) {
-    var timestamp = new Date(Date.now()).toLocaleString()
-    return timestamp + ' | ' + string
-}
+    //return timestamped string
+    timestampString(string) {
+        return new Date(Date.now()).toLocaleString() + ' | ' + string;
+    }
+};

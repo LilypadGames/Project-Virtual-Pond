@@ -1,86 +1,108 @@
 // Handles Client
 
-//import
-import * as Game from './scene/game.js';
+//connect to server
+socket = io.connect();
 
-//initialize client
-var Client = {};
+class Client {
+    constructor(scene) {
+        Game = scene;
+    };
 
-//connect to socket.io
-Client.socket = io.connect();
+    //tell server that this client just pressed a key
+    onKeyPress(key) {
 
-//tell server that this client just pressed a key
-Client.onKeyPress = function(key){
-    if (key = 'enter'){
-        
-        //generate random hex code color
-        tint = Math.random() * 0xffffff;
+        //C
+        if (key === 'c'){
+            
+            //generate random hex code color
+            var tint = Math.random() * 0xffffff;
 
-        //tell server that the player has changed its color
-        Client.socket.emit('changePlayerColor', tint);
-    }
-};
+            //tell server that the player has changed its color
+            socket.emit('changePlayerColor', tint);
 
-//tell server that this client just joined
-Client.onPlayerJoin = function(){
-    Client.socket.emit('playerLoadedWorld');
-};
+        //Shift
+        } else if (key === 'Shift'){
 
-//tell server that the client has clicked at a specific coordinate
-Client.sendClick = function(x, y){
-    Client.socket.emit('click', {x:x, y:y});
-};
+            var message = 'Sup Frogs. ppL SmokeTime'
 
-//tell server the client's current direction 
-Client.updatePlayerDirection = function(currentDirection, currentX, currentY, newX, newY){
-    //init newDirection as blank
-    newDirection = '';
+            //tell server that the player has changed its color
+            socket.emit('sendPlayerMessage', message);
+        }
+    };
 
-    //get direction as degrees
-    var targetRad = Phaser.Math.angleBetween(currentX, currentY,newX, newY);
-    var targetDegrees = Phaser.Math.radToDeg(targetRad);
+    //tell server that this client just joined
+    onPlayerJoin() {
+        socket.emit('playerLoadedWorld');
+    };
 
-    //turn right
-    if (targetDegrees > -90 && targetDegrees < 90 && currentDirection !== 'right') {
-        newDirection = 'right';
+    //tell server that the client has clicked at a specific coordinate
+    sendClick(x, y) {
+        socket.emit('click', {x: x, y: y});
+    };
 
-    //turn left
-    } else if ((targetDegrees > 90 || targetDegrees < -90) && currentDirection !== 'left') {
-        newDirection = 'left';
-    }
+    //tell server the client's current direction 
+    updatePlayerDirection(currentDirection, currentX, currentY, newX, newY) {
 
-    //if direction changed, tell the server to update all clients
-    if (newDirection != '') Client.socket.emit('changePlayerDirection', newDirection);
+        //init newDirection as blank
+        var newDirection = '';
+
+        //get direction as degrees
+        var targetRad = Phaser.Math.Angle.Between(currentX, currentY,newX, newY);
+        var targetDegrees = Phaser.Math.RadToDeg(targetRad);
+
+        //turn right
+        if (targetDegrees > -90 && targetDegrees < 90 && currentDirection !== 'right') {
+            newDirection = 'right';
+
+        //turn left
+        } else if ((targetDegrees > 90 || targetDegrees < -90) && currentDirection !== 'left') {
+            newDirection = 'left';
+        }
+
+        //if direction changed, tell the server to update all clients
+        if (newDirection !== '') { socket.emit('changePlayerDirection', newDirection); };
+    };
 
 };
 
 //on player join
-Client.socket.on('addNewPlayer',function(data){
+socket.on('addNewPlayer', function(data) {
     Game.addNewPlayer(data);
 });
 
 //update all players
-Client.socket.on('getAllPlayers',function(data){
+socket.on('getAllPlayers', function(data) {
+
+    //import Utility functions
+    const util = new Utility();
 
     //populate game world with currently connected players
     for(var i = 0; i < data.length; i++){
+        console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond'));
         Game.addNewPlayer(data[i]);
     }
 
+    //show players message
+    socket.on('showPlayerMessage',function(data){
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message));
+        Game.displayMessage(data.id, data.message);
+    });
+
     //trigger specified player's look change
-    Client.socket.on('updatePlayerLook',function(data){
-        console.log('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint + ' Direction: ' + data.direction);
+    socket.on('updatePlayerLook',function(data){
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint + ' Direction: ' + data.direction));
         Game.updatePlayerLook(data);
     });
 
     //trigger specified player's movement
-    Client.socket.on('movePlayer',function(data){
-        console.log('PLAYER ID: ' + data.id + ' - Moving to> x:' + data.x + ', y:' + data.y);
+    socket.on('movePlayer',function(data){
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
         Game.movePlayer(data.id, data.x, data.y);
     });
 
     //trigger removal of specified player
-    Client.socket.on('removePlayer',function(id){
+    socket.on('removePlayer',function(id){
+        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Left the Pond'));
         Game.removePlayer(id);
     });
 
