@@ -67,8 +67,8 @@ class Game extends Phaser.Scene {
                 //clear chat box
                 chatBox.setText('');
 
-                //un-focus
-                chatBox.setBlur();
+                // //un-focus
+                // chatBox.setBlur();
             };
         })
 
@@ -78,20 +78,27 @@ class Game extends Phaser.Scene {
             //if they are using the chat box, remove the cursor from it
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
+
+            //tell server that the player clicked to move    
+            } else {
+                Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY)
             }
 
-            //tell server that the player clicked to move
-            Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY)
         });
 
         //register keyboard inputs
         this.input.keyboard.on('keyup', function(event){
 
             //ignore keyboard presses when chat box is focused
-            if (chatBox.isFocused) { return; }
+            if (!chatBox.isFocused) {
 
-            //tell server that this client pressed a key (that actually does something.)
-            if (event.key == 'c') { Client.onKeyPress(event.key); };
+                //focus the chat box when Enter key is pressed
+                if (event.key == 'Enter') { chatBox.setFocus() };
+
+                //tell server that this client pressed a key (that actually does something.)
+                if (event.key == 'c') { Client.onKeyPress(event.key); };
+
+            }
 
             //[DEBUG]
             // console.log(event.key);
