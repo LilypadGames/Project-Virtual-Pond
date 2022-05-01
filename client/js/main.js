@@ -6,16 +6,19 @@ window.onload = function() {
     //game configuration
     var config = {
         type: Phaser.AUTO,
-        width: 24 * 32,
-        height: 17 * 32,
-        scale: {
-            parent: 'game-canvas',
-            autoCenter: Phaser.Scale.CENTER_BOTH
-        },
         parent: 'game-canvas',
         scene: [ Game ],
+        width: 24 * 32,
+        height: 17 * 32,
         render: {
             pixelArt: true
+        },
+        scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+        },
+        dom: {
+            createContainer: true
         }
     };
 

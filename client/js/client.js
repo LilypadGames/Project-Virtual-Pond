@@ -11,24 +11,20 @@ class Client {
     //tell server that this client just pressed a key
     onKeyPress(key) {
 
-        //C
+        //change player color
         if (key === 'c'){
-            
             //generate random hex code color
             var tint = Math.random() * 0xffffff;
 
             //tell server that the player has changed its color
-            socket.emit('changePlayerColor', tint);
-
-        //Shift
-        } else if (key === 'Shift'){
-
-            var message = 'Sup Frogs. ppL SmokeTime'
-
-            //tell server that the player has changed its color
-            socket.emit('sendPlayerMessage', message);
+            socket.emit('playerChangedColor', tint);
         }
     };
+
+    //tell server that client is sending a message
+    sendMessage(message) {
+        socket.emit('playerSendingMessage', message);
+    }
 
     //tell server that this client just joined
     onPlayerJoin() {
@@ -36,8 +32,8 @@ class Client {
     };
 
     //tell server that the client has clicked at a specific coordinate
-    sendClick(x, y) {
-        socket.emit('click', {x: x, y: y});
+    onMove(x, y) {
+        socket.emit('playerClickedToMove', {x: x, y: y});
     };
 
     //tell server the client's current direction 
@@ -60,7 +56,7 @@ class Client {
         }
 
         //if direction changed, tell the server to update all clients
-        if (newDirection !== '') { socket.emit('changePlayerDirection', newDirection); };
+        if (newDirection !== '') { socket.emit('playerChangedDirection', newDirection); };
     };
 
 };

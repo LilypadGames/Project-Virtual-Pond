@@ -9,6 +9,22 @@ html, body {
   justify-content: center;
 }
 
+/* #chat-box {
+  border: 3px solid #b3abf9;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+#game-canvas {
+  position:relative;
+  width: 80
+}
+
+#game-canvas > div {
+  position:absolute;
+} */
+
 /* * {
   box-sizing:border-box;
 } */

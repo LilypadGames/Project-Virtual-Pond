@@ -54,7 +54,7 @@ io.on('connection', async function(socket){
         console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Joined the Pond'));
 
         //triggers when player clicks on the game world
-        socket.on('click',function(data){
+        socket.on('playerClickedToMove',function(data){
             console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
             socket.player.x = data.x;
             socket.player.y = data.y;
@@ -63,14 +63,14 @@ io.on('connection', async function(socket){
         });
 
         //triggers when player sends a message
-        socket.on('sendPlayerMessage',function(message){
+        socket.on('playerSendingMessage',function(message){
             console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Sending Message> ' + message));
             //send the new player look for all clients
             io.emit('showPlayerMessage', {id: socket.player.id, message: message });
         });
 
         //triggers when players direction has changed
-        socket.on('changePlayerDirection',function(newDirection){
+        socket.on('playerChangedDirection',function(newDirection){
             console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Direction> ' + newDirection));
             socket.player.direction = newDirection;
             //send the new player look for all clients
@@ -78,7 +78,7 @@ io.on('connection', async function(socket){
         });
 
         //triggers when players color has changed
-        socket.on('changePlayerColor',function(newTint){
+        socket.on('playerChangedColor',function(newTint){
             console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Tint> ' + newTint));
             socket.player.tint = newTint;
             //send the new player look for all clients

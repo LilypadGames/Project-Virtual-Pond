@@ -28,6 +28,9 @@ class Game extends Phaser.Scene {
         this.load.image('frog_body','assets/character/frog_body.png');
         this.load.image('frog_belly','assets/character/frog_belly.png');
         this.load.image('frog_eyes','assets/character/frog_eyes.png');
+
+        //plugins
+        this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
     };
 
     create() {
@@ -42,87 +45,60 @@ class Game extends Phaser.Scene {
             layer = map.createLayer(i, tileset);
         };
 
-        //resize canvas for mobile devices
-        // this.resizeApp(layer);
+        //chat box
+        var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.8, 30, {
+            type: 'text',
+            text: '',
+            placeholder: 'Say Yo...',
+            fontSize: '16px',
+            color: '#000000',
+            backgroundColor: '#ffffff',
+            border: '4px solid',
+            borderColor: '#64BEFF',
+            spellCheck: false,
+            autoComplete: false,
+            maxLength: 80
+        })
+        .on('keydown', function (chatBox, event) {
+            if (event.key == 'Enter') {
+                //send the message to the server
+                Client.sendMessage(chatBox.text);
+
+                //clear chat box
+                chatBox.setText('');
+
+                //un-focus
+                chatBox.setBlur();
+            };
+        })
 
         //register left click input
-        this.input.on('pointerdown', () => Client.sendClick(this.input.mousePointer.worldX, this.input.mousePointer.worldY));
+        this.input.on('pointerdown', () => {
+            
+            //if they are using the chat box, remove the cursor from it
+            if (chatBox.isFocused) { 
+                chatBox.setBlur();
+            }
+
+            //tell server that the player clicked to move
+            Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY)
+        });
 
         //register keyboard inputs
         this.input.keyboard.on('keyup', function(event){
 
-            //Tell server that this client pressed a key (that actually does something.)
-            if (event.key == 'c' || 'Shift') { Client.onKeyPress(event.key); };
+            //ignore keyboard presses when chat box is focused
+            if (chatBox.isFocused) { return; }
+
+            //tell server that this client pressed a key (that actually does something.)
+            if (event.key == 'c') { Client.onKeyPress(event.key); };
 
             //[DEBUG]
             // console.log(event.key);
         });
 
-
-        //create UI overlay grid
-        this.formUtil = new FormUtil({scene: this, rows: 5, cols: 5});
-
-        //[DEBUG]
-        this.formUtil.showNumbers();
-        
-        // this.formUtil = new FormUtil({
-        //     scene: this,
-        //     rows: 11,
-        //     cols: 11
-        // });
-        // this.formUtil.showNumbers();
-        // //
-        // //
-        // //
-        // this.formUtil.scaleToGameW("myText", .3);
-        // this.formUtil.placeElementAt(16, 'myText', true);
-        // //
-        // //
-        // //
-        // this.formUtil.scaleToGameW("area51", .8);
-        // this.formUtil.scaleToGameH("area51", .5);
-        // this.formUtil.placeElementAt(60, "area51", true, true);
-        // this.formUtil.addChangeCallback("area51", this.textAreaChanged, this);
-        // //
-        // //
-        // //
-
         //add player's character to world
         Client.onPlayerJoin();
-    };
-
-    // UTILITY
-    resizeApp(layer) {
-        // Scale canvas
-        this.canvas.style.width	= layer.widthInPixels();
-        this.canvas.style.height = layer.heightInPixels();
-
-        // // Width-height-ratio of game resolution
-        // // Replace 360 with your game width, and replace 640 with your game height
-        // let game_ratio = 16 / 9;
-        
-        // // Make div full height of browser and keep the ratio of game resolution
-        // let div = document.getElementById('game-canvas');
-        // div.style.width	= (window.innerHeight * game_ratio) + 'px';
-        // div.style.height = window.innerHeight + 'px';
-        
-        // // Check if device DPI messes up the width-height-ratio
-        // let canvas = document.getElementsByTagName('canvas')[0];
-        
-        // let dpi_w = parseInt(div.style.width) / canvas.width;
-        // let dpi_h = parseInt(div.style.height) / canvas.height;		
-        
-        // let height = window.innerHeight * (dpi_w / dpi_h);
-        // let width = height * game_ratio;
-        
-        // // Scale canvas
-        // canvas.style.width	= width + 'px';
-        // canvas.style.height	= height + 'px';
-    }
-
-    textAreaChanged() {
-    	var text = this.formUtil.getTextAreaValue("area51");
-    	console.log(text);
     };
 
     //get players current direction

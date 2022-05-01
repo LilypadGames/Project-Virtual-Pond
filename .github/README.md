@@ -14,3 +14,8 @@ A Virtual World game written in HTML/CSS/JS using the Socket.io and Phaser frame
 **Player Movement/Direction + Color Changing**
 
 ![Player Movement/Direction and Color Changing](Frog_Movement_and_Color_Test.gif)
+
+
+**Chat Messaging**
+
+![Chat Messaging](Chat_Test.gif)
