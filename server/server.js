@@ -44,22 +44,25 @@ io.on('connection', async function(socket){
             x: util.getRandomInt(100,400),
             y: util.getRandomInt(100,400),
 
-            //set direction
-            direction: 'right',
+            // //set direction
+            // direction: 'right',
 
             //set tint
             tint: Math.random() * 0xffffff
         };
 
+        //LOG player joined
         console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Joined the Pond'));
 
         //triggers when player clicks on the game world
         socket.on('playerClickedToMove',function(data){
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
-            socket.player.x = data.x;
-            socket.player.y = data.y;
-            //send the players movement for all players
-            io.emit('movePlayer', socket.player);
+            if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
+                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
+                socket.player.x = data.x;
+                socket.player.y = data.y;
+                //send the players movement for all players
+                io.emit('movePlayer', socket.player);
+            }
         });
 
         //triggers when player sends a message
@@ -67,14 +70,6 @@ io.on('connection', async function(socket){
             console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Sending Message> ' + message));
             //send the new player look for all clients
             io.emit('showPlayerMessage', {id: socket.player.id, message: message });
-        });
-
-        //triggers when players direction has changed
-        socket.on('playerChangedDirection',function(newDirection){
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Direction> ' + newDirection));
-            socket.player.direction = newDirection;
-            //send the new player look for all clients
-            io.emit('updatePlayerLook', socket.player);
         });
 
         //triggers when players color has changed
@@ -97,7 +92,6 @@ io.on('connection', async function(socket){
 
         //send new player for all OTHER clients
         socket.broadcast.emit('addNewPlayer', socket.player);
-
     });
 });
 
@@ -124,5 +118,4 @@ async function getAllPlayers(){
 
     //return list of connected players
     return connectedPlayers;
-
 }

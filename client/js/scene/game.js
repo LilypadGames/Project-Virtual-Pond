@@ -3,6 +3,27 @@
 //initialize scene variables
 var playerCharacter = {};
 var playerData = {};
+var consoleLogging = false;
+
+// DEBUG
+//toggle console logging
+function toggleConsoleLog() {
+    
+    //import Utility functions
+    const util = new Utility();
+    
+    //off
+    if (consoleLogging) { 
+        console.log(util.timestampString('[CONSOLE LOGGING: OFF]'));
+        consoleLogging = false 
+    }
+
+    //on
+    else if (!consoleLogging) {
+        console.log(util.timestampString('[CONSOLE LOGGING: ON]'));
+        consoleLogging = true 
+    };
+};
 
 class Game extends Phaser.Scene {
     // INIT
@@ -61,29 +82,25 @@ class Game extends Phaser.Scene {
         })
         .on('keydown', function (chatBox, event) {
             if (event.key == 'Enter') {
+
                 //send the message to the server
                 Client.sendMessage(chatBox.text);
 
                 //clear chat box
                 chatBox.setText('');
-
-                // //un-focus
-                // chatBox.setBlur();
             };
         })
 
         //register left click input
         this.input.on('pointerdown', () => {
-            
+
             //if they are using the chat box, remove the cursor from it
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
-
-            //tell server that the player clicked to move    
-            } else {
-                Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY)
-            }
-
+            };
+            
+            //tell the server that the player is moving
+            Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
         });
 
         //register keyboard inputs
@@ -93,12 +110,14 @@ class Game extends Phaser.Scene {
             if (!chatBox.isFocused) {
 
                 //focus the chat box when Enter key is pressed
-                if (event.key == 'Enter') { chatBox.setFocus() };
+                if (event.key === 'Enter') { chatBox.setFocus() };
 
                 //tell server that this client pressed a key (that actually does something.)
-                if (event.key == 'c') { Client.onKeyPress(event.key); };
+                if (event.key === 'c') { Client.onKeyPress(event.key); };
 
-            }
+                //toggle console logging
+                if (event.key === 'Shift') { toggleConsoleLog(); };
+            };
 
             //[DEBUG]
             // console.log(event.key);
@@ -108,6 +127,7 @@ class Game extends Phaser.Scene {
         Client.onPlayerJoin();
     };
 
+    // UTILITY
     //get players current direction
     getPlayerDirection(id) {
 
@@ -122,6 +142,39 @@ class Game extends Phaser.Scene {
         } else if (playerSprites.scaleX < 0) {
             return 'left'
         };
+    };
+
+    //update a players look direction
+    updatePlayerDirection(id, newX, newY) {
+
+        //get player container
+        var player = playerCharacter[id];
+
+        //get player sprite container
+        var playerSprites = player.list[0];
+
+        //get players current direction
+        var currentDirection = this.getPlayerDirection(id);
+
+        //get players current location
+        var currentX = player.x;
+        var currentY = player.y;
+
+        //init newDirection
+        var newDirection;
+
+        //get direction as degrees
+        var targetRad = Phaser.Math.Angle.Between(currentX, currentY,newX, newY);
+        var targetDegrees = Phaser.Math.RadToDeg(targetRad);
+
+        //moving right
+        if (targetDegrees > -90 && targetDegrees < 90) { newDirection = 'right'; }
+
+        //moving left
+        else if ((targetDegrees > 90 || targetDegrees < -90)) { newDirection = 'left'; };
+
+        //look direction changed
+        if ((newDirection === 'right' && currentDirection === 'left') || (newDirection === 'left' && currentDirection === 'right')) { playerSprites.scaleX *= -1; };
     };
 
     // FUNCTIONS
@@ -183,7 +236,7 @@ class Game extends Phaser.Scene {
         var player = playerCharacter[id];
 
         //update player direction
-        Client.updatePlayerDirection(this.getPlayerDirection(id), player.x, player.y, x, y);
+        this.updatePlayerDirection(id, x, y)
 
         //get distance
         var distance = Phaser.Math.Distance.Between(player.x, player.y, x, y);
@@ -214,10 +267,6 @@ class Game extends Phaser.Scene {
 
         //update players color
         playerBody.tint = data.tint;
-
-        //update players look direction
-        if (data.direction == 'right' && this.getPlayerDirection(data.id) == 'left') { playerSprites.scaleX *= -1; }
-        else if (data.direction == 'left' && this.getPlayerDirection(data.id) == 'right') { playerSprites.scaleX *= -1; };
     };
 
     //display player message

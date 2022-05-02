@@ -35,30 +35,6 @@ class Client {
     onMove(x, y) {
         socket.emit('playerClickedToMove', {x: x, y: y});
     };
-
-    //tell server the client's current direction 
-    updatePlayerDirection(currentDirection, currentX, currentY, newX, newY) {
-
-        //init newDirection as blank
-        var newDirection = '';
-
-        //get direction as degrees
-        var targetRad = Phaser.Math.Angle.Between(currentX, currentY,newX, newY);
-        var targetDegrees = Phaser.Math.RadToDeg(targetRad);
-
-        //turn right
-        if (targetDegrees > -90 && targetDegrees < 90 && currentDirection !== 'right') {
-            newDirection = 'right';
-
-        //turn left
-        } else if ((targetDegrees > 90 || targetDegrees < -90) && currentDirection !== 'left') {
-            newDirection = 'left';
-        }
-
-        //if direction changed, tell the server to update all clients
-        if (newDirection !== '') { socket.emit('playerChangedDirection', newDirection); };
-    };
-
 };
 
 //on player join
@@ -74,31 +50,31 @@ socket.on('getAllPlayers', function(data) {
 
     //populate game world with currently connected players
     for(var i = 0; i < data.length; i++){
-        console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond'));
+        if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond')); };
         Game.addNewPlayer(data[i]);
     }
 
     //show players message
     socket.on('showPlayerMessage',function(data){
-        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message));
+        if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message)); };
         Game.displayMessage(data.id, data.message);
     });
 
     //trigger specified player's look change
     socket.on('updatePlayerLook',function(data){
-        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint + ' Direction: ' + data.direction));
+        if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint)); };
         Game.updatePlayerLook(data);
     });
 
     //trigger specified player's movement
     socket.on('movePlayer',function(data){
-        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
+        if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Moving to> x:' + data.x + ', y:' + data.y)); };
         Game.movePlayer(data.id, data.x, data.y);
     });
 
     //trigger removal of specified player
     socket.on('removePlayer',function(id){
-        console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Left the Pond'));
+        if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Left the Pond')); };
         Game.removePlayer(id);
     });
 
