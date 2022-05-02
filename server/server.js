@@ -84,7 +84,7 @@ io.on('connection', async function(socket){
         socket.on('playerSendingMessage',function(message){
             console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Sending Message> ' + message));
             //send the new player look for all clients
-            io.emit('showPlayerMessage', {id: socket.player.id, message: message.trim() });
+            io.emit('showPlayerMessage', {id: socket.player.id, message: message.trim().replace(/\s+/g, " ") });
         });
 
         //triggers when players color has changed
