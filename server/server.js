@@ -75,7 +75,8 @@ io.on('connection', async function(socket){
                 socket.player.x = data.x;
                 socket.player.y = data.y;
                 //send the halting of this players movement for all clients
-                io.emit('haltPlayer', socket.player);
+                socket.emit('haltPlayer', socket.player);
+                socket.broadcast.emit('changePlayerMovement', socket.player);
             };
         });
 

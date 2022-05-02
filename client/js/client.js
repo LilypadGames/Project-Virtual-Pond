@@ -69,6 +69,12 @@ socket.on('getAllPlayers', function(data) {
         Game.haltPlayer(data.id, data.x, data.y);
     });
 
+    //recieved player movement changed
+    socket.on('changePlayerMovement',function(data){
+        if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Changed Movement Location To> x:' + data.x + ', y:' + data.y)); };
+        Game.changePlayerMovement(data.id, data.x, data.y);
+    });
+
     //recieved player message
     socket.on('showPlayerMessage',function(data){
         if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message)); };

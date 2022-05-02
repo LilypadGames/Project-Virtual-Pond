@@ -262,17 +262,14 @@ class Game extends Phaser.Scene {
     //move player character to specific coordinates
     movePlayer(id, x, y) {
 
-        //get player container
-        var player = playerCharacter[id];
-
         //update player direction
         this.updatePlayerDirection(id, x, y)
 
-        //get distance
-        var distance = Phaser.Math.Distance.Between(player.x, player.y, x, y);
+        //get player's character
+        var player = playerCharacter[id];
 
-        //set up duration of movement
-        var duration = distance * 5;
+        //get duration of movement
+        var duration = Phaser.Math.Distance.Between(player.x, player.y, x, y) * 5;
 
         //move player
         playerData[id] = {
@@ -291,13 +288,29 @@ class Game extends Phaser.Scene {
         //stop movement
         playerData[id].movement.stop();
 
-        //get player container
-        var player = playerCharacter[id];
-
         //sync check
         if (newX != playerCharacter[id].x || newY != playerCharacter[id].y) {
             this.placePlayer(id, newX, newY);
         };
+    };
+
+    //change a players movement location
+    changePlayerMovement(id, newX, newY) {
+
+        //get player's character
+        var player = playerCharacter[id];
+
+        //get duration of movement
+        var newDuration = Phaser.Math.Distance.Between(player.x, player.y, newX, newY) * 5;
+        
+        //change x
+        playerData[id].movement.updateTo('x', newX, true);
+
+        //change y
+        playerData[id].movement.updateTo('y', newY, true);
+
+        //change duration
+        playerData[id].movement.updateTo('duration', newDuration, true);
     };
 
     //place a player at a specific coordinate
