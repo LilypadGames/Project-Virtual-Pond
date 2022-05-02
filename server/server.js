@@ -54,15 +54,29 @@ io.on('connection', async function(socket){
         //LOG player joined
         console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Joined the Pond'));
 
-        //triggers when player clicks on the game world
-        socket.on('playerClickedToMove',function(data){
+        //send THIS client it's ID
+        socket.emit('getPlayerID', socket.player.id);
+
+        //triggers when player moves
+        socket.on('playerMoved',function(data){
             if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
-                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Moving to> x:' + data.x + ', y:' + data.y));
+                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Moving To> x:' + data.x + ', y:' + data.y));
                 socket.player.x = data.x;
                 socket.player.y = data.y;
-                //send the players movement for all players
+                //send the players movement for all clients
                 io.emit('movePlayer', socket.player);
-            }
+            };
+        });
+
+        //triggers when player stops moving
+        socket.on('playerHalted',function(data){
+            if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
+                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
+                socket.player.x = data.x;
+                socket.player.y = data.y;
+                //send the halting of this players movement for all clients
+                io.emit('haltPlayer', socket.player);
+            };
         });
 
         //triggers when player sends a message
@@ -86,12 +100,12 @@ io.on('connection', async function(socket){
             //send the removal of the player for all clients
             io.emit('removePlayer', socket.player.id);
         });
-        
-        //send all currently connected players for all clients
-        socket.emit('getAllPlayers', await getAllPlayers());
 
         //send new player for all OTHER clients
         socket.broadcast.emit('addNewPlayer', socket.player);
+
+        //send all currently connected players to THIS client
+        socket.emit('getAllPlayers', await getAllPlayers());
     });
 });
 

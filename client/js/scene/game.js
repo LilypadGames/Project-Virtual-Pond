@@ -1,14 +1,17 @@
 // Game Scene
 
 //initialize scene variables
+var playerID;
 var playerCharacter = {};
 var playerData = {};
+var npcCharacter = {};
+var npcNextID = 0;
 var consoleLogging = false;
 
 // DEBUG
 //toggle console logging
 function toggleConsoleLog() {
-    
+
     //import Utility functions
     const util = new Utility();
     
@@ -50,12 +53,17 @@ class Game extends Phaser.Scene {
         this.load.image('frog_belly','assets/character/frog_belly.png');
         this.load.image('frog_eyes','assets/character/frog_eyes.png');
 
+        //npc
+        this.load.image('poke','assets/npc/poke.png');
+
         //plugins
         this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
     };
 
     create() {
-    
+
+        //shaders
+
         //set up tilemap/tileset
         var map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('tilesheet', 'tileset'); //'tilesheet' is the key of the tileset in map's JSON file
@@ -112,8 +120,11 @@ class Game extends Phaser.Scene {
                 //focus the chat box when Enter key is pressed
                 if (event.key === 'Enter') { chatBox.setFocus() };
 
-                //tell server that this client pressed a key (that actually does something.)
-                if (event.key === 'c') { Client.onKeyPress(event.key); };
+                //tell server that this client changed its color
+                if (event.key === 'c') { Client.changeLook(); };
+
+                //tell server that this client stopped its movement
+                if (event.key === 's') { Client.onHalt(playerCharacter[playerID].x, playerCharacter[playerID].y) };
 
                 //toggle console logging
                 if (event.key === 'Shift') { toggleConsoleLog(); };
@@ -123,11 +134,18 @@ class Game extends Phaser.Scene {
             // console.log(event.key);
         });
 
+        //add NPCs
+        this.addNewNPC('Poke', 134, 279);
+
         //add player's character to world
-        Client.onPlayerJoin();
+        Client.onJoin();
     };
 
     // UTILITY
+    setPlayerID(id) {
+        playerID = id;
+    };
+
     //get players current direction
     getPlayerDirection(id) {
 
@@ -135,13 +153,10 @@ class Game extends Phaser.Scene {
         var playerSprites = playerCharacter[id].list[0];
 
         //player character is facing right
-        if (playerSprites.scaleX > 0) {
-            return 'right'
+        if (playerSprites.scaleX > 0) { return 'right' }
         
         //player character is facing left
-        } else if (playerSprites.scaleX < 0) {
-            return 'left'
-        };
+        else if (playerSprites.scaleX < 0) { return 'left' };
     };
 
     //update a players look direction
@@ -229,6 +244,58 @@ class Game extends Phaser.Scene {
         this.updatePlayerLook(data);
     };
 
+    //adds NPC character to the game
+    addNewNPC(name, x, y) {
+
+        //init npc sprite
+        var npcSprite;
+
+        //get ID
+        var id = npcNextID;
+        npcNextID = npcNextID+1;
+
+        //set npc sprite
+        if (name === 'Poke') {
+            npcSprite = this.add.sprite(0, 0, 'poke').setOrigin(0.5, 1);
+        }
+
+        //npc name
+        var npcName = this.add.text(0, 18, name, {
+            fontFamily: 'Arial',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 4,
+        }).setFontSize(12).setOrigin(0.5, 1);
+
+        //create npc container
+        npcCharacter[id] = this.add.container(x, y).setSize(npcSprite.width, npcSprite.height);
+
+        //create npc sprite container
+        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
+
+        //add npc sprites to npc sprite container
+        npcCharacter[id].list[0].add([npcSprite]);
+
+        //create npc overlay container
+        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
+
+        //add npc name to npc overlay container
+        npcCharacter[id].list[1].add([npcName]);
+
+        //detect clicks
+        npcCharacter[id].setInteractive();
+        npcCharacter[id].on('pointerup', function() {
+
+            //trigger chat message for this NPC
+            console.log('NPC Clicked')         
+        }, npcCharacter[id]);
+
+        // //set direction of npc
+        // if (name === 'Poke') {
+        //     npcCharacter[id].list[0].scaleX *= -1;
+        // }
+    }
+
     //move player character to specific coordinates
     movePlayer(id, x, y) {
 
@@ -245,13 +312,36 @@ class Game extends Phaser.Scene {
         var duration = distance * 5;
 
         //move player
-        this.add.tween({
-            targets: player, 
-            x: x, 
-            y: y, 
-            duration: duration
-        });
+        playerData[id] = {
+            movement: this.add.tween({
+                targets: player, 
+                x: x,
+                y: y,
+                duration: duration
+            })
+        };
+
     };
+
+    //stop a player's movement
+    haltPlayer(id) {
+
+        // //get player container
+        // var player = playerCharacter[id];
+
+        // //slow movement
+        // var slowDown = this.tweens.add({
+        //     targets: player,
+        //     duration: 1000,
+        //     ease: Phaser.Math.Easing.Back.Out
+        // });
+
+        // //stop movement
+        // slowDown.stop();
+
+        //stop movement
+        playerData[id].movement.stop();
+    }
 
     //update player characters
     updatePlayerLook(data) {
@@ -347,5 +437,4 @@ class Game extends Phaser.Scene {
         playerCharacter[id].destroy();
         delete playerCharacter[id];
     };
-
-}
+};
