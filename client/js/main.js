@@ -24,6 +24,9 @@ window.onload = function() {
 
     //init game
     game = new Phaser.Game(config);
+
+    //version
+    console.log('%c %c Project Virtual Pond - InDev v0.0.1', 'background: #64BEFF;', 'background: #000000;');
 }
 
 
