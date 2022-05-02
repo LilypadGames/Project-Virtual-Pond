@@ -92,7 +92,7 @@ class Game extends Phaser.Scene {
             if (event.key == 'Enter') {
 
                 //send the message to the server
-                Client.sendMessage(chatBox.text);
+                Client.sendMessage(chatBox.text.trim());
 
                 //clear chat box
                 chatBox.setText('');
