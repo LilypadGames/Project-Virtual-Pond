@@ -66,7 +66,7 @@ socket.on('getAllPlayers', function(data) {
     //recieved player halting
     socket.on('haltPlayer',function(data){
         if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y)); };
-        Game.haltPlayer(data.id);
+        Game.haltPlayer(data.id, data.x, data.y);
     });
 
     //recieved player message

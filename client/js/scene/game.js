@@ -1,11 +1,11 @@
 // Game Scene
 
 //initialize scene variables
-var playerID;
+var clientPlayerID;
 var playerCharacter = {};
 var playerData = {};
 var npcCharacter = {};
-var npcNextID = 0;
+var objectNextID = 0;
 var consoleLogging = false;
 
 // DEBUG
@@ -124,7 +124,7 @@ class Game extends Phaser.Scene {
                 if (event.key === 'c') { Client.changeLook(); };
 
                 //tell server that this client stopped its movement
-                if (event.key === 's') { Client.onHalt(playerCharacter[playerID].x, playerCharacter[playerID].y) };
+                if (event.key === 's') { Client.onHalt(playerCharacter[clientPlayerID].x, playerCharacter[clientPlayerID].y) };
 
                 //toggle console logging
                 if (event.key === 'Shift') { toggleConsoleLog(); };
@@ -143,7 +143,7 @@ class Game extends Phaser.Scene {
 
     // UTILITY
     setPlayerID(id) {
-        playerID = id;
+        clientPlayerID = id;
     };
 
     //get players current direction
@@ -157,39 +157,6 @@ class Game extends Phaser.Scene {
         
         //player character is facing left
         else if (playerSprites.scaleX < 0) { return 'left' };
-    };
-
-    //update a players look direction
-    updatePlayerDirection(id, newX, newY) {
-
-        //get player container
-        var player = playerCharacter[id];
-
-        //get player sprite container
-        var playerSprites = player.list[0];
-
-        //get players current direction
-        var currentDirection = this.getPlayerDirection(id);
-
-        //get players current location
-        var currentX = player.x;
-        var currentY = player.y;
-
-        //init newDirection
-        var newDirection;
-
-        //get direction as degrees
-        var targetRad = Phaser.Math.Angle.Between(currentX, currentY,newX, newY);
-        var targetDegrees = Phaser.Math.RadToDeg(targetRad);
-
-        //moving right
-        if (targetDegrees > -90 && targetDegrees < 90) { newDirection = 'right'; }
-
-        //moving left
-        else if ((targetDegrees > 90 || targetDegrees < -90)) { newDirection = 'left'; };
-
-        //look direction changed
-        if ((newDirection === 'right' && currentDirection === 'left') || (newDirection === 'left' && currentDirection === 'right')) { playerSprites.scaleX *= -1; };
     };
 
     // FUNCTIONS
@@ -251,8 +218,8 @@ class Game extends Phaser.Scene {
         var npcSprite;
 
         //get ID
-        var id = npcNextID;
-        npcNextID = npcNextID+1;
+        var id = objectNextID;
+        objectNextID = objectNextID+1;
 
         //set npc sprite
         if (name === 'Poke') {
@@ -282,13 +249,9 @@ class Game extends Phaser.Scene {
         //add npc name to npc overlay container
         npcCharacter[id].list[1].add([npcName]);
 
-        //detect clicks
-        npcCharacter[id].setInteractive();
-        npcCharacter[id].on('pointerup', function() {
-
-            //trigger chat message for this NPC
-            console.log('NPC Clicked')         
-        }, npcCharacter[id]);
+        // //detect clicks
+        // npcCharacter[id].setInteractive();
+        // npcCharacter[id].on('pointerup', function() { }, npcCharacter[id]);
 
         // //set direction of npc
         // if (name === 'Poke') {
@@ -320,28 +283,68 @@ class Game extends Phaser.Scene {
                 duration: duration
             })
         };
-
     };
 
     //stop a player's movement
-    haltPlayer(id) {
-
-        // //get player container
-        // var player = playerCharacter[id];
-
-        // //slow movement
-        // var slowDown = this.tweens.add({
-        //     targets: player,
-        //     duration: 1000,
-        //     ease: Phaser.Math.Easing.Back.Out
-        // });
-
-        // //stop movement
-        // slowDown.stop();
+    haltPlayer(id, newX, newY) {
 
         //stop movement
         playerData[id].movement.stop();
-    }
+
+        //get player container
+        var player = playerCharacter[id];
+
+        //sync check
+        if (newX != playerCharacter[id].x || newY != playerCharacter[id].y) {
+            this.placePlayer(id, newX, newY);
+        };
+    };
+
+    //place a player at a specific coordinate
+    placePlayer(id, x, y) {
+
+        //get player container
+        var player = playerCharacter[id];
+
+        //place x
+        player.x = x;
+
+        //place y
+        player.y = y;
+    };
+
+    //update a players look direction
+    updatePlayerDirection(id, newX, newY) {
+
+        //get player container
+        var player = playerCharacter[id];
+
+        //get player sprite container
+        var playerSprites = player.list[0];
+
+        //get players current direction
+        var currentDirection = this.getPlayerDirection(id);
+
+        //get players current location
+        var currentX = player.x;
+        var currentY = player.y;
+
+        //init newDirection
+        var newDirection;
+
+        //get direction as degrees
+        var targetRad = Phaser.Math.Angle.Between(currentX, currentY,newX, newY);
+        var targetDegrees = Phaser.Math.RadToDeg(targetRad);
+
+        //moving right
+        if (targetDegrees > -90 && targetDegrees < 90) { newDirection = 'right'; }
+
+        //moving left
+        else if ((targetDegrees > 90 || targetDegrees < -90)) { newDirection = 'left'; };
+
+        //look direction changed
+        if ((newDirection === 'right' && currentDirection === 'left') || (newDirection === 'left' && currentDirection === 'right')) { playerSprites.scaleX *= -1; };
+    };
 
     //update player characters
     updatePlayerLook(data) {
