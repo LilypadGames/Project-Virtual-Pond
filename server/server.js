@@ -14,7 +14,7 @@ var config = require(__dirname + '/config/config');
 app.use('/',express.static(__dirname + '/../client'));
 
 //send main HTML file to client
-app.get('/',function(req,res){
+app.get('/',function(req, res){
     res.sendFile('index.html', { root: 'client/html' });
 });
 
