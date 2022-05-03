@@ -1,11 +1,19 @@
 // Game Scene
 
-//initialize scene variables
+//init player variables
 var clientPlayerID;
 var playerCharacter = {};
 var playerData = {};
-var npcCharacter = {};
+var playerCollider;
+var playerInteracting = false;
+
+//init object variables
 var objectNextID = 0;
+var npcCharacter = {};
+var npcData = {};
+var npcCollider = {};
+
+//init debug variables
 var consoleLogging = false;
 
 // DEBUG
@@ -134,12 +142,20 @@ class Game extends Phaser.Scene {
             // console.log(event.key);
         });
 
+        //add player's character to world
+        Client.onJoin();
+
         //add NPCs
         this.addNewNPC('Poke', 134, 279);
 
-        //add player's character to world
-        Client.onJoin();
     };
+
+    update() {
+        //detect player & npc interactions
+        if (playerCollider && npcCollider) {
+            this.physics.world.collide(playerCollider, npcCollider[0], () => this.interactNPC(clientPlayerID, 0));
+        }
+    }
 
     // UTILITY
     setPlayerID(id) {
@@ -164,7 +180,7 @@ class Game extends Phaser.Scene {
     addNewPlayer(data) {
 
         //player character
-        var playerBody = this.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
+        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
         var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1);
         var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1);
 
@@ -184,6 +200,10 @@ class Game extends Phaser.Scene {
 
         //add player sprites to player sprite container
         playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
+
+        //enable physics on player sprite
+        this.physics.world.enable(playerCharacter[data.id].list[0].list[0]);
+        playerCollider = playerCharacter[data.id].list[0].list[0];
 
         //create player overlay container
         playerCharacter[data.id].add(this.add.container(0, 0).setSize(playerBody.width, playerBody.height));
@@ -211,54 +231,6 @@ class Game extends Phaser.Scene {
         this.updatePlayerLook(data);
     };
 
-    //adds NPC character to the game
-    addNewNPC(name, x, y) {
-
-        //init npc sprite
-        var npcSprite;
-
-        //get ID
-        var id = objectNextID;
-        objectNextID = objectNextID+1;
-
-        //set npc sprite
-        if (name === 'Poke') {
-            npcSprite = this.add.sprite(0, 0, 'poke').setOrigin(0.5, 1);
-        }
-
-        //npc name
-        var npcName = this.add.text(0, 18, name, {
-            fontFamily: 'Arial',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4,
-        }).setFontSize(12).setOrigin(0.5, 1);
-
-        //create npc container
-        npcCharacter[id] = this.add.container(x, y).setSize(npcSprite.width, npcSprite.height);
-
-        //create npc sprite container
-        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
-
-        //add npc sprites to npc sprite container
-        npcCharacter[id].list[0].add([npcSprite]);
-
-        //create npc overlay container
-        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
-
-        //add npc name to npc overlay container
-        npcCharacter[id].list[1].add([npcName]);
-
-        // //detect clicks
-        // npcCharacter[id].setInteractive();
-        // npcCharacter[id].on('pointerup', function() { }, npcCharacter[id]);
-
-        // //set direction of npc
-        // if (name === 'Poke') {
-        //     npcCharacter[id].list[0].scaleX *= -1;
-        // }
-    }
-
     //move player character to specific coordinates
     movePlayer(id, x, y) {
 
@@ -277,7 +249,8 @@ class Game extends Phaser.Scene {
                 targets: player, 
                 x: x,
                 y: y,
-                duration: duration
+                duration: duration,
+                onComplete: function() { playerInteracting = false }
             })
         };
     };
@@ -375,6 +348,74 @@ class Game extends Phaser.Scene {
         playerBody.tint = data.tint;
     };
 
+    //adds NPC character to the game
+    addNewNPC(name, x, y) {
+
+        //init npc sprite
+        var npcSprite;
+
+        //get ID
+        var id = objectNextID;
+        objectNextID = objectNextID+1;
+
+        //set npc sprite
+        if (name === 'Poke') {
+            npcSprite = this.physics.add.sprite(0, 0, 'poke').setOrigin(0.5, 1);
+        }
+
+        //npc name
+        var npcName = this.add.text(0, 18, name, {
+            fontFamily: 'Arial',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 4,
+        }).setFontSize(12).setOrigin(0.5, 1);
+
+        //create npc container
+        npcCharacter[id] = this.add.container(x, y).setSize(npcSprite.width, npcSprite.height);
+
+        //detect clicks
+        npcCharacter[id].setInteractive().on('pointerup', () => playerInteracting = true);
+        
+        //create npc sprite container
+        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
+
+        //add npc sprites to npc sprite container
+        npcCharacter[id].list[0].add([npcSprite]);
+
+        //enable physics on npc sprite
+        this.physics.world.enable(npcCharacter[id].list[0].list[0]);
+        npcCollider[id] = npcCharacter[id].list[0].list[0];
+
+        //create npc overlay container
+        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
+
+        //add npc name to npc overlay container
+        npcCharacter[id].list[1].add([npcName]);
+    }
+
+    //player interacts with NPC
+    interactNPC(playerID, npcID) {
+
+        //import Utility functions
+        const util = new Utility();
+
+        //interact only once per movement
+        if (playerInteracting) {
+            //stop player
+            this.haltPlayer(playerID, playerCharacter[playerID].x, playerCharacter[playerID].y);
+
+            //npc message
+            if (npcID == 0) {
+                const pokeLines = ['*cough* i\'m sick', 'yo', 'i\'ll go live later on lacari']
+                this.displayNPCMessage(npcID, util.randomFromArray(pokeLines));
+            };
+
+            //set as collided
+            playerInteracting = false;
+        };
+    };
+
     //display player message
     displayMessage(id, message) {
 
@@ -410,7 +451,11 @@ class Game extends Phaser.Scene {
         playerMessage.setY(messageHeight);
 
         //create background for message
-        var playerMessageBackground = this.add.graphics().fillStyle(0xffffff, 0.80).fillRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8).lineStyle(1, 0xb8b8b8, 1).strokeRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8);
+        var playerMessageBackground = this.add.graphics()
+        .fillStyle(0xffffff, 0.80)
+        .fillRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8)
+        .lineStyle(1, 0xb8b8b8, 1)
+        .strokeRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8);
 
         //add message to player overlay container
         playerOverlay.addAt([playerMessageBackground], 1);
@@ -421,7 +466,7 @@ class Game extends Phaser.Scene {
 
         //schedule message for removal
         this.time.delayedCall(playerData[id].messageDuration, this.removeMessage, [id, this.time.now], this);
-    }
+    };
 
     //remove player message
     removeMessage(id, messageID) {
@@ -446,7 +491,84 @@ class Game extends Phaser.Scene {
         } else {
             return;
         }
-    }
+    };
+
+    //display npc message
+    displayNPCMessage(id, message) {
+
+        //get npc overlay container
+        var npcOverlay = npcCharacter[id].list[1];
+
+        //remove older messages
+        if (npcOverlay.list[1]) { npcOverlay.list[1].setVisible(false); }
+        if (npcOverlay.list[2]) { npcOverlay.list[2].destroy(); }
+
+        //store message data
+        npcData[id] = {
+            message: message,
+            messageID: this.time.now,
+            messageDuration: 5000
+        };
+
+        //format message
+        var npcMessage = this.add.text(0, 0, message, {
+            fontFamily: 'Arial',
+            color: '#000000',
+            lineSpacing: 2,
+            align: 'center',
+            padding: { left: 8, right: 8, top: 6, bottom: 6 },
+            wordWrap: { width: 130 }
+        }).setFontSize(12).setOrigin(0.5, 0);
+
+        //calculate size of message
+        var messageWidth = (npcMessage.width/2) * -1
+        var messageHeight = (npcMessage.height * -1) - 30;
+
+        //reposition text
+        npcMessage.setY(messageHeight);
+
+        //create background for message
+        var npcMessageBackground = this.add.graphics()
+        .fillStyle(0xffffff, 0.80)
+        .fillRoundedRect(messageWidth, messageHeight, npcMessage.width, npcMessage.height, 8)
+        .lineStyle(1, 0xb8b8b8, 1)
+        .strokeRoundedRect(messageWidth, messageHeight, npcMessage.width, npcMessage.height, 8);
+
+        //add message to npc overlay container
+        npcOverlay.addAt([npcMessageBackground], 1);
+        npcOverlay.addAt([npcMessage], 2);
+
+        //make sure message is visible
+        npcOverlay.list[1].setVisible(true);
+
+        //schedule message for removal
+        this.time.delayedCall(npcData[id].messageDuration, this.removeNPCMessage, [id, this.time.now], this);
+    };
+
+    //remove npc message
+    removeNPCMessage(id, messageID) {
+
+        //check if the message scheduled for removal is the same as the npcs current message shown
+        if (npcData[id].messageID === messageID) {
+
+            //reset chat data
+            npcData[id] = {
+                message: '',
+                messageID: 0,
+                messageDuration: 0
+            }
+
+            //get npc overlay container
+            var npcOverlay = npcCharacter[id].list[1];
+
+            //remove message from npc character
+            npcOverlay.list[1].setVisible(false);
+            npcOverlay.list[2].destroy();
+
+        } else {
+            return;
+        }
+    };
 
     //remove player character from game
     removePlayer(id) {

@@ -19,3 +19,8 @@ A Virtual World game written in HTML/CSS/JS using the Socket.io and Phaser frame
 **Chat Messaging**
 
 ![Chat Messaging](Chat_Test.gif)
+
+
+**NPC Interactions**
+
+![NPC Interactions](NPC_Interact_Test.gif)

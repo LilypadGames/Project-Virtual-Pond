@@ -13,6 +13,9 @@ window.onload = function() {
         render: {
             pixelArt: true
         },
+        physics: {
+            default: 'arcade'
+        },
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
