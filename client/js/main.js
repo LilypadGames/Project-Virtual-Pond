@@ -8,8 +8,8 @@ window.onload = function() {
         type: Phaser.AUTO,
         parent: 'game-canvas',
         scene: [ Game ],
-        width: 24 * 32,
-        height: 17 * 32,
+        width: 36 * 32,
+        height: 25.5 * 32,
         render: {
             pixelArt: true
         },

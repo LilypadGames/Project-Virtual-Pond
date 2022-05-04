@@ -5,16 +5,26 @@ var clientPlayerID;
 var playerCharacter = {};
 var playerData = {};
 var playerCollider;
-var playerInteracting = false;
+var playerInteracting;
 
 //init object variables
 var objectNextID = 0;
 var npcCharacter = {};
 var npcData = {};
 var npcCollider = {};
+var npcLines = [
+    ['*cough* i\'m sick', 'yo', 'i\'ll go live later on lacari', 'time for a water break', 'ACTually trolling...'],
+    ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
+    ['theres this new NFT drop i\'m really excited about', 'ever heard of hangry hippos?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...']
+];
 
 //init debug variables
 var consoleLogging = false;
+
+//constants
+const worldScale = 1.5;
+const characterScale = 2;
+const overlayPadding = 5;
 
 // DEBUG
 //toggle console logging
@@ -22,7 +32,7 @@ function toggleConsoleLog() {
 
     //import Utility functions
     const util = new Utility();
-    
+
     //off
     if (consoleLogging) { 
         console.log(util.timestampString('[CONSOLE LOGGING: OFF]'));
@@ -62,7 +72,9 @@ class Game extends Phaser.Scene {
         this.load.image('frog_eyes','assets/character/frog_eyes.png');
 
         //npc
-        this.load.image('poke','assets/npc/poke.png');
+        this.load.image('Poke','assets/npc/poke.png');
+        this.load.image('Gigi','assets/npc/gigi.png');
+        this.load.image('Jesse','assets/npc/jesse.png');
 
         //plugins
         this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
@@ -79,7 +91,7 @@ class Game extends Phaser.Scene {
         //set up tilemap layers
         var layer;
         for(var i = 0; i < map.layers.length; i++) {
-            layer = map.createLayer(i, tileset);
+            layer = map.createLayer(i, tileset).setScale(worldScale);
         };
 
         //chat box
@@ -146,16 +158,20 @@ class Game extends Phaser.Scene {
         Client.onJoin();
 
         //add NPCs
-        this.addNewNPC('Poke', 134, 279);
-
+        this.addNewNPC('Poke', 192, 415);
+        this.addNewNPC('Gigi', 133, 480);
+        this.addNewNPC('Jesse', 810, 704, 'left');
     };
 
     update() {
-        //detect player & npc interactions
+
+        //give every NPCs a collider
         if (playerCollider && npcCollider) {
-            this.physics.world.collide(playerCollider, npcCollider[0], () => this.interactNPC(clientPlayerID, 0));
-        }
-    }
+            for(var i = 0; i < objectNextID; i++) {
+                this.physics.world.collide(playerCollider, npcCollider[i], () => this.interactNPC(clientPlayerID, i));
+            };
+        };
+    };
 
     // UTILITY
     setPlayerID(id) {
@@ -180,12 +196,18 @@ class Game extends Phaser.Scene {
     addNewPlayer(data) {
 
         //player character
-        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
-        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1);
-        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1);
+        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1).setScale(characterScale);
+        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1).setScale(characterScale);
+        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1).setScale(characterScale);
+
+        //get sprite container size
+        var spriteContainer = {
+            width: playerBody.width * characterScale,
+            height: playerBody.height * characterScale
+        }
 
         //player name
-        var playerName = this.add.text(0, 18, data.name, {
+        var playerName = this.add.text(0, spriteContainer.height - overlayPadding, data.name, {
             fontFamily: 'Arial',
             color: '#ffffff',
             stroke: '#000000',
@@ -193,23 +215,28 @@ class Game extends Phaser.Scene {
         }).setFontSize(12).setOrigin(0.5, 1);
 
         //create player container
-        playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(playerBody.width, playerBody.height);
+        playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
 
         //create player sprite container
-        playerCharacter[data.id].add(this.add.container(0, 0).setSize(playerBody.width, playerBody.height));
+        playerCharacter[data.id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
 
         //add player sprites to player sprite container
         playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
+        
+        //offset sprite
+        playerCharacter[data.id].list[0].list[0].setY((spriteContainer.height/2));
+        playerCharacter[data.id].list[0].list[1].setY((spriteContainer.height/2));
+        playerCharacter[data.id].list[0].list[2].setY((spriteContainer.height/2));
+
+        //create player overlay container
+        playerCharacter[data.id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
+
+        //add player name to player overlay container
+        playerCharacter[data.id].list[1].add([playerName]);
 
         //enable physics on player sprite
         this.physics.world.enable(playerCharacter[data.id].list[0].list[0]);
         playerCollider = playerCharacter[data.id].list[0].list[0];
-
-        //create player overlay container
-        playerCharacter[data.id].add(this.add.container(0, 0).setSize(playerBody.width, playerBody.height));
-
-        //add player name to player overlay container
-        playerCharacter[data.id].list[1].add([playerName]);
 
         // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
         //
@@ -241,7 +268,7 @@ class Game extends Phaser.Scene {
         var player = playerCharacter[id];
 
         //get duration of movement
-        var duration = Phaser.Math.Distance.Between(player.x, player.y, x, y) * 5;
+        var duration = Phaser.Math.Distance.Between(player.x, player.y, x, y) * 3.5;
 
         //move player
         playerData[id] = {
@@ -250,7 +277,7 @@ class Game extends Phaser.Scene {
                 x: x,
                 y: y,
                 duration: duration,
-                onComplete: function() { playerInteracting = false }
+                onComplete: function() { playerInteracting = false; }
             })
         };
     };
@@ -349,7 +376,7 @@ class Game extends Phaser.Scene {
     };
 
     //adds NPC character to the game
-    addNewNPC(name, x, y) {
+    addNewNPC(name, x, y, direction = 'right') {
 
         //init npc sprite
         var npcSprite;
@@ -359,12 +386,19 @@ class Game extends Phaser.Scene {
         objectNextID = objectNextID+1;
 
         //set npc sprite
-        if (name === 'Poke') {
-            npcSprite = this.physics.add.sprite(0, 0, 'poke').setOrigin(0.5, 1);
+        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1).setScale(characterScale);
+
+        //get sprite container size
+        var spriteContainer = {
+            width: npcSprite.width * characterScale,
+            height: npcSprite.height * characterScale
         }
 
+        //offset sprite
+        npcSprite.setY((spriteContainer.height/2));
+
         //npc name
-        var npcName = this.add.text(0, 18, name, {
+        var npcName = this.add.text(0, spriteContainer.height - overlayPadding, name, {
             fontFamily: 'Arial',
             color: '#ffffff',
             stroke: '#000000',
@@ -372,13 +406,10 @@ class Game extends Phaser.Scene {
         }).setFontSize(12).setOrigin(0.5, 1);
 
         //create npc container
-        npcCharacter[id] = this.add.container(x, y).setSize(npcSprite.width, npcSprite.height);
-
-        //detect clicks
-        npcCharacter[id].setInteractive().on('pointerup', () => playerInteracting = true);
+        npcCharacter[id] = this.add.container(x, y).setSize(spriteContainer.width, spriteContainer.height);
         
         //create npc sprite container
-        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
+        npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
 
         //add npc sprites to npc sprite container
         npcCharacter[id].list[0].add([npcSprite]);
@@ -387,11 +418,19 @@ class Game extends Phaser.Scene {
         this.physics.world.enable(npcCharacter[id].list[0].list[0]);
         npcCollider[id] = npcCharacter[id].list[0].list[0];
 
+        //detect clicks
+        npcCharacter[id].setInteractive().on('pointerup', () => playerInteracting = id, this);
+
         //create npc overlay container
-        npcCharacter[id].add(this.add.container(0, 0).setSize(npcSprite.width, npcSprite.height));
+        npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
 
         //add npc name to npc overlay container
         npcCharacter[id].list[1].add([npcName]);
+
+        //set direction of NPC
+        if (direction === 'left') {
+            npcCharacter[id].list[0].scaleX *= -1;
+        };
     }
 
     //player interacts with NPC
@@ -401,40 +440,64 @@ class Game extends Phaser.Scene {
         const util = new Utility();
 
         //interact only once per movement
-        if (playerInteracting) {
+        if (playerInteracting === npcID) {
             //stop player
             this.haltPlayer(playerID, playerCharacter[playerID].x, playerCharacter[playerID].y);
 
             //npc message
-            if (npcID == 0) {
-                const pokeLines = ['*cough* i\'m sick', 'yo', 'i\'ll go live later on lacari']
-                this.displayNPCMessage(npcID, util.randomFromArray(pokeLines));
-            };
+            this.displayMessage(npcID, util.randomFromArray(npcLines[npcID]), 'npc');
 
-            //set as collided
+            //reset interacting check
             playerInteracting = false;
         };
     };
 
     //display player message
-    displayMessage(id, message) {
+    displayMessage(id, message, characterType = 'player') {
 
-        //get player overlay container
-        var playerOverlay = playerCharacter[id].list[1];
-
-        //remove older messages
-        if (playerOverlay.list[1]) { playerOverlay.list[1].setVisible(false); }
-        if (playerOverlay.list[2]) { playerOverlay.list[2].destroy(); }
-
-        //store message data
-        playerData[id] = {
+        //create message data
+        var messageData = {
             message: message,
             messageID: this.time.now,
             messageDuration: 5000
         };
 
+        //player message
+        if (characterType === 'player') {
+
+            //get player overlay container
+            var overlayContainer = playerCharacter[id].list[1];
+
+            //get player sprite container
+            var spriteContainer = playerCharacter[id].list[0];
+
+            //store message data
+            playerData[id] = {
+                message: messageData.message,
+                messageID: messageData.messageID,
+                messageDuration: messageData.messageDuration
+            };
+        }
+
+        //npc message
+        else if (characterType === 'npc') {
+
+            //get npc overlay container
+            var overlayContainer = npcCharacter[id].list[1];
+
+            //get player sprite container
+            var spriteContainer = npcCharacter[id].list[0];
+
+            //store message data
+            npcData[id] = {
+                message: messageData.message,
+                messageID: messageData.messageID,
+                messageDuration: messageData.messageDuration
+            };
+        };
+
         //format message
-        var playerMessage = this.add.text(0, 0, message, {
+        var messageFormatted = this.add.text(0, 0, message, {
             fontFamily: 'Arial',
             color: '#000000',
             lineSpacing: 2,
@@ -443,127 +506,92 @@ class Game extends Phaser.Scene {
             wordWrap: { width: 130 }
         }).setFontSize(12).setOrigin(0.5, 0);
 
+        //remove older messages
+        if (overlayContainer.list[1]) { overlayContainer.list[1].setVisible(false); }
+        if (overlayContainer.list[2]) { overlayContainer.list[2].destroy(); }
+
         //calculate size of message
-        var messageWidth = (playerMessage.width/2) * -1
-        var messageHeight = (playerMessage.height * -1) - 30;
+        var messageWidth = (messageFormatted.width/2) * -1
+        var messageHeight = (messageFormatted.height * -1) - ((spriteContainer.height/2) + overlayPadding);
 
         //reposition text
-        playerMessage.setY(messageHeight);
+        messageFormatted.setY(messageHeight);
 
         //create background for message
-        var playerMessageBackground = this.add.graphics()
+        var backgroundFormatted = this.add.graphics()
         .fillStyle(0xffffff, 0.80)
-        .fillRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8)
+        .fillRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8)
         .lineStyle(1, 0xb8b8b8, 1)
-        .strokeRoundedRect(messageWidth, messageHeight, playerMessage.width, playerMessage.height, 8);
+        .strokeRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8);
 
         //add message to player overlay container
-        playerOverlay.addAt([playerMessageBackground], 1);
-        playerOverlay.addAt([playerMessage], 2);
+        overlayContainer.addAt([backgroundFormatted], 1);
+        overlayContainer.addAt([messageFormatted], 2);
 
         //make sure message is visible
-        playerOverlay.list[1].setVisible(true);
+        overlayContainer.list[1].setVisible(true);
 
         //schedule message for removal
-        this.time.delayedCall(playerData[id].messageDuration, this.removeMessage, [id, this.time.now], this);
+        this.time.delayedCall(messageData.messageDuration, this.removeMessage, [id, this.time.now, characterType], this);
     };
 
     //remove player message
-    removeMessage(id, messageID) {
+    removeMessage(id, messageID, characterType = 'player') {
 
-        //check if the message scheduled for removal is the same as the players current message shown
-        if (playerData[id].messageID === messageID) {
-
-            //reset chat data
-            playerData[id] = {
-                message: '',
-                messageID: 0,
-                messageDuration: 0
-            }
+        //player message
+        if (characterType === 'player') {
 
             //get player overlay container
-            var playerOverlay = playerCharacter[id].list[1];
+            var overlayContainer = playerCharacter[id].list[1];
 
-            //remove message from player character
-            playerOverlay.list[1].setVisible(false);
-            playerOverlay.list[2].destroy();
-
-        } else {
-            return;
+            //get message data
+            var messageData = {
+                message: playerData[id].message,
+                messageID: playerData[id].messageID,
+                messageDuration: playerData[id].messageDuration
+            };
         }
-    };
 
-    //display npc message
-    displayNPCMessage(id, message) {
-
-        //get npc overlay container
-        var npcOverlay = npcCharacter[id].list[1];
-
-        //remove older messages
-        if (npcOverlay.list[1]) { npcOverlay.list[1].setVisible(false); }
-        if (npcOverlay.list[2]) { npcOverlay.list[2].destroy(); }
-
-        //store message data
-        npcData[id] = {
-            message: message,
-            messageID: this.time.now,
-            messageDuration: 5000
-        };
-
-        //format message
-        var npcMessage = this.add.text(0, 0, message, {
-            fontFamily: 'Arial',
-            color: '#000000',
-            lineSpacing: 2,
-            align: 'center',
-            padding: { left: 8, right: 8, top: 6, bottom: 6 },
-            wordWrap: { width: 130 }
-        }).setFontSize(12).setOrigin(0.5, 0);
-
-        //calculate size of message
-        var messageWidth = (npcMessage.width/2) * -1
-        var messageHeight = (npcMessage.height * -1) - 30;
-
-        //reposition text
-        npcMessage.setY(messageHeight);
-
-        //create background for message
-        var npcMessageBackground = this.add.graphics()
-        .fillStyle(0xffffff, 0.80)
-        .fillRoundedRect(messageWidth, messageHeight, npcMessage.width, npcMessage.height, 8)
-        .lineStyle(1, 0xb8b8b8, 1)
-        .strokeRoundedRect(messageWidth, messageHeight, npcMessage.width, npcMessage.height, 8);
-
-        //add message to npc overlay container
-        npcOverlay.addAt([npcMessageBackground], 1);
-        npcOverlay.addAt([npcMessage], 2);
-
-        //make sure message is visible
-        npcOverlay.list[1].setVisible(true);
-
-        //schedule message for removal
-        this.time.delayedCall(npcData[id].messageDuration, this.removeNPCMessage, [id, this.time.now], this);
-    };
-
-    //remove npc message
-    removeNPCMessage(id, messageID) {
-
-        //check if the message scheduled for removal is the same as the npcs current message shown
-        if (npcData[id].messageID === messageID) {
-
-            //reset chat data
-            npcData[id] = {
-                message: '',
-                messageID: 0,
-                messageDuration: 0
-            }
+        //npc message
+        else if (characterType === 'npc') {
 
             //get npc overlay container
-            var npcOverlay = npcCharacter[id].list[1];
+            var overlayContainer = npcCharacter[id].list[1];
 
-            //remove message from npc character
-            npcOverlay.list[1].setVisible(false);
-            npcOverlay.list[2].destroy();
+            //get message data
+            var messageData = {
+                message: npcData[id].message,
+                messageID: npcData[id].messageID,
+                messageDuration: npcData[id].messageDuration
+            };
+        };
+
+        //check if the message scheduled for removal is the same as the players current message shown
+        if (messageData.messageID === messageID) {
+
+            //reset chat data
+            if (characterType === 'player') {
+
+                //get message data
+                playerData[id] = {
+                    message: '',
+                    messageID: 0,
+                    messageDuration: 0
+                };
+            }
+            else if (characterType === 'npc') {
+
+                //get message data
+                npcData[id] = {
+                    message: '',
+                    messageID: 0,
+                    messageDuration: 0
+                };
+            };
+
+            //remove message from player character
+            overlayContainer.list[1].setVisible(false);
+            overlayContainer.list[2].destroy();
 
         } else {
             return;
