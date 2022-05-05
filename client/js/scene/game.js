@@ -1,5 +1,8 @@
 // Game Scene
 
+//navigational map
+// var collidableLayer;
+
 //init player variables
 var clientPlayerID;
 var playerCharacter = {};
@@ -87,11 +90,19 @@ class Game extends Phaser.Scene {
         //set up tilemap/tileset
         var map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('tilesheet', 'tileset'); //'tilesheet' is the key of the tileset in map's JSON file
-        
+
+        //set collision tile as collidable (ID: 23)
+        // map.setCollisionBetween(23,24);
+
         //set up tilemap layers
         var layer;
         for(var i = 0; i < map.layers.length; i++) {
             layer = map.createLayer(i, tileset).setScale(worldScale);
+
+            // //find collidable layer
+            // if (layer.layer.name === 'obstacle layer') {
+            //     collidableLayer = layer;
+            // };
         };
 
         //chat box
@@ -154,23 +165,30 @@ class Game extends Phaser.Scene {
             // console.log(event.key);
         });
 
-        //add player's character to world
-        Client.onJoin();
-
         //add NPCs
         this.addNewNPC('Poke', 192, 415);
         this.addNewNPC('Gigi', 133, 480);
         this.addNewNPC('Jesse', 810, 704, 'left');
+
+        //add player's character to world
+        Client.onJoin();
     };
 
     update() {
 
-        //give every NPCs a collider
-        if (playerCollider && npcCollider) {
+        //detect collisions between NPCs and the client's player character
+        if (playerCharacter[clientPlayerID]) {
             for(var i = 0; i < objectNextID; i++) {
-                this.physics.world.collide(playerCollider, npcCollider[i], () => this.interactNPC(clientPlayerID, i));
+                this.physics.world.collide(playerCharacter[clientPlayerID].list[0], npcCharacter[i].list[0], () => this.interactNPC(clientPlayerID, i));
             };
         };
+
+        // //detect collisions between players and the collision layer
+        // if (collidableLayer) {
+        //     for(var i = 0; i < playerCharacter.length; i++) {
+        //         this.physics.world.collide(playerCharacter[i].list[0], collidableLayer, () => this.haltPlayer(i, playerCharacter[i].list[0].x, playerCharacter[i].list[0].y));
+        //     };
+        // };
     };
 
     // UTILITY
@@ -218,7 +236,7 @@ class Game extends Phaser.Scene {
         playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
 
         //create player sprite container
-        playerCharacter[data.id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
+        playerCharacter[data.id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));   
 
         //add player sprites to player sprite container
         playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
@@ -234,9 +252,14 @@ class Game extends Phaser.Scene {
         //add player name to player overlay container
         playerCharacter[data.id].list[1].add([playerName]);
 
-        //enable physics on player sprite
-        this.physics.world.enable(playerCharacter[data.id].list[0].list[0]);
-        playerCollider = playerCharacter[data.id].list[0].list[0];
+        //enable physics on player character
+        this.physics.world.enable(playerCharacter[data.id].list[0]);
+        playerCharacter[data.id].list[0].body.setCollideWorldBounds(true);
+        this.physics.world.enable(playerCharacter[data.id].list[1]);
+        playerCharacter[data.id].list[1].body.setCollideWorldBounds(true);
+        // if (!playerCollider) {
+        //     playerCollider = playerCharacter[data.id].list[0];
+        // };
 
         // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
         //
@@ -267,16 +290,13 @@ class Game extends Phaser.Scene {
         //get player's character
         var player = playerCharacter[id];
 
-        //get duration of movement
-        var duration = Phaser.Math.Distance.Between(player.x, player.y, x, y) * 3.5;
-
         //move player
         playerData[id] = {
             movement: this.add.tween({
                 targets: player, 
                 x: x,
                 y: y,
-                duration: duration,
+                duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 3.5,
                 onComplete: function() { playerInteracting = false; }
             })
         };
@@ -392,7 +412,7 @@ class Game extends Phaser.Scene {
         var spriteContainer = {
             width: npcSprite.width * characterScale,
             height: npcSprite.height * characterScale
-        }
+        };
 
         //offset sprite
         npcSprite.setY((spriteContainer.height/2));
@@ -414,10 +434,6 @@ class Game extends Phaser.Scene {
         //add npc sprites to npc sprite container
         npcCharacter[id].list[0].add([npcSprite]);
 
-        //enable physics on npc sprite
-        this.physics.world.enable(npcCharacter[id].list[0].list[0]);
-        npcCollider[id] = npcCharacter[id].list[0].list[0];
-
         //detect clicks
         npcCharacter[id].setInteractive().on('pointerup', () => playerInteracting = id, this);
 
@@ -429,9 +445,15 @@ class Game extends Phaser.Scene {
 
         //set direction of NPC
         if (direction === 'left') {
-            npcCharacter[id].list[0].scaleX *= -1;
+            npcCharacter[id].list[0].list[0].scaleX *= -1;
         };
-    }
+
+        //enable physics on npc character
+        this.physics.world.enable(npcCharacter[id].list[0]);
+        npcCharacter[id].list[0].body.setCollideWorldBounds(true);
+        this.physics.world.enable(npcCharacter[id].list[1]);
+        npcCharacter[id].list[1].body.setCollideWorldBounds(true);
+    };
 
     //player interacts with NPC
     interactNPC(playerID, npcID) {
@@ -441,8 +463,11 @@ class Game extends Phaser.Scene {
 
         //interact only once per movement
         if (playerInteracting === npcID) {
-            //stop player
-            this.haltPlayer(playerID, playerCharacter[playerID].x, playerCharacter[playerID].y);
+            // //stop player
+            // this.haltPlayer(playerID, playerCharacter[playerID].x, playerCharacter[playerID].y);
+
+            //tell server that this player halted
+            Client.onHalt(playerCharacter[playerID].x, playerCharacter[playerID].y)
 
             //npc message
             this.displayMessage(npcID, util.randomFromArray(npcLines[npcID]), 'npc');

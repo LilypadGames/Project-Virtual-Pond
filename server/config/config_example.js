@@ -1,14 +1,24 @@
 // Back-end Configuration
 
+//web server
 const config = {
   server: {
-    port: 8000 // Define the Server Port
+    port: 80 // Define the Server Port
   }
 };
 
-module.exports = config;
-
+//database
 const firebaseConfig = { // Place Firebase Realtime Database Config Here
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 
 firebase.initializeApp(firebaseConfig);
+
+//export
+module.exports = config;

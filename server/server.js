@@ -7,8 +7,8 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 //imports
-var util = require(__dirname + '/utility');
-var config = require(__dirname + '/config/config');
+const util = require(__dirname + '/utility');
+const config = require(__dirname + '/config/config');
 
 //send client files (html/css/js/assets)
 app.use('/',express.static(__dirname + '/../client'));
@@ -39,10 +39,10 @@ io.on('connection', async function(socket){
             id: server.lastPlayerID++,
 
             name: 'DanMizu',
-            
+
             //generate starting location
-            x: util.getRandomInt(100,400),
-            y: util.getRandomInt(100,400),
+            x: util.getRandomInt(0, 36 * 32),
+            y: util.getRandomInt(0, 25.5 * 32),
 
             // //set direction
             // direction: 'right',

@@ -14,6 +14,9 @@ window.onload = function() {
             pixelArt: true
         },
         physics: {
+            // arcade: {
+            //     debug: true
+            // },
             default: 'arcade'
         },
         scale: {
