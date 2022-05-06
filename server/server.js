@@ -57,6 +57,14 @@ io.on('connection', async function(socket){
         //send THIS client it's ID
         socket.emit('getPlayerID', socket.player.id);
 
+        //triggers when player reloads their client
+        socket.on('playerReloaded', async function(){
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Reloaded the Pond'));
+            //send current position of all connected players
+            const currentPlayers = await getAllPlayers();
+            socket.emit('reloadPlayer', currentPlayers);
+        });
+
         //triggers when player moves
         socket.on('playerMoved',function(data){
             if ((socket.player.x != data.x) || (socket.player.y != data.y)) {

@@ -13,6 +13,11 @@ class Client {
         socket.emit('playerLoadedWorld');
     };
 
+    //tell server that player just re-focused on window
+    onReload() {
+        socket.emit('playerReloaded');
+    };
+
     //tell server that the client has clicked at a specific coordinate
     onMove(x, y) {
         socket.emit('playerMoved', {x: x, y: y});
@@ -55,7 +60,16 @@ socket.on('getAllPlayers', function(data) {
     for(var i = 0; i < data.length; i++){
         if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond')); };
         Game.addNewPlayer(data[i]);
-    }
+    };
+
+    //recieved reload of all currently connected players
+    socket.on('reloadPlayer',function(data){
+        if (consoleLogging) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Reloaded the Pond')); };
+        console.log(data);
+        for(var i = 0; i < data.length; i++){
+            Game.placePlayer(data[i].id, data[i].x, data[i].y);
+        };
+    });
 
     //recieved player movement
     socket.on('movePlayer',function(data){

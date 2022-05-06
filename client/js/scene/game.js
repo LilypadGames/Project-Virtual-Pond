@@ -28,6 +28,9 @@ var consoleLogging = false;
 const worldScale = 1.5;
 const characterScale = 2;
 const overlayPadding = 5;
+const playerDepth = 3;
+const npcDepth = 1;
+const messageDepth = 5;
 
 // DEBUG
 //toggle console logging
@@ -64,10 +67,13 @@ class Game extends Phaser.Scene {
 
         //init canvas
         this.canvas = this.sys.game.canvas;
-        
-        //tilemaps
+
+        //room maps
         this.load.image("tileset", "assets/room/house_on_the_river/tilesheet.png");
         this.load.tilemapTiledJSON('map', 'assets/room/house_on_the_river/example_map.json');
+
+        //room music
+        this.load.audio('chill_pond', "assets/room/pond/music/frog_caves_chill.mp3");
 
         //character
         this.load.image('frog_body','assets/character/frog_body.png');
@@ -165,6 +171,9 @@ class Game extends Phaser.Scene {
             // console.log(event.key);
         });
 
+        //detect when window is re-focused
+        this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
+
         //add NPCs
         this.addNewNPC('Poke', 192, 415);
         this.addNewNPC('Gigi', 133, 480);
@@ -172,6 +181,18 @@ class Game extends Phaser.Scene {
 
         //add player's character to world
         Client.onJoin();
+
+        //play music
+        this.sound.play('chill_pond', {
+            mute: false,
+            volume: 1,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+        this.sound.pauseOnBlur = false;
     };
 
     update() {
@@ -210,13 +231,18 @@ class Game extends Phaser.Scene {
     };
 
     // FUNCTIONS
+    //reload the world when window is re-focused
+    onFocus() {
+        Client.onReload();
+    };
+
     //add player character to game at specific coordinates
     addNewPlayer(data) {
 
         //player character
-        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1).setScale(characterScale);
-        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1).setScale(characterScale);
-        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1).setScale(characterScale);
+        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1).setScale(characterScale).setDepth(playerDepth);
+        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1).setScale(characterScale).setDepth(playerDepth);
+        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1).setScale(characterScale).setDepth(playerDepth);
 
         //get sprite container size
         var spriteContainer = {
@@ -230,7 +256,7 @@ class Game extends Phaser.Scene {
             color: '#ffffff',
             stroke: '#000000',
             strokeThickness: 4,
-        }).setFontSize(12).setOrigin(0.5, 1);
+        }).setFontSize(12).setOrigin(0.5, 1).setDepth(playerDepth);
 
         //create player container
         playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
@@ -257,9 +283,7 @@ class Game extends Phaser.Scene {
         playerCharacter[data.id].list[0].body.setCollideWorldBounds(true);
         this.physics.world.enable(playerCharacter[data.id].list[1]);
         playerCharacter[data.id].list[1].body.setCollideWorldBounds(true);
-        // if (!playerCollider) {
-        //     playerCollider = playerCharacter[data.id].list[0];
-        // };
+
 
         // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
         //
@@ -406,7 +430,7 @@ class Game extends Phaser.Scene {
         objectNextID = objectNextID+1;
 
         //set npc sprite
-        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1).setScale(characterScale);
+        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1).setScale(characterScale).setDepth(npcDepth);
 
         //get sprite container size
         var spriteContainer = {
@@ -423,7 +447,7 @@ class Game extends Phaser.Scene {
             color: '#ffffff',
             stroke: '#000000',
             strokeThickness: 4,
-        }).setFontSize(12).setOrigin(0.5, 1);
+        }).setFontSize(12).setOrigin(0.5, 1).setDepth(npcDepth);
 
         //create npc container
         npcCharacter[id] = this.add.container(x, y).setSize(spriteContainer.width, spriteContainer.height);
@@ -529,7 +553,7 @@ class Game extends Phaser.Scene {
             align: 'center',
             padding: { left: 8, right: 8, top: 6, bottom: 6 },
             wordWrap: { width: 130 }
-        }).setFontSize(12).setOrigin(0.5, 0);
+        }).setFontSize(12).setOrigin(0.5, 0).setDepth(messageDepth);
 
         //remove older messages
         if (overlayContainer.list[1]) { overlayContainer.list[1].setVisible(false); }
@@ -547,7 +571,8 @@ class Game extends Phaser.Scene {
         .fillStyle(0xffffff, 0.80)
         .fillRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8)
         .lineStyle(1, 0xb8b8b8, 1)
-        .strokeRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8);
+        .strokeRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8)
+        .setDepth(messageDepth);
 
         //add message to player overlay container
         overlayContainer.addAt([backgroundFormatted], 1);
