@@ -41,8 +41,8 @@ io.on('connection', async function(socket){
             name: 'DanMizu',
 
             //generate starting location
-            x: util.getRandomInt(0, 36 * 32),
-            y: util.getRandomInt(0, 25.5 * 32),
+            x: util.getRandomInt(0, 24 * 32),
+            y: util.getRandomInt(0, 17 * 32),
 
             // //set direction
             // direction: 'right',

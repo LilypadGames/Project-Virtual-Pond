@@ -15,41 +15,36 @@ var objectNextID = 0;
 var npcCharacter = {};
 var npcData = {};
 var npcCollider = {};
-var npcLines = [
+const npcLines = [
     ['*cough* i\'m sick', 'yo', 'i\'ll go live later on lacari', 'time for a water break', 'ACTually trolling...'],
     ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
     ['theres this new NFT drop i\'m really excited about', 'ever heard of hangry hippos?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...']
 ];
 
 //init debug variables
-var consoleLogging = false;
+var debugMode = false;
 
 //constants
-const worldScale = 1.5;
-const characterScale = 2;
-const overlayPadding = 5;
-const playerDepth = 3;
-const npcDepth = 1;
-const messageDepth = 5;
-
-// DEBUG
-//toggle console logging
-function toggleConsoleLog() {
-
-    //import Utility functions
-    const util = new Utility();
-
-    //off
-    if (consoleLogging) { 
-        console.log(util.timestampString('[CONSOLE LOGGING: OFF]'));
-        consoleLogging = false 
-    }
-
-    //on
-    else if (!consoleLogging) {
-        console.log(util.timestampString('[CONSOLE LOGGING: ON]'));
-        consoleLogging = true 
-    };
+// const gameWidth = 24 * 32;
+// const gameHeight = 17 * 32;
+const worldScale = 2;
+const characterScale = 3;
+const overlayPadding = 8;
+const nametagFontSize = 18;
+const nametagConfig = {
+    fontFamily: 'Arial',
+    color: '#ffffff',
+    stroke: '#000000',
+    strokeThickness: 6,
+};
+const messageFontSize = 22;
+const messageConfig = {
+    fontFamily: 'Arial',
+    color: '#000000',
+    lineSpacing: 2,
+    align: 'center',
+    padding: { left: 8, right: 8, top: 6, bottom: 6 },
+    wordWrap: { width: 250 }
 };
 
 class Game extends Phaser.Scene {
@@ -65,7 +60,7 @@ class Game extends Phaser.Scene {
     // LOGIC
     preload() {
 
-        //init canvas
+        //get canvas
         this.canvas = this.sys.game.canvas;
 
         //room maps
@@ -76,50 +71,48 @@ class Game extends Phaser.Scene {
         this.load.audio('chill_pond', "assets/room/pond/music/frog_caves_chill.mp3");
 
         //character
-        this.load.image('frog_body','assets/character/frog_body.png');
-        this.load.image('frog_belly','assets/character/frog_belly.png');
-        this.load.image('frog_eyes','assets/character/frog_eyes.png');
+        this.load.image('frog_body', 'assets/character/frog_body.png');
+        this.load.image('frog_belly', 'assets/character/frog_belly.png');
+        this.load.image('frog_eyes', 'assets/character/frog_eyes.png');
 
         //npc
-        this.load.image('Poke','assets/npc/poke.png');
-        this.load.image('Gigi','assets/npc/gigi.png');
-        this.load.image('Jesse','assets/npc/jesse.png');
+        this.load.image('Poke', 'assets/npc/poke.png');
+        this.load.image('Gigi', 'assets/npc/gigi.png');
+        this.load.image('Jesse', 'assets/npc/jesse.png');
 
         //plugins
+        // this.load.scenePlugin({ key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
         this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
+
+        //debug
+        this.load.image('target', 'assets/debug/target.png');
     };
 
     create() {
 
-        //shaders
+        //register width/height
+        this.canvas = this.sys.game.canvas;
 
         //set up tilemap/tileset
         var map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('tilesheet', 'tileset'); //'tilesheet' is the key of the tileset in map's JSON file
 
-        //set collision tile as collidable (ID: 23)
-        // map.setCollisionBetween(23,24);
-
         //set up tilemap layers
         var layer;
         for(var i = 0; i < map.layers.length; i++) {
             layer = map.createLayer(i, tileset).setScale(worldScale);
-
-            // //find collidable layer
-            // if (layer.layer.name === 'obstacle layer') {
-            //     collidableLayer = layer;
-            // };
         };
 
         //chat box
-        var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.8, 30, {
+        var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.8, 50, {
+            id: 'chat-box',
             type: 'text',
             text: '',
             placeholder: 'Say Yo...',
-            fontSize: '16px',
+            fontSize: '24px',
             color: '#000000',
             backgroundColor: '#ffffff',
-            border: '4px solid',
+            border: '6px solid',
             borderColor: '#64BEFF',
             spellCheck: false,
             autoComplete: false,
@@ -134,12 +127,12 @@ class Game extends Phaser.Scene {
                 //clear chat box
                 chatBox.setText('');
             };
-        })
+        });
 
         //register left click input
         this.input.on('pointerdown', () => {
 
-            //if they are using the chat box, remove the cursor from it
+            //un-focus chatbox
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
             };
@@ -164,20 +157,17 @@ class Game extends Phaser.Scene {
                 if (event.key === 's') { Client.onHalt(playerCharacter[clientPlayerID].x, playerCharacter[clientPlayerID].y) };
 
                 //toggle console logging
-                if (event.key === 'Shift') { toggleConsoleLog(); };
+                if (event.key === 'Shift') { this.toggleDebugMode(); };
             };
-
-            //[DEBUG]
-            // console.log(event.key);
         });
 
         //detect when window is re-focused
         this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
 
         //add NPCs
-        this.addNewNPC('Poke', 192, 415);
-        this.addNewNPC('Gigi', 133, 480);
-        this.addNewNPC('Jesse', 810, 704, 'left');
+        this.addNewNPC('Poke', 244.5, 528);
+        this.addNewNPC('Gigi', 132, 625);
+        this.addNewNPC('Jesse', 1099, 922, 'left');
 
         //add player's character to world
         Client.onJoin();
@@ -192,7 +182,17 @@ class Game extends Phaser.Scene {
             loop: true,
             delay: 0
         });
+        
+        //stop music from pausing when player looks at another program/tab
         this.sound.pauseOnBlur = false;
+
+        //debug
+        var debugCursor = this.add.image(8, 8, "target").setVisible(false);
+        this.input.on("pointermove", function (pointer) {
+            if (debugMode) {
+                debugCursor.copyPosition(pointer).setScale(characterScale).setVisible(true);
+            };
+        });
     };
 
     update() {
@@ -200,16 +200,9 @@ class Game extends Phaser.Scene {
         //detect collisions between NPCs and the client's player character
         if (playerCharacter[clientPlayerID]) {
             for(var i = 0; i < objectNextID; i++) {
-                this.physics.world.collide(playerCharacter[clientPlayerID].list[0], npcCharacter[i].list[0], () => this.interactNPC(clientPlayerID, i));
+                this.physics.world.collide(playerCharacter[clientPlayerID], npcCharacter[i], () => this.interactNPC(clientPlayerID, i));
             };
         };
-
-        // //detect collisions between players and the collision layer
-        // if (collidableLayer) {
-        //     for(var i = 0; i < playerCharacter.length; i++) {
-        //         this.physics.world.collide(playerCharacter[i].list[0], collidableLayer, () => this.haltPlayer(i, playerCharacter[i].list[0].x, playerCharacter[i].list[0].y));
-        //     };
-        // };
     };
 
     // UTILITY
@@ -240,9 +233,9 @@ class Game extends Phaser.Scene {
     addNewPlayer(data) {
 
         //player character
-        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1).setScale(characterScale).setDepth(playerDepth);
-        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1).setScale(characterScale).setDepth(playerDepth);
-        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1).setScale(characterScale).setDepth(playerDepth);
+        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1).setScale(characterScale);
+        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1).setScale(characterScale);
+        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1).setScale(characterScale);
 
         //get sprite container size
         var spriteContainer = {
@@ -251,12 +244,7 @@ class Game extends Phaser.Scene {
         }
 
         //player name
-        var playerName = this.add.text(0, spriteContainer.height - overlayPadding, data.name, {
-            fontFamily: 'Arial',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4,
-        }).setFontSize(12).setOrigin(0.5, 1).setDepth(playerDepth);
+        var playerName = this.add.text(0, spriteContainer.height - overlayPadding, data.name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
 
         //create player container
         playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
@@ -279,11 +267,8 @@ class Game extends Phaser.Scene {
         playerCharacter[data.id].list[1].add([playerName]);
 
         //enable physics on player character
-        this.physics.world.enable(playerCharacter[data.id].list[0]);
-        playerCharacter[data.id].list[0].body.setCollideWorldBounds(true);
-        this.physics.world.enable(playerCharacter[data.id].list[1]);
-        playerCharacter[data.id].list[1].body.setCollideWorldBounds(true);
-
+        this.physics.world.enable(playerCharacter[data.id]);
+        playerCharacter[data.id].body.setCollideWorldBounds(true);
 
         // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
         //
@@ -320,7 +305,7 @@ class Game extends Phaser.Scene {
                 targets: player, 
                 x: x,
                 y: y,
-                duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 3.5,
+                duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 2.2,
                 onComplete: function() { playerInteracting = false; }
             })
         };
@@ -430,7 +415,7 @@ class Game extends Phaser.Scene {
         objectNextID = objectNextID+1;
 
         //set npc sprite
-        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1).setScale(characterScale).setDepth(npcDepth);
+        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1).setScale(characterScale);
 
         //get sprite container size
         var spriteContainer = {
@@ -442,12 +427,7 @@ class Game extends Phaser.Scene {
         npcSprite.setY((spriteContainer.height/2));
 
         //npc name
-        var npcName = this.add.text(0, spriteContainer.height - overlayPadding, name, {
-            fontFamily: 'Arial',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 4,
-        }).setFontSize(12).setOrigin(0.5, 1).setDepth(npcDepth);
+        var npcName = this.add.text(0, spriteContainer.height - overlayPadding, name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
 
         //create npc container
         npcCharacter[id] = this.add.container(x, y).setSize(spriteContainer.width, spriteContainer.height);
@@ -473,10 +453,8 @@ class Game extends Phaser.Scene {
         };
 
         //enable physics on npc character
-        this.physics.world.enable(npcCharacter[id].list[0]);
-        npcCharacter[id].list[0].body.setCollideWorldBounds(true);
-        this.physics.world.enable(npcCharacter[id].list[1]);
-        npcCharacter[id].list[1].body.setCollideWorldBounds(true);
+        this.physics.world.enable(npcCharacter[id]);
+        npcCharacter[id].body.setCollideWorldBounds(true);
     };
 
     //player interacts with NPC
@@ -487,8 +465,6 @@ class Game extends Phaser.Scene {
 
         //interact only once per movement
         if (playerInteracting === npcID) {
-            // //stop player
-            // this.haltPlayer(playerID, playerCharacter[playerID].x, playerCharacter[playerID].y);
 
             //tell server that this player halted
             Client.onHalt(playerCharacter[playerID].x, playerCharacter[playerID].y)
@@ -546,14 +522,7 @@ class Game extends Phaser.Scene {
         };
 
         //format message
-        var messageFormatted = this.add.text(0, 0, message, {
-            fontFamily: 'Arial',
-            color: '#000000',
-            lineSpacing: 2,
-            align: 'center',
-            padding: { left: 8, right: 8, top: 6, bottom: 6 },
-            wordWrap: { width: 130 }
-        }).setFontSize(12).setOrigin(0.5, 0).setDepth(messageDepth);
+        var messageFormatted = this.add.text(0, 0, message, messageConfig).setFontSize(messageFontSize).setOrigin(0.5, 0);
 
         //remove older messages
         if (overlayContainer.list[1]) { overlayContainer.list[1].setVisible(false); }
@@ -571,8 +540,7 @@ class Game extends Phaser.Scene {
         .fillStyle(0xffffff, 0.80)
         .fillRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8)
         .lineStyle(1, 0xb8b8b8, 1)
-        .strokeRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8)
-        .setDepth(messageDepth);
+        .strokeRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8);
 
         //add message to player overlay container
         overlayContainer.addAt([backgroundFormatted], 1);
@@ -652,5 +620,25 @@ class Game extends Phaser.Scene {
     removePlayer(id) {
         playerCharacter[id].destroy();
         delete playerCharacter[id];
+    };
+
+    // DEBUG
+    //toggle console logging
+    toggleDebugMode() {
+
+        //import Utility functions
+        const util = new Utility();
+
+        //off
+        if (debugMode) { 
+            console.log(util.timestampString('[DEBUG MODE: OFF]'));
+            debugMode = false;
+        }
+
+        //on
+        else if (!debugMode) {
+            console.log(util.timestampString('[DEBUG MODE: ON]'));
+            debugMode = true;
+        };
     };
 };

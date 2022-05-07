@@ -1,89 +1,42 @@
 html, body {
-  margin: 0;
-  padding: 0;
   height: 100%;
+}
+
+/* Cancel Scrolling, Determine Font, and Create Background */
+body {
+  margin: 0;
   background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
   font-family: 'Source Sans Pro', sans-serif;
+  overflow: hidden;
+}
+
+/* Improve Rendering Across Different Browsers */
+html, body, #game-container {
+  image-rendering: optimizeSpeed;              /* Older versions of FF */
+  image-rendering: -moz-crisp-edges;           /* FF 6.0+ */
+  image-rendering: -webkit-optimize-contrast;  /* Webkit (non standard naming) */
+  image-rendering: -o-crisp-edges;             /* OS X & Windows Opera (12.02+) */
+  image-rendering: crisp-edges;                /* Possible future browsers. */
+  -ms-interpolation-mode: nearest-neighbor;    /* IE (non standard naming) */
+  image-rendering: pixelated;                  /* Chrome 41 */
+}
+
+/* Useful Classes */
+.vertical-padding {
+  padding-top: 1%;
+  padding-bottom: 1%;
+}
+.center-horizontally {
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
-/* #chat-box {
-  border: 3px solid #b3abf9;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 12px;
+/* Make Game Canvas Have Round Edges */
+#game-container>canvas {
+  border-radius: 8px;
 }
 
-#game-canvas {
-  position:relative;
-  width: 80
+/* Logo Size */
+#logo {
+  width: 35%;
 }
-
-#game-canvas > div {
-  position:absolute;
-} */
-
-/* * {
-  box-sizing:border-box;
-} */
-
-/* html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
-  font-family: 'Source Sans Pro', sans-serif;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-} */
-
-/* .game-container { 
-  position: relative;
-} */
-
-/* label {
-  display: block;
-  font-weight: bold;
-} */
-
-/* input {
-  position: absolute,
-  width: 50%
-} */
-
-/* input[type="text"],
-button {
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 18px;
-  height: 44px;
-  border-radius: 4px;
-  outline: 0;
-}
-
-input[type="text"] {
-  outline: 0;
-  padding-left: 0.5em;
-  border: 3px solid #222034;
-  width: 150px;
-}
-
-input[type="text"]:focus {
-  border-color: #f000ff;
-} */
-
-/* button {
-  padding-left: 0.5em;
-  padding-right: 0.5em;
-  background: #59ff5a;
-  border: 0;
-  border-bottom: 2px solid #1e830b;
-  cursor: pointer;
-}
-button:active {
-  position: relative;
-  top: 1px;
-} */
