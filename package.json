@@ -21,8 +21,14 @@
   "license": "GNU GPL V3.0",
   "dependencies": {
     "express": "^4.15.2",
-    "phaser": "^3.55.2",
-    "phaser3-rex-plugins": "^1.1.69",
+    "express-session": "^1.17.2",
+    "firebase-admin": "^10.2.0",
+    "fs": "0.0.1-security",
+    "handlebars": "^4.7.7",
+    "passport": "^0.5.2",
+    "passport-oauth": "^1.0.0",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
     "socket.io": "^4.5.0"
   }
 }
