@@ -1,0 +1,66 @@
+html, body {
+  height: 100%;
+}
+
+/* Cancel Scrolling, Determine Font, and Create Background */
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
+  font-family: 'Source Sans Pro', sans-serif;
+  color: #FFFFFF;
+  overflow: hidden;
+}
+
+/* Improve Rendering Across Different Browsers */
+html, body, #game-container {
+  image-rendering: optimizeSpeed;              /* Older versions of FF */
+  image-rendering: -moz-crisp-edges;           /* FF 6.0+ */
+  image-rendering: -webkit-optimize-contrast;  /* Webkit (non standard naming) */
+  image-rendering: -o-crisp-edges;             /* OS X & Windows Opera (12.02+) */
+  image-rendering: crisp-edges;                /* Possible future browsers. */
+  -ms-interpolation-mode: nearest-neighbor;    /* IE (non standard naming) */
+  image-rendering: pixelated;                  /* Chrome 41 */
+}
+
+/* Make Game Canvas Have Round Edges */
+#game-container>canvas {
+  border-radius: 8px;
+}
+
+/* Centered Logo */
+.navbar-brand {
+  transform: translateX(-50%);
+  left: 50%;
+  position: absolute;
+  width: 30%;
+}
+
+/* Twitch Button */
+.btn-twitch { 
+  color: #FFFFFF; 
+  background-color: #6441A5;
+}
+.btn-twitch:hover, .btn-twitch:focus, .btn-twitch:active, .btn-twitch.active, .open .dropdown-toggle.btn-twitch {
+  color: #FFFFFF;
+  background-color: #472e75;
+}
+.btn-twitch:active, .btn-twitch.active, .open .dropdown-toggle.btn-twitch {
+  background-image: none;
+}
+.btn-twitch.disabled, .btn-twitch[disabled], fieldset[disabled] .btn-twitch, .btn-twitch.disabled:hover, .btn-twitch[disabled]:hover, fieldset[disabled] .btn-twitch:hover, .btn-twitch.disabled:focus, .btn-twitch[disabled]:focus, fieldset[disabled] .btn-twitch:focus, .btn-twitch.disabled:active, .btn-twitch[disabled]:active, fieldset[disabled] .btn-twitch:active, .btn-twitch.disabled.active, .btn-twitch[disabled].active, fieldset[disabled] .btn-twitch.active {
+  background-color: #6441A5;
+}
+.btn-twitch .badge {
+  color: #6441A5;
+  background-color: #FFFFFF;
+}
+
+/* Credit Links */
+.credit-link, .credit-link:link, .credit-link:active, .credit-link:visited {
+  color: #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+}
+.credit-link:hover {
+  color: #00ff1a;
+}

@@ -1,0 +1,35 @@
+{
+  "name": "project-virtual-pond",
+  "version": "1.0.0",
+  "description": "A Physical Space for Twitch Frogs to Hang and Chat.",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server/server.js"
+  },
+  "keywords": [
+    "Node.js",
+    "socket.io",
+    "Phaser",
+    "Firebase",
+    "Multiplayer",
+    "Virtual World",
+    "Minigames",
+    "Twitch",
+    "Chatting"
+  ],
+  "license": "GNU GPL V3.0",
+  "dependencies": {
+    "bad-words": "^3.0.4",
+    "express": "^4.15.2",
+    "express-session": "^1.17.2",
+    "firebase-admin": "^10.2.0",
+    "fs": "0.0.1-security",
+    "passport": "^0.5.2",
+    "passport-oauth": "^1.0.0",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
+    "socket.io": "^4.5.0",
+    "swearjar": "^0.2.0"
+  }
+}

@@ -1,2 +1,13 @@
-# Sensitive Data
-database_auth.js
+#directories
+node_modules
+
+#files
+*.tgz
+*.log
+package-lock.json
+
+#macOS files
+.DS_Store
+
+#config
+config.json
