@@ -50,6 +50,12 @@ socket.on('addNewPlayer', function(data) {
     Game.addNewPlayer(data);
 });
 
+//on this client disconnecting
+socket.on('disconnect', function(){
+    Game.showDialog(['Disconnected', 'Please refresh to log back in.', 'Refresh']);
+    socket.disconnect();
+});
+
 //update all players
 socket.on('getAllPlayers', function(data) {
 
