@@ -25,8 +25,6 @@ const npcLines = [
 var debugMode = false;
 
 //constants
-// const gameWidth = 24 * 32;
-// const gameHeight = 17 * 32;
 const worldScale = 1.67;
 const characterScale = 2;
 const overlayPadding = 8;

@@ -7,6 +7,7 @@ body {
   margin: 0;
   background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
   font-family: 'Source Sans Pro', sans-serif;
+  color: #FFFFFF;
   overflow: hidden;
 }
 
@@ -23,8 +24,16 @@ html, body, #game-container {
 
 /* Useful Classes */
 .vertical-padding {
-  padding-top: 1%;
-  padding-bottom: 1%;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+}
+.horizontal-padding {
+  padding-left: 0.5%;
+  padding-right: 0.5%;
+}
+.no-padding {
+  padding-top: 1px;
+  padding-bottom: 1px;
 }
 .center-horizontally {
   display: flex;

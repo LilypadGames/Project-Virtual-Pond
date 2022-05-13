@@ -161,13 +161,16 @@ server.lastPlayerID = 0;
 //on new websocket connection
 io.on('connection', async function(socket) {
 
+    //kick other connection instances of this player
+    kickOtherInstance(twitchID);
+
     //triggers on new player loading the world
     socket.on('playerLoadedWorld', async function() {
 
         //set up player data
         socket.player = {
 
-            //generate ID
+            //get ID
             id: twitchID,
 
             //generate starting location
@@ -266,11 +269,28 @@ async function getAllPlayers(){
         //if there is player information, add them to the connected player list
         if(player){
             connectedPlayers.push(player);
-        }
-    }
+        };
+    };
 
     //return list of connected players
     return connectedPlayers;
-}
+};
+
+//disconnect clients with the same ID
+async function kickOtherInstance(id) {
+    //get connected clients
+    const connectedClients = await io.fetchSockets();
+
+    //loop through connected clients
+    for (const client of connectedClients) {
+        //get player ID
+        var playerID = client.player.id
+
+        //kick currently connected clients if they match the ID of the client attempting to connect
+        if(playerID == id){
+            client.disconnect();
+        };
+    };
+};
 
 //////
