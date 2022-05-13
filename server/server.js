@@ -35,7 +35,6 @@ var database = firebase.database();
 var passport       = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var request        = require('request');
-var handlebars     = require('handlebars');
 
 //init authentication
 app.use(session({secret: config.twitch.sessionSecret, resave: false, saveUninitialized: false}));
@@ -44,6 +43,10 @@ app.use(passport.session());
 
 //serve client files (html/css/js/assets)
 app.use('/', express.static(__dirname + '/../client'));
+
+//dependency: misc
+var Filter = require('bad-words'),
+chatFilter = new Filter();
 
 
 ////// AUTHENTICATION
@@ -118,17 +121,6 @@ app.get('/auth/twitch', passport.authenticate('twitch', { scope: 'user_read' }))
 
 //set route for OAuth redirect
 app.get('/auth/twitch/callback', passport.authenticate('twitch', { successRedirect: '/', failureRedirect: '/' }));
-
-// // Define a simple template to safely generate HTML with values from user's profile
-// var template = handlebars.compile(`
-// <html><head><title>Twitch Auth Sample</title></head>
-// <table>
-//     <tr><th>Access Token</th><td>{{accessToken}}</td></tr>
-//     <tr><th>Refresh Token</th><td>{{refreshToken}}</td></tr>
-//     <tr><th>Display Name</th><td>{{twitchID}}</td></tr>
-//     <tr><th>Bio</th><td>{{twitchName}}</td></tr>
-//     <tr><th>Image</th><td>{{twitchImage}}</td></tr>
-// </table></html>`);
 
 //detect authentication and serve game page
 app.get('/', function (req, res) {
@@ -225,7 +217,7 @@ io.on('connection', async function(socket) {
         socket.on('playerSendingMessage', function(message) {
             console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Sending Message> ' + message));
             //send the new player look for all clients
-            io.emit('showPlayerMessage', {id: socket.player.id, message: message.trim().replace(/\s+/g, " ") });
+            io.emit('showPlayerMessage', {id: socket.player.id, message: chatFilter.clean(message.trim().replace(/\s+/g, " ")) });
         });
 
         //triggers when players color has changed
@@ -283,12 +275,16 @@ async function kickOtherInstance(id) {
 
     //loop through connected clients
     for (const client of connectedClients) {
-        //get player ID
-        var playerID = client.player.id
 
-        //kick currently connected clients if they match the ID of the client attempting to connect
-        if(playerID == id){
-            client.disconnect();
+        //if this client has player information
+        if (client.player) {
+            //get player ID
+            var playerID = client.player.id
+
+            //kick currently connected clients if they match the ID of the client attempting to connect
+            if(playerID == id){
+                client.disconnect();
+            };
         };
     };
 };
