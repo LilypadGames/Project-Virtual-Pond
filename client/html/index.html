@@ -9,6 +9,8 @@
     <meta charset="UTF-8">
 
     <!-- Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="/socket.io/socket.io.js"></script>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 
@@ -19,15 +21,49 @@
 </head>
 
 <body>
-    
-    <!-- Logo -->
-    <div class="center-horizontally vertical-padding"><img id="logo" src="assets/site/logo.svg"><div class="horizontal-padding"><p>Alpha v0.0.1</p></div></div>
 
-    <!-- Game Container -->
-    <div class="no-padding" id="game-container"></div>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-light navbar-expand-md">
+        <div class="container">
 
-    <!-- Credits -->
-    <div class="center-horizontally"><p>Developed By <a href="https://www.twitter.com/dan_mizu" target="_blank">DanMizu</a> - Music By <a href="https://www.instagram.com/biioeai/" target="_blank">Caristan</a></p></div>
+            <!-- Logo -->
+            <a class="navbar-brand" href="#"> <img src="assets/site/logo.svg"> </a>
+
+            <!-- Links -->
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav justify-content-end d-none d-lg-flex ms-md-auto">
+
+                    <!-- Github Icon -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/Dan-Mizu/Project-Virtual-Pond" target="_blank"> <i class="bi bi-github"></i> </a>
+                    </li>
+
+                    <!-- Google Forms Button -->
+                    <li class="nav-item">
+                        <a class="btn btn-outline-dark ms-md-3" href="https://forms.gle/tdthh8ecRybzK5Gz7" target="_blank">Bugs/Suggestions</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+  
+    <!-- Game -->
+    <section>
+        <div id="game-container"></div>
+    </section>
+
+    <!-- Footer -->
+    <section>
+        <footer class="pt-4 pb-4">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col">
+                        <p>Developed By <a class="credit-link" href="https://www.twitter.com/dan_mizu" target="_blank">DanMizu</a> | Music By <a class="credit-link" href="https://www.instagram.com/biioeai/" target="_blank">Caristan</a></p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </section>
 
 </body>
 

@@ -20,14 +20,48 @@
 
 <body>
 
-    <!-- Logo -->
-    <div class="center-horizontally vertical-padding"><img id="logo" src="assets/site/logo.svg"><div class="horizontal-padding"><p>Alpha v0.0.1</p></div></div>
-    
-    <!-- Twitch Authentication Button -->
-    <div class="center-horizontally"><a href="/auth/twitch"><button type="button" class="btn btn-twitch btn-lg"><i class="bi bi-twitch"></i> Log In With Twitch</button></a></div>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-light navbar-expand-md">
+        <div class="container">
 
-    <!-- Credits -->
-    <div class="center-horizontally vertical-padding"><p>Developed By <a href="https://www.twitter.com/dan_mizu" target="_blank">DanMizu</a> - Music By <a href="https://www.instagram.com/biioeai/" target="_blank">Caristan</a></p></div>
+            <!-- Logo -->
+            <a class="navbar-brand" href="#"> <img src="assets/site/logo.svg"> </a>
+
+            <!-- Links -->
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav justify-content-end d-none d-lg-flex ms-md-auto">
+
+                    <!-- Github Icon -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/Dan-Mizu/Project-Virtual-Pond" target="_blank"> <i class="bi bi-github"></i> </a>
+                    </li>
+
+                    <!-- Google Forms Button -->
+                    <li class="nav-item">
+                        <a class="btn btn-outline-dark ms-md-3" href="https://forms.gle/tdthh8ecRybzK5Gz7" target="_blank">Bugs/Suggestions</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Twitch Authentication Button -->
+    <section class="text-center">
+        <a href="/auth/twitch"><button type="button" class="btn btn-twitch btn-lg"><i class="bi bi-twitch"></i> Log In With Twitch</button></a>
+    </section>
+
+    <!-- Footer -->
+    <section>
+        <footer class="pt-4 pb-4">
+            <div class="container">
+                <div class="row text-center">
+                    <div class="col">
+                        <p>Developed By <a class="credit-link" href="https://www.twitter.com/dan_mizu" target="_blank">DanMizu</a> | Music By <a class="credit-link" href="https://www.instagram.com/biioeai/" target="_blank">Caristan</a></p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </section>
 
 </body>
 

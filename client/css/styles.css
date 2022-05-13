@@ -22,54 +22,47 @@ html, body, #game-container {
   image-rendering: pixelated;                  /* Chrome 41 */
 }
 
-/* Useful Classes */
-.vertical-padding {
-  padding-top: 0.5%;
-  padding-bottom: 0.5%;
-}
-.horizontal-padding {
-  padding-left: 0.5%;
-  padding-right: 0.5%;
-}
-.no-padding {
-  padding-top: 1px;
-  padding-bottom: 1px;
-}
-.center-horizontally {
-  display: flex;
-  justify-content: center;
-}
-
 /* Make Game Canvas Have Round Edges */
 #game-container>canvas {
   border-radius: 8px;
 }
 
-/* Logo Size */
-#logo {
-  width: 35%;
+/* Centered Logo */
+.navbar-brand {
+  transform: translateX(-50%);
+  left: 50%;
+  position: absolute;
+}
+.navbar-brand>img {
+  width: 100%;
 }
 
 /* Twitch Button */
 .btn-twitch { 
   color: #FFFFFF; 
   background-color: #6441A5;
-} 
-
+}
 .btn-twitch:hover, .btn-twitch:focus, .btn-twitch:active, .btn-twitch.active, .open .dropdown-toggle.btn-twitch {
   color: #FFFFFF;
   background-color: #472e75;
-} 
-
+}
 .btn-twitch:active, .btn-twitch.active, .open .dropdown-toggle.btn-twitch {
   background-image: none;
-} 
-
+}
 .btn-twitch.disabled, .btn-twitch[disabled], fieldset[disabled] .btn-twitch, .btn-twitch.disabled:hover, .btn-twitch[disabled]:hover, fieldset[disabled] .btn-twitch:hover, .btn-twitch.disabled:focus, .btn-twitch[disabled]:focus, fieldset[disabled] .btn-twitch:focus, .btn-twitch.disabled:active, .btn-twitch[disabled]:active, fieldset[disabled] .btn-twitch:active, .btn-twitch.disabled.active, .btn-twitch[disabled].active, fieldset[disabled] .btn-twitch.active {
   background-color: #6441A5;
-} 
-
+}
 .btn-twitch .badge {
   color: #6441A5;
   background-color: #FFFFFF;
+}
+
+/* Credit Links */
+.credit-link, .credit-link:link, .credit-link:active, .credit-link:visited {
+  color: #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+}
+.credit-link:hover {
+  color: #00ff1a;
 }
