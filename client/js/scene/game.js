@@ -27,17 +27,17 @@ var debugMode = false;
 //constants
 // const gameWidth = 24 * 32;
 // const gameHeight = 17 * 32;
-const worldScale = 2;
-const characterScale = 3;
+const worldScale = 1.67;
+const characterScale = 2;
 const overlayPadding = 8;
-const nametagFontSize = 18;
+const nametagFontSize = 14;
 const nametagConfig = {
     fontFamily: 'Arial',
     color: '#ffffff',
     stroke: '#000000',
     strokeThickness: 6,
 };
-const messageFontSize = 22;
+const messageFontSize = 18;
 const messageConfig = {
     fontFamily: 'Arial',
     color: '#000000',
@@ -165,9 +165,9 @@ class Game extends Phaser.Scene {
         this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
 
         //add NPCs
-        this.addNewNPC('Poke', 244.5, 528);
-        this.addNewNPC('Gigi', 132, 625);
-        this.addNewNPC('Jesse', 1099, 922, 'left');
+        this.addNewNPC('Poke', 197, 450);
+        this.addNewNPC('Gigi', 133, 566);
+        this.addNewNPC('Jesse', 1096, 241, 'left');
 
         //add player's character to world
         Client.onJoin();
@@ -351,7 +351,7 @@ class Game extends Phaser.Scene {
         }
 
         //player name
-        var playerName = this.add.text(0, spriteContainer.height - overlayPadding, data.name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
+        var playerName = this.add.text(0, spriteContainer.height, data.name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
 
         //create player container
         playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
@@ -412,7 +412,7 @@ class Game extends Phaser.Scene {
                 targets: player, 
                 x: x,
                 y: y,
-                duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 2.2,
+                duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
                 onComplete: function() { playerInteracting = false; }
             })
         };
@@ -534,7 +534,7 @@ class Game extends Phaser.Scene {
         npcSprite.setY((spriteContainer.height/2));
 
         //npc name
-        var npcName = this.add.text(0, spriteContainer.height - overlayPadding, name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
+        var npcName = this.add.text(0, spriteContainer.height, name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
 
         //create npc container
         npcCharacter[id] = this.add.container(x, y).setSize(spriteContainer.width, spriteContainer.height);

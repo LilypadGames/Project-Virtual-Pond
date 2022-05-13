@@ -1,7 +1,10 @@
 // Initializes Game
 
-const gameWidth = (48 * 32);
-const gameHeight = (34 * 32);
+// const gameWidth = (48 * 32);
+// const gameHeight = (34 * 32);
+
+const gameWidth = 1280;
+const gameHeight = 800;
 
 //runs when window loads
 window.onload = function() {
@@ -14,12 +17,12 @@ window.onload = function() {
         scale: {
             parent: 'game-container',
             fullscreenTarget: 'game-container',
-            mode: Phaser.Scale.ENVELOP,
+            mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
             resolution: window.devicePixelRatio,
             max: {
-                width: gameWidth / 1.5,
-                height: gameHeight / 1.5
+                width: gameWidth,
+                height: gameHeight
             },
             width: gameWidth,
             height: gameHeight
