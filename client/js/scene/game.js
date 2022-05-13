@@ -104,7 +104,7 @@ class Game extends Phaser.Scene {
         };
 
         //chat box
-        var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.8, 50, {
+        var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.6, 40, {
             id: 'chat-box',
             type: 'text',
             text: '',
@@ -156,8 +156,8 @@ class Game extends Phaser.Scene {
                 //tell server that this client stopped its movement
                 if (event.key === 's') { Client.onHalt(playerCharacter[clientPlayerID].x, playerCharacter[clientPlayerID].y) };
 
-                //toggle console logging
-                if (event.key === 'Shift') { this.toggleDebugMode(); };
+                // //toggle console logging
+                // if (event.key === 'Shift') { this.toggleDebugMode(); };
             };
         });
 
