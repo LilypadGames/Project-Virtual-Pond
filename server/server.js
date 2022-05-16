@@ -182,7 +182,7 @@ io.on('connection', async function(socket) {
         };
 
         //LOG player joined
-        console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Joined the Pond'));
+        console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
 
         //send THIS client it's ID
         socket.emit('getPlayerID', socket.player.id);
@@ -191,7 +191,7 @@ io.on('connection', async function(socket) {
         socket.on('playerReloaded', async function() {
 
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Reloaded the Pond'));
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Reloaded the Pond'));
 
             //send current position of all connected players
             const currentPlayers = await getAllPlayers();
@@ -203,7 +203,7 @@ io.on('connection', async function(socket) {
             if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
 
                 //log
-                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Moving To> x:' + data.x + ', y:' + data.y));
+                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Moving To> x:' + data.x + ', y:' + data.y));
 
                 //store player location
                 socket.player.x = data.x;
@@ -219,7 +219,7 @@ io.on('connection', async function(socket) {
             if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
 
                 //log
-                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
+                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
 
                 //store player location
                 socket.player.x = data.x;
@@ -235,7 +235,7 @@ io.on('connection', async function(socket) {
         socket.on('playerSendingMessage', function(message) {
 
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Sending Message> ' + message));
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
 
             //format message
             message == message.trim().replace(/\s+/g, " ");
@@ -250,7 +250,7 @@ io.on('connection', async function(socket) {
         socket.on('playerChangedColor', function(newTint) {
 
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Changed Tint> ' + newTint));
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Tint> ' + newTint));
 
             //store player tint
             socket.player.tint = newTint;
@@ -263,7 +263,7 @@ io.on('connection', async function(socket) {
         socket.on('disconnect', function() {
 
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' - Left the Pond'));
+            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left the Pond'));
 
             //send the removal of the player for all clients
             io.emit('removePlayer', socket.player.id);
