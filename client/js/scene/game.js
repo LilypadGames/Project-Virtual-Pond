@@ -119,8 +119,13 @@ class Game extends Phaser.Scene {
         .on('keydown', function (chatBox, event) {
             if (event.key == 'Enter') {
 
+                //format message
+                const chatMessage = chatBox.text.trim().replace(/\s+/g, " ");
+
                 //send the message to the server
-                Client.sendMessage(chatBox.text.trim().replace(/\s+/g, " "));
+                if (chatMessage !== '' || null) {
+                    Client.sendMessage(chatMessage);
+                };
 
                 //clear chat box
                 chatBox.setText('');
