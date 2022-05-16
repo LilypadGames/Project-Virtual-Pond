@@ -18,7 +18,8 @@ var npcCollider = {};
 const npcLines = [
     ['*cough* i\'m sick', 'yo', 'i\'ll go live later on lacari', 'time for a water break', 'ACTually trolling...'],
     ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
-    ['theres this new NFT drop i\'m really excited about', 'ever heard of hangry hippos?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...']
+    ['theres this new NFT drop i\'m really excited about', 'ever heard of hangry hippos?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...'],
+    ['IDGAF']
 ];
 
 //init debug variables
@@ -77,6 +78,7 @@ class Game extends Phaser.Scene {
         this.load.image('Poke', 'assets/npc/poke.png');
         this.load.image('Gigi', 'assets/npc/gigi.png');
         this.load.image('Jesse', 'assets/npc/jesse.png');
+        this.load.image('Snic', 'assets/npc/snic.png');
 
         //plugins
         this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
@@ -171,6 +173,7 @@ class Game extends Phaser.Scene {
         this.addNewNPC('Poke', 197, 450);
         this.addNewNPC('Gigi', 133, 566);
         this.addNewNPC('Jesse', 1096, 241, 'left');
+        this.addNewNPC('Snic', 899, 670, 'left');
 
         //add player's character to world
         Client.onJoin();
