@@ -30,6 +30,6 @@ module.exports ={
     createDirectory: function(dir) {
         if (!fs.existsSync(dir)){
             fs.mkdirSync(dir);
-        }
+        };
     }
 }
