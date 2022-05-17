@@ -1,13 +1,12 @@
-#directories
+#node files
 node_modules
-
-#files
-*.tgz
-*.log
 package-lock.json
 
 #macOS files
 .DS_Store
 
-#config
+#configs
 config.json
+
+#logs
+server/logs
