@@ -24,5 +24,12 @@ module.exports ={
     //get log file
     getLogFile: function(type) {
         return fs.createWriteStream(__dirname + '/logs/' + type + '/' + this.getCurrentDay() + '.txt', { flags: 'a' });
+    },
+
+    //create directory if doesnt exist
+    createDirectory: function(dir) {
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
     }
 }

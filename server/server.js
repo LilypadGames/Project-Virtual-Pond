@@ -9,6 +9,8 @@ const path = require('path');
 var util = require('util'); 
 
 //setup logging
+utility.createDirectory(__dirname + '/logs/server/');
+utility.createDirectory(__dirname + '/logs/chat/');
 var currentDay = utility.getCurrentDay();
 var consoleLog = utility.getLogFile('server');
 var chatLog = utility.getLogFile('chat');
