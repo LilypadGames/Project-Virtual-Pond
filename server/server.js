@@ -87,8 +87,7 @@ app.use(passport.session());
 app.use('/', express.static(__dirname + '/../client'));
 
 //dependency: misc
-var Filter = require('bad-words'),
-chatFilter = new Filter();
+var chatFilter = require('leo-profanity');
 
 
 ////// AUTHENTICATION
@@ -271,16 +270,20 @@ io.on('connection', async function(socket) {
         //triggers when player sends a message
         socket.on('playerSendingMessage', function(message) {
 
-            //format and filter message
-            var filteredMessage = chatFilter.clean(message.trim().replace(/\s+/g, " "));
-            
             //log
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
             logMessage(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message));
 
+            //sanitize message
+            message = typeof(message) === 'string' && message.trim().length > 0 ? message.trim() : '';
+
+            //format and filter message
+            // var filteredMessage = chatFilter.clean(message.trim().replace(/\s+/g, " "));
+            message = chatFilter.clean(message);
+
             //send the player message to all clients
             if (message !== '' || null) {
-                io.emit('showPlayerMessage', {id: socket.player.id, message: filteredMessage});
+                io.emit('showPlayerMessage', {id: socket.player.id, message: message});
             };
         });
 
