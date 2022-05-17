@@ -21,16 +21,14 @@
   "license": "GNU GPL V3.0",
   "dependencies": {
     "express": "^4.15.2",
-    "express-session": "^1.17.2",
+    "express-session": "^1.17.3",
     "firebase-admin": "^10.2.0",
     "fs": "0.0.1-security",
     "leo-profanity": "^1.5.0",
-    "passport": "^0.5.2",
+    "passport": "^0.5.3",
     "passport-oauth": "^1.0.0",
     "path": "^0.12.7",
     "request": "^2.88.2",
-    "sanitize": "^2.1.0",
-    "socket.io": "^4.5.0",
-    "swearjar": "^0.2.0"
+    "socket.io": "^4.5.0"
   }
 }
