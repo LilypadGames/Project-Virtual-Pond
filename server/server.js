@@ -1,18 +1,52 @@
 // Handles Server
 
 //imports
-const util = require(__dirname + '/utility');
+const utility = require(__dirname + '/utility');
 
 //dependency: File Parsing
 const fs = require('fs');
 const path = require('path');
+var util = require('util'); 
+
+//setup logging
+var currentDay = utility.getCurrentDay();
+var consoleLog = utility.getLogFile('server');
+var chatLog = utility.getLogFile('chat');
+
+//override console.log function to write to the console log file
+console.log = function () {
+
+    //if day changed, create new log file
+    if (currentDay != utility.getCurrentDay()) {
+        currentDay = utility.getCurrentDay();
+        consoleLog = utility.getLogFile('server');
+    };
+
+    //write to log
+    consoleLog.write(util.format.apply(null, arguments) + '\n');
+    process.stdout.write(util.format.apply(null, arguments) + '\n');
+};
+console.error = console.log;
+
+//log chat messages to chat log
+function logMessage(message) {
+    
+    //if day changed, create new log file
+    if (currentDay != utility.getCurrentDay()) {
+        currentDay = utility.getCurrentDay();
+        chatLog = utility.getLogFile('chat');
+    };
+
+    //write to log
+    chatLog.write(message + '\n');
+};
 
 //get config values
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, '/config/config.json')));
 
 //dependency: web server
-var express        = require('express');
-var session        = require('express-session');
+var express = require('express');
+var session = require('express-session');
 
 //init web server
 var app = express();
@@ -146,7 +180,7 @@ app.get('/', function (req, res) {
 
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {
-    console.log(util.timestampString('Listening on port ' + server.address().port));
+    console.log(utility.timestampString('WEB SERVER STARTED> Listening on port ' + server.address().port));
 });
 
 
@@ -171,8 +205,8 @@ io.on('connection', async function(socket) {
             id: twitchID,
 
             //generate starting location
-            x: util.getRandomInt(0, 24 * 32),
-            y: util.getRandomInt(0, 17 * 32),
+            x: utility.getRandomInt(0, 24 * 32),
+            y: utility.getRandomInt(0, 17 * 32),
 
             //get name
             name: twitchName,
@@ -182,7 +216,7 @@ io.on('connection', async function(socket) {
         };
 
         //LOG player joined
-        console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
 
         //send THIS client it's ID
         socket.emit('getPlayerID', socket.player.id);
@@ -191,7 +225,7 @@ io.on('connection', async function(socket) {
         socket.on('playerReloaded', async function() {
 
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Reloaded the Pond'));
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Reloaded the Pond'));
 
             //send current position of all connected players
             const currentPlayers = await getAllPlayers();
@@ -203,7 +237,7 @@ io.on('connection', async function(socket) {
             if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
 
                 //log
-                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Moving To> x:' + data.x + ', y:' + data.y));
+                console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Moving To> x:' + data.x + ', y:' + data.y));
 
                 //store player location
                 socket.player.x = data.x;
@@ -219,7 +253,7 @@ io.on('connection', async function(socket) {
             if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
 
                 //log
-                console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
+                console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
 
                 //store player location
                 socket.player.x = data.x;
@@ -234,15 +268,16 @@ io.on('connection', async function(socket) {
         //triggers when player sends a message
         socket.on('playerSendingMessage', function(message) {
 
+            //format and filter message
+            var filteredMessage = chatFilter.clean(message.trim().replace(/\s+/g, " "));
+            
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
-
-            //format message
-            message == message.trim().replace(/\s+/g, " ");
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
+            logMessage(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message));
 
             //send the player message to all clients
             if (message !== '' || null) {
-                io.emit('showPlayerMessage', {id: socket.player.id, message: chatFilter.clean(message.trim().replace(/\s+/g, " ")) });
+                io.emit('showPlayerMessage', {id: socket.player.id, message: filteredMessage});
             };
         });
 
@@ -250,7 +285,7 @@ io.on('connection', async function(socket) {
         socket.on('playerChangedColor', function(newTint) {
 
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Tint> ' + newTint));
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Tint> ' + newTint));
 
             //store player tint
             socket.player.tint = newTint;
@@ -263,7 +298,7 @@ io.on('connection', async function(socket) {
         socket.on('disconnect', function() {
 
             //log
-            console.log(util.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left the Pond'));
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left the Pond'));
 
             //send the removal of the player for all clients
             io.emit('removePlayer', socket.player.id);

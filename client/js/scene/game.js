@@ -141,7 +141,7 @@ class Game extends Phaser.Scene {
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
             };
-            
+
             //tell the server that the player is moving
             Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
         });
@@ -188,7 +188,7 @@ class Game extends Phaser.Scene {
             loop: true,
             delay: 0
         });
-        
+
         //stop music from pausing when player looks at another program/tab
         this.sound.pauseOnBlur = false;
 
