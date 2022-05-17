@@ -6,15 +6,17 @@ const utility = require(__dirname + '/utility');
 //dependency: File Parsing
 const fs = require('fs');
 const path = require('path');
-var util = require('util'); 
+var util = require('util');
 
 //setup logging
+var currentDay = utility.getCurrentDay();
 utility.createDirectory(__dirname + '/logs/');
 utility.createDirectory(__dirname + '/logs/server/');
 utility.createDirectory(__dirname + '/logs/chat/');
-var currentDay = utility.getCurrentDay();
+utility.createDirectory(__dirname + '/logs/moderation/');
 var consoleLog = utility.getLogFile('server');
 var chatLog = utility.getLogFile('chat');
+var moderationLog = utility.getLogFile('moderation');
 
 //override console.log function to write to the console log file
 console.log = function () {
@@ -32,7 +34,7 @@ console.log = function () {
 console.error = console.log;
 
 //log chat messages to chat log
-function logMessage(message) {
+function logChatMessage(message) {
     
     //if day changed, create new log file
     if (currentDay != utility.getCurrentDay()) {
@@ -42,6 +44,18 @@ function logMessage(message) {
 
     //write to log
     chatLog.write(message + '\n');
+};
+
+function logModerationMessage(message) {
+    
+    //if day changed, create new log file
+    if (currentDay != utility.getCurrentDay()) {
+        currentDay = utility.getCurrentDay();
+        moderationLog = utility.getLogFile('moderation');
+    };
+
+    //write to log
+    moderationLog.write(message + '\n');
 };
 
 //get config values
@@ -123,10 +137,8 @@ passport.deserializeUser(function(user, done) {
     done(null, user);
 });
 
-//get user info
-var twitchName;
-var twitchID;
-var twitchImage;
+//user profile
+var userProfile = {};
 
 passport.use('twitch', new OAuth2Strategy({
 
@@ -143,9 +155,15 @@ passport.use('twitch', new OAuth2Strategy({
         profile.refreshToken = refreshToken;
 
         //get user info
-        twitchName = profile.data[0].display_name;
-        twitchID = profile.data[0].id;
-        twitchImage = profile.data[0].profile_image_url;
+        profile.twitchID = profile.data[0].id;
+        profile.twitchName = profile.data[0].display_name;
+
+        userProfile = {
+            id: profile.twitchID,
+            accessToken: profile.accessToken,
+            refreshToken: profile.refreshToken,
+            name: profile.twitchName
+        };
 
         //store user info in firebase
         // database.ref('users').set()
@@ -158,7 +176,7 @@ passport.use('twitch', new OAuth2Strategy({
 ));
 
 //set route to start OAuth link, this is where you define scopes to request
-app.get('/auth/twitch', passport.authenticate('twitch', { scope: 'user_read' }));
+app.get('/auth/twitch', passport.authenticate('twitch', { force_verify: true , scope: 'user_read' }));
 
 //set route for OAuth redirect
 app.get('/auth/twitch/callback', passport.authenticate('twitch', { successRedirect: '/', failureRedirect: '/' }));
@@ -168,14 +186,14 @@ app.get('/', function (req, res) {
 
     //successfully authenticated
     if (req.session && req.session.passport && req.session.passport.user) {
-        // res.send(template(req.session.passport.user));
+        //res.send(template(req.session.passport.user));
         res.sendFile('index.html', { root: 'client/html' });
     }
 
     //request authentication
     else {
         res.sendFile('auth.html', { root: 'client/html' });
-    }
+    };
 });
 
 //////
@@ -194,24 +212,24 @@ server.lastPlayerID = 0;
 //on new websocket connection
 io.on('connection', async function(socket) {
 
-    //kick other connection instances of this player
-    kickOtherInstance(twitchID);
-
     //triggers on new player loading the world
     socket.on('playerLoadedWorld', async function() {
+
+        //kick other connection instances of this player
+        await kickOtherInstance(userProfile.id);
 
         //set up player data
         socket.player = {
 
             //get ID
-            id: twitchID,
+            id: userProfile.id,
 
             //generate starting location
             x: utility.getRandomInt(0, 24 * 32),
             y: utility.getRandomInt(0, 17 * 32),
 
             //get name
-            name: twitchName,
+            name: userProfile.name,
 
             //get tint
             tint: Math.random() * 0xffffff
@@ -272,7 +290,19 @@ io.on('connection', async function(socket) {
 
             //log
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
-            logMessage(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message));
+            logChatMessage(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message));
+
+            //kick if larger than allowed max length
+            if (message.length > 80) {
+
+                //kick
+                kickInstance(socket.player, 'Abusing chat message maximum length.');
+
+                //add flag to user profile in database
+
+                //do not do the rest
+                return;
+            };
 
             //sanitize message
             message = typeof(message) === 'string' && message.trim().length > 0 ? message.trim() : '';
@@ -363,5 +393,40 @@ async function kickOtherInstance(id) {
         };
     };
 };
+
+//kick client
+async function kickInstance(player, reason, kickMessage = 'You have been kicked.') {
+
+    //log
+    logLine = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
+    console.log(logLine);
+    logModerationMessage(logLine);
+
+    //get connected clients
+    const connectedClients = await io.fetchSockets();
+
+    //loop through connected clients
+    for (const client of connectedClients) {
+
+        //if this client has player information
+        if (client.player) {
+            //get player ID
+            var playerID = client.player.id
+
+            //kick currently connected clients if they match the ID of the client attempting to connect
+            if(playerID == player.id){
+
+                //send kick message
+                io.emit('getKickReason', kickMessage);
+
+                //kick client
+                client.disconnect();
+
+                //end loop
+                break;
+            };
+        };
+    };
+}
 
 //////
