@@ -45,6 +45,7 @@ const messageConfig = {
     padding: { left: 8, right: 8, top: 6, bottom: 6 },
     wordWrap: { width: 250 }
 };
+const messageLength = 80;
 
 class Game extends Phaser.Scene {
     // INIT
@@ -116,13 +117,13 @@ class Game extends Phaser.Scene {
             borderColor: '#64BEFF',
             spellCheck: false,
             autoComplete: false,
-            maxLength: 80
+            maxLength: messageLength
         })
         .on('keydown', function (chatBox, event) {
             if (event.key == 'Enter') {
 
                 //format message
-                const chatMessage = chatBox.text.trim().replace(/\s+/g, " ");
+                const chatMessage = chatBox.text.substr(0, messageLength).trim().replace(/\s+/g, " ");
 
                 //send the message to the server
                 if (chatMessage !== '' || null) {

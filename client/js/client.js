@@ -3,6 +3,9 @@
 //connect to server
 socket = io.connect();
 
+//variables
+var kickReason = '';
+
 class Client {
     constructor(scene) {
         Game = scene;
@@ -50,9 +53,26 @@ socket.on('addNewPlayer', function(data) {
     Game.addNewPlayer(data);
 });
 
+//recieve kick reason
+socket.on('getKickReason', function(reason) {
+    kickReason = reason;
+});
+
 //on this client disconnecting
 socket.on('disconnect', function(){
-    Game.showDialog(['Disconnected', 'Please refresh to log back in.', 'Refresh']);
+
+    //reason default
+    if (kickReason == '' | null) {
+        kickReason = 'Please refresh to log back in.';
+    };
+
+    //show disconnect dialog
+    Game.showDialog(['Disconnected', kickReason, 'Refresh']);
+
+    //reset kick reason
+    kickReason = '';
+
+    //disconnect player
     socket.disconnect();
 });
 
