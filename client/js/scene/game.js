@@ -22,10 +22,13 @@ const npcLines = [
     ['IDGAF']
 ];
 
+//init UI variables
+var uiInteract = false;
+
 //init debug variables
 var debugMode = false;
 
-//constants
+//UI
 const worldScale = 1.67;
 const characterScale = 2;
 const overlayPadding = 8;
@@ -46,6 +49,8 @@ const messageConfig = {
     wordWrap: { width: 250 }
 };
 const messageLength = 80;
+var toast;
+const toastFontSize = 18;
 
 class Game extends Phaser.Scene {
     // INIT
@@ -99,10 +104,53 @@ class Game extends Phaser.Scene {
         const tileset = map.addTilesetImage('tilesheet', 'tileset'); //'tilesheet' is the key of the tileset in map's JSON file
 
         //set up tilemap layers
-        var layer;
         for(var i = 0; i < map.layers.length; i++) {
-            layer = map.createLayer(i, tileset).setScale(worldScale);
+            const layer = map.createLayer(i, tileset).setScale(worldScale);
         };
+
+        //play music
+        this.sound.play('chill_pond', {
+            mute: false,
+            volume: 1,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
+        //stop music from pausing when player looks at another program/tab
+        this.sound.pauseOnBlur = false;
+
+        //volume button
+        var print = this.add.text(400, 0, '');
+        var volumeButton = this.rexUI.add.buttons({
+            x: 1090,
+            y: 772,
+            orientation: 'y',
+
+            buttons: [
+                this.createButton('🔊', 16),
+            ]
+        })
+        .layout()
+        .on('button.click', function (button, index, pointer, event) {
+            uiInteract = true;
+            setTimeout(() => {
+                if (uiInteract) uiInteract = false;
+            }, 200);
+            print.text += `Click button-${button.text}\n`;
+            // volumeButton.setButtonEnable(false)
+            // setTimeout(() => {
+            //     volumeButton.setButtonEnable(true)
+            // }, 1000);
+        })
+        // .on('button.out', function () {
+        //     print.text += 'Pointer-out\n';
+        // })
+        // .on('button.over', function () {
+        //     print.text += 'Pointer-over\n';
+        // });
 
         //chat box
         var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.6, 40, {
@@ -135,12 +183,36 @@ class Game extends Phaser.Scene {
             };
         });
 
+        //format toasts
+        toast = this.rexUI.add.toast({
+            x: this.canvas.width/2,
+            y: 30,
+            height: toastFontSize,
+        
+            background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x5e92f3),
+            text: this.add.text(0, 0, '', {
+                fontSize: toastFontSize
+            }),
+            space: {
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: 20,
+            },
+        });
+
         //register left click input
         this.input.on('pointerdown', () => {
 
             //un-focus chatbox
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
+            };
+
+            console.log(uiInteract)
+
+            if (uiInteract = false) {
+                return;
             };
 
             //tell the server that the player is moving
@@ -178,20 +250,6 @@ class Game extends Phaser.Scene {
 
         //add player's character to world
         Client.onJoin();
-
-        //play music
-        this.sound.play('chill_pond', {
-            mute: false,
-            volume: 1,
-            rate: 1,
-            detune: 0,
-            seek: 0,
-            loop: true,
-            delay: 0
-        });
-
-        //stop music from pausing when player looks at another program/tab
-        this.sound.pauseOnBlur = false;
 
         //debug
         var debugCursor = this.add.image(8, 8, "target").setVisible(false);
@@ -231,15 +289,15 @@ class Game extends Phaser.Scene {
     };
 
     //create text with background
-    createLabel(text, align = 'left', backgroundColor = 0x5e92f3) {
+    createLabel(text, textSize, align = 'left', backgroundColor = 0x5e92f3) {
         return this.rexUI.add.label({
             width: 80, // Minimum width of round-rectangle
             height: 80, // Minimum height of round-rectangle
-          
+
             background: this.rexUI.add.roundRectangle(0, 0, 100, 40, 20, backgroundColor),
-    
+
             text: this.add.text(0, 0, text, {
-                fontSize: '48px'
+                fontSize: textSize
             }),
 
             align: align,
@@ -251,6 +309,30 @@ class Game extends Phaser.Scene {
                 bottom: 10
             }
         });
+    };
+
+    //create label for buttons
+    createButton(text, textSize, backgroundColor = 0x5e92f3) {
+        return this.rexUI.add.label({
+            width: textSize + 10,
+            height: textSize + 10,
+            background: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, backgroundColor),
+            text: this.add.text(0, 0, text, {
+                fontSize: textSize
+            }),
+            space: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+            }
+        });
+    }
+
+    //show toast
+    showToast(message) {
+        toast.showMessage(message);
+        console.log(message);
     };
 
     //show dialog box on screen
@@ -269,12 +351,12 @@ class Game extends Phaser.Scene {
 
             background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
 
-            title: this.createLabel(title, 'center', 0x1565c0),
+            title: this.createLabel(title, 48, 'center', 0x1565c0),
 
-            content: this.createLabel(message, 'center', 0x1565c0),
+            content: this.createLabel(message, 40, 'center', 0x1565c0),
 
             actions: [
-                this.createLabel(option, 'center')
+                this.createLabel(option, 40, 'center')
             ],
 
             space: {
@@ -665,6 +747,9 @@ class Game extends Phaser.Scene {
 
         //schedule message for removal
         this.time.delayedCall(messageData.messageDuration, this.removeMessage, [id, this.time.now, characterType], this);
+        // setTimeout(() => {
+        //     this.removeMessage(id, this.time.now, characterType);
+        // }, messageData.messageDuration);
     };
 
     //remove player message

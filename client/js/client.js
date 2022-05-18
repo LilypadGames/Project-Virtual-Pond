@@ -58,6 +58,11 @@ socket.on('getKickReason', function(reason) {
     kickReason = reason;
 });
 
+//recieve console message
+socket.on('consoleMessage', function(message) {
+    Game.showToast(message);
+});
+
 //on this client disconnecting
 socket.on('disconnect', function(){
 

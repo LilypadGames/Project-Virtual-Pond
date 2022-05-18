@@ -5,6 +5,7 @@ html, body {
 /* Cancel Scrolling, Determine Font, and Create Background */
 body {
   margin: 0;
+  padding: 0;
   background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
   font-family: 'Source Sans Pro', sans-serif;
   color: #FFFFFF;

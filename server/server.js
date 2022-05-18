@@ -154,16 +154,16 @@ passport.use('twitch', new OAuth2Strategy({
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
 
-        //get user info
-        profile.twitchID = profile.data[0].id;
-        profile.twitchName = profile.data[0].display_name;
+        // //get user info
+        // profile.twitchID = profile.data[0].id;
+        // profile.twitchName = profile.data[0].display_name;
 
-        userProfile = {
-            id: profile.twitchID,
-            accessToken: profile.accessToken,
-            refreshToken: profile.refreshToken,
-            name: profile.twitchName
-        };
+        // userProfile = {
+        //     id: profile.twitchID,
+        //     accessToken: profile.accessToken,
+        //     refreshToken: profile.refreshToken,
+        //     name: profile.twitchName
+        // };
 
         //store user info in firebase
         // database.ref('users').set()
@@ -186,6 +186,13 @@ app.get('/', function (req, res) {
 
     //successfully authenticated
     if (req.session && req.session.passport && req.session.passport.user) {
+
+        //get user data for this authenticated session
+        userProfile = {
+            id: req.session.passport.user.data[0].id,
+            name: req.session.passport.user.data[0].display_name
+        };
+
         //res.send(template(req.session.passport.user));
         res.sendFile('index.html', { root: 'client/html' });
     }
@@ -211,6 +218,7 @@ server.lastPlayerID = 0;
 
 //on new websocket connection
 io.on('connection', async function(socket) {
+    const repl = require('repl')
 
     //triggers on new player loading the world
     socket.on('playerLoadedWorld', async function() {
@@ -235,7 +243,7 @@ io.on('connection', async function(socket) {
             tint: Math.random() * 0xffffff
         };
 
-        //LOG player joined
+        //log
         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
 
         //send THIS client it's ID
@@ -345,6 +353,14 @@ io.on('connection', async function(socket) {
 
         //send all currently connected players to THIS client
         socket.emit('getAllPlayers', await getAllPlayers());
+
+        //get console input
+        repl.start({
+            prompt: '',
+            eval: (input) => {
+                socket.emit('consoleMessage', input);
+            }
+        })
     });
 });
 
