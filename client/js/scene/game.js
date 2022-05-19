@@ -49,8 +49,8 @@ const messageConfig = {
     wordWrap: { width: 250 }
 };
 const messageLength = 80;
-var toast;
-const toastFontSize = 18;
+// var toast;
+// const toastFontSize = 18;
 
 class Game extends Phaser.Scene {
     // INIT
@@ -101,7 +101,7 @@ class Game extends Phaser.Scene {
 
         //set up tilemap/tileset
         var map = this.make.tilemap({ key: 'map' });
-        const tileset = map.addTilesetImage('tilesheet', 'tileset'); //'tilesheet' is the key of the tileset in map's JSON file
+        const tileset = map.addTilesetImage('tilesheet', 'tileset'); //the first value is the key of the tileset in map's JSON file
 
         //set up tilemap layers
         for(var i = 0; i < map.layers.length; i++) {
@@ -122,35 +122,35 @@ class Game extends Phaser.Scene {
         //stop music from pausing when player looks at another program/tab
         this.sound.pauseOnBlur = false;
 
-        //volume button
-        var print = this.add.text(400, 0, '');
-        var volumeButton = this.rexUI.add.buttons({
-            x: 1090,
-            y: 772,
-            orientation: 'y',
+        // //volume button
+        // var print = this.add.text(400, 0, '');
+        // var volumeButton = this.rexUI.add.buttons({
+        //     x: 1090,
+        //     y: 772,
+        //     orientation: 'y',
 
-            buttons: [
-                this.createButton('🔊', 16),
-            ]
-        })
-        .layout()
-        .on('button.click', function (button, index, pointer, event) {
-            uiInteract = true;
-            setTimeout(() => {
-                if (uiInteract) uiInteract = false;
-            }, 200);
-            print.text += `Click button-${button.text}\n`;
-            // volumeButton.setButtonEnable(false)
-            // setTimeout(() => {
-            //     volumeButton.setButtonEnable(true)
-            // }, 1000);
-        })
-        // .on('button.out', function () {
-        //     print.text += 'Pointer-out\n';
+        //     buttons: [
+        //         this.createButton('🔊', 16),
+        //     ]
         // })
-        // .on('button.over', function () {
-        //     print.text += 'Pointer-over\n';
-        // });
+        // .layout()
+        // .on('button.click', function (button, index, pointer, event) {
+        //     uiInteract = true;
+        //     setTimeout(() => {
+        //         if (uiInteract) uiInteract = false;
+        //     }, 200);
+        //     print.text += `Click button-${button.text}\n`;
+        //     // volumeButton.setButtonEnable(false)
+        //     // setTimeout(() => {
+        //     //     volumeButton.setButtonEnable(true)
+        //     // }, 1000);
+        // })
+        // // .on('button.out', function () {
+        // //     print.text += 'Pointer-out\n';
+        // // })
+        // // .on('button.over', function () {
+        // //     print.text += 'Pointer-over\n';
+        // // });
 
         //chat box
         var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.6, 40, {
@@ -183,23 +183,23 @@ class Game extends Phaser.Scene {
             };
         });
 
-        //format toasts
-        toast = this.rexUI.add.toast({
-            x: this.canvas.width/2,
-            y: 30,
-            height: toastFontSize,
+        // //format toasts
+        // toast = this.rexUI.add.toast({
+        //     x: this.canvas.width/2,
+        //     y: 30,
+        //     height: toastFontSize,
         
-            background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x5e92f3),
-            text: this.add.text(0, 0, '', {
-                fontSize: toastFontSize
-            }),
-            space: {
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: 20,
-            },
-        });
+        //     background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x5e92f3),
+        //     text: this.add.text(0, 0, '', {
+        //         fontSize: toastFontSize
+        //     }),
+        //     space: {
+        //         left: 20,
+        //         right: 20,
+        //         top: 20,
+        //         bottom: 20,
+        //     },
+        // });
 
         //register left click input
         this.input.on('pointerdown', () => {
@@ -209,11 +209,11 @@ class Game extends Phaser.Scene {
                 chatBox.setBlur();
             };
 
-            console.log(uiInteract)
+            // console.log(uiInteract)
 
-            if (uiInteract = false) {
-                return;
-            };
+            // if (uiInteract = false) {
+            //     return;
+            // };
 
             //tell the server that the player is moving
             Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
@@ -329,11 +329,11 @@ class Game extends Phaser.Scene {
         });
     }
 
-    //show toast
-    showToast(message) {
-        toast.showMessage(message);
-        console.log(message);
-    };
+    // //show toast
+    // showToast(message) {
+    //     toast.showMessage(message);
+    //     console.log(message);
+    // };
 
     //show dialog box on screen
     showDialog(content) {
@@ -597,7 +597,7 @@ class Game extends Phaser.Scene {
         var playerBody = playerSprites.list[0];
 
         //update players color
-        playerBody.tint = data.tint;
+        playerBody.tint = data.color;
     };
 
     //adds NPC character to the game

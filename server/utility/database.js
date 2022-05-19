@@ -13,26 +13,25 @@ var firebase = require("firebase-admin");
 //init database
 firebase.initializeApp({
     credential: firebase.credential.cert(config.firebase),
-    databaseURL: "https://project-virtual-pond-default-rtdb.firebaseio.com"
+    databaseURL: config.database.databaseURL
 });
 const database = firebase.database();
 
-module.exports ={
+module.exports = {
 
     setValue: function(path, value){
         database.ref(path).set(value);
     },
 
-    getValue: function(path, value) {
-        
+    getValue: async function(path) {
+        var value;
+        await database.ref(path).orderByKey().once('value', async (data) => {
+            value = await data.val();
+        });
+        return value;
     },
 
-    valueExists: function(path, value) {
-
-        if () {
-            return true;
-        } else {
-            return false;
-        };
+    pathExists: async function(path) {
+        return await database.ref(path).orderByKey().limitToFirst(1).once('value').then(res => res.exists());
     }
 }
