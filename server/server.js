@@ -1,62 +1,14 @@
 // Handles Server
 
-//imports
-const utility = require(__dirname + '/utility');
-
-//dependency: File Parsing
+//dependency: file parsing
 const fs = require('fs');
 const path = require('path');
 var util = require('util');
 
-//setup logging
-var currentDay = utility.getCurrentDay();
-utility.createDirectory(__dirname + '/logs/');
-utility.createDirectory(__dirname + '/logs/server/');
-utility.createDirectory(__dirname + '/logs/chat/');
-utility.createDirectory(__dirname + '/logs/moderation/');
-var consoleLog = utility.getLogFile('server');
-var chatLog = utility.getLogFile('chat');
-var moderationLog = utility.getLogFile('moderation');
-
-//override console.log function to write to the console log file
-console.log = function () {
-
-    //if day changed, create new log file
-    if (currentDay != utility.getCurrentDay()) {
-        currentDay = utility.getCurrentDay();
-        consoleLog = utility.getLogFile('server');
-    };
-
-    //write to log
-    consoleLog.write(util.format.apply(null, arguments) + '\n');
-    process.stdout.write(util.format.apply(null, arguments) + '\n');
-};
-console.error = console.log;
-
-//log chat messages to chat log
-function logChatMessage(message) {
-    
-    //if day changed, create new log file
-    if (currentDay != utility.getCurrentDay()) {
-        currentDay = utility.getCurrentDay();
-        chatLog = utility.getLogFile('chat');
-    };
-
-    //write to log
-    chatLog.write(message + '\n');
-};
-
-function logModerationMessage(message) {
-    
-    //if day changed, create new log file
-    if (currentDay != utility.getCurrentDay()) {
-        currentDay = utility.getCurrentDay();
-        moderationLog = utility.getLogFile('moderation');
-    };
-
-    //write to log
-    moderationLog.write(message + '\n');
-};
+//imports
+const utility = require(path.join(__dirname, '/utility/utility'));
+const database = require(path.join(__dirname, '/utility/database'));
+const logs = require(path.join(__dirname, '/utility/logs'));
 
 //get config values
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, '/config/config.json')));
@@ -77,16 +29,6 @@ var server = require('http').Server(app);
 //dependency: websocket
 var io = require('socket.io')(server);
 
-//dependency: database
-var firebase = require("firebase-admin");
-
-//init database
-firebase.initializeApp({
-    credential: firebase.credential.cert(config.firebase),
-    databaseURL: "https://project-virtual-pond-default-rtdb.firebaseio.com"
-});
-var database = firebase.database();
-
 //dependency: authentication
 var passport       = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
@@ -103,12 +45,13 @@ app.use('/', express.static(__dirname + '/../client'));
 //dependency: misc
 var chatFilter = require('leo-profanity');
 
-
 ////// AUTHENTICATION
+
+//user profile
+var userProfile = {};
 
 //override passport profile function to get user profile from Twitch API
 OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
-
     var options = {
         url: 'https://api.twitch.tv/helix/users',
         method: 'GET',
@@ -118,7 +61,6 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             'Authorization': 'Bearer ' + accessToken
         }
     };
-
     request(options, function (error, response, body) {
         if (response && response.statusCode == 200) {
             done(null, JSON.parse(body));
@@ -128,18 +70,12 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
         };
     });
 };
-
 passport.serializeUser(function(user, done) {
     done(null, user);
 });
-
 passport.deserializeUser(function(user, done) {
     done(null, user);
 });
-
-//user profile
-var userProfile = {};
-
 passport.use('twitch', new OAuth2Strategy({
 
     authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
@@ -154,22 +90,15 @@ passport.use('twitch', new OAuth2Strategy({
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
 
-        // //get user info
-        // profile.twitchID = profile.data[0].id;
-        // profile.twitchName = profile.data[0].display_name;
+        //get user info
+        const userID = profile.data[0].id;
+        const userName = profile.data[0].display_name;
 
-        // userProfile = {
-        //     id: profile.twitchID,
-        //     accessToken: profile.accessToken,
-        //     refreshToken: profile.refreshToken,
-        //     name: profile.twitchName
-        // };
-
-        //store user info in firebase
-        // database.ref('users').set()
-        // User.findOrCreate(..., function(err, user) {
-        //  done(err, user);
-        // });
+        //store user info in firebase if not already there
+        database.setValue('users/' + userID, {
+            accessToken: accessToken,
+            name: userName
+        });
 
         done(null, profile);
     }
@@ -203,15 +132,26 @@ app.get('/', function (req, res) {
     };
 });
 
-//////
+////// OVERRIDES
+
+//send console logs to server log file
+console.log = function() {
+
+    //format message
+    const message = util.format.apply(null, arguments);
+
+    //write to log
+    logs.logMessage('server', message);
+    process.stdout.write(message + '\n');
+};
+console.error = console.log;
+
+////// WEBSOCKETS (Socket.io/Express)
 
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {
     console.log(utility.timestampString('WEB SERVER STARTED> Listening on port ' + server.address().port));
 });
-
-
-////// WEBSOCKETS (Socket.io)
 
 //init ID
 server.lastPlayerID = 0;
@@ -298,7 +238,7 @@ io.on('connection', async function(socket) {
 
             //log
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
-            logChatMessage(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message));
+            logs.logMessage('chat', utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message))
 
             //kick if larger than allowed max length
             if (message.length > 80) {
@@ -391,6 +331,7 @@ async function getAllPlayers(){
 
 //disconnect clients with the same ID
 async function kickOtherInstance(id) {
+    
     //get connected clients
     const connectedClients = await io.fetchSockets();
 
@@ -404,6 +345,7 @@ async function kickOtherInstance(id) {
 
             //kick currently connected clients if they match the ID of the client attempting to connect
             if(playerID == id){
+                //kick
                 client.disconnect();
             };
         };
@@ -414,9 +356,9 @@ async function kickOtherInstance(id) {
 async function kickInstance(player, reason, kickMessage = 'You have been kicked.') {
 
     //log
-    logLine = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
-    console.log(logLine);
-    logModerationMessage(logLine);
+    message = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
+    console.log(message);
+    logs.logMessage('moderation', message);
 
     //get connected clients
     const connectedClients = await io.fetchSockets();
