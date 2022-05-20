@@ -2,7 +2,7 @@
 
 **A Physical Space for Twitch Frogs to Hang and Chat.**
 
-A Virtual World game written in HTML/CSS/JS using the Socket.io and Phaser framework. Firebase for the database and Node.js for server management.
+A Virtual World game written in HTML/CSS/JS using Node.js, Phaser3, Socket.io, Express, and Firebase.
 
 ### Planned:
 - Minigames
