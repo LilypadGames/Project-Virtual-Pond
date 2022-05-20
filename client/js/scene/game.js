@@ -3,6 +3,9 @@
 //navigational map
 // var collidableLayer;
 
+//import
+const ui = new UI();
+
 //init player variables
 var clientPlayerID;
 var playerCharacter = {};
@@ -22,10 +25,13 @@ const npcLines = [
     ['IDGAF']
 ];
 
+//init UI variables
+var uiInteract = false;
+
 //init debug variables
 var debugMode = false;
 
-//constants
+//UI
 const worldScale = 1.67;
 const characterScale = 2;
 const overlayPadding = 8;
@@ -46,6 +52,8 @@ const messageConfig = {
     wordWrap: { width: 250 }
 };
 const messageLength = 80;
+// var toast;
+// const toastFontSize = 18;
 
 class Game extends Phaser.Scene {
     // INIT
@@ -96,13 +104,56 @@ class Game extends Phaser.Scene {
 
         //set up tilemap/tileset
         var map = this.make.tilemap({ key: 'map' });
-        const tileset = map.addTilesetImage('tilesheet', 'tileset'); //'tilesheet' is the key of the tileset in map's JSON file
+        const tileset = map.addTilesetImage('tilesheet', 'tileset'); //the first value is the key of the tileset in map's JSON file
 
         //set up tilemap layers
-        var layer;
         for(var i = 0; i < map.layers.length; i++) {
-            layer = map.createLayer(i, tileset).setScale(worldScale);
+            const layer = map.createLayer(i, tileset).setScale(worldScale);
         };
+
+        //play music
+        this.sound.play('chill_pond', {
+            mute: false,
+            volume: 1,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        });
+
+        //stop music from pausing when player looks at another program/tab
+        this.sound.pauseOnBlur = false;
+
+        // //volume button
+        // var print = this.add.text(400, 0, '');
+        // var volumeButton = this.rexUI.add.buttons({
+        //     x: 1090,
+        //     y: 772,
+        //     orientation: 'y',
+
+        //     buttons: [
+        //         this.createButton('🔊', 16),
+        //     ]
+        // })
+        // .layout()
+        // .on('button.click', function (button, index, pointer, event) {
+        //     uiInteract = true;
+        //     setTimeout(() => {
+        //         if (uiInteract) uiInteract = false;
+        //     }, 200);
+        //     print.text += `Click button-${button.text}\n`;
+        //     // volumeButton.setButtonEnable(false)
+        //     // setTimeout(() => {
+        //     //     volumeButton.setButtonEnable(true)
+        //     // }, 1000);
+        // })
+        // // .on('button.out', function () {
+        // //     print.text += 'Pointer-out\n';
+        // // })
+        // // .on('button.over', function () {
+        // //     print.text += 'Pointer-over\n';
+        // // });
 
         //chat box
         var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.6, 40, {
@@ -135,6 +186,24 @@ class Game extends Phaser.Scene {
             };
         });
 
+        // //format toasts
+        // toast = this.rexUI.add.toast({
+        //     x: this.canvas.width/2,
+        //     y: 30,
+        //     height: toastFontSize,
+        
+        //     background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x5e92f3),
+        //     text: this.add.text(0, 0, '', {
+        //         fontSize: toastFontSize
+        //     }),
+        //     space: {
+        //         left: 20,
+        //         right: 20,
+        //         top: 20,
+        //         bottom: 20,
+        //     },
+        // });
+
         //register left click input
         this.input.on('pointerdown', () => {
 
@@ -142,6 +211,12 @@ class Game extends Phaser.Scene {
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
             };
+
+            // console.log(uiInteract)
+
+            // if (uiInteract = false) {
+            //     return;
+            // };
 
             //tell the server that the player is moving
             Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
@@ -179,20 +254,6 @@ class Game extends Phaser.Scene {
         //add player's character to world
         Client.onJoin();
 
-        //play music
-        this.sound.play('chill_pond', {
-            mute: false,
-            volume: 1,
-            rate: 1,
-            detune: 0,
-            seek: 0,
-            loop: true,
-            delay: 0
-        });
-
-        //stop music from pausing when player looks at another program/tab
-        this.sound.pauseOnBlur = false;
-
         //debug
         var debugCursor = this.add.image(8, 8, "target").setVisible(false);
         this.input.on("pointermove", function (pointer) {
@@ -213,10 +274,6 @@ class Game extends Phaser.Scene {
     };
 
     // UTILITY
-    setPlayerID(id) {
-        clientPlayerID = id;
-    };
-
     //get players current direction
     getPlayerDirection(id) {
 
@@ -230,114 +287,17 @@ class Game extends Phaser.Scene {
         else if (playerSprites.scaleX < 0) { return 'left' };
     };
 
-    //create text with background
-    createLabel(text, align = 'left', backgroundColor = 0x5e92f3) {
-        return this.rexUI.add.label({
-            width: 80, // Minimum width of round-rectangle
-            height: 80, // Minimum height of round-rectangle
-          
-            background: this.rexUI.add.roundRectangle(0, 0, 100, 40, 20, backgroundColor),
-    
-            text: this.add.text(0, 0, text, {
-                fontSize: '48px'
-            }),
-
-            align: align,
-    
-            space: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10
-            }
-        });
-    };
-
-    //show dialog box on screen
+    //UI
     showDialog(content) {
-
-        //get content
-        const title = content[0];
-        const message = content[1];
-        const option = content[2];
-
-        //create dialog
-        var dialog = this.rexUI.add.dialog({
-            x: this.canvas.width/2,
-            y: this.canvas.height/2,
-            width: 1000,
-
-            background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
-
-            title: this.createLabel(title, 'center', 0x1565c0),
-
-            content: this.createLabel(message, 'center', 0x1565c0),
-
-            actions: [
-                this.createLabel(option, 'center')
-            ],
-
-            space: {
-                left: 20,
-                right: 20,
-                top: -20,
-                bottom: -20,
-
-                title: 25,
-                titleLeft: 30,
-                content: 25,
-                description: 25,
-                descriptionLeft: 20,
-                descriptionRight: 20,
-                choices: 25,
-
-                toolbarItem: 5,
-                choice: 15,
-                action: 15,
-            },
-
-            expand: {
-                title: false
-            },
-
-            align: {
-                title: 'center',
-                content: 'center',
-                actions: 'center'
-            },
-
-            click: {
-                mode: 'release'
-            }
-        })
-        .layout()
-        .popUp(1000)
-
-        //set up interactions with dialog
-        .on('button.click', function (button, groupName, index, pointer, event) {
-            // this.print.text += groupName + '-' + index + ': ' + button.text + '\n';
-            window.location.reload();
-        }, this)
-        .on('button.over', function (button, groupName, index, pointer, event) {
-            button.getElement('background').setStrokeStyle(1, 0xffffff);
-        })
-        .on('button.out', function (button, groupName, index, pointer, event) {
-            button.getElement('background').setStrokeStyle();
-        });
-
-        //dialog pop-up animation
-        this.tweens.add({
-            targets: dialog,
-            scaleX: 1,
-            scaleY: 1,
-            ease: 'Bounce', // 'Cubic', 'Elastic', 'Bounce', 'Back'
-            duration: 100,
-            repeat: 0, // -1: infinity
-            yoyo: false
-        });
+        ui.showDialog(this, content);
     };
 
     // FUNCTIONS
+    //get client's ID from the server
+    setPlayerID(id) {
+        clientPlayerID = id;
+    };
+
     //reload the world when window is re-focused
     onFocus() {
         Client.onReload();
@@ -515,7 +475,7 @@ class Game extends Phaser.Scene {
         var playerBody = playerSprites.list[0];
 
         //update players color
-        playerBody.tint = data.tint;
+        playerBody.tint = data.color;
     };
 
     //adds NPC character to the game
@@ -665,6 +625,9 @@ class Game extends Phaser.Scene {
 
         //schedule message for removal
         this.time.delayedCall(messageData.messageDuration, this.removeMessage, [id, this.time.now, characterType], this);
+        // setTimeout(() => {
+        //     this.removeMessage(id, this.time.now, characterType);
+        // }, messageData.messageDuration);
     };
 
     //remove player message

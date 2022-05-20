@@ -38,8 +38,8 @@ class Client {
 
     //tell server that the player has changed its color
     changeLook() {
-        var tint = Math.random() * 0xffffff;
-        socket.emit('playerChangedColor', tint);
+        var color = Math.random() * 0xffffff;
+        socket.emit('playerChangedColor', color);
     };
 };
 
@@ -56,6 +56,11 @@ socket.on('addNewPlayer', function(data) {
 //recieve kick reason
 socket.on('getKickReason', function(reason) {
     kickReason = reason;
+});
+
+//recieve console message
+socket.on('consoleMessage', function(message) {
+    Game.showToast(message);
 });
 
 //on this client disconnecting
@@ -122,7 +127,7 @@ socket.on('getAllPlayers', function(data) {
 
     //recieved update on players look
     socket.on('updatePlayerLook',function(data){
-        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Look> Tint: ' + data.tint)); };
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Look> Color: ' + data.color)); };
         Game.updatePlayerLook(data);
     });
 

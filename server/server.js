@@ -1,62 +1,14 @@
 // Handles Server
 
-//imports
-const utility = require(__dirname + '/utility');
-
-//dependency: File Parsing
+//dependency: file parsing
 const fs = require('fs');
 const path = require('path');
 var util = require('util');
 
-//setup logging
-var currentDay = utility.getCurrentDay();
-utility.createDirectory(__dirname + '/logs/');
-utility.createDirectory(__dirname + '/logs/server/');
-utility.createDirectory(__dirname + '/logs/chat/');
-utility.createDirectory(__dirname + '/logs/moderation/');
-var consoleLog = utility.getLogFile('server');
-var chatLog = utility.getLogFile('chat');
-var moderationLog = utility.getLogFile('moderation');
-
-//override console.log function to write to the console log file
-console.log = function () {
-
-    //if day changed, create new log file
-    if (currentDay != utility.getCurrentDay()) {
-        currentDay = utility.getCurrentDay();
-        consoleLog = utility.getLogFile('server');
-    };
-
-    //write to log
-    consoleLog.write(util.format.apply(null, arguments) + '\n');
-    process.stdout.write(util.format.apply(null, arguments) + '\n');
-};
-console.error = console.log;
-
-//log chat messages to chat log
-function logChatMessage(message) {
-    
-    //if day changed, create new log file
-    if (currentDay != utility.getCurrentDay()) {
-        currentDay = utility.getCurrentDay();
-        chatLog = utility.getLogFile('chat');
-    };
-
-    //write to log
-    chatLog.write(message + '\n');
-};
-
-function logModerationMessage(message) {
-    
-    //if day changed, create new log file
-    if (currentDay != utility.getCurrentDay()) {
-        currentDay = utility.getCurrentDay();
-        moderationLog = utility.getLogFile('moderation');
-    };
-
-    //write to log
-    moderationLog.write(message + '\n');
-};
+//imports
+const utility = require(path.join(__dirname, '/utility/utility'));
+const database = require(path.join(__dirname, '/utility/database'));
+const logs = require(path.join(__dirname, '/utility/logs'));
 
 //get config values
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, '/config/config.json')));
@@ -74,41 +26,48 @@ var server = require('http').Server(app);
 // };
 // var server = require('https').createServer(options, app);
 
-//dependency: websocket
-var io = require('socket.io')(server);
-
-//dependency: database
-var firebase = require("firebase-admin");
-
-//init database
-firebase.initializeApp({
-    credential: firebase.credential.cert(config.firebase),
-    databaseURL: "https://project-virtual-pond-default-rtdb.firebaseio.com"
-});
-var database = firebase.database();
-
 //dependency: authentication
 var passport       = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var request        = require('request');
 
-//init authentication
-app.use(session({secret: config.twitch.sessionSecret, resave: false, saveUninitialized: false}));
-app.use(passport.initialize());
-app.use(passport.session());
+//dependency: misc
+var chatFilter = require('leo-profanity');
+var cookieParse = require('cookie-parser')();
 
 //serve client files (html/css/js/assets)
 app.use('/', express.static(__dirname + '/../client'));
 
-//dependency: misc
-var chatFilter = require('leo-profanity');
+////// OVERRIDES
 
+//send console logs to server log file
+console.log = function() {
+
+    //format message
+    const message = util.format.apply(null, arguments);
+
+    //write to log
+    logs.logMessage('server', message);
+    process.stdout.write(message + '\n');
+};
+console.error = console.log;
 
 ////// AUTHENTICATION
 
+//init authentication
+const sessionAuthentication = session({
+    secret: config.twitch.sessionSecret, 
+    resave: false, 
+    saveUninitialized: false
+});
+const passportInit = passport.initialize();
+const passportSession = passport.session();
+app.use(sessionAuthentication);
+app.use(passportInit);
+app.use(passportSession);
+
 //override passport profile function to get user profile from Twitch API
 OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
-
     var options = {
         url: 'https://api.twitch.tv/helix/users',
         method: 'GET',
@@ -118,7 +77,6 @@ OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
             'Authorization': 'Bearer ' + accessToken
         }
     };
-
     request(options, function (error, response, body) {
         if (response && response.statusCode == 200) {
             done(null, JSON.parse(body));
@@ -137,9 +95,6 @@ passport.deserializeUser(function(user, done) {
     done(null, user);
 });
 
-//user profile
-var userProfile = {};
-
 passport.use('twitch', new OAuth2Strategy({
 
     authorizationURL: 'https://id.twitch.tv/oauth2/authorize',
@@ -149,34 +104,26 @@ passport.use('twitch', new OAuth2Strategy({
     callbackURL: config.twitch.callbackURL,
     state: true
     },
-
-    function(accessToken, refreshToken, profile, done) {
+    
+    async function(accessToken, refreshToken, profile, done) {
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
 
-        //get user info
-        profile.twitchID = profile.data[0].id;
-        profile.twitchName = profile.data[0].display_name;
-
-        userProfile = {
-            id: profile.twitchID,
-            accessToken: profile.accessToken,
-            refreshToken: profile.refreshToken,
-            name: profile.twitchName
+        //store user in database
+        var path = 'users/' + profile.data[0].id
+        if (!await database.pathExists(path)) {
+            database.setValue(path, {
+                name: profile.data[0].display_name,
+                color: Math.random() * 0xffffff
+            });
         };
-
-        //store user info in firebase
-        // database.ref('users').set()
-        // User.findOrCreate(..., function(err, user) {
-        //  done(err, user);
-        // });
 
         done(null, profile);
     }
 ));
 
 //set route to start OAuth link, this is where you define scopes to request
-app.get('/auth/twitch', passport.authenticate('twitch', { force_verify: true , scope: 'user_read' }));
+app.get('/auth/twitch', passport.authenticate('twitch', { scope: 'user_read' }));
 
 //set route for OAuth redirect
 app.get('/auth/twitch/callback', passport.authenticate('twitch', { successRedirect: '/', failureRedirect: '/' }));
@@ -186,7 +133,6 @@ app.get('/', function (req, res) {
 
     //successfully authenticated
     if (req.session && req.session.passport && req.session.passport.user) {
-        //res.send(template(req.session.passport.user));
         res.sendFile('index.html', { root: 'client/html' });
     }
 
@@ -196,46 +142,64 @@ app.get('/', function (req, res) {
     };
 });
 
-//////
+////// WEB SERVER
 
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {
     console.log(utility.timestampString('WEB SERVER STARTED> Listening on port ' + server.address().port));
 });
 
+////// WEBSOCKETS (Socket.io/Express)
 
-////// WEBSOCKETS (Socket.io)
+//dependency: websocket
+var io = require('socket.io')(server);
 
-//init ID
-server.lastPlayerID = 0;
+io.use(function(socket, next){
+    socket.client.request.originalUrl = socket.client.request.url;
+    cookieParse(socket.client.request, socket.client.request.res, next);
+});
+
+io.use(function(socket, next){
+    socket.client.request.originalUrl = socket.client.request.url;
+    sessionAuthentication(socket.client.request, socket.client.request.res, next);
+});
+
+io.use(function(socket, next){
+    passportInit(socket.client.request, socket.client.request.res, next);
+});
+
+io.use(function(socket, next){
+    passportSession(socket.client.request, socket.client.request.res, next);
+});
 
 //on new websocket connection
 io.on('connection', async function(socket) {
+    // const repl = require('repl')
 
     //triggers on new player loading the world
     socket.on('playerLoadedWorld', async function() {
 
         //kick other connection instances of this player
-        await kickOtherInstance(userProfile.id);
+        await kickOtherInstance(socket.request.user.data[0].id);
 
         //set up player data
         socket.player = {
 
             //get ID
-            id: userProfile.id,
+            id: socket.request.user.data[0].id,
 
             //generate starting location
             x: utility.getRandomInt(0, 24 * 32),
             y: utility.getRandomInt(0, 17 * 32),
 
             //get name
-            name: userProfile.name,
+            name: socket.request.user.data[0].display_name,
 
-            //get tint
-            tint: Math.random() * 0xffffff
+            //get color
+            color: await database.getValue('users/' + socket.request.user.data[0].id + '/color')
         };
 
-        //LOG player joined
+        //log
         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
 
         //send THIS client it's ID
@@ -290,7 +254,7 @@ io.on('connection', async function(socket) {
 
             //log
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
-            logChatMessage(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message));
+            logs.logMessage('chat', utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message))
 
             //kick if larger than allowed max length
             if (message.length > 80) {
@@ -318,13 +282,13 @@ io.on('connection', async function(socket) {
         });
 
         //triggers when players color has changed
-        socket.on('playerChangedColor', function(newTint) {
+        socket.on('playerChangedColor', function(newColor) {
 
             //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Tint> ' + newTint));
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Color> ' + newColor));
 
-            //store player tint
-            socket.player.tint = newTint;
+            //store player color
+            socket.player.color = newColor;
 
             //send the new player look for all clients
             io.emit('updatePlayerLook', socket.player);
@@ -336,6 +300,10 @@ io.on('connection', async function(socket) {
             //log
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left the Pond'));
 
+            //save player values
+            const path = 'users/' + socket.player.id
+            database.setValue(path + '/color', socket.player.color);
+
             //send the removal of the player for all clients
             io.emit('removePlayer', socket.player.id);
         });
@@ -345,6 +313,14 @@ io.on('connection', async function(socket) {
 
         //send all currently connected players to THIS client
         socket.emit('getAllPlayers', await getAllPlayers());
+
+        // //get console input
+        // repl.start({
+        //     prompt: '',
+        //     eval: (input) => {
+        //         socket.emit('consoleMessage', input);
+        //     }
+        // })
     });
 });
 
@@ -375,6 +351,7 @@ async function getAllPlayers(){
 
 //disconnect clients with the same ID
 async function kickOtherInstance(id) {
+
     //get connected clients
     const connectedClients = await io.fetchSockets();
 
@@ -388,6 +365,7 @@ async function kickOtherInstance(id) {
 
             //kick currently connected clients if they match the ID of the client attempting to connect
             if(playerID == id){
+                //kick
                 client.disconnect();
             };
         };
@@ -398,9 +376,9 @@ async function kickOtherInstance(id) {
 async function kickInstance(player, reason, kickMessage = 'You have been kicked.') {
 
     //log
-    logLine = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
-    console.log(logLine);
-    logModerationMessage(logLine);
+    message = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
+    console.log(message);
+    logs.logMessage('moderation', message);
 
     //get connected clients
     const connectedClients = await io.fetchSockets();
