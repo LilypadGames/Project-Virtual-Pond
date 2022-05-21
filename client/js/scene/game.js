@@ -26,8 +26,12 @@ const npcLines = [
     ['IDGAF']
 ];
 
+//init audio
+var music;
+
 //init debug variables
 var debugMode = false;
+var debugCursor;
 
 //UI
 const worldScale = 1.67;
@@ -50,6 +54,7 @@ const messageConfig = {
     wordWrap: { width: 250 }
 };
 const messageLength = 80;
+var chatBox;
 // var toast;
 // const toastFontSize = 18;
 
@@ -97,20 +102,18 @@ class Game extends Phaser.Scene {
 
     create() {
 
-        //register width/height
+        //register canvas width/height
         this.canvas = this.sys.game.canvas;
 
-        //set up tilemap/tileset
+        //tilemap
         var map = this.make.tilemap({ key: 'map' });
         const tileset = map.addTilesetImage('tilesheet', 'tileset'); //the first value is the key of the tileset in map's JSON file
-
-        //set up tilemap layers
         for(var i = 0; i < map.layers.length; i++) {
             const layer = map.createLayer(i, tileset).setScale(worldScale);
         };
 
-        //play music
-        this.sound.play('chill_pond', {
+        //music
+        music = this.sound.add('chill_pond', {
             mute: false,
             volume: 1,
             rate: 1,
@@ -119,8 +122,7 @@ class Game extends Phaser.Scene {
             loop: true,
             delay: 0
         });
-
-        //stop music from pausing when player looks at another program/tab
+        music.play();
         this.sound.pauseOnBlur = false;
 
         // //options button
@@ -139,11 +141,11 @@ class Game extends Phaser.Scene {
         // });
 
         //chat box
-        const chatBox = ui.createInputBox(this, {
+        chatBox = ui.createInputBox(this, {
             id: 'chat-box',
-            x: this.canvas.width/2,
-            y: this.canvas.height - (this.canvas.height/23),
-            width: this.canvas.width*0.6,
+            x: this.canvas.width / 2,
+            y: this.canvas.height - (this.canvas.height / 23),
+            width: this.canvas.width * 0.6,
             height: 30,
             placeholder: 'Say Yo...',
             backgroundColor: ui.colorWhite,
@@ -166,27 +168,6 @@ class Game extends Phaser.Scene {
             };
         });
 
-        // //volume
-        // var print1 = this.add.text(400, 0, '');
-        // this.rexUI.add.slider({
-        //     x: 600,
-        //     y: 300,
-        //     width: 20,
-        //     height: 200,
-        //     orientation: 'y',
-
-        //     track: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, UI.colorDarkBlue),
-        //     indicator: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, UI.colorLightBlue),
-        //     thumb: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, UI.colorLightBlue),
-
-        //     input: 'click', // 'drag'|'click'
-        //     valuechangeCallback: function (value) {
-        //         print1.text = value;
-        //     },
-
-        // })
-        // .layout();
-
         // //format toasts
         // toast = this.rexUI.add.toast({
         //     x: this.canvas.width/2,
@@ -206,36 +187,10 @@ class Game extends Phaser.Scene {
         // });
 
         //register left click input
-        this.input.on('pointerdown', () => {
-
-            //un-focus chatbox
-            if (chatBox.isFocused) { 
-                chatBox.setBlur();
-            };
-
-            //tell the server that the player is moving
-            Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
-        });
+        this.input.on('pointerdown', (event) => this.onClick(event));
 
         //register keyboard inputs
-        this.input.keyboard.on('keyup', function(event){
-
-            //ignore keyboard presses when chat box is focused
-            if (!chatBox.isFocused) {
-
-                //focus the chat box when Enter key is pressed
-                if (event.key === 'Enter') { chatBox.setFocus() };
-
-                //tell server that this client changed its color
-                if (event.key === 'c') { Client.changeLook(); };
-
-                //tell server that this client stopped its movement
-                if (event.key === 's') { Client.onHalt(playerCharacter[clientPlayerID].x, playerCharacter[clientPlayerID].y) };
-
-                // //toggle console logging
-                // if (event.key === 'Shift') { this.toggleDebugMode(); };
-            };
-        });
+        this.input.keyboard.on('keyup', (event) => this.onKeyUp(event));
 
         //detect when window is re-focused
         this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
@@ -250,10 +205,10 @@ class Game extends Phaser.Scene {
         Client.onJoin();
 
         //debug
-        var debugCursor = this.add.image(8, 8, "target").setVisible(false);
+        debugCursor = this.add.image(8, 8, "target").setVisible(false);
         this.input.on("pointermove", function (pointer) {
             if (debugMode) {
-                debugCursor.copyPosition(pointer).setScale(characterScale).setVisible(true);
+                debugCursor.copyPosition(pointer);
             };
         });
     };
@@ -277,21 +232,66 @@ class Game extends Phaser.Scene {
 
         //player character is facing right
         if (playerSprites.scaleX > 0) { return 'right' }
-        
+
         //player character is facing left
         else if (playerSprites.scaleX < 0) { return 'left' };
     };
 
-    //UI
-
-    //refresh dialog
+    // UI
+    //show refresh dialog
     showRefreshDialog(content) {
 
-        //create the dialog using content provided and make the button refresh the page
+        //create dialog with refresh button
         ui.createDialog(this, content)
         .on('button.click', function () {
             window.location.reload();
         }, this);
+    };
+
+    //show options menu
+    showOptions() {
+        ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: music.volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} })
+    };
+
+    //on slider change
+    onSliderChange(volume, sliderID) {
+        if (sliderID == 'volume') {
+            music.setVolume(volume);
+        };
+    };
+
+    // INPUT
+    //on keypres
+    onKeyUp(event) {
+        // ignore keyboard presses when chat box is focused
+        if (!chatBox.isFocused) {
+
+            //focus the chat box when Enter key is pressed
+            if (event.key === 'Enter') { chatBox.setFocus() };
+
+            //tell server that this client changed its color
+            if (event.key === 'c') { Client.changeLook(); };
+
+            //tell server that this client stopped its movement
+            if (event.key === 's') { Client.onHalt(playerCharacter[clientPlayerID].x, playerCharacter[clientPlayerID].y) };
+
+            //toggle options
+            if (event.key === 'o') { this.showOptions(); };
+
+            //toggle console logging
+            if (event.key === 'Shift') { this.toggleDebugMode(); };
+        };
+    };
+
+    //on mouse down
+    onClick(event) {
+        // un-focus chatbox
+        if (chatBox.isFocused) { 
+            chatBox.setBlur();
+        };
+
+        //tell the server that the player is moving
+        Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
     };
 
     // FUNCTIONS
@@ -317,7 +317,7 @@ class Game extends Phaser.Scene {
         var spriteContainer = {
             width: playerBody.width * characterScale,
             height: playerBody.height * characterScale
-        }
+        };
 
         //player name
         var playerName = this.add.text(0, spriteContainer.height, data.name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
@@ -330,7 +330,7 @@ class Game extends Phaser.Scene {
 
         //add player sprites to player sprite container
         playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
-        
+
         //offset sprite
         playerCharacter[data.id].list[0].list[0].setY((spriteContainer.height/2));
         playerCharacter[data.id].list[0].list[1].setY((spriteContainer.height/2));
@@ -706,12 +706,16 @@ class Game extends Phaser.Scene {
         if (debugMode) { 
             console.log(utility.timestampString('[DEBUG MODE: OFF]'));
             debugMode = false;
+
+            debugCursor.setVisible(false);
         }
 
         //on
         else if (!debugMode) {
             console.log(utility.timestampString('[DEBUG MODE: ON]'));
             debugMode = true;
+
+            debugCursor.setVisible(true);
         };
     };
 };
