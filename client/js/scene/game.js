@@ -125,35 +125,20 @@ class Game extends Phaser.Scene {
         //stop music from pausing when player looks at another program/tab
         this.sound.pauseOnBlur = false;
 
-        // //volume button
-        // var print = this.add.text(400, 0, '');
-        // var volumeButton = this.rexUI.add.buttons({
+        // //options button
+        // var optionsButton = this.rexUI.add.buttons({
         //     x: 1090,
         //     y: 772,
         //     orientation: 'y',
 
         //     buttons: [
-        //         this.createButton('🔊', 16),
+        //         ui.createButton(this, '⚙️', 16)
         //     ]
         // })
         // .layout()
         // .on('button.click', function (button, index, pointer, event) {
-        //     uiInteract = true;
-        //     setTimeout(() => {
-        //         if (uiInteract) uiInteract = false;
-        //     }, 200);
-        //     print.text += `Click button-${button.text}\n`;
-        //     // volumeButton.setButtonEnable(false)
-        //     // setTimeout(() => {
-        //     //     volumeButton.setButtonEnable(true)
-        //     // }, 1000);
-        // })
-        // // .on('button.out', function () {
-        // //     print.text += 'Pointer-out\n';
-        // // })
-        // // .on('button.over', function () {
-        // //     print.text += 'Pointer-over\n';
-        // // });
+        //     ui.showOptions(this)
+        // });
 
         //chat box
         var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.6, 40, {
@@ -185,6 +170,27 @@ class Game extends Phaser.Scene {
                 chatBox.setText('');
             };
         });
+
+        // //volume
+        // var print1 = this.add.text(400, 0, '');
+        // this.rexUI.add.slider({
+        //     x: 600,
+        //     y: 300,
+        //     width: 20,
+        //     height: 200,
+        //     orientation: 'y',
+
+        //     track: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, UI.colorDarkBlue),
+        //     indicator: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, UI.colorLightBlue),
+        //     thumb: this.rexUI.add.roundRectangle(0, 0, 0, 0, 10, UI.colorLightBlue),
+
+        //     input: 'click', // 'drag'|'click'
+        //     valuechangeCallback: function (value) {
+        //         print1.text = value;
+        //     },
+
+        // })
+        // .layout();
 
         // //format toasts
         // toast = this.rexUI.add.toast({
@@ -288,8 +294,21 @@ class Game extends Phaser.Scene {
     };
 
     //UI
+
+    //show dialog
     showDialog(content) {
-        ui.showDialog(this, content);
+
+        //create the dialog using content provided
+        ui.createDialog(this, content);
+    };
+
+    //dialog interacted with
+    interactDialog(button) {
+
+        //refresh button
+        if (button == 'Refresh') {
+            window.location.reload();
+        }
     };
 
     // FUNCTIONS
