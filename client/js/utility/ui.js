@@ -55,7 +55,7 @@ class UI {
 
         //defaults
         if (!content.width) { content.width = 40; };
-        if (!content.height) { content.width = 40; };
+        if (!content.height) { content.height = 40; };
 
         if (!content.backgroundX) { content.backgroundX = 0; };
         if (!content.backgroundY) { content.backgroundY = 0; };
@@ -395,7 +395,7 @@ class UI {
         });
 
         //draggable
-        if (content.draggable = true) {
+        if (content.draggable == true) {
             dialog.setDraggable('background');
         };
 
@@ -470,6 +470,104 @@ class UI {
     //         }
     //     });
     // };
+
+    //create button
+    createButtons(scene, content) {
+        //defaults
+        if (!content.x) { content.x = 0; };
+        if (!content.y) { content.y = 0; };
+
+        if (!content.width) { content.width = 20; };
+        if (!content.height) { content.height = 20; };
+
+        if (!content.orientation) { content.orientation = 'x'; };
+
+        // if (!content.backgroundX) { content.backgroundX = 0; };
+        // if (!content.backgroundY) { content.backgroundY = 0; };
+        // if (!content.backgroundWidth) { content.backgroundWidth = 100; };
+        // if (!content.backgroundHeight) { content.backgroundHeight = 40; };
+        // if (!content.backgroundRadius) { content.backgroundRadius = 20; };
+        // if (!content.backgroundColor) { content.backgroundColor = this.colorBlue; };
+        // if (!content.backgroundTransparency) { content.backgroundTransparency = 1; };
+
+        if (!content.buttonTextSize) { content.buttonTextSize = 18; };
+        if (!content.buttonColor) { content.buttonColor = this.colorBlue; };
+        if (!content.buttonColorOnHover) { content.buttonColorOnHover = this.colorLightBlue; };
+        if (!content.buttonSpace) { content.buttonSpace = {} };
+        if (!content.buttonSpace.left) { content.buttonSpace.left = 10; };
+        if (!content.buttonSpace.right) { content.buttonSpace.right = 10; };
+        if (!content.buttonSpace.top) { content.buttonSpace.top = 10; };
+        if (!content.buttonSpace.bottom) { content.buttonSpace.bottom = 10; };
+
+        var buttons = [];
+        for (let i = 0; i < content.buttons.length; i++) {
+            //get action content
+            const buttonsContent = content.buttons[i];
+
+            //defaults
+            if (!buttonsContent.align) { buttonsContent.align = 'center' };
+
+            //add to buttons
+            buttons.push(
+                this.createLabel(scene, { text: buttonsContent.text, textSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
+            );
+        };
+
+        if (!content.align) { content.align = 'left'; };
+
+        if (!content.space) { content.space = {} };
+        if (!content.space.left) { content.space.left = 0; };
+        if (!content.space.right) { content.space.right = 0; };
+        if (!content.space.top) { content.space.top = 0; };
+        if (!content.space.bottom) { content.space.bottom = 0; };
+
+        return scene.rexUI.add.buttons({
+            x: content.x,
+            y: content.y,
+
+            width: content.width,
+            height: content.height,
+        
+            orientation: content.orientation,
+        
+            // Elements
+            // background: backgroundGameObject,
+
+            buttons: buttons,
+            expand: false,
+            align: content.align,
+            click: {
+                mode: 'pointerup',
+                clickInterval: 100
+            },
+
+            space: { 
+                left: content.space.left,
+                right: content.space.right,
+                top: content.space.top,
+                bottom: content.space.bottom
+            },
+        
+            // name: content.id,
+            // draggable: false,
+            // sizerEvents: false,
+            // eventEmitter: this,
+            // groupName: undefined,
+        
+            // buttonsType: undefined,
+            // setValueCallback: undefined,  // or setButtonStateCallback: undefined
+            // setValueCallbackScope: undefined  // or setButtonStateCallbackScope: undefined
+        })
+        .layout()
+
+        //animation
+        .on('button.over', function (button, groupName, index, pointer, event) {
+            button.getElement('background').setFillStyle(content.buttonColorOnHover);
+        })
+        .on('button.out', function (button, groupName, index, pointer, event) {
+            button.getElement('background').setFillStyle(content.buttonColor);
+        });
+    };
 
     //show options menu
     showOptions(scene) {

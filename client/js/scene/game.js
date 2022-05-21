@@ -55,6 +55,7 @@ const messageConfig = {
 };
 const messageLength = 80;
 var chatBox;
+var disableInput = false;
 // var toast;
 // const toastFontSize = 18;
 
@@ -125,49 +126,6 @@ class Game extends Phaser.Scene {
         music.play();
         this.sound.pauseOnBlur = false;
 
-        // //options button
-        // var optionsButton = this.rexUI.add.buttons({
-        //     x: 1090,
-        //     y: 772,
-        //     orientation: 'y',
-
-        //     buttons: [
-        //         ui.createButton(this, '⚙️', 16)
-        //     ]
-        // })
-        // .layout()
-        // .on('button.click', function (button, index, pointer, event) {
-        //     ui.showOptions(this)
-        // });
-
-        //chat box
-        chatBox = ui.createInputBox(this, {
-            id: 'chat-box',
-            x: this.canvas.width / 2,
-            y: this.canvas.height - (this.canvas.height / 23),
-            width: this.canvas.width * 0.6,
-            height: 30,
-            placeholder: 'Say Yo...',
-            backgroundColor: ui.colorWhite,
-            backgroundRadius: 15,
-            maxLength: messageLength
-        })
-        .on('keydown', function (chatBox, event) {
-            if (event.key == 'Enter') {
-
-                //format message
-                const chatMessage = chatBox.text.substr(0, messageLength).trim().replace(/\s+/g, " ");
-
-                //send the message to the server
-                if (chatMessage !== '' || null) {
-                    Client.sendMessage(chatMessage);
-                };
-
-                //clear chat box
-                chatBox.setText('');
-            };
-        });
-
         // //format toasts
         // toast = this.rexUI.add.toast({
         //     x: this.canvas.width/2,
@@ -204,6 +162,9 @@ class Game extends Phaser.Scene {
         //add player's character to world
         Client.onJoin();
 
+        //add toolbar
+        this.createToolbar();
+
         //debug
         debugCursor = this.add.image(8, 8, "target").setVisible(false);
         this.input.on("pointermove", function (pointer) {
@@ -238,25 +199,103 @@ class Game extends Phaser.Scene {
     };
 
     // UI
+    //create toolbar
+    createToolbar() {
+
+        //options menu button
+        ui.createButtons(this, { x: 1090, y: 765, buttons: [{ text: '⚙️', backgroundRadius: 8 }] })
+        .on('button.click', () => this.showOptions());
+
+        //chat box
+        chatBox = ui.createInputBox(this, {
+            id: 'chat-box',
+            x: this.canvas.width / 2,
+            y: this.canvas.height - (this.canvas.height / 23),
+            width: this.canvas.width * 0.6,
+            height: 30,
+            placeholder: 'Say Yo...',
+            backgroundColor: ui.colorWhite,
+            backgroundRadius: 15,
+            maxLength: messageLength
+        })
+        .on('keydown', function (chatBox, event) {
+            if (event.key == 'Enter') {
+
+                //format message
+                const chatMessage = chatBox.text.substr(0, messageLength).trim().replace(/\s+/g, " ");
+
+                //send the message to the server
+                if (chatMessage !== '' || null) {
+                    Client.sendMessage(chatMessage);
+                };
+
+                //clear chat box
+                chatBox.setText('');
+            };
+        });
+    };
+
     //show refresh dialog
     showRefreshDialog(content) {
 
         //create dialog with refresh button
-        ui.createDialog(this, content)
+        const dialog = ui.createDialog(this, content)
         .on('button.click', function () {
             window.location.reload();
+            disableInput = false;
         }, this);
+
+        //dark background
+        this.rexUI.modalPromise(
+            dialog,
+
+            //config
+            {
+                duration: {
+                    in: 200,
+                    out: 200
+                }
+            }
+        );
+
+        disableInput = true;
     };
 
     //show options menu
     showOptions() {
-        ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: music.volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} })
+
+        //create dialog
+        const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: music.volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} })
+        
+        //close dialog when X is pressed
+        dialog.on('button.click', function (button, groupName, index, pointer, event) {
+            dialog.emit('modal.requestClose', { index: index, text: button.text });
+            disableInput = false;
+        }),
+
+        //close dialog when X is pressed
+        this.rexUI.modalPromise(
+
+            //create dialog
+            dialog,
+
+            //config
+            {
+                cover: false,
+                duration: {
+                    in: 200,
+                    out: 200
+                }
+            }
+        );
+
+        disableInput = true;
     };
 
     //on slider change
-    onSliderChange(volume, sliderID) {
+    onSliderChange(value, sliderID) {
         if (sliderID == 'volume') {
-            music.setVolume(volume);
+            music.setVolume(value);
         };
     };
 
@@ -285,13 +324,16 @@ class Game extends Phaser.Scene {
 
     //on mouse down
     onClick(event) {
-        // un-focus chatbox
-        if (chatBox.isFocused) { 
-            chatBox.setBlur();
-        };
+        console.log(event)
+        if (!disableInput) {
+            // un-focus chatbox
+            if (chatBox.isFocused) { 
+                chatBox.setBlur();
+            };
 
-        //tell the server that the player is moving
-        Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+            //tell the server that the player is moving
+            Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+        };
     };
 
     // FUNCTIONS
