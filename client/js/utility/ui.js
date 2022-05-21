@@ -6,6 +6,9 @@ class UI {
     get colorWhite() {
         return this.constructor.colorWhite;
     };
+    get colorBlack() {
+        return this.constructor.colorBlack;
+    };
     get colorLightBlue() {
         return this.constructor.colorLightBlue;
     };
@@ -202,11 +205,6 @@ class UI {
         .layout()
         .popUp(1000)
 
-        //interaction
-        .on('button.click', function (button, groupName, index, pointer, event) {
-            scene.interactDialog(button.text);
-        }, scene)
-
         //animation
         .on('button.over', function (button, groupName, index, pointer, event) {
             button.getElement('background').setFillStyle(content.buttonColorOnHover);
@@ -224,9 +222,59 @@ class UI {
             yoyo: false
         });
 
+        return dialog;
     };
 
-    
+    //create input box
+    createInputBox(scene, content) {
+
+        //defaults
+        if (!content.x) { content.x = 0; };
+        if (!content.y) { content.y = 0; };
+        if (!content.width) { content.width = 500; };
+        if (!content.height) { content.height = 40; };
+        if (!content.type) { content.type = 'text'; };
+        if (!content.text) { content.text = ''; };
+        if (!content.placeholder) { content.placeholder = ''; };
+        if (!content.fontSize) { content.fontSize = 24; };
+        if (!content.color) { content.color = this.colorBlack; };
+        if (!content.backgroundColor) { content.backgroundColor = this.colorWhite; };
+        if (!content.backgroundRadius) { content.backgroundRadius = 0; };
+        if (!content.backgroundSpace) { content.backgroundSpace = {}; };
+        if (!content.backgroundSpace.left) { content.backgroundSpace.left = 5; };
+        if (!content.backgroundSpace.right) { content.backgroundSpace.right = 5; };
+        if (!content.backgroundSpace.top) { content.backgroundSpace.top = 0; };
+        if (!content.backgroundSpace.bottom) { content.backgroundSpace.bottom = 0; };
+        if (!content.border) { content.border = 0; };
+        if (!content.borderColor) { content.borderColor = this.colorBlack; };
+        if (!content.spellCheck) { content.spellCheck = false; };
+        if (!content.autoComplete) { content.autoComplete = false; };
+        if (!content.maxLength) { content.maxLength = 1000; };
+
+        //create input box
+        var inputBox = scene.add.rexInputText(
+            content.x,
+            content.y,
+            content.width,
+            content.height,
+            {
+                id: content.id,
+                type: content.type,
+                text: content.text,
+                placeholder: content.placeholder,
+                fontSize: content.fontSize,
+                color: content.color,
+                spellCheck: content.spellCheck,
+                autoComplete: content.autoComplete,
+                maxLength: content.maxLength
+            }
+        );
+
+        //create background
+        const background = scene.rexUI.add.roundRectangle(content.x - (content.backgroundSpace.left/2), content.y + (content.backgroundSpace.bottom/2), content.width + (content.backgroundSpace.left + content.backgroundSpace.right), content.height + (content.backgroundSpace.top + content.backgroundSpace.bottom), content.backgroundRadius, content.backgroundColor, 1);
+
+        return inputBox;
+    };
 
     // //create buttons
     // createButton(scene, text, textSize, backgroundColor = this.colorLightBlue) {
@@ -260,6 +308,7 @@ class UI {
 
 //colors
 UI.colorWhite = 0xffffff;
+UI.colorBlack = 0x000000;
 UI.colorLightBlue = 0x5e92f3;
 UI.colorBlue = 0x1883ED;
 UI.colorDarkBlue = 0x1563BB;

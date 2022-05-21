@@ -72,8 +72,7 @@ socket.on('disconnect', function(){
     };
 
     //show disconnect dialog
-    // Game.showDialog(['Disconnected', kickReason, 'Refresh']);
-    Game.showDialog({titleText: 'Disconnected', contentText: kickReason, actions: [{text: 'Refresh'}] });
+    Game.showRefreshDialog({titleText: 'Disconnected', contentText: kickReason, actions: [{text: 'Refresh'}] });
 
     //reset kick reason
     kickReason = '';

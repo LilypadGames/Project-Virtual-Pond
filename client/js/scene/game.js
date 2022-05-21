@@ -5,6 +5,7 @@
 
 //import
 const ui = new UI();
+const utility = new Utility();
 
 //init player variables
 var clientPlayerID;
@@ -24,9 +25,6 @@ const npcLines = [
     ['theres this new NFT drop i\'m really excited about', 'ever heard of hangry hippos?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...'],
     ['IDGAF']
 ];
-
-//init UI variables
-var uiInteract = false;
 
 //init debug variables
 var debugMode = false;
@@ -141,18 +139,15 @@ class Game extends Phaser.Scene {
         // });
 
         //chat box
-        var chatBox = this.add.rexInputText(this.canvas.width/2, this.canvas.height - (this.canvas.height/23), this.canvas.width*0.6, 40, {
+        const chatBox = ui.createInputBox(this, {
             id: 'chat-box',
-            type: 'text',
-            text: '',
+            x: this.canvas.width/2,
+            y: this.canvas.height - (this.canvas.height/23),
+            width: this.canvas.width*0.6,
+            height: 30,
             placeholder: 'Say Yo...',
-            fontSize: '24px',
-            color: '#000000',
-            backgroundColor: '#ffffff',
-            border: '6px solid',
-            borderColor: '#64BEFF',
-            spellCheck: false,
-            autoComplete: false,
+            backgroundColor: ui.colorWhite,
+            backgroundRadius: 15,
             maxLength: messageLength
         })
         .on('keydown', function (chatBox, event) {
@@ -217,12 +212,6 @@ class Game extends Phaser.Scene {
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
             };
-
-            // console.log(uiInteract)
-
-            // if (uiInteract = false) {
-            //     return;
-            // };
 
             //tell the server that the player is moving
             Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
@@ -295,20 +284,14 @@ class Game extends Phaser.Scene {
 
     //UI
 
-    //show dialog
-    showDialog(content) {
+    //refresh dialog
+    showRefreshDialog(content) {
 
-        //create the dialog using content provided
-        ui.createDialog(this, content);
-    };
-
-    //dialog interacted with
-    interactDialog(button) {
-
-        //refresh button
-        if (button == 'Refresh') {
+        //create the dialog using content provided and make the button refresh the page
+        ui.createDialog(this, content)
+        .on('button.click', function () {
             window.location.reload();
-        }
+        }, this);
     };
 
     // FUNCTIONS
@@ -553,9 +536,6 @@ class Game extends Phaser.Scene {
     //player interacts with NPC
     interactNPC(playerID, npcID) {
 
-        //import Utility functions
-        const util = new Utility();
-
         //interact only once per movement
         if (playerInteracting === npcID) {
 
@@ -563,7 +543,7 @@ class Game extends Phaser.Scene {
             Client.onHalt(playerCharacter[playerID].x, playerCharacter[playerID].y)
 
             //npc message
-            this.displayMessage(npcID, util.randomFromArray(npcLines[npcID]), 'npc');
+            this.displayMessage(npcID, utility.randomFromArray(npcLines[npcID]), 'npc');
 
             //reset interacting check
             playerInteracting = false;
@@ -722,18 +702,15 @@ class Game extends Phaser.Scene {
     //toggle console logging
     toggleDebugMode() {
 
-        //import Utility functions
-        const util = new Utility();
-
         //off
         if (debugMode) { 
-            console.log(util.timestampString('[DEBUG MODE: OFF]'));
+            console.log(utility.timestampString('[DEBUG MODE: OFF]'));
             debugMode = false;
         }
 
         //on
         else if (!debugMode) {
-            console.log(util.timestampString('[DEBUG MODE: ON]'));
+            console.log(utility.timestampString('[DEBUG MODE: ON]'));
             debugMode = true;
         };
     };
