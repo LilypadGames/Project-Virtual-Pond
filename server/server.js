@@ -176,11 +176,11 @@ io.use(function(socket, next){
 io.on('connection', async function(socket) {
     // const repl = require('repl')
 
+    //kick other connection instances of this player
+    await kickOtherInstance(socket.request.user.data[0].id);
+
     //triggers on new player loading the world
     socket.on('playerLoadedWorld', async function() {
-
-        //kick other connection instances of this player
-        await kickOtherInstance(socket.request.user.data[0].id);
 
         //set up player data
         socket.player = {
