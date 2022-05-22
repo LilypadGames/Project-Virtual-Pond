@@ -45,7 +45,7 @@ class Client {
 
 //recieve this client's player ID
 socket.on('getPlayerID', function(id) {
-    Game.setPlayerID(id);
+    Game.initPlayer(id);
 });
 
 //on player join
@@ -72,7 +72,10 @@ socket.on('disconnect', function(){
     };
 
     //show disconnect dialog
-    Game.showDialog(['Disconnected', kickReason, 'Refresh']);
+    Game.showRefreshDialog({titleText: 'Disconnected', captionText: kickReason, actions: [{text: 'Refresh'}] });
+
+    //stop music
+    music.stop();
 
     //reset kick reason
     kickReason = '';

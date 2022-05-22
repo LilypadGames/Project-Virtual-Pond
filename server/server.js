@@ -176,11 +176,11 @@ io.use(function(socket, next){
 io.on('connection', async function(socket) {
     // const repl = require('repl')
 
+    //kick other connection instances of this player
+    await kickOtherInstance(socket.request.user.data[0].id);
+
     //triggers on new player loading the world
     socket.on('playerLoadedWorld', async function() {
-
-        //kick other connection instances of this player
-        await kickOtherInstance(socket.request.user.data[0].id);
 
         //set up player data
         socket.player = {
@@ -189,8 +189,8 @@ io.on('connection', async function(socket) {
             id: socket.request.user.data[0].id,
 
             //generate starting location
-            x: utility.getRandomInt(0, 24 * 32),
-            y: utility.getRandomInt(0, 17 * 32),
+            x: utility.getRandomInt(7, 1279),
+            y: utility.getRandomInt(560, 796),
 
             //get name
             name: socket.request.user.data[0].display_name,
