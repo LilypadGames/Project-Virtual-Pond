@@ -7,6 +7,16 @@
 const ui = new UI();
 const utility = new Utility();
 
+//init settings
+var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
+const defaultOptions = [
+    { id: 'music', volume: 1 }
+];
+if (gameOptions === null || gameOptions.length <= 0) {
+    localStorage.setItem('gameOptions', JSON.stringify(defaultOptions));
+    gameOptions = defaultOptions;
+};
+
 //init player variables
 var clientPlayerID;
 var playerCharacter = {};
@@ -56,8 +66,6 @@ const messageConfig = {
 const messageLength = 80;
 var chatBox;
 var disableInput = false;
-// var toast;
-// const toastFontSize = 18;
 
 class Game extends Phaser.Scene {
     // INIT
@@ -116,7 +124,7 @@ class Game extends Phaser.Scene {
         //music
         music = this.sound.add('chill_pond', {
             mute: false,
-            volume: 1,
+            volume: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume,
             rate: 1,
             detune: 0,
             seek: 0,
@@ -265,8 +273,8 @@ class Game extends Phaser.Scene {
     showOptions() {
 
         //create dialog
-        const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: music.volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} })
-        
+        const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} })
+
         //close dialog when X is pressed
         dialog.on('button.click', function (button, groupName, index, pointer, event) {
             dialog.emit('modal.requestClose', { index: index, text: button.text });
@@ -295,7 +303,14 @@ class Game extends Phaser.Scene {
     //on slider change
     onSliderChange(value, sliderID) {
         if (sliderID == 'volume') {
+
+            //change volume
             music.setVolume(value);
+
+            //store locally for the user to persist changes between sessions
+            var options = utility.getLocalStorage('gameOptions');
+            options[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume = value;
+            utility.storeLocalStorageArray('gameOptions', options);
         };
     };
 
@@ -324,7 +339,6 @@ class Game extends Phaser.Scene {
 
     //on mouse down
     onClick(event) {
-        console.log(event)
         if (!disableInput) {
             // un-focus chatbox
             if (chatBox.isFocused) { 
