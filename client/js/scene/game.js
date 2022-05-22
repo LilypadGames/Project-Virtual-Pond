@@ -132,7 +132,11 @@ class Game extends Phaser.Scene {
         this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(depthBackground);
         
         this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(depthGround)
-        .setInteractive().on('pointerdown', () => { this.onLayerClick('Forest_Ground') });
+        .setInteractive().on('pointerdown', () => {
+            if(this.navigationCheck('Forest_Ground')) {
+                this.onClick();
+            };
+        });
         walkableLayer = 'Forest_Ground';
 
         this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(600);
@@ -374,8 +378,8 @@ class Game extends Phaser.Scene {
         };
     };
 
-    //on mouse down on layer
-    onLayerClick(layer) {
+    //check if click location is allowed by navigational map (returns true if click location is allowed by navigation map and false otherwise)
+    navigationCheck(layer) {
 
         //if clicking is not disabled
         if (!disableInput) {
@@ -383,7 +387,7 @@ class Game extends Phaser.Scene {
             //check if click is on an unwalkable layer
             for (let i = 0; i < unWalkableLayer.length; i++) {
                 if (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, unWalkableLayer[i]) == 255) {
-                    return;
+                    return false;
                 };
             };
 
@@ -392,18 +396,22 @@ class Game extends Phaser.Scene {
 
                 //if the clicked layer is the walkable layer (usually the ground layer)
                 if (layer == walkableLayer) {
-                    this.onClick();
+                    return true;
 
                 //if the clicked layer is not the walkable layer, check if the walkable layer at the same position is not transparent to allow movement
                 } else if (!unWalkableLayer.includes(layer) && this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255){
-                    this.onClick();
+                    return true;
                 };
 
             //if the pixel on this layer is not transparent, check if it is on the walkable layer
             } else if ((layer !== walkableLayer) && (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255)) {
-                this.onClick();
+                return true;
             }
+
+            return false;
         };
+
+        return false;
     };
 
     // FUNCTIONS
@@ -632,8 +640,10 @@ class Game extends Phaser.Scene {
 
         //detect clicks
         npcCharacter[id].setInteractive().on('pointerup', () => {
-            playerInteracting = id;
-            this.onClick()
+            if(this.navigationCheck()) {
+                playerInteracting = id;
+                this.onClick();
+            };
         }
         , this);
 
