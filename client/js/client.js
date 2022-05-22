@@ -45,7 +45,7 @@ class Client {
 
 //recieve this client's player ID
 socket.on('getPlayerID', function(id) {
-    Game.setPlayerID(id);
+    Game.initPlayer(id);
 });
 
 //on player join

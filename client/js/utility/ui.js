@@ -106,7 +106,7 @@ class UI {
         if (!content.height) { content.height = 30; };
         if (!content.orientation) { content.orientation = 'x'; };
 
-        if (!content.value) { content.value = 1; };
+        if (!content.value) { content.value = 0; };
 
         if (!content.trackX) { content.trackX = 0; };
         if (!content.trackY) { content.trackY = 0; };
@@ -448,28 +448,11 @@ class UI {
         );
 
         //create background
-        const background = scene.rexUI.add.roundRectangle(content.x - (content.backgroundSpace.left/2), content.y + (content.backgroundSpace.bottom/2), content.width + (content.backgroundSpace.left + content.backgroundSpace.right), content.height + (content.backgroundSpace.top + content.backgroundSpace.bottom), content.backgroundRadius, content.backgroundColor, 1);
+        const background = scene.rexUI.add.roundRectangle(content.x - (content.backgroundSpace.left/2), content.y + (content.backgroundSpace.bottom/2), content.width + (content.backgroundSpace.left + content.backgroundSpace.right), content.height + (content.backgroundSpace.top + content.backgroundSpace.bottom), content.backgroundRadius, content.backgroundColor, 1)
+        .setDepth(content.depth);
 
         return inputBox;
     };
-
-    // //create buttons
-    // createButton(scene, text, textSize, backgroundColor = this.colorLightBlue) {
-    //     return scene.rexUI.add.label({
-    //         width: textSize + 10,
-    //         height: textSize + 10,
-    //         background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 10, backgroundColor),
-    //         text: scene.add.text(0, 0, text, {
-    //             fontSize: textSize
-    //         }),
-    //         space: {
-    //             left: 10,
-    //             right: 10,
-    //             top: 10,
-    //             bottom: 10
-    //         }
-    //     });
-    // };
 
     //create button
     createButtons(scene, content) {
@@ -482,22 +465,14 @@ class UI {
 
         if (!content.orientation) { content.orientation = 'x'; };
 
-        // if (!content.backgroundX) { content.backgroundX = 0; };
-        // if (!content.backgroundY) { content.backgroundY = 0; };
-        // if (!content.backgroundWidth) { content.backgroundWidth = 100; };
-        // if (!content.backgroundHeight) { content.backgroundHeight = 40; };
-        // if (!content.backgroundRadius) { content.backgroundRadius = 20; };
-        // if (!content.backgroundColor) { content.backgroundColor = this.colorBlue; };
-        // if (!content.backgroundTransparency) { content.backgroundTransparency = 1; };
-
         if (!content.buttonTextSize) { content.buttonTextSize = 18; };
         if (!content.buttonColor) { content.buttonColor = this.colorBlue; };
         if (!content.buttonColorOnHover) { content.buttonColorOnHover = this.colorLightBlue; };
         if (!content.buttonSpace) { content.buttonSpace = {} };
-        if (!content.buttonSpace.left) { content.buttonSpace.left = 10; };
-        if (!content.buttonSpace.right) { content.buttonSpace.right = 10; };
-        if (!content.buttonSpace.top) { content.buttonSpace.top = 10; };
-        if (!content.buttonSpace.bottom) { content.buttonSpace.bottom = 10; };
+        if (!content.buttonSpace.left) { content.buttonSpace.left = 0; };
+        if (!content.buttonSpace.right) { content.buttonSpace.right = 0; };
+        if (!content.buttonSpace.top) { content.buttonSpace.top = 0; };
+        if (!content.buttonSpace.bottom) { content.buttonSpace.bottom = 0; };
 
         var buttons = [];
         for (let i = 0; i < content.buttons.length; i++) {
@@ -506,10 +481,12 @@ class UI {
 
             //defaults
             if (!buttonsContent.align) { buttonsContent.align = 'center' };
+            if (!buttonsContent.backgroundWidth) { buttonsContent.backgroundWidth = 20 };
+            if (!buttonsContent.backgroundHeight) { buttonsContent.backgroundHeight = 20 };
 
             //add to buttons
             buttons.push(
-                this.createLabel(scene, { text: buttonsContent.text, textSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
+                this.createLabel(scene, { text: buttonsContent.text, textSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundWidth: buttonsContent.backgroundWidth, backgroundHeight: buttonsContent.backgroundHeight, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
             );
         };
 
@@ -529,9 +506,6 @@ class UI {
             height: content.height,
         
             orientation: content.orientation,
-        
-            // Elements
-            // background: backgroundGameObject,
 
             buttons: buttons,
             expand: false,
@@ -547,16 +521,6 @@ class UI {
                 top: content.space.top,
                 bottom: content.space.bottom
             },
-        
-            // name: content.id,
-            // draggable: false,
-            // sizerEvents: false,
-            // eventEmitter: this,
-            // groupName: undefined,
-        
-            // buttonsType: undefined,
-            // setValueCallback: undefined,  // or setButtonStateCallback: undefined
-            // setValueCallbackScope: undefined  // or setButtonStateCallbackScope: undefined
         })
         .layout()
 

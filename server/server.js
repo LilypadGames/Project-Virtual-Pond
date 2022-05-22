@@ -189,8 +189,8 @@ io.on('connection', async function(socket) {
             id: socket.request.user.data[0].id,
 
             //generate starting location
-            x: utility.getRandomInt(0, 24 * 32),
-            y: utility.getRandomInt(0, 17 * 32),
+            x: utility.getRandomInt(7, 1279),
+            y: utility.getRandomInt(560, 796),
 
             //get name
             name: socket.request.user.data[0].display_name,

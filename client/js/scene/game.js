@@ -17,6 +17,18 @@ if (gameOptions === null || gameOptions.length <= 0) {
     gameOptions = defaultOptions;
 };
 
+//init world
+var walkableLayer;
+var unWalkableLayer = [];
+const depthUI = 100002;
+const depthOverlay = 100001;
+const depthForeground = 100000;
+const depthGround = 1;
+const depthBackground = 0;
+
+//init audio
+var music;
+
 //init player variables
 var clientPlayerID;
 var playerCharacter = {};
@@ -30,22 +42,13 @@ var npcCharacter = {};
 var npcData = {};
 var npcCollider = {};
 const npcLines = [
-    ['*cough* i\'m sick', 'yo', 'i\'ll go live later on lacari', 'time for a water break', 'ACTually trolling...'],
+    ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break'],
     ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
-    ['theres this new NFT drop i\'m really excited about', 'ever heard of hangry hippos?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...'],
+    ['you invest in a hangry hippos nft yet?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...'],
     ['IDGAF']
 ];
 
-//init audio
-var music;
-
-//init debug variables
-var debugMode = false;
-var debugCursor;
-
-//UI
-const worldScale = 1.67;
-const characterScale = 2;
+//init ui
 const overlayPadding = 8;
 const nametagFontSize = 14;
 const nametagConfig = {
@@ -67,6 +70,10 @@ const messageLength = 80;
 var chatBox;
 var disableInput = false;
 
+//init debug variables
+var debugMode = false;
+var debugCursor;
+
 class Game extends Phaser.Scene {
     // INIT
     constructor() {
@@ -83,27 +90,33 @@ class Game extends Phaser.Scene {
         //get canvas
         this.canvas = this.sys.game.canvas;
 
-        //room maps
-        this.load.image("tileset", "assets/room/house_on_the_river/tilesheet.png");
-        this.load.tilemapTiledJSON('map', 'assets/room/house_on_the_river/example_map.json');
+        //room layers
+        this.load.image('Forest_Background', 'assets/room/forest/Background.png');
+        this.load.image('Forest_Ground', 'assets/room/forest/Ground.png');
+        this.load.image('Forest_Tree_3', 'assets/room/forest/Tree_3.png');
+        this.load.image('Forest_Tree_2', 'assets/room/forest/Tree_2.png');
+        this.load.image('Forest_Tree_1', 'assets/room/forest/Tree_1.png');
+        this.load.image('Forest_Foreground', 'assets/room/forest/Foreground.png');
 
-        //room music
-        this.load.audio('chill_pond', "assets/room/pond/music/frog_caves_chill.mp3");
+        //room audio
+        this.load.audio('frog_caves_chill', "assets/room/forest/audio/music/frog_caves_chill.mp3");
+        this.load.audio('forest_ambience', "assets/room/forest/audio/music/forest_ambience.mp3");
 
         //character
-        this.load.image('frog_body', 'assets/character/frog_body.png');
-        this.load.image('frog_belly', 'assets/character/frog_belly.png');
-        this.load.image('frog_eyes', 'assets/character/frog_eyes.png');
+        this.load.image('frog_body', 'assets/character/player/Tintable.png');
+        this.load.image('frog_belly', 'assets/character/player/Non-Tintable.png');
+        this.load.image('frog_eyes', 'assets/character/player/Eyes.png');
 
         //npc
-        this.load.image('Poke', 'assets/npc/poke.png');
-        this.load.image('Gigi', 'assets/npc/gigi.png');
-        this.load.image('Jesse', 'assets/npc/jesse.png');
-        this.load.image('Snic', 'assets/npc/snic.png');
+        this.load.image('Poke', 'assets/character/npc/Poke.png');
+        this.load.image('Gigi', 'assets/character/npc/Gigi.png');
+        this.load.image('Jesse', 'assets/character/npc/Jesse.png');
+        this.load.image('Snic', 'assets/character/npc/Snic.png');
 
         //plugins
-        this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
         this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
+        this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
+        this.load.plugin('rexcoverplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexcoverplugin.min.js', true);
 
         //debug
         this.load.image('target', 'assets/debug/target.png');
@@ -114,46 +127,36 @@ class Game extends Phaser.Scene {
         //register canvas width/height
         this.canvas = this.sys.game.canvas;
 
-        //tilemap
-        var map = this.make.tilemap({ key: 'map' });
-        const tileset = map.addTilesetImage('tilesheet', 'tileset'); //the first value is the key of the tileset in map's JSON file
-        for(var i = 0; i < map.layers.length; i++) {
-            const layer = map.createLayer(i, tileset).setScale(worldScale);
-        };
+        //room
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(depthBackground);
+        
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(depthGround)
+        .setInteractive().on('pointerdown', () => { this.onLayerClick('Forest_Ground') });
+        walkableLayer = 'Forest_Ground';
+
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(600);
+        unWalkableLayer.push('Forest_Tree_3');
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(620);
+        unWalkableLayer.push('Forest_Tree_2');
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_1').setDepth(665);
+        unWalkableLayer.push('Forest_Tree_1');
+
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(depthForeground);
+        unWalkableLayer.push('Forest_Foreground');
 
         //music
-        music = this.sound.add('chill_pond', {
+        music = this.sound.add('frog_caves_chill', {
             mute: false,
-            volume: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume,
+            volume: 0,
             rate: 1,
             detune: 0,
             seek: 0,
             loop: true,
             delay: 0
         });
+        music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
         music.play();
         this.sound.pauseOnBlur = false;
-
-        // //format toasts
-        // toast = this.rexUI.add.toast({
-        //     x: this.canvas.width/2,
-        //     y: 30,
-        //     height: toastFontSize,
-        
-        //     background: this.rexUI.add.roundRectangle(0, 0, 2, 2, 20, 0x5e92f3),
-        //     text: this.add.text(0, 0, '', {
-        //         fontSize: toastFontSize
-        //     }),
-        //     space: {
-        //         left: 20,
-        //         right: 20,
-        //         top: 20,
-        //         bottom: 20,
-        //     },
-        // });
-
-        //register left click input
-        this.input.on('pointerdown', (event) => this.onClick(event));
 
         //register keyboard inputs
         this.input.keyboard.on('keyup', (event) => this.onKeyUp(event));
@@ -162,10 +165,10 @@ class Game extends Phaser.Scene {
         this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
 
         //add NPCs
-        this.addNewNPC('Poke', 197, 450);
-        this.addNewNPC('Gigi', 133, 566);
-        this.addNewNPC('Jesse', 1096, 241, 'left');
-        this.addNewNPC('Snic', 899, 670, 'left');
+        this.addNewNPC('Poke', 363, 629);
+        this.addNewNPC('Gigi', 188, 621);
+        this.addNewNPC('Jesse', 1032, 666, 'left');
+        this.addNewNPC('Snic', 1238, 554, 'left');
 
         //add player's character to world
         Client.onJoin();
@@ -184,12 +187,19 @@ class Game extends Phaser.Scene {
 
     update() {
 
-        //detect collisions between NPCs and the client's player character
+        //handle collisions
         if (playerCharacter[clientPlayerID]) {
+
+            //NPCs
             for(var i = 0; i < objectNextID; i++) {
                 this.physics.world.collide(playerCharacter[clientPlayerID], npcCharacter[i], () => this.interactNPC(clientPlayerID, i));
             };
         };
+
+        //handle depth
+        Object.keys(playerCharacter).forEach((key) => {
+            playerCharacter[key].setDepth(playerCharacter[key].y);
+        });
     };
 
     // UTILITY
@@ -211,8 +221,9 @@ class Game extends Phaser.Scene {
     createToolbar() {
 
         //options menu button
-        ui.createButtons(this, { x: 1090, y: 765, buttons: [{ text: '⚙️', backgroundRadius: 8 }] })
-        .on('button.click', () => this.showOptions());
+        ui.createButtons(this, { x: 1090, y: 765, buttonTextSize: 22, buttons: [{ text: '⚙️', backgroundRadius: 8 }] })
+        .on('button.click', () => this.showOptions())
+        .setDepth(depthUI);
 
         //chat box
         chatBox = ui.createInputBox(this, {
@@ -224,7 +235,8 @@ class Game extends Phaser.Scene {
             placeholder: 'Say Yo...',
             backgroundColor: ui.colorWhite,
             backgroundRadius: 15,
-            maxLength: messageLength
+            maxLength: messageLength,
+            depth: depthUI
         })
         .on('keydown', function (chatBox, event) {
             if (event.key == 'Enter') {
@@ -246,6 +258,9 @@ class Game extends Phaser.Scene {
     //show refresh dialog
     showRefreshDialog(content) {
 
+        //fade background
+        this.add.rexCover({ alpha: 0.8 }).setDepth(depthUI);
+
         //create dialog with refresh button
         const dialog = ui.createDialog(this, content)
         .on('button.click', function () {
@@ -255,10 +270,11 @@ class Game extends Phaser.Scene {
 
         //dark background
         this.rexUI.modalPromise(
-            dialog,
+            dialog.setDepth(depthUI),
 
             //config
             {
+                cover: false,
                 duration: {
                     in: 200,
                     out: 200
@@ -273,7 +289,7 @@ class Game extends Phaser.Scene {
     showOptions() {
 
         //create dialog
-        const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} })
+        const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} });
 
         //close dialog when X is pressed
         dialog.on('button.click', function (button, groupName, index, pointer, event) {
@@ -285,7 +301,7 @@ class Game extends Phaser.Scene {
         this.rexUI.modalPromise(
 
             //create dialog
-            dialog,
+            dialog.setDepth(depthUI),
 
             //config
             {
@@ -304,13 +320,13 @@ class Game extends Phaser.Scene {
     onSliderChange(value, sliderID) {
         if (sliderID == 'volume') {
 
-            //change volume
-            music.setVolume(value);
-
             //store locally for the user to persist changes between sessions
             var options = utility.getLocalStorage('gameOptions');
             options[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume = value;
             utility.storeLocalStorageArray('gameOptions', options);
+
+            //change volume
+            music.setVolume(value);
         };
     };
 
@@ -338,8 +354,11 @@ class Game extends Phaser.Scene {
     };
 
     //on mouse down
-    onClick(event) {
+    onClick() {
+
+        //if clicking is not disabled
         if (!disableInput) {
+
             // un-focus chatbox
             if (chatBox.isFocused) { 
                 chatBox.setBlur();
@@ -350,10 +369,49 @@ class Game extends Phaser.Scene {
         };
     };
 
+    //on mouse down on layer
+    onLayerClick(layer) {
+
+        //if clicking is not disabled
+        if (!disableInput) {
+
+            //check if click is on an unwalkable layer
+            for (let i = 0; i < unWalkableLayer.length; i++) {
+                if (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, unWalkableLayer[i]) == 255) {
+                    return;
+                };
+            };
+
+            //check if the clicked pixel is not transparent
+            if(this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, layer) == 255) {
+
+                //if the clicked layer is the walkable layer (usually the ground layer)
+                if (layer == walkableLayer) {
+                    this.onClick();
+
+                //if the clicked layer is not the walkable layer, check if the walkable layer at the same position is not transparent to allow movement
+                } else if (!unWalkableLayer.includes(layer) && this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255){
+                    this.onClick();
+                };
+
+            //if the pixel on this layer is not transparent, check if it is on the walkable layer
+            } else if ((layer !== walkableLayer) && (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255)) {
+                this.onClick();
+            }
+        };
+    };
+
     // FUNCTIONS
     //get client's ID from the server
-    setPlayerID(id) {
+    initPlayer(id) {
+        
+        //store clients player ID
         clientPlayerID = id;
+
+        // //add collision
+        // for(var i = 0; i < collidableLayers.length; i++) {
+        //     this.physics.add.collider(playerCharacter[clientPlayerID], collidableLayers[i]);
+        // };
     };
 
     //reload the world when window is re-focused
@@ -365,14 +423,14 @@ class Game extends Phaser.Scene {
     addNewPlayer(data) {
 
         //player character
-        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1).setScale(characterScale);
-        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1).setScale(characterScale);
-        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1).setScale(characterScale);
+        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
+        var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1);
+        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1);
 
         //get sprite container size
         var spriteContainer = {
-            width: playerBody.width * characterScale,
-            height: playerBody.height * characterScale
+            width: playerBody.width,
+            height: playerBody.height
         };
 
         //player name
@@ -387,13 +445,13 @@ class Game extends Phaser.Scene {
         //add player sprites to player sprite container
         playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
 
-        //offset sprite
-        playerCharacter[data.id].list[0].list[0].setY((spriteContainer.height/2));
-        playerCharacter[data.id].list[0].list[1].setY((spriteContainer.height/2));
-        playerCharacter[data.id].list[0].list[2].setY((spriteContainer.height/2));
+        //offset sprites to match hitbox
+        // playerSpriteContainer.list[0].setY(spriteContainer.height / 2);
+        // playerSpriteContainer.list[1].setY(spriteContainer.height / 2);
+        // playerSpriteContainer.list[2].setY(spriteContainer.height / 2);
 
         //create player overlay container
-        playerCharacter[data.id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
+        playerCharacter[data.id].add(this.add.container(0, (spriteContainer.height / 2) * -1).setSize(spriteContainer.width, spriteContainer.height));
 
         //add player name to player overlay container
         playerCharacter[data.id].list[1].add([playerName]);
@@ -401,6 +459,9 @@ class Game extends Phaser.Scene {
         //enable physics on player character
         this.physics.world.enable(playerCharacter[data.id]);
         playerCharacter[data.id].body.setCollideWorldBounds(true);
+
+        //set depth
+        playerCharacter[data.id].setDepth(data.y);
 
         // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
         //
@@ -523,14 +584,8 @@ class Game extends Phaser.Scene {
     //update player characters
     updatePlayerLook(data) {
 
-        //get player container
-        var player = playerCharacter[data.id];
-
-        //get player sprite container
-        var playerSprites = player.list[0];
-
-        //get player body layer (inside sprite container)
-        var playerBody = playerSprites.list[0];
+        //get player body layer (inside player sprite container)
+        var playerBody = playerCharacter[data.id].list[0].list[0];
 
         //update players color
         playerBody.tint = data.color;
@@ -547,12 +602,12 @@ class Game extends Phaser.Scene {
         objectNextID = objectNextID+1;
 
         //set npc sprite
-        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1).setScale(characterScale);
+        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1);
 
         //get sprite container size
         var spriteContainer = {
-            width: npcSprite.width * characterScale,
-            height: npcSprite.height * characterScale
+            width: npcSprite.width,
+            height: npcSprite.height
         };
 
         //offset sprite
@@ -571,7 +626,11 @@ class Game extends Phaser.Scene {
         npcCharacter[id].list[0].add([npcSprite]);
 
         //detect clicks
-        npcCharacter[id].setInteractive().on('pointerup', () => playerInteracting = id, this);
+        npcCharacter[id].setInteractive().on('pointerup', () => {
+            playerInteracting = id;
+            this.onClick()
+        }
+        , this);
 
         //create npc overlay container
         npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
@@ -587,6 +646,9 @@ class Game extends Phaser.Scene {
         //enable physics on npc character
         this.physics.world.enable(npcCharacter[id]);
         npcCharacter[id].body.setCollideWorldBounds(true);
+
+        //set depth
+        npcCharacter[id].setDepth(y);
     };
 
     //player interacts with NPC
