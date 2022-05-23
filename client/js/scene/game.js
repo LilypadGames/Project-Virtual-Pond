@@ -42,9 +42,9 @@ var npcCharacter = {};
 var npcData = {};
 var npcCollider = {};
 const npcLines = [
-    ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break'],
-    ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
-    ['you invest in a hangry hippos nft yet?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...'],
+    ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
+    ['*thinking of something HUH to say*', 'people call me a very accurate gamer', ''],
+    ['you invest in a hangry hippos nft yet?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn'],
     ['IDGAF']
 ];
 
@@ -69,6 +69,7 @@ const messageConfig = {
 const messageLength = 80;
 var chatBox;
 var disableInput = false;
+var menuOpen = false;
 
 //init debug variables
 var debugMode = false;
@@ -131,7 +132,11 @@ class Game extends Phaser.Scene {
         this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(depthBackground);
         
         this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(depthGround)
-        .setInteractive().on('pointerdown', () => { this.onLayerClick('Forest_Ground') });
+        .setInteractive().on('pointerdown', () => {
+            if(this.navigationCheck('Forest_Ground')) {
+                this.onClick();
+            };
+        });
         walkableLayer = 'Forest_Ground';
 
         this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(600);
@@ -288,32 +293,36 @@ class Game extends Phaser.Scene {
     //show options menu
     showOptions() {
 
-        //create dialog
-        const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} });
-
-        //close dialog when X is pressed
-        dialog.on('button.click', function (button, groupName, index, pointer, event) {
-            dialog.emit('modal.requestClose', { index: index, text: button.text });
-            disableInput = false;
-        }),
-
-        //close dialog when X is pressed
-        this.rexUI.modalPromise(
-
+        if (!menuOpen) {
             //create dialog
-            dialog.setDepth(depthUI),
+            const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} });
 
-            //config
-            {
-                cover: false,
-                duration: {
-                    in: 200,
-                    out: 200
+            //close dialog when X is pressed
+            dialog.on('button.click', function (button, groupName, index, pointer, event) {
+                dialog.emit('modal.requestClose', { index: index, text: button.text });
+                disableInput = false;
+                menuOpen = false;
+            }),
+
+            //close dialog when X is pressed
+            this.rexUI.modalPromise(
+
+                //create dialog
+                dialog.setDepth(depthUI),
+
+                //config
+                {
+                    cover: false,
+                    duration: {
+                        in: 200,
+                        out: 200
+                    }
                 }
-            }
-        );
+            );
 
-        disableInput = true;
+            disableInput = true;
+            menuOpen = true;
+        };
     };
 
     //on slider change
@@ -369,8 +378,8 @@ class Game extends Phaser.Scene {
         };
     };
 
-    //on mouse down on layer
-    onLayerClick(layer) {
+    //check if click location is allowed by navigational map (returns true if click location is allowed by navigation map and false otherwise)
+    navigationCheck(layer) {
 
         //if clicking is not disabled
         if (!disableInput) {
@@ -378,7 +387,7 @@ class Game extends Phaser.Scene {
             //check if click is on an unwalkable layer
             for (let i = 0; i < unWalkableLayer.length; i++) {
                 if (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, unWalkableLayer[i]) == 255) {
-                    return;
+                    return false;
                 };
             };
 
@@ -387,18 +396,22 @@ class Game extends Phaser.Scene {
 
                 //if the clicked layer is the walkable layer (usually the ground layer)
                 if (layer == walkableLayer) {
-                    this.onClick();
+                    return true;
 
                 //if the clicked layer is not the walkable layer, check if the walkable layer at the same position is not transparent to allow movement
                 } else if (!unWalkableLayer.includes(layer) && this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255){
-                    this.onClick();
+                    return true;
                 };
 
             //if the pixel on this layer is not transparent, check if it is on the walkable layer
             } else if ((layer !== walkableLayer) && (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255)) {
-                this.onClick();
+                return true;
             }
+
+            return false;
         };
+
+        return false;
     };
 
     // FUNCTIONS
@@ -627,8 +640,10 @@ class Game extends Phaser.Scene {
 
         //detect clicks
         npcCharacter[id].setInteractive().on('pointerup', () => {
-            playerInteracting = id;
-            this.onClick()
+            if(this.navigationCheck()) {
+                playerInteracting = id;
+                this.onClick();
+            };
         }
         , this);
 
