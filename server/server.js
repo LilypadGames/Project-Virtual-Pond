@@ -173,15 +173,11 @@ io.use(function(socket, next){
 //on new websocket connection
 io.on('connection', async function(socket) {
 
-    console.log(await database.getValue('users/' + socket.request.user.data[0].id))
-
     //kick other connection instances of this player
     await kickOtherInstance(socket.request.user.data[0].id);
 
     //set up player data
     socket.player = await getPlayerData(socket);
-
-    console.log(socket.player)
 
     //send client's player data on connection to ONLY THIS client (players start on Menu scene, which requires the player data to see if they should be sent to the game or character creator scene)
     socket.emit('getPlayerData', socket.player);
@@ -432,7 +428,6 @@ async function getPlayerData(socket) {
 
 //update player data
 function updatePlayerData(socket) {
-    console.log('test')
     const path = 'users/' + socket.player.id + '/character'
     database.setValue(path + '/eye_type', socket.player.character.eye_type);
     database.setValue(path + '/color', socket.player.character.color);

@@ -199,8 +199,6 @@ class Game extends Phaser.Scene {
                 this.debugCursor.copyPosition(pointer);
             };
         }, this);
-
-        console.log(this.clientPlayerID)
     };
 
     update() {
