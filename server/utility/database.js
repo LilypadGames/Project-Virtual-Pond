@@ -25,7 +25,7 @@ module.exports = {
     },
 
     //get value in database
-    getValue: async function(path, base) {
+    getValue: async function(path) {
 
         //init value
         var value;
@@ -35,11 +35,11 @@ module.exports = {
             value = await data.val();
         });
 
-        //set value if none set and default value provided
-        if (!value && base != undefined) {
-            this.setValue(path, base);
-            value = base;
-        };
+        // //set value if none set and default value provided
+        // if (!value && base != undefined) {
+        //     this.setValue(path, base);
+        //     value = base;
+        // };
 
         //return the found or set value
         return value;

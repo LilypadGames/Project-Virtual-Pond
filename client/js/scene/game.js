@@ -199,6 +199,8 @@ class Game extends Phaser.Scene {
                 this.debugCursor.copyPosition(pointer);
             };
         }, this);
+
+        console.log(this.clientPlayerID)
     };
 
     update() {
@@ -866,8 +868,6 @@ class Game extends Phaser.Scene {
     removePlayer(id) {
         this.playerCharacter[id].destroy();
         delete this.playerCharacter[id];
-
-        console.log(this.playerCharacter)
     };
 
     // DEBUG

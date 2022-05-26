@@ -55,7 +55,6 @@ class Client {
 
     //tell server that the player is no longer in the game world (minigame/character creator)
     leaveWorld() {
-        console.log('left world')
         socket.emit('leaveWorld');
     }
 };

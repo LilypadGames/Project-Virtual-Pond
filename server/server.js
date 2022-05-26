@@ -109,12 +109,11 @@ passport.use('twitch', new OAuth2Strategy({
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
 
-        //store user in database
-        var path = 'users/' + profile.data[0].id
-        if (!await database.pathExists(path)) {
-            database.setValue(path, {
-                name: profile.data[0].display_name
-            });
+        //store users name and ID in database
+        var path = 'users/' + profile.data[0].id + '/name'
+        const pathExists = await database.pathExists(path);
+        if (!pathExists) {
+            database.setValue(path, profile.data[0].display_name);
         };
 
         done(null, profile);
@@ -174,11 +173,15 @@ io.use(function(socket, next){
 //on new websocket connection
 io.on('connection', async function(socket) {
 
+    console.log(await database.getValue('users/' + socket.request.user.data[0].id))
+
     //kick other connection instances of this player
     await kickOtherInstance(socket.request.user.data[0].id);
 
     //set up player data
     socket.player = await getPlayerData(socket);
+
+    console.log(socket.player)
 
     //send client's player data on connection to ONLY THIS client (players start on Menu scene, which requires the player data to see if they should be sent to the game or character creator scene)
     socket.emit('getPlayerData', socket.player);
@@ -207,7 +210,7 @@ io.on('connection', async function(socket) {
     socket.on('updatePlayerData', function(data) {
 
         //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Updated Player Data> Color:' + data.character.color + ' Eye Type: ' + data.character.eye_type));
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Updated Player Data> Color:' + data.character.color + ', Eye Type: ' + data.character.eye_type));
 
         //update data
         if (!socket.player.character) socket.player.character = {};
@@ -244,6 +247,9 @@ io.on('connection', async function(socket) {
 
         //log
         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
+
+        //update player data
+        updatePlayerData(socket);
 
         //add player to room
         joinRoom(socket, room);
@@ -335,15 +341,13 @@ io.on('connection', async function(socket) {
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left Game World'));
 
             //update player data
-            updatePlayerData(socket);
+            // updatePlayerData(socket);
 
             //send the removal of the player for ALL clients in this room
             io.in(socket.roomID).emit('removePlayer', socket.player.id);
 
             //leave rooms
             leaveAllRooms(socket);
-
-            console.log(socket.roomID)
         });
 
         //triggers when player disconnects their client
@@ -387,19 +391,19 @@ function joinRoom(socket, room) {
 
 //remove player from all rooms
 function leaveAllRooms(socket) {
-    // Object.keys(io.sockets.manager.roomClients[socket.id]).forEach((key) => {
-    //     socket.leave(key);
-    // });
 
+    //leave room
     socket.leave(socket.roomID);
 
+    //delete players room ID
     delete socket.roomID;
 };
 
 //get player data
 async function getPlayerData(socket) {
 
-    playerData = {
+    //set up initial data
+    var playerData = {
 
         //get ID
         id: socket.request.user.data[0].id,
@@ -409,11 +413,14 @@ async function getPlayerData(socket) {
         y: utility.getRandomInt(560, 796),
 
         //get name
-        name: socket.request.user.data[0].display_name,
+        name: socket.request.user.data[0].display_name
     };
 
-    //set up character
-    if (await database.pathExists('users/' + socket.request.user.data[0].id + '/character')) {
+    //check if character data exists
+    const pathExists = await database.pathExists('users/' + socket.request.user.data[0].id + '/character');
+
+    //get character data from database
+    if (pathExists) {
         playerData.character = {
             eye_type: await database.getValue('users/' + socket.request.user.data[0].id + '/character/eye_type'),
             color: await database.getValue('users/' + socket.request.user.data[0].id + '/character/color')
@@ -425,6 +432,7 @@ async function getPlayerData(socket) {
 
 //update player data
 function updatePlayerData(socket) {
+    console.log('test')
     const path = 'users/' + socket.player.id + '/character'
     database.setValue(path + '/eye_type', socket.player.character.eye_type);
     database.setValue(path + '/color', socket.player.character.color);

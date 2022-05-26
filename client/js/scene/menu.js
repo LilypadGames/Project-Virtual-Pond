@@ -25,9 +25,6 @@ class Menu extends Phaser.Scene {
     // LOGIC
     preload() {
 
-        //get character info
-        // client.getPlayerData();
-
         //sfx
         this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
 
@@ -83,12 +80,12 @@ class Menu extends Phaser.Scene {
     // FUNCTIONS
     //get character information
     parsePlayerData(data) {
-
+        
         //send to character creator or game
-        if (data.character) {
-            this.scene.start('Game');
-        } else {
+        if (!data.character) {
             this.scene.start('CharacterCreator');
+        } else {
+            this.scene.start('Game');
         };
     };
 }
