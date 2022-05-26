@@ -1,92 +1,99 @@
 // Game Scene
 
-//navigational map
-// var collidableLayer;
-
-//import
-const ui = new UI();
-const utility = new Utility();
-
-//init settings
-var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
-const defaultOptions = [
-    { id: 'music', volume: 1 }
-];
-if (gameOptions === null || gameOptions.length <= 0) {
-    localStorage.setItem('gameOptions', JSON.stringify(defaultOptions));
-    gameOptions = defaultOptions;
-};
-
-//init world
-var walkableLayer;
-var unWalkableLayer = [];
-const depthUI = 100002;
-const depthOverlay = 100001;
-const depthForeground = 100000;
-const depthGround = 1;
-const depthBackground = 0;
-
-//init audio
-var music;
-
-//init player variables
-var clientPlayerID;
-var playerCharacter = {};
-var playerData = {};
-var playerCollider;
-var playerInteracting;
-
-//init object variables
-var objectNextID = 0;
-var npcCharacter = {};
-var npcData = {};
-var npcCollider = {};
-const npcLines = [
-    ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
-    ['*thinking of something HUH to say*', 'people call me a very accurate gamer', ''],
-    ['you invest in a hangry hippos nft yet?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn'],
-    ['IDGAF']
-];
-
-//init ui
-const overlayPadding = 8;
-const nametagFontSize = 14;
-const nametagConfig = {
-    fontFamily: 'Arial',
-    color: '#ffffff',
-    stroke: '#000000',
-    strokeThickness: 6,
-};
-const messageFontSize = 18;
-const messageConfig = {
-    fontFamily: 'Arial',
-    color: '#000000',
-    lineSpacing: 2,
-    align: 'center',
-    padding: { left: 8, right: 8, top: 6, bottom: 6 },
-    wordWrap: { width: 250 }
-};
-const messageLength = 80;
-var chatBox;
-var disableInput = false;
-var menuOpen = false;
-
-//init debug variables
-var debugMode = false;
-var debugCursor;
+// Client = new Client();
 
 class Game extends Phaser.Scene {
+
+    // LOCAL VARIABLES
+    //settings
+    gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
+    defaultOptions = [
+        { id: 'music', volume: 1 }
+    ];
+
+    //world
+    walkableLayer;
+    unWalkableLayer = [];
+
+    //depth
+    depthUI = 100002;
+    depthOverlay = 100001;
+    depthForeground = 100000;
+    depthGround = 1;
+    depthBackground = 0;
+
+    //audio
+    music;
+    sfx_button_click;
+
+    //player variables
+    clientPlayerID;
+    playerCharacter = {};
+    playerData = {};
+    playerInteracting;
+
+    //object variables
+    npcList = [
+        { id: 0, name: 'Poke', x: 363, y: 629, direction: 'right'},
+        { id: 1, name: 'Gigi', x: 188, y: 621, direction: 'right'},
+        { id: 2, name: 'Jesse', x: 1032, y: 666, direction: 'left'},
+        { id: 3, name: 'Snic', x: 1238, y: 554, direction: 'left'}
+    ];
+    npcCharacter = {};
+    npcData = {};
+    npcLines = [
+        ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
+        ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
+        ['you invest in a hangry hippos nft yet?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn'],
+        ['IDGAF']
+    ];
+
+    //UI
+    overlayPadding = 8;
+    nametagFontSize = 14;
+    nametagConfig = {
+        fontFamily: 'Arial',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 6,
+    };
+    messageFontSize = 18;
+    messageConfig = {
+        fontFamily: 'Arial',
+        color: '#000000',
+        lineSpacing: 2,
+        align: 'center',
+        padding: { left: 8, right: 8, top: 6, bottom: 6 },
+        wordWrap: { width: 250 }
+    };
+    messageLength = 80;
+    chatBox;
+    disableInput = false;
+    menuOpen = false;
+
+    //debug
+    debugCursor;
+    
     // INIT
     constructor() {
-        super('Game');
+
+        super({ key: 'Game' });
     };
 
     init() {
-        Client = new Client(this);
+
+        //set scene
+        currentScene = this;
     };
 
     // LOGIC
     preload() {
+
+        //set up localStorage settings
+        if (this.gameOptions === null || this.gameOptions.length <= 0) {
+            localStorage.setItem('gameOptions', JSON.stringify(this.defaultOptions));
+            this.gameOptions = this.defaultOptions;
+        };
 
         //get canvas
         this.canvas = this.sys.game.canvas;
@@ -96,17 +103,22 @@ class Game extends Phaser.Scene {
         this.load.image('Forest_Ground', 'assets/room/forest/Ground.png');
         this.load.image('Forest_Tree_3', 'assets/room/forest/Tree_3.png');
         this.load.image('Forest_Tree_2', 'assets/room/forest/Tree_2.png');
+        this.load.image('Forest_Rock_1', 'assets/room/forest/Rock_1.png');
         this.load.image('Forest_Tree_1', 'assets/room/forest/Tree_1.png');
         this.load.image('Forest_Foreground', 'assets/room/forest/Foreground.png');
 
         //room audio
         this.load.audio('frog_caves_chill', "assets/room/forest/audio/music/frog_caves_chill.mp3");
-        this.load.audio('forest_ambience', "assets/room/forest/audio/music/forest_ambience.mp3");
+        this.load.audio('forest_ambience', "assets/room/forest/audio/sfx/ambience/forest_ambience.mp3");
+
+        //sfx
+        this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
 
         //character
         this.load.image('frog_body', 'assets/character/player/Tintable.png');
         this.load.image('frog_belly', 'assets/character/player/Non-Tintable.png');
-        this.load.image('frog_eyes', 'assets/character/player/Eyes.png');
+        this.load.image('frog_eyes_0', 'assets/character/player/eyes/Eyes_0.png');
+        this.load.image('frog_eyes_1', 'assets/character/player/eyes/Eyes_1.png');
 
         //npc
         this.load.image('Poke', 'assets/character/npc/Poke.png');
@@ -117,7 +129,6 @@ class Game extends Phaser.Scene {
         //plugins
         this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
         this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
-        this.load.plugin('rexcoverplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexcoverplugin.min.js', true);
 
         //debug
         this.load.image('target', 'assets/debug/target.png');
@@ -129,28 +140,26 @@ class Game extends Phaser.Scene {
         this.canvas = this.sys.game.canvas;
 
         //room
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(depthBackground);
-        
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(depthGround)
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(this.depthBackground);
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
         .setInteractive().on('pointerdown', () => {
             if(this.navigationCheck('Forest_Ground')) {
                 this.onClick();
             };
-        });
-        walkableLayer = 'Forest_Ground';
-
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(600);
-        unWalkableLayer.push('Forest_Tree_3');
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(620);
-        unWalkableLayer.push('Forest_Tree_2');
+        }, this);
+        this.walkableLayer = 'Forest_Ground';
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(610);
+        this.unWalkableLayer.push('Forest_Tree_3');
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(628);
+        this.unWalkableLayer.push('Forest_Tree_2');
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Rock_1').setDepth(629);
         this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_1').setDepth(665);
-        unWalkableLayer.push('Forest_Tree_1');
-
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(depthForeground);
-        unWalkableLayer.push('Forest_Foreground');
+        this.unWalkableLayer.push('Forest_Tree_1');
+        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(this.depthForeground);
+        this.unWalkableLayer.push('Forest_Foreground');
 
         //music
-        music = this.sound.add('frog_caves_chill', {
+        this.music = this.sound.add('frog_caves_chill', {
             mute: false,
             volume: 0,
             rate: 1,
@@ -159,60 +168,62 @@ class Game extends Phaser.Scene {
             loop: true,
             delay: 0
         });
-        music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
-        music.play();
+        this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
+        this.music.play();
         this.sound.pauseOnBlur = false;
 
+        //sfx
+        this.sfx_button_click = this.sound.add('button_click');
+
         //register keyboard inputs
-        this.input.keyboard.on('keyup', (event) => this.onKeyUp(event));
+        this.input.keyboard.on('keyup', (event) => this.onKeyUp(event), this);
 
         //detect when window is re-focused
         this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
 
         //add NPCs
-        this.addNewNPC('Poke', 363, 629);
-        this.addNewNPC('Gigi', 188, 621);
-        this.addNewNPC('Jesse', 1032, 666, 'left');
-        this.addNewNPC('Snic', 1238, 554, 'left');
+        for(var i = 0; i < this.npcList.length; i++) {
+            this.addNewNPC(this.npcList[i].id, this.npcList[i].name, this.npcList[i].x, this.npcList[i].y, this.npcList[i].direction);
+        };
 
-        //add player's character to world
-        Client.onJoin();
+        //add player's character to room
+        client.onRoomJoin('forest');
 
         //add toolbar
         this.createToolbar();
 
         //debug
-        debugCursor = this.add.image(8, 8, "target").setVisible(false);
+        this.debugCursor = this.add.image(8, 8, "target").setVisible(false).setDepth(depthDebug);
         this.input.on("pointermove", function (pointer) {
             if (debugMode) {
-                debugCursor.copyPosition(pointer);
+                this.debugCursor.copyPosition(pointer);
             };
-        });
+        }, this);
     };
 
     update() {
 
         //handle collisions
-        if (playerCharacter[clientPlayerID]) {
+        if (this.playerCharacter[this.clientPlayerID]) {
 
             //NPCs
-            for(var i = 0; i < objectNextID; i++) {
-                this.physics.world.collide(playerCharacter[clientPlayerID], npcCharacter[i], () => this.interactNPC(clientPlayerID, i));
+            for(var i = 0; i < this.npcList.length; i++) {
+                this.physics.world.collide(this.playerCharacter[this.clientPlayerID], this.npcCharacter[i], () => {this.interactNPC(this.clientPlayerID, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
             };
         };
 
         //handle depth
-        Object.keys(playerCharacter).forEach((key) => {
-            playerCharacter[key].setDepth(playerCharacter[key].y);
+        Object.keys(this.playerCharacter).forEach((key) => {
+            this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
         });
     };
 
-    // UTILITY
+    // UTILITY    
     //get players current direction
     getPlayerDirection(id) {
 
         //get player sprite container
-        var playerSprites = playerCharacter[id].list[0];
+        var playerSprites = this.playerCharacter[id].list[0];
 
         //player character is facing right
         if (playerSprites.scaleX > 0) { return 'right' }
@@ -227,11 +238,18 @@ class Game extends Phaser.Scene {
 
         //options menu button
         ui.createButtons(this, { x: 1090, y: 765, buttonTextSize: 22, buttons: [{ text: '⚙️', backgroundRadius: 8 }] })
-        .on('button.click', () => this.showOptions())
-        .setDepth(depthUI);
+        .on('button.click', () => {
+
+            //open options menu
+            this.showOptions();
+
+            //sfx
+            this.sfx_button_click.play();
+        } ,this)
+        .setDepth(this.depthUI);
 
         //chat box
-        chatBox = ui.createInputBox(this, {
+        this.chatBox = ui.createInputBox(this, {
             id: 'chat-box',
             x: this.canvas.width / 2,
             y: this.canvas.height - (this.canvas.height / 23),
@@ -240,42 +258,49 @@ class Game extends Phaser.Scene {
             placeholder: 'Say Yo...',
             backgroundColor: ui.colorWhite,
             backgroundRadius: 15,
-            maxLength: messageLength,
-            depth: depthUI
+            maxLength: this.messageLength,
+            depth: this.depthUI
         })
-        .on('keydown', function (chatBox, event) {
+        .on('keydown', function (inputBox, event) {
             if (event.key == 'Enter') {
 
                 //format message
-                const chatMessage = chatBox.text.substr(0, messageLength).trim().replace(/\s+/g, " ");
+                const chatMessage = inputBox.text.substr(0, this.messageLength).trim().replace(/\s+/g, " ");
 
                 //send the message to the server
                 if (chatMessage !== '' || null) {
-                    Client.sendMessage(chatMessage);
+                    client.sendMessage(chatMessage);
                 };
 
                 //clear chat box
-                chatBox.setText('');
+                inputBox.setText('');
             };
-        });
+        }, this);
     };
 
     //show refresh dialog
     showRefreshDialog(content) {
 
         //fade background
-        this.add.rexCover({ alpha: 0.8 }).setDepth(depthUI);
+        this.add.rexCover({ alpha: 0.8 }).setDepth(this.depthUI);
 
         //create dialog with refresh button
         const dialog = ui.createDialog(this, content)
         .on('button.click', function () {
+
+            //sfx
+            this.sfx_button_click.play();
+
+            //reload window
             window.location.reload();
-            disableInput = false;
+
+            //enable input
+            this.disableInput = false;
         }, this);
 
         //dark background
         this.rexUI.modalPromise(
-            dialog.setDepth(depthUI),
+            dialog.setDepth(this.depthUI),
 
             //config
             {
@@ -287,28 +312,35 @@ class Game extends Phaser.Scene {
             }
         );
 
-        disableInput = true;
+        this.disableInput = true;
     };
 
     //show options menu
     showOptions() {
 
-        if (!menuOpen) {
+        if (!this.menuOpen) {
             //create dialog
             const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} });
 
             //close dialog when X is pressed
             dialog.on('button.click', function (button, groupName, index, pointer, event) {
+
+                //sfx
+                this.sfx_button_click.play();
+
+                //close
                 dialog.emit('modal.requestClose', { index: index, text: button.text });
-                disableInput = false;
-                menuOpen = false;
-            }),
+                
+                //enable input and menu opening again
+                this.disableInput = false;
+                this.menuOpen = false;
+            }, this),
 
             //close dialog when X is pressed
             this.rexUI.modalPromise(
 
                 //create dialog
-                dialog.setDepth(depthUI),
+                dialog.setDepth(this.depthUI),
 
                 //config
                 {
@@ -320,8 +352,8 @@ class Game extends Phaser.Scene {
                 }
             );
 
-            disableInput = true;
-            menuOpen = true;
+            this.disableInput = true;
+            this.menuOpen = true;
         };
     };
 
@@ -335,7 +367,7 @@ class Game extends Phaser.Scene {
             utility.storeLocalStorageArray('gameOptions', options);
 
             //change volume
-            music.setVolume(value);
+            this.music.setVolume(value);
         };
     };
 
@@ -343,16 +375,31 @@ class Game extends Phaser.Scene {
     //on keypres
     onKeyUp(event) {
         // ignore keyboard presses when chat box is focused
-        if (!chatBox.isFocused) {
+        if (!this.chatBox.isFocused) {
 
             //focus the chat box when Enter key is pressed
-            if (event.key === 'Enter') { chatBox.setFocus() };
+            if (event.key === 'Enter') { this.chatBox.setFocus() };
 
             //tell server that this client changed its color
-            if (event.key === 'c') { Client.changeLook(); };
+            if (event.key === 'c') { 
+
+                //stop music
+                this.music.stop();
+
+                //reset data
+                this.registry.destroy(); // destroy registry
+                this.events.off(); // disable all active events
+                this.scene.stop();
+
+                //leave game world
+                client.leaveWorld();
+
+                //start character creator scene
+                this.scene.start('CharacterCreator');
+            };
 
             //tell server that this client stopped its movement
-            if (event.key === 's') { Client.onHalt(playerCharacter[clientPlayerID].x, playerCharacter[clientPlayerID].y) };
+            if (event.key === 's') { client.onHalt(this.playerCharacter[this.clientPlayerID].x, this.playerCharacter[this.clientPlayerID].y) };
 
             //toggle options
             if (event.key === 'o') { this.showOptions(); };
@@ -366,15 +413,15 @@ class Game extends Phaser.Scene {
     onClick() {
 
         //if clicking is not disabled
-        if (!disableInput) {
+        if (!this.disableInput) {
 
             // un-focus chatbox
-            if (chatBox.isFocused) { 
-                chatBox.setBlur();
+            if (this.chatBox.isFocused) { 
+                this.chatBox.setBlur();
             };
 
             //tell the server that the player is moving
-            Client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+            client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
         };
     };
 
@@ -382,31 +429,28 @@ class Game extends Phaser.Scene {
     navigationCheck(layer) {
 
         //if clicking is not disabled
-        if (!disableInput) {
+        if (!this.disableInput) {
+
+            //if layer is specified, ignore everything else and only check for this layers navigational map
+            if (layer) {
+                if(this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, layer) == 255) {
+                    return true;
+                };
+            }
 
             //check if click is on an unwalkable layer
-            for (let i = 0; i < unWalkableLayer.length; i++) {
-                if (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, unWalkableLayer[i]) == 255) {
-                    return false;
+            else {
+                for (let i = 0; i < this.unWalkableLayer.length; i++) {
+                    if (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, this.unWalkableLayer[i]) == 255) {
+                        return false;
+                    };
                 };
             };
 
-            //check if the clicked pixel is not transparent
-            if(this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, layer) == 255) {
-
-                //if the clicked layer is the walkable layer (usually the ground layer)
-                if (layer == walkableLayer) {
-                    return true;
-
-                //if the clicked layer is not the walkable layer, check if the walkable layer at the same position is not transparent to allow movement
-                } else if (!unWalkableLayer.includes(layer) && this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255){
-                    return true;
-                };
-
-            //if the pixel on this layer is not transparent, check if it is on the walkable layer
-            } else if ((layer !== walkableLayer) && (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, walkableLayer) == 255)) {
+            //if layer wasn't specified and click wasnt on an unwalkable layer, then check the walkable layer
+            if ((layer !== this.walkableLayer) && (this.textures.getPixelAlpha(this.input.mousePointer.worldX, this.input.mousePointer.worldY, this.walkableLayer) == 255)) {
                 return true;
-            }
+            };
 
             return false;
         };
@@ -419,17 +463,12 @@ class Game extends Phaser.Scene {
     initPlayer(id) {
         
         //store clients player ID
-        clientPlayerID = id;
-
-        // //add collision
-        // for(var i = 0; i < collidableLayers.length; i++) {
-        //     this.physics.add.collider(playerCharacter[clientPlayerID], collidableLayers[i]);
-        // };
+        this.clientPlayerID = id;
     };
 
     //reload the world when window is re-focused
     onFocus() {
-        Client.onReload();
+        client.onReload();
     };
 
     //add player character to game at specific coordinates
@@ -438,7 +477,7 @@ class Game extends Phaser.Scene {
         //player character
         var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
         var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1);
-        var playerEyes = this.add.sprite(0, 0,'frog_eyes').setOrigin(0.5, 1);
+        var playerEyes = this.add.sprite(0, 0,'frog_eyes_' + data.character.eye_type).setOrigin(0.5, 1);
 
         //get sprite container size
         var spriteContainer = {
@@ -447,34 +486,29 @@ class Game extends Phaser.Scene {
         };
 
         //player name
-        var playerName = this.add.text(0, spriteContainer.height, data.name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
+        var playerName = this.add.text(0, spriteContainer.height, data.name, this.nametagConfig).setFontSize(this.nametagFontSize).setOrigin(0.5, 1);
 
         //create player container
-        playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
+        this.playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
 
         //create player sprite container
-        playerCharacter[data.id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));   
+        this.playerCharacter[data.id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));   
 
         //add player sprites to player sprite container
-        playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
-
-        //offset sprites to match hitbox
-        // playerSpriteContainer.list[0].setY(spriteContainer.height / 2);
-        // playerSpriteContainer.list[1].setY(spriteContainer.height / 2);
-        // playerSpriteContainer.list[2].setY(spriteContainer.height / 2);
+        this.playerCharacter[data.id].list[0].add([playerBody, playerBelly, playerEyes]);
 
         //create player overlay container
-        playerCharacter[data.id].add(this.add.container(0, (spriteContainer.height / 2) * -1).setSize(spriteContainer.width, spriteContainer.height));
+        this.playerCharacter[data.id].add(this.add.container(0, (spriteContainer.height / 2) * -1).setSize(spriteContainer.width, spriteContainer.height));
 
         //add player name to player overlay container
-        playerCharacter[data.id].list[1].add([playerName]);
+        this.playerCharacter[data.id].list[1].add([playerName]);
 
         //enable physics on player character
-        this.physics.world.enable(playerCharacter[data.id]);
-        playerCharacter[data.id].body.setCollideWorldBounds(true);
+        this.physics.world.enable(this.playerCharacter[data.id]);
+        this.playerCharacter[data.id].body.setCollideWorldBounds(true);
 
         //set depth
-        playerCharacter[data.id].setDepth(data.y);
+        this.playerCharacter[data.id].setDepth(data.y);
 
         // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
         //
@@ -493,7 +527,7 @@ class Game extends Phaser.Scene {
         // the entire Player Container needs to be moved.
 
         //update the look of the character from the provided server data
-        this.updatePlayerLook(data);
+        this.updatePlayerCharacter(data);
     };
 
     //move player character to specific coordinates
@@ -503,16 +537,16 @@ class Game extends Phaser.Scene {
         this.updatePlayerDirection(id, x, y)
 
         //get player's character
-        var player = playerCharacter[id];
+        var player = this.playerCharacter[id];
 
         //move player
-        playerData[id] = {
+        this.playerData[id] = {
             movement: this.add.tween({
                 targets: player, 
                 x: x,
                 y: y,
                 duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
-                onComplete: function() { playerInteracting = false; }
+                onComplete: function() { this.playerInteracting = false; }
             })
         };
     };
@@ -521,10 +555,10 @@ class Game extends Phaser.Scene {
     haltPlayer(id, newX, newY) {
 
         //stop movement
-        playerData[id].movement.stop();
+        this.playerData[id].movement.stop();
 
         //sync check
-        if (newX != playerCharacter[id].x || newY != playerCharacter[id].y) {
+        if (newX != this.playerCharacter[id].x || newY != this.playerCharacter[id].y) {
             this.placePlayer(id, newX, newY);
         };
     };
@@ -533,26 +567,26 @@ class Game extends Phaser.Scene {
     changePlayerMovement(id, newX, newY) {
 
         //get player's character
-        var player = playerCharacter[id];
+        var player = this.playerCharacter[id];
 
         //get duration of movement
         var newDuration = Phaser.Math.Distance.Between(player.x, player.y, newX, newY) * 5;
         
         //change x
-        playerData[id].movement.updateTo('x', newX, true);
+        this.playerData[id].movement.updateTo('x', newX, true);
 
         //change y
-        playerData[id].movement.updateTo('y', newY, true);
+        this.playerData[id].movement.updateTo('y', newY, true);
 
         //change duration
-        playerData[id].movement.updateTo('duration', newDuration, true);
+        this.playerData[id].movement.updateTo('duration', newDuration, true);
     };
 
     //place a player at a specific coordinate
     placePlayer(id, x, y) {
 
         //get player container
-        var player = playerCharacter[id];
+        var player = this.playerCharacter[id];
 
         //place x
         player.x = x;
@@ -565,7 +599,7 @@ class Game extends Phaser.Scene {
     updatePlayerDirection(id, newX, newY) {
 
         //get player container
-        var player = playerCharacter[id];
+        var player = this.playerCharacter[id];
 
         //get player sprite container
         var playerSprites = player.list[0];
@@ -594,28 +628,35 @@ class Game extends Phaser.Scene {
         if ((newDirection === 'right' && currentDirection === 'left') || (newDirection === 'left' && currentDirection === 'right')) { playerSprites.scaleX *= -1; };
     };
 
-    //update player characters
-    updatePlayerLook(data) {
+    //update player character
+    updatePlayerCharacter(data) {
 
-        //get player body layer (inside player sprite container)
-        var playerBody = playerCharacter[data.id].list[0].list[0];
+        //color
+        if (data.character.color) {
 
-        //update players color
-        playerBody.tint = data.color;
+            //get player body sprite
+            var playerBody = this.playerCharacter[data.id].list[0].list[0];
+
+            //update color
+            playerBody.tint = data.character.color;
+        };
+
+        //eye type
+        if (data.character.eye_type) {
+
+            //get player eyes sprite
+            var playerEyes = this.playerCharacter[data.id].list[0].list[2];
+
+            //update eye type
+            playerEyes.setTexture('frog_eyes_' + data.character.eye_type);
+        };
     };
 
     //adds NPC character to the game
-    addNewNPC(name, x, y, direction = 'right') {
-
-        //init npc sprite
-        var npcSprite;
-
-        //get ID
-        var id = objectNextID;
-        objectNextID = objectNextID+1;
-
+    addNewNPC(id, name, x, y, direction = 'right') {
+        
         //set npc sprite
-        npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1);
+        var npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1);
 
         //get sprite container size
         var spriteContainer = {
@@ -624,62 +665,61 @@ class Game extends Phaser.Scene {
         };
 
         //offset sprite
-        npcSprite.setY((spriteContainer.height/2));
+        npcSprite.setY(spriteContainer.height / 2);
 
         //npc name
-        var npcName = this.add.text(0, spriteContainer.height, name, nametagConfig).setFontSize(nametagFontSize).setOrigin(0.5, 1);
+        var npcName = this.add.text(0, spriteContainer.height, name, this.nametagConfig).setFontSize(this.nametagFontSize).setOrigin(0.5, 1);
 
         //create npc container
-        npcCharacter[id] = this.add.container(x, y).setSize(spriteContainer.width, spriteContainer.height);
-        
+        this.npcCharacter[id] = this.add.container(x, y).setSize(spriteContainer.width, spriteContainer.height);
+
         //create npc sprite container
-        npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
+        this.npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
 
         //add npc sprites to npc sprite container
-        npcCharacter[id].list[0].add([npcSprite]);
+        this.npcCharacter[id].list[0].add([npcSprite]);
 
         //detect clicks
-        npcCharacter[id].setInteractive().on('pointerup', () => {
+        this.npcCharacter[id].setInteractive().on('pointerup', () => {
             if(this.navigationCheck()) {
-                playerInteracting = id;
+                this.playerInteracting = id;
                 this.onClick();
             };
-        }
-        , this);
+        }, this);
 
         //create npc overlay container
-        npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
+        this.npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
 
         //add npc name to npc overlay container
-        npcCharacter[id].list[1].add([npcName]);
+        this.npcCharacter[id].list[1].add([npcName]);
 
         //set direction of NPC
         if (direction === 'left') {
-            npcCharacter[id].list[0].list[0].scaleX *= -1;
+            this.npcCharacter[id].list[0].list[0].scaleX *= -1;
         };
 
         //enable physics on npc character
-        this.physics.world.enable(npcCharacter[id]);
-        npcCharacter[id].body.setCollideWorldBounds(true);
+        this.physics.world.enable(this.npcCharacter[id]);
+        this.npcCharacter[id].body.setCollideWorldBounds(true);
 
         //set depth
-        npcCharacter[id].setDepth(y);
+        this.npcCharacter[id].setDepth(y);
     };
 
     //player interacts with NPC
     interactNPC(playerID, npcID) {
 
         //interact only once per movement
-        if (playerInteracting === npcID) {
+        if (this.playerInteracting === npcID) {
 
             //tell server that this player halted
-            Client.onHalt(playerCharacter[playerID].x, playerCharacter[playerID].y)
+            client.onHalt(this.playerCharacter[playerID].x, this.playerCharacter[playerID].y)
 
             //npc message
-            this.displayMessage(npcID, utility.randomFromArray(npcLines[npcID]), 'npc');
+            this.displayMessage(npcID, utility.randomFromArray(this.npcLines[npcID]), 'npc');
 
             //reset interacting check
-            playerInteracting = false;
+            this.playerInteracting = false;
         };
     };
 
@@ -697,13 +737,13 @@ class Game extends Phaser.Scene {
         if (characterType === 'player') {
 
             //get player overlay container
-            var overlayContainer = playerCharacter[id].list[1];
+            var overlayContainer = this.playerCharacter[id].list[1];
 
             //get player sprite container
-            var spriteContainer = playerCharacter[id].list[0];
+            var spriteContainer = this.playerCharacter[id].list[0];
 
             //store message data
-            playerData[id] = {
+            this.playerData[id] = {
                 message: messageData.message,
                 messageID: messageData.messageID,
                 messageDuration: messageData.messageDuration
@@ -714,13 +754,13 @@ class Game extends Phaser.Scene {
         else if (characterType === 'npc') {
 
             //get npc overlay container
-            var overlayContainer = npcCharacter[id].list[1];
+            var overlayContainer = this.npcCharacter[id].list[1];
 
             //get player sprite container
-            var spriteContainer = npcCharacter[id].list[0];
+            var spriteContainer = this.npcCharacter[id].list[0];
 
             //store message data
-            npcData[id] = {
+            this.npcData[id] = {
                 message: messageData.message,
                 messageID: messageData.messageID,
                 messageDuration: messageData.messageDuration
@@ -728,7 +768,7 @@ class Game extends Phaser.Scene {
         };
 
         //format message
-        var messageFormatted = this.add.text(0, 0, message, messageConfig).setFontSize(messageFontSize).setOrigin(0.5, 0);
+        var messageFormatted = this.add.text(0, 0, message, this.messageConfig).setFontSize(this.messageFontSize).setOrigin(0.5, 0);
 
         //remove older messages
         if (overlayContainer.list[1]) { overlayContainer.list[1].setVisible(false); }
@@ -736,7 +776,7 @@ class Game extends Phaser.Scene {
 
         //calculate size of message
         var messageWidth = (messageFormatted.width/2) * -1
-        var messageHeight = (messageFormatted.height * -1) - ((spriteContainer.height/2) + overlayPadding);
+        var messageHeight = (messageFormatted.height * -1) - ((spriteContainer.height/2) + this.overlayPadding);
 
         //reposition text
         messageFormatted.setY(messageHeight);
@@ -757,9 +797,6 @@ class Game extends Phaser.Scene {
 
         //schedule message for removal
         this.time.delayedCall(messageData.messageDuration, this.removeMessage, [id, this.time.now, characterType], this);
-        // setTimeout(() => {
-        //     this.removeMessage(id, this.time.now, characterType);
-        // }, messageData.messageDuration);
     };
 
     //remove player message
@@ -769,13 +806,13 @@ class Game extends Phaser.Scene {
         if (characterType === 'player') {
 
             //get player overlay container
-            var overlayContainer = playerCharacter[id].list[1];
+            var overlayContainer = this.playerCharacter[id].list[1];
 
             //get message data
             var messageData = {
-                message: playerData[id].message,
-                messageID: playerData[id].messageID,
-                messageDuration: playerData[id].messageDuration
+                message: this.playerData[id].message,
+                messageID: this.playerData[id].messageID,
+                messageDuration: this.playerData[id].messageDuration
             };
         }
 
@@ -783,13 +820,13 @@ class Game extends Phaser.Scene {
         else if (characterType === 'npc') {
 
             //get npc overlay container
-            var overlayContainer = npcCharacter[id].list[1];
+            var overlayContainer = this.npcCharacter[id].list[1];
 
             //get message data
             var messageData = {
-                message: npcData[id].message,
-                messageID: npcData[id].messageID,
-                messageDuration: npcData[id].messageDuration
+                message: this.npcData[id].message,
+                messageID: this.npcData[id].messageID,
+                messageDuration: this.npcData[id].messageDuration
             };
         };
 
@@ -800,7 +837,7 @@ class Game extends Phaser.Scene {
             if (characterType === 'player') {
 
                 //get message data
-                playerData[id] = {
+                this.playerData[id] = {
                     message: '',
                     messageID: 0,
                     messageDuration: 0
@@ -809,7 +846,7 @@ class Game extends Phaser.Scene {
             else if (characterType === 'npc') {
 
                 //get message data
-                npcData[id] = {
+                this.npcData[id] = {
                     message: '',
                     messageID: 0,
                     messageDuration: 0
@@ -827,8 +864,10 @@ class Game extends Phaser.Scene {
 
     //remove player character from game
     removePlayer(id) {
-        playerCharacter[id].destroy();
-        delete playerCharacter[id];
+        this.playerCharacter[id].destroy();
+        delete this.playerCharacter[id];
+
+        console.log(this.playerCharacter)
     };
 
     // DEBUG
@@ -840,7 +879,7 @@ class Game extends Phaser.Scene {
             console.log(utility.timestampString('[DEBUG MODE: OFF]'));
             debugMode = false;
 
-            debugCursor.setVisible(false);
+            this.debugCursor.setVisible(false);
         }
 
         //on
@@ -848,7 +887,7 @@ class Game extends Phaser.Scene {
             console.log(utility.timestampString('[DEBUG MODE: ON]'));
             debugMode = true;
 
-            debugCursor.setVisible(true);
+            this.debugCursor.setVisible(true);
         };
     };
 };
