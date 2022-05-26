@@ -2,23 +2,6 @@
 
 class UI {
 
-    //get variables
-    get colorWhite() {
-        return this.constructor.colorWhite;
-    };
-    get colorBlack() {
-        return this.constructor.colorBlack;
-    };
-    get colorLightBlue() {
-        return this.constructor.colorLightBlue;
-    };
-    get colorBlue() {
-        return this.constructor.colorBlue;
-    };
-    get colorDarkBlue() {
-        return this.constructor.colorDarkBlue;
-    };
-
     //create text with background
     createText(scene, content) {
 
@@ -54,19 +37,16 @@ class UI {
     createLabel(scene, content) {
 
         //defaults
+        if (!content.x) { content.x = 0; };
+        if (!content.y) { content.y = 0; };
+
         if (!content.width) { content.width = 40; };
         if (!content.height) { content.height = 40; };
 
-        if (!content.backgroundX) { content.backgroundX = 0; };
-        if (!content.backgroundY) { content.backgroundY = 0; };
-        if (!content.backgroundWidth) { content.backgroundWidth = 100; };
-        if (!content.backgroundHeight) { content.backgroundHeight = 40; };
         if (!content.backgroundRadius) { content.backgroundRadius = 20; };
-        if (!content.backgroundColor) { content.backgroundColor = this.colorBlue; };
+        if (!content.backgroundColor) { content.backgroundColor = ColorScheme.Blue; };
         if (!content.backgroundTransparency) { content.backgroundTransparency = 1; };
 
-        if (!content.textX) { content.textX = 0; };
-        if (!content.textY) { content.textY = 0; };
         if (!content.textSize) { content.textSize = 12; };
 
         if (!content.align) { content.align = 'left'; };
@@ -77,23 +57,54 @@ class UI {
         if (!content.space.top) { content.space.top = 10; };
         if (!content.space.bottom) { content.space.bottom = 10; };
 
-        return scene.rexUI.add.label({
-            width: content.width,
-            height: content.height,
-
-            background: scene.rexUI.add.roundRectangle(content.backgroundX, content.backgroundY, content.backgroundWidth, content.backgroundHeight, content.backgroundRadius, content.backgroundColor, content.backgroundTransparency),
-
-            text: scene.add.text(content.textX, content.textY, content.text, { fontSize: content.textSize }),
-
-            align: content.align,
+        //has icon
+        if (content.icon) {
+            return scene.rexUI.add.label({
+                x: content.x,
+                y: content.y,
     
-            space: {
-                left: content.space.left,
-                right: content.space.right,
-                top: content.space.top,
-                bottom: content.space.bottom
-            }
-        });
+                width: content.width,
+                height: content.height,
+    
+                background: scene.rexUI.add.roundRectangle(0, 0, content.width, content.height, content.backgroundRadius, content.backgroundColor, content.backgroundTransparency),
+    
+                icon: scene.add.sprite(content.width, content.height, content.icon),
+    
+                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize }),
+    
+                align: content.align,
+        
+                space: {
+                    left: content.space.left,
+                    right: content.space.right,
+                    top: content.space.top,
+                    bottom: content.space.bottom
+                }
+            });
+
+        //no icon
+        } else {
+            return scene.rexUI.add.label({
+                x: content.x,
+                y: content.y,
+    
+                width: content.width,
+                height: content.height,
+    
+                background: scene.rexUI.add.roundRectangle(0, 0, content.width, content.height, content.backgroundRadius, content.backgroundColor, content.backgroundTransparency),
+    
+                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize }),
+    
+                align: content.align,
+        
+                space: {
+                    left: content.space.left,
+                    right: content.space.right,
+                    top: content.space.top,
+                    bottom: content.space.bottom
+                }
+            });
+        }
     };
 
     //create slider
@@ -113,7 +124,7 @@ class UI {
         if (!content.trackWidth) { content.trackWidth = 0; };
         if (!content.trackHeight) { content.trackHeight = 0; };
         if (!content.trackRadius) { content.trackRadius = 10; };
-        if (!content.trackColor) { content.trackColor = this.colorBlue; };
+        if (!content.trackColor) { content.trackColor = ColorScheme.Blue; };
         if (!content.trackTransparency) { content.trackTransparency = 1; };
 
         if (!content.indicatorX) { content.indicatorX = 0; };
@@ -121,7 +132,7 @@ class UI {
         if (!content.indicatorWidth) { content.indicatorWidth = 0; };
         if (!content.indicatorHeight) { content.indicatorHeight = 0; };
         if (!content.indicatorRadius) { content.indicatorRadius = 10; };
-        if (!content.indicatorColor) { content.indicatorColor = this.colorLightBlue; };
+        if (!content.indicatorColor) { content.indicatorColor = ColorScheme.LightBlue; };
         if (!content.indicatorTransparency) { content.indicatorTransparency = 1; };
 
         if (!content.thumbX) { content.thumbX = 0; };
@@ -129,7 +140,7 @@ class UI {
         if (!content.thumbWidth) { content.thumbWidth = 0; };
         if (!content.thumbHeight) { content.thumbHeight = 0; };
         if (!content.thumbRadius) { content.thumbRadius = 12; };
-        if (!content.thumbColor) { content.thumbColor = this.colorWhite; };
+        if (!content.thumbColor) { content.thumbColor = ColorScheme.White; };
         if (!content.thumbTransparency) { content.thumbTransparency = 1; };
 
         if (!content.space) { content.space = {} };
@@ -183,12 +194,12 @@ class UI {
         if (!content.backgroundWidth) { content.backgroundWidth = 100; };
         if (!content.backgroundHeight) { content.backgroundHeight = 100; };
         if (!content.backgroundRadius) { content.backgroundRadius = 20; };
-        if (!content.backgroundColor) { content.backgroundColor = this.colorDarkBlue; };
+        if (!content.backgroundColor) { content.backgroundColor = ColorScheme.DarkBlue; };
         if (!content.backgroundTransparency) { content.backgroundTransparency = 1; };
 
         if (!content.titleTextSize) { content.titleTextSize = 48; };
         if (!content.titleAlign) { content.titleAlign = 'center'; };
-        if (!content.titleBackgroundColor) { content.titleBackgroundColor = this.colorDarkBlue; };
+        if (!content.titleBackgroundColor) { content.titleBackgroundColor = ColorScheme.DarkBlue; };
 
         if (!content.captionTextSize) { content.captionTextSize = 28; };
         if (!content.captionAlign) { content.captionAlign = 'center'; };
@@ -196,7 +207,7 @@ class UI {
         if (!content.descriptionType) { content.descriptionType = 'text'; };
         if (!content.descriptionTextSize) { content.descriptionTextSize = 28; };
         if (!content.descriptionAlign) { content.descriptionAlign = 'center'; };
-        if (!content.descriptionColor) { content.descriptionColor = this.colorBlue; };
+        if (!content.descriptionColor) { content.descriptionColor = ColorScheme.Blue; };
         if (!content.descriptionSpace) { content.descriptionSpace = {} };
         if (!content.descriptionSpace.left) { content.descriptionSpace.left = 10; };
         if (!content.descriptionSpace.right) { content.descriptionSpace.right = 10; };
@@ -204,8 +215,8 @@ class UI {
         if (!content.descriptionSpace.bottom) { content.descriptionSpace.bottom = 8; };
 
         if (!content.buttonTextSize) { content.buttonTextSize = 28; };
-        if (!content.buttonColor) { content.buttonColor = this.colorBlue; };
-        if (!content.buttonColorOnHover) { content.buttonColorOnHover = this.colorLightBlue; };
+        if (!content.buttonColor) { content.buttonColor = ColorScheme.Blue; };
+        if (!content.buttonColorOnHover) { content.buttonColorOnHover = ColorScheme.LightBlue; };
         if (!content.buttonSpace) { content.buttonSpace = {} };
         if (!content.buttonSpace.left) { content.buttonSpace.left = 10; };
         if (!content.buttonSpace.right) { content.buttonSpace.right = 10; };
@@ -414,8 +425,8 @@ class UI {
         if (!content.text) { content.text = ''; };
         if (!content.placeholder) { content.placeholder = ''; };
         if (!content.fontSize) { content.fontSize = 24; };
-        if (!content.color) { content.color = this.colorBlack; };
-        if (!content.backgroundColor) { content.backgroundColor = this.colorWhite; };
+        if (!content.color) { content.color = ColorScheme.Black; };
+        if (!content.backgroundColor) { content.backgroundColor = ColorScheme.White; };
         if (!content.backgroundRadius) { content.backgroundRadius = 0; };
         if (!content.backgroundSpace) { content.backgroundSpace = {}; };
         if (!content.backgroundSpace.left) { content.backgroundSpace.left = 5; };
@@ -423,7 +434,7 @@ class UI {
         if (!content.backgroundSpace.top) { content.backgroundSpace.top = 0; };
         if (!content.backgroundSpace.bottom) { content.backgroundSpace.bottom = 0; };
         if (!content.border) { content.border = 0; };
-        if (!content.borderColor) { content.borderColor = this.colorBlack; };
+        if (!content.borderColor) { content.borderColor = ColorScheme.Black; };
         if (!content.spellCheck) { content.spellCheck = false; };
         if (!content.autoComplete) { content.autoComplete = false; };
         if (!content.maxLength) { content.maxLength = 1000; };
@@ -465,14 +476,21 @@ class UI {
 
         if (!content.orientation) { content.orientation = 'x'; };
 
-        if (!content.buttonTextSize) { content.buttonTextSize = 18; };
-        if (!content.buttonColor) { content.buttonColor = this.colorBlue; };
-        if (!content.buttonColorOnHover) { content.buttonColorOnHover = this.colorLightBlue; };
+        // if (!content.buttonTextSize) { content.buttonTextSize = 18; };
+        if (!content.buttonColor) { content.buttonColor = ColorScheme.Blue; };
+        if (!content.buttonColorOnHover) { content.buttonColorOnHover = ColorScheme.LightBlue; };
         if (!content.buttonSpace) { content.buttonSpace = {} };
         if (!content.buttonSpace.left) { content.buttonSpace.left = 0; };
         if (!content.buttonSpace.right) { content.buttonSpace.right = 0; };
         if (!content.buttonSpace.top) { content.buttonSpace.top = 0; };
         if (!content.buttonSpace.bottom) { content.buttonSpace.bottom = 0; };
+
+        if (!content.space) { content.space = {} };
+        if (!content.space.left) { content.space.left = 0; };
+        if (!content.space.right) { content.space.right = 0; };
+        if (!content.space.top) { content.space.top = 0; };
+        if (!content.space.bottom) { content.space.bottom = 0; };
+        if (!content.space.item) { content.space.item = 5; };
 
         var buttons = [];
         for (let i = 0; i < content.buttons.length; i++) {
@@ -486,7 +504,7 @@ class UI {
 
             //add to buttons
             buttons.push(
-                this.createLabel(scene, { text: buttonsContent.text, textSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundWidth: buttonsContent.backgroundWidth, backgroundHeight: buttonsContent.backgroundHeight, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
+                this.createLabel(scene, { icon: buttonsContent.icon, text: buttonsContent.text, textSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundWidth: buttonsContent.backgroundWidth, backgroundHeight: buttonsContent.backgroundHeight, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
             );
         };
 
@@ -519,7 +537,8 @@ class UI {
                 left: content.space.left,
                 right: content.space.right,
                 top: content.space.top,
-                bottom: content.space.bottom
+                bottom: content.space.bottom,
+                item: content.space.item
             },
         })
         .layout()
@@ -533,21 +552,83 @@ class UI {
         });
     };
 
+    //create color picker
+    createColorPicker(scene, content) {
+        
+        //defaults
+        if (!content.x) { content.x = 0; };
+        if (!content.y) { content.y = 0; };
+
+        if (!content.width) { content.width = 400; };
+        if (!content.height) { content.height = 60; };
+
+        //create background
+        var background = scene.rexUI.add.roundRectangle(0, 0, content.width, content.height, 8, ColorScheme.Blue, 1);
+
+        //create color strip
+        var colorStrip = scene.rexUI.add.canvas(0, 0, content.width, content.height);
+        var ctx = colorStrip.context;
+        var grd = ctx.createLinearGradient(0, 0, content.width, 0);
+        grd.addColorStop(0, 'rgba(255, 0, 0, 1)');
+        grd.addColorStop(0.15, 'rgba(255, 0, 255, 1)');
+        grd.addColorStop(0.33, 'rgba(0, 0, 255, 1)');
+        grd.addColorStop(0.49, 'rgba(0, 255, 255, 1)');
+        grd.addColorStop(0.67, 'rgba(0, 255, 0, 1)');
+        grd.addColorStop(0.84, 'rgba(255, 255, 0, 1)');
+        grd.addColorStop(1, 'rgba(255, 0, 0, 1)');
+        ctx.fillStyle = grd;
+        ctx.fillRect(0, 0, content.width, content.height);
+        colorStrip.updateTexture();
+
+        //create thumb
+        var thumb = scene.add.rectangle(0, 0, 20, 30);
+
+        //create slider
+        var slider = scene.rexUI.add.slider({
+            height: 30,
+            thumb: thumb,
+            input: 'click',
+            valuechangeCallback: function (value) {
+                
+                //determine color from position
+                var x = (colorStrip.width - 1) * value;
+                var color = colorStrip.getPixel(x, 0);
+                thumb.setFillStyle(color.color);
+
+                //send info to scene
+                scene.onSliderChange(color.color, content.sliderID);
+            }
+        });
+        
+        //make slider interactive
+        colorStrip
+        .setInteractive()
+        .on('pointerdown', function (pointer, localX, localY) {
+            slider.setValue(localX / colorStrip.width)
+        });
+
+        //create sizer for entire color picker
+        var colorPicker = scene.rexUI.add.sizer({
+            width: content.width, 
+            height: content.height,
+            orientation: 'y',
+        })
+        .addBackground(background)
+        .add(colorStrip)
+        .add(slider, { expand: true })
+        .setPosition(content.x, content.y)
+        .layout();
+
+        return colorPicker;
+    };
+
     //show options menu
     showOptions(scene) {
-        this.showDialog
+        this.showDialog;
     };
 
     //show toast
     showToast(message) {
         toast.showMessage(message);
-        console.log(message);
     };
 };
-
-//colors
-UI.colorWhite = 0xffffff;
-UI.colorBlack = 0x000000;
-UI.colorLightBlue = 0x5e92f3;
-UI.colorBlue = 0x1883ED;
-UI.colorDarkBlue = 0x1563BB;

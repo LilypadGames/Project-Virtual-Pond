@@ -6,9 +6,9 @@ const path = require('path');
 var util = require('util');
 
 //imports
-const utility = require(path.join(__dirname, '/utility/utility'));
-const database = require(path.join(__dirname, '/utility/database'));
-const logs = require(path.join(__dirname, '/utility/logs'));
+const utility = require(path.join(__dirname, '/utility/Utility.js'));
+const database = require(path.join(__dirname, '/utility/Database.js'));
+const logs = require(path.join(__dirname, '/utility/Logs.js'));
 
 //get config values
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, '/config/config.json')));
@@ -109,13 +109,11 @@ passport.use('twitch', new OAuth2Strategy({
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
 
-        //store user in database
-        var path = 'users/' + profile.data[0].id
-        if (!await database.pathExists(path)) {
-            database.setValue(path, {
-                name: profile.data[0].display_name,
-                color: Math.random() * 0xffffff
-            });
+        //store users name and ID in database
+        var path = 'users/' + profile.data[0].id + '/name'
+        const pathExists = await database.pathExists(path);
+        if (!pathExists) {
+            database.setValue(path, profile.data[0].display_name);
         };
 
         done(null, profile);
@@ -174,35 +172,85 @@ io.use(function(socket, next){
 
 //on new websocket connection
 io.on('connection', async function(socket) {
-    // const repl = require('repl')
 
     //kick other connection instances of this player
     await kickOtherInstance(socket.request.user.data[0].id);
 
-    //triggers on new player loading the world
-    socket.on('playerLoadedWorld', async function() {
+    //set up player data
+    socket.player = await getPlayerData(socket);
 
-        //set up player data
-        socket.player = {
+    //send client's player data on connection to ONLY THIS client (players start on Menu scene, which requires the player data to see if they should be sent to the game or character creator scene)
+    socket.emit('getPlayerData', socket.player);
 
-            //get ID
-            id: socket.request.user.data[0].id,
+    //triggers when client wants to leave all rooms
+    socket.on('leaveRooms', function() {
 
-            //generate starting location
-            x: utility.getRandomInt(7, 1279),
-            y: utility.getRandomInt(560, 796),
+        //log
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left All Rooms'));
 
-            //get name
-            name: socket.request.user.data[0].display_name,
+        //leave rooms
+        leaveAllRooms(socket);
+    });
 
-            //get color
-            color: await database.getValue('users/' + socket.request.user.data[0].id + '/color')
-        };
+    //triggers when client requests the players data
+    socket.on('requestPlayerData', function() {
+
+        //log
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Requested Player Data'));
+
+        //send this client's player data to ONLY THIS client
+        socket.emit('getPlayerData', socket.player);
+    });
+
+    //triggers when client requests the players data
+    socket.on('updatePlayerData', function(data) {
+
+        //log
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Updated Player Data> Color:' + data.character.color + ', Eye Type: ' + data.character.eye_type));
+
+        //update data
+        if (!socket.player.character) socket.player.character = {};
+        socket.player.character.eye_type = data.character.eye_type;
+        socket.player.character.color = data.character.color;
+
+        //log
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Scene: ' + data.queueScene));
+
+        //send scene change to ONLY THIS client
+        socket.emit('changeScene', data.queueScene);
+
+        // //send the new player look for all clients
+        // io.in(socket.roomID).emit('updatePlayerCharacter', socket.player);
+    });
+
+    //triggers when player leaves game scene
+    socket.on('leaveGameScene', function(scene) {
+        //update player data
+        updatePlayerData(socket);
+
+        // //send the removal of this player to ALL clients
+        // io.in(socket.roomID).emit('removePlayer', socket.player.id);
+
+        //log
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Scene: ' + scene));
+
+        //send scene change to ONLY THIS client
+        socket.emit('changeScene', scene);
+    });
+
+    //triggers on player loading into new room
+    socket.on('playerJoinedRoom', async function(room) {
 
         //log
         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
 
-        //send THIS client it's ID
+        //update player data
+        updatePlayerData(socket);
+
+        //add player to room
+        joinRoom(socket, room);
+
+        //send this client's ID to ONLY THIS client
         socket.emit('getPlayerID', socket.player.id);
 
         //triggers when player reloads their client
@@ -211,8 +259,8 @@ io.on('connection', async function(socket) {
             //log
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Reloaded the Pond'));
 
-            //send current position of all connected players
-            const currentPlayers = await getAllPlayers();
+            //send current position of all connected players in this room to ONLY THIS client
+            const currentPlayers = await getAllPlayers(socket.roomID);
             socket.emit('reloadPlayer', currentPlayers);
         });
 
@@ -227,8 +275,8 @@ io.on('connection', async function(socket) {
                 socket.player.x = data.x;
                 socket.player.y = data.y;
 
-                //send the players movement for all clients
-                io.emit('movePlayer', socket.player);
+                //send the players movement for ALL clients in this room
+                io.in(socket.roomID).emit('movePlayer', socket.player);
             };
         });
 
@@ -243,9 +291,11 @@ io.on('connection', async function(socket) {
                 socket.player.x = data.x;
                 socket.player.y = data.y;
 
-                //send the halting of this players movement for all clients
-                socket.emit('haltPlayer', socket.player);
-                socket.broadcast.emit('changePlayerMovement', socket.player);
+                //send the halting of this players movement for ALL clients in this room
+                io.in(socket.roomID).emit('haltPlayer', socket.player);
+
+                //change player movement for ONLY OTHER clients in this room
+                socket.to(socket.roomID).emit('changePlayerMovement', socket.player);
             };
         });
 
@@ -271,27 +321,29 @@ io.on('connection', async function(socket) {
             //sanitize message
             message = typeof(message) === 'string' && message.trim().length > 0 ? message.trim() : '';
 
-            //format and filter message
-            // var filteredMessage = chatFilter.clean(message.trim().replace(/\s+/g, " "));
+            //filter message
             message = chatFilter.clean(message);
 
-            //send the player message to all clients
+            //send the player message to ALL clients in this room
             if (message !== '' || null) {
-                io.emit('showPlayerMessage', {id: socket.player.id, message: message});
+                io.in(socket.roomID).emit('showPlayerMessage', {id: socket.player.id, message: message});
             };
         });
 
-        //triggers when players color has changed
-        socket.on('playerChangedColor', function(newColor) {
+        //triggers when client leaves game world
+        socket.on('leaveWorld', function() {
 
             //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Color> ' + newColor));
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left Game World'));
 
-            //store player color
-            socket.player.color = newColor;
+            //update player data
+            // updatePlayerData(socket);
 
-            //send the new player look for all clients
-            io.emit('updatePlayerLook', socket.player);
+            //send the removal of the player for ALL clients in this room
+            io.in(socket.roomID).emit('removePlayer', socket.player.id);
+
+            //leave rooms
+            leaveAllRooms(socket);
         });
 
         //triggers when player disconnects their client
@@ -300,38 +352,100 @@ io.on('connection', async function(socket) {
             //log
             console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left the Pond'));
 
-            //save player values
-            const path = 'users/' + socket.player.id
-            database.setValue(path + '/color', socket.player.color);
+            //update player data
+            updatePlayerData(socket);
 
-            //send the removal of the player for all clients
-            io.emit('removePlayer', socket.player.id);
+            //send the removal of the player for ALL clients in this room
+            io.in(socket.roomID).emit('removePlayer', socket.player.id);
         });
 
-        //send new player for all OTHER clients
-        socket.broadcast.emit('addNewPlayer', socket.player);
+        //send new player to ONLY OTHER clients in this room
+        socket.to(socket.roomID).emit('addNewPlayer', socket.player);
 
-        //send all currently connected players to THIS client
-        socket.emit('getAllPlayers', await getAllPlayers());
-
-        // //get console input
-        // repl.start({
-        //     prompt: '',
-        //     eval: (input) => {
-        //         socket.emit('consoleMessage', input);
-        //     }
-        // })
+        //send all currently connected players in this room to ONLY THIS client
+        socket.emit('getAllPlayers', await getAllPlayers(socket.roomID));
     });
+
+    //set up player data
+    socket.player = await getPlayerData(socket);
 });
 
+///// FUNCTIONS
+
+//add player to room
+function joinRoom(socket, room) {
+
+    //leave previous rooms
+    leaveAllRooms(socket);
+
+    //join new room
+    socket.join(room);
+
+    //set as current room
+    socket.roomID = room;
+};
+
+//remove player from all rooms
+function leaveAllRooms(socket) {
+
+    //leave room
+    socket.leave(socket.roomID);
+
+    //delete players room ID
+    delete socket.roomID;
+};
+
+//get player data
+async function getPlayerData(socket) {
+
+    //set up initial data
+    var playerData = {
+
+        //get ID
+        id: socket.request.user.data[0].id,
+
+        //generate starting location
+        x: utility.getRandomInt(7, 1279),
+        y: utility.getRandomInt(560, 796),
+
+        //get name
+        name: socket.request.user.data[0].display_name
+    };
+
+    //check if character data exists
+    const pathExists = await database.pathExists('users/' + socket.request.user.data[0].id + '/character');
+
+    //get character data from database
+    if (pathExists) {
+        playerData.character = {
+            eye_type: await database.getValue('users/' + socket.request.user.data[0].id + '/character/eye_type'),
+            color: await database.getValue('users/' + socket.request.user.data[0].id + '/character/color')
+        };
+    };
+
+    return playerData;
+};
+
+//update player data
+function updatePlayerData(socket) {
+    const path = 'users/' + socket.player.id + '/character'
+    database.setValue(path + '/eye_type', socket.player.character.eye_type);
+    database.setValue(path + '/color', socket.player.character.color);
+};
+
 //get currently connected players as an array
-async function getAllPlayers(){
+async function getAllPlayers(room) {
 
     //init connected player list
     var connectedPlayers = [];
+    var connectedClients;
 
     //get connected clients
-    const connectedClients = await io.fetchSockets();
+    if (room) {
+        connectedClients = await io.in(room).fetchSockets();
+    } else {
+        connectedClients = await io.fetchSockets();
+    };
 
     //loop through connected clients
     for (const client of connectedClients) {
@@ -377,7 +491,6 @@ async function kickInstance(player, reason, kickMessage = 'You have been kicked.
 
     //log
     message = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
-    console.log(message);
     logs.logMessage('moderation', message);
 
     //get connected clients
@@ -405,6 +518,6 @@ async function kickInstance(player, reason, kickMessage = 'You have been kicked.
             };
         };
     };
-}
+};
 
 //////

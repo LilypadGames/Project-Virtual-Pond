@@ -1,10 +1,21 @@
 // Initializes Game
 
-// const gameWidth = (48 * 32);
-// const gameHeight = (34 * 32);
+//imports
+const ui = new UI();
+const utility = new Utility();
+const client = new Client();
 
+// GLOBAL VARIABLES
+//canvas
 const gameWidth = 1280;
 const gameHeight = 800;
+
+//scene
+var currentScene;
+
+//debug
+debugMode = false;
+depthDebug = 1000000;
 
 //runs when window loads
 window.onload = function() {
@@ -42,7 +53,7 @@ window.onload = function() {
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
-        scene: [ Game ]
+        scene: [ Menu, Game, CharacterCreator ]
     };
 
     //init game
