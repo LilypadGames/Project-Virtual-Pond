@@ -43,11 +43,6 @@ class Client {
         socket.emit('updatePlayerData', data);
     };
 
-    //tell server that the player left game scene and tell it what scene they want to go to
-    leaveGameScene(scene) {
-        socket.emit('leaveGameScene', scene);
-    };
-
     //tell server that the player wants to leave from all connected rooms
     leaveRooms() {
         socket.emit('leaveRooms');
@@ -59,10 +54,16 @@ class Client {
     }
 };
 
-//recieve this client's player ID
-socket.on('getPlayerID', function(id) {
-    currentScene.initPlayer(id);
-});
+//calculate latency
+setInterval(() => {
+    if (debugMode) {
+        const start = Date.now();
+        socket.volatile.emit("ping", () => {
+            const latency = Date.now() - start;
+            if (currentScene.scene.key == 'Game') currentScene.newPing(latency);
+        });
+    };
+}, 2000);
 
 //recieve this client's player data
 socket.on('getPlayerData', function(data) {
@@ -86,8 +87,6 @@ socket.on('consoleMessage', function(message) {
 
 //recieve next scene
 socket.on('changeScene', function(scene) {
-    // scene.registry.destroy(); // destroy registry
-    // scene.events.off(); // disable all active events
     currentScene.scene.start(scene);
 });
 
@@ -199,7 +198,7 @@ socket.on('getAllPlayers', function(data) {
         if (currentScene.scene.key == 'Game') {
 
             //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Left the Pond')); };
+            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + id + ' - Left the Pond')); };
 
             currentScene.removePlayer(id);
         };

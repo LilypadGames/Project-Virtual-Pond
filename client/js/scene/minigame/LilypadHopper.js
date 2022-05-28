@@ -1,23 +1,22 @@
-// Menu Scene
+//Lilypad Hopper Minigame Scene
 
-class Menu extends Phaser.Scene {
+class LilypadHopper extends Phaser.Scene {
 
-    // LOCAL VARIABLE
+    // LOCAL VARIABLES
     //UI
     disableInput = false;
 
     //audio
     sfx_button_click;
 
-    //depth
-    depthUI = 100002;
-
     // INIT
     constructor() {
-        super({ key: 'Menu' });
+
+        super({ key: 'LilypadHopper' });
     };
 
     init() {
+
         //set scene
         currentScene = this;
     };
@@ -27,17 +26,15 @@ class Menu extends Phaser.Scene {
 
         //sfx
         this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
-
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
-        this.load.plugin('rexcoverplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexcoverplugin.min.js', true);
     };
 
     create() {
 
         //sfx
         this.sfx_button_click = this.sound.add('button_click');
-    }
+    };
+
+    // UTILITY
 
     // UI
     //show refresh dialog
@@ -77,18 +74,4 @@ class Menu extends Phaser.Scene {
         this.disableInput = true;
     };
 
-    // FUNCTIONS
-    //get character information
-    parsePlayerData(data) {
-
-        //save client ID
-        clientID = data.id;
-        
-        //send to character creator or game
-        if (!data.character) {
-            this.scene.start('CharacterCreator');
-        } else {
-            this.scene.start('Game');
-        };
-    };
 }

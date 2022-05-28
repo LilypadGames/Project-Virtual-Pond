@@ -1,3 +1,10 @@
+/* Fonts */
+@font-face {
+  font-family: Burbin;
+  src: url('../assets/site/font/Burbin Casual NC.ttf');
+}
+
+/* Global */
 html, body {
   height: 100%;
 }
@@ -7,7 +14,7 @@ body {
   margin: 0;
   padding: 0;
   background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: Burbin;
   color: #FFFFFF;
   overflow: hidden;
 }
@@ -40,6 +47,7 @@ html, body, #game-container {
 .btn-twitch { 
   color: #FFFFFF; 
   background-color: #6441A5;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 .btn-twitch:hover, .btn-twitch:focus, .btn-twitch:active, .btn-twitch.active, .open .dropdown-toggle.btn-twitch {
   color: #FFFFFF;

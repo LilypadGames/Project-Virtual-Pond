@@ -182,6 +182,12 @@ io.on('connection', async function(socket) {
     //send client's player data on connection to ONLY THIS client (players start on Menu scene, which requires the player data to see if they should be sent to the game or character creator scene)
     socket.emit('getPlayerData', socket.player);
 
+    //latency calculation
+    socket.on("ping", (cb) => {
+        if (typeof cb === "function")
+          cb();
+    });
+
     //triggers when client wants to leave all rooms
     socket.on('leaveRooms', function() {
 
@@ -213,29 +219,27 @@ io.on('connection', async function(socket) {
         socket.player.character.eye_type = data.character.eye_type;
         socket.player.character.color = data.character.color;
 
-        //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Scene: ' + data.queueScene));
+        //player changing scene
+        if (data.queueScene) {
+            //log
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Going to Scene: ' + data.queueScene));
 
-        //send scene change to ONLY THIS client
-        socket.emit('changeScene', data.queueScene);
-
-        // //send the new player look for all clients
-        // io.in(socket.roomID).emit('updatePlayerCharacter', socket.player);
+            //send scene change to ONLY THIS client
+            socket.emit('changeScene', data.queueScene);
+        };
     });
 
-    //triggers when player leaves game scene
-    socket.on('leaveGameScene', function(scene) {
-        //update player data
-        updatePlayerData(socket);
-
-        // //send the removal of this player to ALL clients
-        // io.in(socket.roomID).emit('removePlayer', socket.player.id);
+    //triggers when client leaves game world (to go to another scene)
+    socket.on('leaveWorld', function() {
 
         //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Changed Scene: ' + scene));
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left Game World'));
 
-        //send scene change to ONLY THIS client
-        socket.emit('changeScene', scene);
+        //send the removal of the player for ALL clients in this room
+        io.in(socket.roomID).emit('removePlayer', socket.player.id);
+
+        //leave rooms
+        leaveAllRooms(socket);
     });
 
     //triggers on player loading into new room
@@ -249,9 +253,6 @@ io.on('connection', async function(socket) {
 
         //add player to room
         joinRoom(socket, room);
-
-        //send this client's ID to ONLY THIS client
-        socket.emit('getPlayerID', socket.player.id);
 
         //triggers when player reloads their client
         socket.on('playerReloaded', async function() {
@@ -330,22 +331,6 @@ io.on('connection', async function(socket) {
             };
         });
 
-        //triggers when client leaves game world
-        socket.on('leaveWorld', function() {
-
-            //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left Game World'));
-
-            //update player data
-            // updatePlayerData(socket);
-
-            //send the removal of the player for ALL clients in this room
-            io.in(socket.roomID).emit('removePlayer', socket.player.id);
-
-            //leave rooms
-            leaveAllRooms(socket);
-        });
-
         //triggers when player disconnects their client
         socket.on('disconnect', function() {
 
@@ -405,8 +390,8 @@ async function getPlayerData(socket) {
         id: socket.request.user.data[0].id,
 
         //generate starting location
-        x: utility.getRandomInt(7, 1279),
-        y: utility.getRandomInt(560, 796),
+        x: utility.getRandomInt(281, 975),
+        y: utility.getRandomInt(560, 731),
 
         //get name
         name: socket.request.user.data[0].display_name

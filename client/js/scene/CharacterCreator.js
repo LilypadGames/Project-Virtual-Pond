@@ -12,10 +12,10 @@ class CharacterCreator extends Phaser.Scene {
     nametag;
     nametagFontSize = 60;
     nametagConfig = {
-            fontFamily: 'Arial',
-            color: '#ffffff',
-            stroke: '#000000',
-            strokeThickness: 6,
+        fontFamily: 'Burbin',
+        color: utility.hexIntegerToString(ColorScheme.White),
+        stroke: utility.hexIntegerToString(ColorScheme.Black),
+        strokeThickness: 6,
     };
     disableInput = false;
 
@@ -89,7 +89,7 @@ class CharacterCreator extends Phaser.Scene {
         .setDepth(this.depthCharacterUI);
         
         //eye types
-        ui.createButtons(this, { x: 650, y: 220, buttons: [{ icon: 'UI_frog_eyes_0', backgroundRadius: 8 }, { icon: 'UI_frog_eyes_1', backgroundRadius: 8 }]})
+        ui.createButtons(this, { x: 650, y: 230, buttons: [{ icon: 'UI_frog_eyes_0', backgroundRadius: 8 }, { icon: 'UI_frog_eyes_1', backgroundRadius: 8 }]})
         .on('button.click', function (button, index, pointer, event) {
 
             //sfx
@@ -199,7 +199,7 @@ class CharacterCreator extends Phaser.Scene {
             this.characterData = data.character;
         } else {
             this.characterData = {
-                color: Math.random() * 0xffffff,
+                color: Math.random() * ColorScheme.White,
                 eye_type: 0
             }
         };

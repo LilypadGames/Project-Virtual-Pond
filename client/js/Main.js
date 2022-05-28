@@ -14,8 +14,11 @@ const gameHeight = 800;
 var currentScene;
 
 //debug
-debugMode = false;
-depthDebug = 1000000;
+var debugMode = false;
+const depthDebug = 1000000;
+
+//player
+var clientID;
 
 //runs when window loads
 window.onload = function() {
@@ -39,7 +42,8 @@ window.onload = function() {
             height: gameHeight
         },
         render: {
-            pixelArt: true
+            // pixelArt: true,
+            antialiasGL: false
         },
         physics: {
             // arcade: {
@@ -53,6 +57,7 @@ window.onload = function() {
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
+        // scene: [LilypadHopper]
         scene: [ Menu, Game, CharacterCreator ]
     };
 

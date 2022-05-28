@@ -15,6 +15,9 @@ class Game extends Phaser.Scene {
     walkableLayer;
     unWalkableLayer = [];
 
+    //shaders
+    outlineFX;
+
     //depth
     depthUI = 100002;
     depthOverlay = 100001;
@@ -27,7 +30,6 @@ class Game extends Phaser.Scene {
     sfx_button_click;
 
     //player variables
-    clientPlayerID;
     playerCharacter = {};
     playerData = {};
     playerInteracting;
@@ -35,7 +37,7 @@ class Game extends Phaser.Scene {
     //object variables
     npcList = [
         { id: 0, name: 'Poke', x: 363, y: 629, direction: 'right'},
-        { id: 1, name: 'Gigi', x: 188, y: 621, direction: 'right'},
+        { id: 1, name: 'Gigi', x: 250, y: 540, direction: 'right'},
         { id: 2, name: 'Jesse', x: 1032, y: 666, direction: 'left'},
         { id: 3, name: 'Snic', x: 1238, y: 554, direction: 'left'}
     ];
@@ -51,16 +53,20 @@ class Game extends Phaser.Scene {
     //UI
     overlayPadding = 8;
     nametagFontSize = 14;
-    nametagConfig = {
-        fontFamily: 'Arial',
-        color: '#ffffff',
-        stroke: '#000000',
+    nametagClientConfig = {
+        fontFamily: 'Burbin',
+        color: utility.hexIntegerToString(ColorScheme.White),
+        stroke: utility.hexIntegerToString(ColorScheme.Black),
         strokeThickness: 6,
+    };
+    nametagConfig = {
+        fontFamily: 'Burbin',
+        color: utility.hexIntegerToString(ColorScheme.Black),
     };
     messageFontSize = 18;
     messageConfig = {
         fontFamily: 'Arial',
-        color: '#000000',
+        color: utility.hexIntegerToString(ColorScheme.Black),
         lineSpacing: 2,
         align: 'center',
         padding: { left: 8, right: 8, top: 6, bottom: 6 },
@@ -73,7 +79,8 @@ class Game extends Phaser.Scene {
 
     //debug
     debugCursor;
-    
+    debugPing;
+
     // INIT
     constructor() {
 
@@ -99,13 +106,16 @@ class Game extends Phaser.Scene {
         this.canvas = this.sys.game.canvas;
 
         //room layers
-        this.load.image('Forest_Background', 'assets/room/forest/Background.png');
-        this.load.image('Forest_Ground', 'assets/room/forest/Ground.png');
-        this.load.image('Forest_Tree_3', 'assets/room/forest/Tree_3.png');
-        this.load.image('Forest_Tree_2', 'assets/room/forest/Tree_2.png');
-        this.load.image('Forest_Rock_1', 'assets/room/forest/Rock_1.png');
-        this.load.image('Forest_Tree_1', 'assets/room/forest/Tree_1.png');
-        this.load.image('Forest_Foreground', 'assets/room/forest/Foreground.png');
+        this.load.image('Forest_Background', 'assets/room/forest/layers/Background.png');
+        this.load.image('Forest_Ground', 'assets/room/forest/layers/Ground.png');
+        this.load.image('Forest_Tree_3', 'assets/room/forest/layers/Tree_3.png');
+        this.load.image('Forest_Tree_2', 'assets/room/forest/layers/Tree_2.png');
+        this.load.image('Forest_Rock_1', 'assets/room/forest/layers/Rock_1.png');
+        this.load.image('Forest_Tree_1', 'assets/room/forest/layers/Tree_1.png');
+        this.load.image('Forest_Foreground', 'assets/room/forest/layers/Foreground.png');
+
+        //room objects
+        this.load.image('Sign_News', 'assets/room/forest/objects/Sign_News.png');
 
         //room audio
         this.load.audio('frog_caves_chill', "assets/room/forest/audio/music/frog_caves_chill.mp3");
@@ -129,6 +139,7 @@ class Game extends Phaser.Scene {
         //plugins
         this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
         this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
+        this.load.plugin('rexoutlinepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexoutlinepipelineplugin.min.js', true);
 
         //debug
         this.load.image('target', 'assets/debug/target.png');
@@ -139,76 +150,48 @@ class Game extends Phaser.Scene {
         //register canvas width/height
         this.canvas = this.sys.game.canvas;
 
-        //room
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(this.depthBackground);
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
-        .setInteractive().on('pointerdown', () => {
-            if(this.navigationCheck('Forest_Ground')) {
-                this.onClick();
-            };
-        }, this);
-        this.walkableLayer = 'Forest_Ground';
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(610);
-        this.unWalkableLayer.push('Forest_Tree_3');
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(628);
-        this.unWalkableLayer.push('Forest_Tree_2');
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Rock_1').setDepth(629);
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_1').setDepth(665);
-        this.unWalkableLayer.push('Forest_Tree_1');
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(this.depthForeground);
-        this.unWalkableLayer.push('Forest_Foreground');
+        //register shaders
+        this.outlineFX = this.plugins.get('rexoutlinepipelineplugin');
 
-        //music
-        this.music = this.sound.add('frog_caves_chill', {
-            mute: false,
-            volume: 0,
-            rate: 1,
-            detune: 0,
-            seek: 0,
-            loop: true,
-            delay: 0
-        });
-        this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
-        this.music.play();
-        this.sound.pauseOnBlur = false;
-
-        //sfx
+        //register sfxs
         this.sfx_button_click = this.sound.add('button_click');
+
+        //detect when window is re-focused
+        this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //register keyboard inputs
         this.input.keyboard.on('keyup', (event) => this.onKeyUp(event), this);
 
-        //detect when window is re-focused
-        this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
+        //add debug info
+        this.createDebug();
 
-        //add NPCs
-        for(var i = 0; i < this.npcList.length; i++) {
-            this.addNewNPC(this.npcList[i].id, this.npcList[i].name, this.npcList[i].x, this.npcList[i].y, this.npcList[i].direction);
-        };
+        //add room layers
+        this.addRoomLayers('forest');
 
-        //add player's character to room
+        //add room objects
+        this.addRoomObjects('forest');
+
+        //add room music
+        this.addRoomMusic('forest');
+
+        //add room NPCs
+        this.addRoomNPCs('forest');
+
+        //tell server that player is joining (when the signal returns, the game adds the player and other players)
         client.onRoomJoin('forest');
 
         //add toolbar
         this.createToolbar();
-
-        //debug
-        this.debugCursor = this.add.image(8, 8, "target").setVisible(false).setDepth(depthDebug);
-        this.input.on("pointermove", function (pointer) {
-            if (debugMode) {
-                this.debugCursor.copyPosition(pointer);
-            };
-        }, this);
     };
 
     update() {
 
         //handle collisions
-        if (this.playerCharacter[this.clientPlayerID]) {
+        if (this.playerCharacter[clientID]) {
 
             //NPCs
             for(var i = 0; i < this.npcList.length; i++) {
-                this.physics.world.collide(this.playerCharacter[this.clientPlayerID], this.npcCharacter[i], () => {this.interactNPC(this.clientPlayerID, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
+                this.physics.world.collide(this.playerCharacter[clientID], this.npcCharacter[i], () => {this.interactNPC(clientID, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
             };
         };
 
@@ -217,6 +200,81 @@ class Game extends Phaser.Scene {
             this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
         });
     };
+
+    // WORLD
+    addRoomLayers(room) {
+
+        //forest
+        if (room == 'forest') {
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(this.depthBackground);
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
+            .setInteractive().on('pointerdown', () => {
+                if(this.navigationCheck('Forest_Ground')) {
+                    this.onClick();
+                };
+            }, this);
+            this.walkableLayer = 'Forest_Ground';
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(610);
+            this.unWalkableLayer.push('Forest_Tree_3');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(628);
+            this.unWalkableLayer.push('Forest_Tree_2');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Rock_1').setDepth(629);
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_1').setDepth(665);
+            this.unWalkableLayer.push('Forest_Tree_1');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(this.depthForeground);
+            this.unWalkableLayer.push('Forest_Foreground');
+        }
+    };
+
+    addRoomObjects(room) {
+
+        // //forest
+        // if (room == 'forest') {
+        //     //news sign
+        //     let signNews = this.add.image(187, 630, 'Sign_News')
+        //     .setDepth(628)
+        //     .setOrigin(0.5, 1)
+        //     .setInteractive();
+        //     this.setInteractObject(signNews);
+        //     signNews.on('pointerdown', () => {
+
+        //         //movement
+        //         if(this.navigationCheck()) {
+        //             this.onClick();
+        //         };
+        //     }, this);
+        // }
+    };
+
+    addRoomMusic(room) {
+
+        //forest
+        if (room == 'forest') {
+            //music
+            this.music = this.sound.add('frog_caves_chill', {
+                mute: false,
+                volume: 0,
+                rate: 1,
+                detune: 0,
+                seek: 0,
+                loop: true,
+                delay: 0
+            });
+            this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
+            this.music.play();
+            this.sound.pauseOnBlur = false;
+        }
+    };
+
+    addRoomNPCs(room) {
+
+        //forest
+        if (room == 'forest') {
+            for(var i = 0; i < this.npcList.length; i++) {
+                this.addNewNPC(this.npcList[i].id, this.npcList[i].name, this.npcList[i].x, this.npcList[i].y, this.npcList[i].direction);
+            };
+        }
+    }
 
     // UTILITY    
     //get players current direction
@@ -233,6 +291,23 @@ class Game extends Phaser.Scene {
     };
 
     // UI
+    //create outlines on hover
+    setInteractObject(sprite) {
+        sprite.on('pointerover', function () {
+
+            //show outline
+            this.outlineFX.add(sprite, {
+                thickness: 3,
+                outlineColor: ColorScheme.White
+            });
+        }, this)
+        .on('pointerout', function () {
+
+            //remove outline
+            this.outlineFX.remove(sprite);
+        }, this)
+    }
+
     //create toolbar
     createToolbar() {
 
@@ -320,7 +395,7 @@ class Game extends Phaser.Scene {
 
         if (!this.menuOpen) {
             //create dialog
-            const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} });
+            const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X', textSize: 12}], space: {titleLeft: 40, description: 60} });
 
             //close dialog when X is pressed
             dialog.on('button.click', function (button, groupName, index, pointer, event) {
@@ -387,8 +462,8 @@ class Game extends Phaser.Scene {
                 this.music.stop();
 
                 //reset data
-                this.registry.destroy(); // destroy registry
-                this.events.off(); // disable all active events
+                this.registry.destroy();
+                this.events.off();
                 this.scene.stop();
 
                 //leave game world
@@ -399,7 +474,7 @@ class Game extends Phaser.Scene {
             };
 
             //tell server that this client stopped its movement
-            if (event.key === 's') { client.onHalt(this.playerCharacter[this.clientPlayerID].x, this.playerCharacter[this.clientPlayerID].y) };
+            if (event.key === 's') { client.onHalt(this.playerCharacter[clientID].x, this.playerCharacter[clientID].y) };
 
             //toggle options
             if (event.key === 'o') { this.showOptions(); };
@@ -459,13 +534,6 @@ class Game extends Phaser.Scene {
     };
 
     // FUNCTIONS
-    //get client's ID from the server
-    initPlayer(id) {
-        
-        //store clients player ID
-        this.clientPlayerID = id;
-    };
-
     //reload the world when window is re-focused
     onFocus() {
         client.onReload();
@@ -475,7 +543,7 @@ class Game extends Phaser.Scene {
     addNewPlayer(data) {
 
         //player character
-        var playerBody = this.physics.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
+        var playerBody = this.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
         var playerBelly = this.add.sprite(0, 0,'frog_belly').setOrigin(0.5, 1);
         var playerEyes = this.add.sprite(0, 0,'frog_eyes_' + data.character.eye_type).setOrigin(0.5, 1);
 
@@ -486,7 +554,13 @@ class Game extends Phaser.Scene {
         };
 
         //player name
-        var playerName = this.add.text(0, spriteContainer.height, data.name, this.nametagConfig).setFontSize(this.nametagFontSize).setOrigin(0.5, 1);
+        var nametagConfig;
+        if (data.id == clientID) {
+            nametagConfig = this.nametagClientConfig;
+        } else {
+            nametagConfig = this.nametagConfig
+        }
+        var playerName = this.add.text(0, spriteContainer.height, data.name, nametagConfig).setFontSize(this.nametagFontSize).setOrigin(0.5, 1);
 
         //create player container
         this.playerCharacter[data.id] = this.add.container(data.x, data.y).setSize(spriteContainer.width, spriteContainer.height);
@@ -656,7 +730,7 @@ class Game extends Phaser.Scene {
     addNewNPC(id, name, x, y, direction = 'right') {
         
         //set npc sprite
-        var npcSprite = this.physics.add.sprite(0, 0, name).setOrigin(0.5, 1);
+        var npcSprite = this.add.sprite(0, 0, name).setOrigin(0.5, 1);
 
         //get sprite container size
         var spriteContainer = {
@@ -680,12 +754,15 @@ class Game extends Phaser.Scene {
         this.npcCharacter[id].list[0].add([npcSprite]);
 
         //detect clicks
-        this.npcCharacter[id].setInteractive().on('pointerup', () => {
+        this.npcCharacter[id].list[0].setInteractive().on('pointerup', () => {
             if(this.navigationCheck()) {
                 this.playerInteracting = id;
                 this.onClick();
             };
         }, this);
+
+        //add hover outline to npc sprite
+        this.setInteractObject(this.npcCharacter[id].list[0]);
 
         //create npc overlay container
         this.npcCharacter[id].add(this.add.container(0, 0).setSize(spriteContainer.width, spriteContainer.height));
@@ -783,9 +860,9 @@ class Game extends Phaser.Scene {
 
         //create background for message
         var backgroundFormatted = this.add.graphics()
-        .fillStyle(0xffffff, 0.80)
+        .fillStyle(ColorScheme.White, 0.80)
         .fillRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8)
-        .lineStyle(1, 0xb8b8b8, 1)
+        .lineStyle(1, ColorScheme.LightGray, 1)
         .strokeRoundedRect(messageWidth, messageHeight, messageFormatted.width, messageFormatted.height, 8);
 
         //add message to player overlay container
@@ -864,11 +941,32 @@ class Game extends Phaser.Scene {
 
     //remove player character from game
     removePlayer(id) {
+        console.log(id)
+        console.log(this.playerCharacter[id])
         this.playerCharacter[id].destroy();
         delete this.playerCharacter[id];
     };
 
     // DEBUG
+    //create debug visuals
+    createDebug() {
+        //cursor
+        this.debugCursor = this.add.image(8, 8, "target").setDepth(depthDebug);
+        this.input.on("pointermove", function (pointer) {
+            if (debugMode) {
+                this.debugCursor.copyPosition(pointer);
+            };
+        }, this);
+
+        //ping info
+        this.debugPing = this.add.text(0, 0, 'Ping: Waiting...').setDepth(depthDebug);
+
+        //if debug mode is off, change visibility of debug info
+        if (!debugMode) {
+            this.debugCursor.setVisible(false);
+            this.debugPing.setVisible(false);
+        };
+    };
     //toggle console logging
     toggleDebugMode() {
 
@@ -878,6 +976,7 @@ class Game extends Phaser.Scene {
             debugMode = false;
 
             this.debugCursor.setVisible(false);
+            this.debugPing.setVisible(false);
         }
 
         //on
@@ -886,6 +985,14 @@ class Game extends Phaser.Scene {
             debugMode = true;
 
             this.debugCursor.setVisible(true);
+            this.debugPing.setVisible(true);
+        };
+    };
+    //update ping text
+    newPing(latency) {
+        if (debugMode) {
+            this.debugPing.text = 'Ping: ' + latency + 'ms';
+            console.log(utility.timestampString('Ping: ' + latency + 'ms'));
         };
     };
 };
