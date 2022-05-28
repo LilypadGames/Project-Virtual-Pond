@@ -12,7 +12,7 @@ class CharacterCreator extends Phaser.Scene {
     nametag;
     nametagFontSize = 60;
     nametagConfig = {
-            fontFamily: 'Arial',
+            fontFamily: 'Burbin',
             color: '#ffffff',
             stroke: '#000000',
             strokeThickness: 6,

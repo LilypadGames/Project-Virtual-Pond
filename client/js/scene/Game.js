@@ -15,6 +15,9 @@ class Game extends Phaser.Scene {
     walkableLayer;
     unWalkableLayer = [];
 
+    //shaders
+    outlineFX;
+
     //depth
     depthUI = 100002;
     depthOverlay = 100001;
@@ -35,7 +38,7 @@ class Game extends Phaser.Scene {
     //object variables
     npcList = [
         { id: 0, name: 'Poke', x: 363, y: 629, direction: 'right'},
-        { id: 1, name: 'Gigi', x: 188, y: 621, direction: 'right'},
+        { id: 1, name: 'Gigi', x: 250, y: 540, direction: 'right'},
         { id: 2, name: 'Jesse', x: 1032, y: 666, direction: 'left'},
         { id: 3, name: 'Snic', x: 1238, y: 554, direction: 'left'}
     ];
@@ -52,7 +55,7 @@ class Game extends Phaser.Scene {
     overlayPadding = 8;
     nametagFontSize = 14;
     nametagConfig = {
-        fontFamily: 'Arial',
+        fontFamily: 'Burbin',
         color: '#ffffff',
         stroke: '#000000',
         strokeThickness: 6,
@@ -99,13 +102,16 @@ class Game extends Phaser.Scene {
         this.canvas = this.sys.game.canvas;
 
         //room layers
-        this.load.image('Forest_Background', 'assets/room/forest/Background.png');
-        this.load.image('Forest_Ground', 'assets/room/forest/Ground.png');
-        this.load.image('Forest_Tree_3', 'assets/room/forest/Tree_3.png');
-        this.load.image('Forest_Tree_2', 'assets/room/forest/Tree_2.png');
-        this.load.image('Forest_Rock_1', 'assets/room/forest/Rock_1.png');
-        this.load.image('Forest_Tree_1', 'assets/room/forest/Tree_1.png');
-        this.load.image('Forest_Foreground', 'assets/room/forest/Foreground.png');
+        this.load.image('Forest_Background', 'assets/room/forest/layers/Background.png');
+        this.load.image('Forest_Ground', 'assets/room/forest/layers/Ground.png');
+        this.load.image('Forest_Tree_3', 'assets/room/forest/layers/Tree_3.png');
+        this.load.image('Forest_Tree_2', 'assets/room/forest/layers/Tree_2.png');
+        this.load.image('Forest_Rock_1', 'assets/room/forest/layers/Rock_1.png');
+        this.load.image('Forest_Tree_1', 'assets/room/forest/layers/Tree_1.png');
+        this.load.image('Forest_Foreground', 'assets/room/forest/layers/Foreground.png');
+
+        //room objects
+        this.load.image('Sign_News', 'assets/room/forest/objects/Sign_News.png');
 
         //room audio
         this.load.audio('frog_caves_chill', "assets/room/forest/audio/music/frog_caves_chill.mp3");
@@ -129,6 +135,7 @@ class Game extends Phaser.Scene {
         //plugins
         this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
         this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
+        this.load.plugin('rexoutlinepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexoutlinepipelineplugin.min.js', true);
 
         //debug
         this.load.image('target', 'assets/debug/target.png');
@@ -139,38 +146,8 @@ class Game extends Phaser.Scene {
         //register canvas width/height
         this.canvas = this.sys.game.canvas;
 
-        //room
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(this.depthBackground);
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
-        .setInteractive().on('pointerdown', () => {
-            if(this.navigationCheck('Forest_Ground')) {
-                this.onClick();
-            };
-        }, this);
-        this.walkableLayer = 'Forest_Ground';
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(610);
-        this.unWalkableLayer.push('Forest_Tree_3');
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(628);
-        this.unWalkableLayer.push('Forest_Tree_2');
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Rock_1').setDepth(629);
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_1').setDepth(665);
-        this.unWalkableLayer.push('Forest_Tree_1');
-        this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(this.depthForeground);
-        this.unWalkableLayer.push('Forest_Foreground');
-
-        //music
-        this.music = this.sound.add('frog_caves_chill', {
-            mute: false,
-            volume: 0,
-            rate: 1,
-            detune: 0,
-            seek: 0,
-            loop: true,
-            delay: 0
-        });
-        this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
-        this.music.play();
-        this.sound.pauseOnBlur = false;
+        //shader
+        this.outlineFX = this.plugins.get('rexoutlinepipelineplugin');
 
         //sfx
         this.sfx_button_click = this.sound.add('button_click');
@@ -179,18 +156,7 @@ class Game extends Phaser.Scene {
         this.input.keyboard.on('keyup', (event) => this.onKeyUp(event), this);
 
         //detect when window is re-focused
-        this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this)
-
-        //add NPCs
-        for(var i = 0; i < this.npcList.length; i++) {
-            this.addNewNPC(this.npcList[i].id, this.npcList[i].name, this.npcList[i].x, this.npcList[i].y, this.npcList[i].direction);
-        };
-
-        //add player's character to room
-        client.onRoomJoin('forest');
-
-        //add toolbar
-        this.createToolbar();
+        this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //debug
         this.debugCursor = this.add.image(8, 8, "target").setVisible(false).setDepth(depthDebug);
@@ -199,6 +165,24 @@ class Game extends Phaser.Scene {
                 this.debugCursor.copyPosition(pointer);
             };
         }, this);
+
+        //room layers
+        this.createRoomLayers('forest');
+
+        //room objects
+        this.createRoomObjects('forest');
+
+        //room music
+        this.createRoomMusic('forest');
+
+        //room NPCs
+        this.createRoomNPCs('forest');
+
+        //add player's character to room
+        client.onRoomJoin('forest');
+
+        //add toolbar
+        this.createToolbar();
     };
 
     update() {
@@ -218,6 +202,81 @@ class Game extends Phaser.Scene {
         });
     };
 
+    // WORLD
+    createRoomLayers(room) {
+
+        //forest
+        if (room == 'forest') {
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(this.depthBackground);
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
+            .setInteractive().on('pointerdown', () => {
+                if(this.navigationCheck('Forest_Ground')) {
+                    this.onClick();
+                };
+            }, this);
+            this.walkableLayer = 'Forest_Ground';
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_3').setDepth(610);
+            this.unWalkableLayer.push('Forest_Tree_3');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(628);
+            this.unWalkableLayer.push('Forest_Tree_2');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Rock_1').setDepth(629);
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_1').setDepth(665);
+            this.unWalkableLayer.push('Forest_Tree_1');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(this.depthForeground);
+            this.unWalkableLayer.push('Forest_Foreground');
+        }
+    };
+
+    createRoomObjects(room) {
+
+        //forest
+        if (room == 'forest') {
+            //news sign
+            let signNews = this.add.image(187, 630, 'Sign_News')
+            .setDepth(628)
+            .setOrigin(0.5, 1)
+            .setInteractive();
+            this.setInteractObject(signNews);
+            signNews.on('pointerdown', () => {
+
+                //movement
+                if(this.navigationCheck()) {
+                    this.onClick();
+                };
+            }, this);
+        }
+    };
+
+    createRoomMusic(room) {
+
+        //forest
+        if (room == 'forest') {
+            //music
+            this.music = this.sound.add('frog_caves_chill', {
+                mute: false,
+                volume: 0,
+                rate: 1,
+                detune: 0,
+                seek: 0,
+                loop: true,
+                delay: 0
+            });
+            this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
+            this.music.play();
+            this.sound.pauseOnBlur = false;
+        }
+    };
+
+    createRoomNPCs(room) {
+
+        //forest
+        if (room == 'forest') {
+            for(var i = 0; i < this.npcList.length; i++) {
+                this.addNewNPC(this.npcList[i].id, this.npcList[i].name, this.npcList[i].x, this.npcList[i].y, this.npcList[i].direction);
+            };
+        }
+    }
+
     // UTILITY    
     //get players current direction
     getPlayerDirection(id) {
@@ -233,6 +292,23 @@ class Game extends Phaser.Scene {
     };
 
     // UI
+    //create outlines on hover
+    setInteractObject(sprite) {
+        sprite.on('pointerover', function () {
+
+            //show outline
+            this.outlineFX.add(sprite, {
+                thickness: 3,
+                outlineColor: 0xffffff
+            });
+        }, this)
+        .on('pointerout', function () {
+
+            //remove outline
+            this.outlineFX.remove(sprite);
+        }, this)
+    }
+
     //create toolbar
     createToolbar() {
 
@@ -320,7 +396,7 @@ class Game extends Phaser.Scene {
 
         if (!this.menuOpen) {
             //create dialog
-            const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X'}], space: {titleLeft: 40, description: 60} });
+            const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X', textSize: 12}], space: {titleLeft: 40, description: 60} });
 
             //close dialog when X is pressed
             dialog.on('button.click', function (button, groupName, index, pointer, event) {
@@ -704,6 +780,9 @@ class Game extends Phaser.Scene {
 
         //set depth
         this.npcCharacter[id].setDepth(y);
+
+        //add hover outline to npc
+        this.setInteractObject(this.npcCharacter[id].list[0].list[0]);
     };
 
     //player interacts with NPC

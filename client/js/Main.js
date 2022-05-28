@@ -39,7 +39,8 @@ window.onload = function() {
             height: gameHeight
         },
         render: {
-            pixelArt: true
+            // pixelArt: true,
+            antialiasGL: false
         },
         physics: {
             // arcade: {
@@ -53,6 +54,7 @@ window.onload = function() {
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
+        // scene: [LilypadHopper]
         scene: [ Menu, Game, CharacterCreator ]
     };
 

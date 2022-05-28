@@ -12,6 +12,8 @@ class UI {
 
         if (!content.align) { content.align = 'left'; };
 
+        if (!content.fontFamily) { content.fontFamily = 'Burbin' };
+
         if (!content.space) { content.space = {} };
         if (!content.space.left) { content.space.left = 5; };
         if (!content.space.right) { content.space.right = 5; };
@@ -20,7 +22,7 @@ class UI {
 
         return scene.rexUI.add.label({
 
-            text: scene.add.text(content.textX, content.textY, content.text, { fontSize: content.textSize }),
+            text: scene.add.text(content.textX, content.textY, content.text, { fontSize: content.textSize, fontFamily: content.fontFamily}),
 
             align: content.align,
     
@@ -51,6 +53,8 @@ class UI {
 
         if (!content.align) { content.align = 'left'; };
 
+        if (!content.fontFamily) { content.fontFamily = 'Burbin' };
+
         if (!content.space) { content.space = {} };
         if (!content.space.left) { content.space.left = 10; };
         if (!content.space.right) { content.space.right = 10; };
@@ -70,7 +74,7 @@ class UI {
     
                 icon: scene.add.sprite(content.width, content.height, content.icon),
     
-                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize }),
+                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize, fontFamily: content.fontFamily }),
     
                 align: content.align,
         
@@ -93,7 +97,7 @@ class UI {
     
                 background: scene.rexUI.add.roundRectangle(0, 0, content.width, content.height, content.backgroundRadius, content.backgroundColor, content.backgroundTransparency),
     
-                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize }),
+                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize, fontFamily: content.fontFamily }),
     
                 align: content.align,
         
@@ -271,11 +275,12 @@ class UI {
                 const toolbarContent = content.toolbar[i];
     
                 //defaults
+                if (!toolbarContent.textSize) { toolbarContent.textSize = 30 };
                 if (!toolbarContent.align) { toolbarContent.align = 'center' };
     
                 //add to toolbar
                 toolbar.push(
-                    this.createLabel(scene, { text: toolbarContent.text, textSize: content.buttonTextSize, align: toolbarContent.align, backgroundColor: content.buttonColor, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
+                    this.createLabel(scene, { text: toolbarContent.text, textSize: toolbarContent.textSize, align: toolbarContent.align, backgroundColor: content.buttonColor, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
                 );
             };
         };
