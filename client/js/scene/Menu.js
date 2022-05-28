@@ -80,6 +80,9 @@ class Menu extends Phaser.Scene {
     // FUNCTIONS
     //get character information
     parsePlayerData(data) {
+
+        //save client ID
+        clientID = data.id;
         
         //send to character creator or game
         if (!data.character) {

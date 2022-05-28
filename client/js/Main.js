@@ -14,8 +14,11 @@ const gameHeight = 800;
 var currentScene;
 
 //debug
-debugMode = false;
-depthDebug = 1000000;
+var debugMode = false;
+const depthDebug = 1000000;
+
+//player
+var clientID;
 
 //runs when window loads
 window.onload = function() {
