@@ -179,9 +179,6 @@ io.on('connection', async function(socket) {
     //set up player data
     socket.player = await getPlayerData(socket);
 
-    //send client's player data on connection to ONLY THIS client (players start on Menu scene, which requires the player data to see if they should be sent to the game or character creator scene)
-    socket.emit('getPlayerData', socket.player);
-
     //latency calculation
     socket.on("ping", (cb) => {
         if (typeof cb === "function")
@@ -205,7 +202,7 @@ io.on('connection', async function(socket) {
         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Requested Player Data'));
 
         //send this client's player data to ONLY THIS client
-        socket.emit('getPlayerData', socket.player);
+        socket.emit('playerData', socket.player);
     });
 
     //triggers when client requests the players data

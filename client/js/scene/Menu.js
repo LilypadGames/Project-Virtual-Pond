@@ -37,7 +37,10 @@ class Menu extends Phaser.Scene {
 
         //sfx
         this.sfx_button_click = this.sound.add('button_click');
-    }
+
+        //get player data
+        client.requestPlayerData();
+    };
 
     // UI
     //show refresh dialog
