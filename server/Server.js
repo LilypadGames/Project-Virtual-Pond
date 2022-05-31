@@ -58,7 +58,8 @@ console.error = console.log;
 const sessionAuthentication = session({
     secret: config.twitch.sessionSecret, 
     resave: false, 
-    saveUninitialized: false
+    saveUninitialized: false,
+    proxy: true
 });
 const passportInit = passport.initialize();
 const passportSession = passport.session();
@@ -128,7 +129,7 @@ app.get('/auth/twitch/callback', passport.authenticate('twitch', { successRedire
 
 //detect authentication and serve game page
 app.get('/', function (req, res) {
-
+    
     //successfully authenticated
     if (req.session && req.session.passport && req.session.passport.user) {
         res.sendFile('index.html', { root: 'client/html' });
