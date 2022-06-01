@@ -27,13 +27,16 @@ var server = require('http').Server(app);
 // var server = require('https').createServer(options, app);
 
 //dependency: authentication
-var passport       = require('passport');
+var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
-var request        = require('request');
+var request = require('request');
 
 //dependency: misc
 var chatFilter = require('leo-profanity');
 var cookieParse = require('cookie-parser')();
+
+//allow proxy
+app.set('trust proxy', true);
 
 //serve client files (html/css/js/assets)
 app.use('/', express.static(__dirname + '/../client'));
@@ -66,6 +69,12 @@ const passportSession = passport.session();
 app.use(sessionAuthentication);
 app.use(passportInit);
 app.use(passportSession);
+
+//DEBUG
+//app.use(function (req, res, next) {
+//    console.log(req.headers);
+//    next();
+//});
 
 //override passport profile function to get user profile from Twitch API
 OAuth2Strategy.prototype.userProfile = function(accessToken, done) {
@@ -105,10 +114,12 @@ passport.use('twitch', new OAuth2Strategy({
     callbackURL: config.twitch.callbackURL,
     state: true
     },
-    
+
     async function(accessToken, refreshToken, profile, done) {
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
+    
+    	console.log(profile.data[0]);
 
         //store users name and ID in database
         var path = 'users/' + profile.data[0].id + '/name'
@@ -133,11 +144,13 @@ app.get('/', function (req, res) {
     //successfully authenticated
     if (req.session && req.session.passport && req.session.passport.user) {
         res.sendFile('index.html', { root: 'client/html' });
+        console.log('Index Served');
     }
 
     //request authentication
     else {
         res.sendFile('auth.html', { root: 'client/html' });
+        console.log('Auth Served');
     };
 });
 
@@ -154,20 +167,24 @@ server.listen(process.env.PORT || config.server.port, function () {
 var io = require('socket.io')(server);
 
 io.use(function(socket, next){
+    console.log('1 ' + socket);
     socket.client.request.originalUrl = socket.client.request.url;
     cookieParse(socket.client.request, socket.client.request.res, next);
 });
 
 io.use(function(socket, next){
+    console.log('2 ' + socket);
     socket.client.request.originalUrl = socket.client.request.url;
     sessionAuthentication(socket.client.request, socket.client.request.res, next);
 });
 
 io.use(function(socket, next){
+    console.log('3 ' + socket);
     passportInit(socket.client.request, socket.client.request.res, next);
 });
 
 io.use(function(socket, next){
+    console.log('4 ' + socket);
     passportSession(socket.client.request, socket.client.request.res, next);
 });
 
