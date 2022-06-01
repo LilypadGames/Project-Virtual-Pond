@@ -79,8 +79,8 @@ class CharacterCreator extends Phaser.Scene {
         //backgrounds
         this.rexUI.add.roundRectangle(300, 400, 500, 600, 15, ColorScheme.Blue).setDepth(this.depthBackgroundUI);
 
-        //get character info
-        client.getPlayerData();
+        //get player data
+        client.requestPlayerData();
 
         //eye type label
         this.rexUI.add.sizer({ x: 685, y: 140, width: 250, height: 50 })

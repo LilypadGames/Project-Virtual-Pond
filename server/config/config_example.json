@@ -1,12 +1,12 @@
 {
     "server": {
-        "port": ""
+        "port": "",
+        "proxy": false
     },
 
     "twitch": {
         "clientID": "",
         "clientSecret": "",
-        "sessionSecret": "",
         "callbackURL": ""
     },
 

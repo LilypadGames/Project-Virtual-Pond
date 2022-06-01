@@ -21,6 +21,7 @@
   "license": "GNU GPL V3.0",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "crypto": "^1.0.1",
     "express": "^4.15.2",
     "express-session": "^1.17.3",
     "firebase-admin": "^10.2.0",

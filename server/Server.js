@@ -27,13 +27,17 @@ var server = require('http').Server(app);
 // var server = require('https').createServer(options, app);
 
 //dependency: authentication
-var passport       = require('passport');
+var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
-var request        = require('request');
+var request = require('request');
 
 //dependency: misc
 var chatFilter = require('leo-profanity');
 var cookieParse = require('cookie-parser')();
+const crypto = require('crypto');
+
+//proxy setting
+app.set('trust proxy', config.server.proxy);
 
 //serve client files (html/css/js/assets)
 app.use('/', express.static(__dirname + '/../client'));
@@ -56,9 +60,10 @@ console.error = console.log;
 
 //init authentication
 const sessionAuthentication = session({
-    secret: config.twitch.sessionSecret, 
+    secret: crypto.randomBytes(64).toString('hex'),
     resave: false, 
-    saveUninitialized: false
+    saveUninitialized: false,
+    proxy: config.server.proxy
 });
 const passportInit = passport.initialize();
 const passportSession = passport.session();
@@ -104,7 +109,7 @@ passport.use('twitch', new OAuth2Strategy({
     callbackURL: config.twitch.callbackURL,
     state: true
     },
-    
+
     async function(accessToken, refreshToken, profile, done) {
         profile.accessToken = accessToken;
         profile.refreshToken = refreshToken;
@@ -128,7 +133,7 @@ app.get('/auth/twitch/callback', passport.authenticate('twitch', { successRedire
 
 //detect authentication and serve game page
 app.get('/', function (req, res) {
-
+    
     //successfully authenticated
     if (req.session && req.session.passport && req.session.passport.user) {
         res.sendFile('index.html', { root: 'client/html' });
@@ -179,9 +184,6 @@ io.on('connection', async function(socket) {
     //set up player data
     socket.player = await getPlayerData(socket);
 
-    //send client's player data on connection to ONLY THIS client (players start on Menu scene, which requires the player data to see if they should be sent to the game or character creator scene)
-    socket.emit('getPlayerData', socket.player);
-
     //latency calculation
     socket.on("ping", (cb) => {
         if (typeof cb === "function")
@@ -205,7 +207,7 @@ io.on('connection', async function(socket) {
         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Requested Player Data'));
 
         //send this client's player data to ONLY THIS client
-        socket.emit('getPlayerData', socket.player);
+        socket.emit('playerData', socket.player);
     });
 
     //triggers when client requests the players data

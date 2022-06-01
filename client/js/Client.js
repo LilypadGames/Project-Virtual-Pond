@@ -34,7 +34,7 @@ class Client {
     };
 
     //get player data from server
-    getPlayerData() {
+    requestPlayerData() {
         socket.emit('requestPlayerData');
     };
 
@@ -66,7 +66,7 @@ setInterval(() => {
 }, 2000);
 
 //recieve this client's player data
-socket.on('getPlayerData', function(data) {
+socket.on('playerData', function(data) {
     currentScene.parsePlayerData(data);
 });
 
