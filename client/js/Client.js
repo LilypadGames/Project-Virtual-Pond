@@ -99,7 +99,7 @@ socket.on('disconnect', function(){
     };
 
     //show disconnect dialog
-    currentScene.showRefreshDialog({titleText: 'Disconnected', captionText: kickReason, actions: [{text: 'Refresh'}] });
+    currentScene.showRefreshDialog({ title: 'Disconnected', description: kickReason, button: 'Refresh' });
 
     //reset kick reason
     kickReason = '';

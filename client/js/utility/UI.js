@@ -2,13 +2,40 @@
 
 class UI {
 
+    //create sizer
+    createSizer(scene, content = {}) {
+
+        //defaults
+        if (!content.width) { content.width = 400; };
+        if (!content.height) { content.height = 80; };
+
+        if (!content.orientation) { content.orientation = 'y'; };
+
+        if (!content.space) { content.space = {}; };
+        if (!content.space.item) { content.space.item = 5; };
+
+        //create
+        return scene.rexUI.add.sizer({
+            // weight: content.width,
+            // height: content.height,
+            orientation: content.orientation,
+            space: {
+                left: 20,
+                right: 20,
+                top: 20, 
+                bottom: 20,
+                item: content.space.item
+            }
+        })
+    };
+
     //create text with background
     createText(scene, content) {
 
         //defaults
-        if (!content.textX) { content.textX = 0; };
-        if (!content.textY) { content.textY = 0; };
-        if (!content.textSize) { content.textSize = 12; };
+        if (!content.x) { content.x = 0; };
+        if (!content.y) { content.y = 0; };
+        if (!content.fontSize) { content.fontSize = 12; };
 
         if (!content.align) { content.align = 'left'; };
 
@@ -22,7 +49,7 @@ class UI {
 
         return scene.rexUI.add.label({
 
-            text: scene.add.text(content.textX, content.textY, content.text, { fontSize: content.textSize, fontFamily: content.fontFamily}),
+            text: scene.add.text(content.x, content.y, content.text, { fontSize: content.fontSize, fontFamily: content.fontFamily}),
 
             align: content.align,
     
@@ -49,9 +76,9 @@ class UI {
         if (!content.backgroundColor) { content.backgroundColor = ColorScheme.Blue; };
         if (!content.backgroundTransparency) { content.backgroundTransparency = 1; };
 
-        if (!content.textSize) { content.textSize = 12; };
+        if (!content.fontSize) { content.fontSize = 12; };
 
-        if (!content.align) { content.align = 'left'; };
+        if (!content.align) { content.align = 'center'; };
 
         if (!content.fontFamily) { content.fontFamily = 'Burbin' };
 
@@ -74,7 +101,7 @@ class UI {
     
                 icon: scene.add.sprite(content.width, content.height, content.icon),
     
-                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize, fontFamily: content.fontFamily }),
+                text: scene.add.text(0, 0, content.text, { fontSize: content.fontSize, fontFamily: content.fontFamily }),
     
                 align: content.align,
         
@@ -97,7 +124,7 @@ class UI {
     
                 background: scene.rexUI.add.roundRectangle(0, 0, content.width, content.height, content.backgroundRadius, content.backgroundColor, content.backgroundTransparency),
     
-                text: scene.add.text(0, 0, content.text, { fontSize: content.textSize, fontFamily: content.fontFamily }),
+                text: scene.add.text(0, 0, content.text, { fontSize: content.fontSize, fontFamily: content.fontFamily }),
     
                 align: content.align,
         
@@ -184,240 +211,6 @@ class UI {
         .layout();
     };
 
-    //create dialog box
-    createDialog(scene, content) {
-
-        //defaults
-        if (!content.x) { content.x = scene.canvas.width/2; };
-        if (!content.y) { content.y = scene.canvas.height/2; };
-        if (!content.width) { content.width = 700; };
-        if (!content.height) { content.width = 400; };
-
-        if (!content.backgroundX) { content.backgroundX = 0; };
-        if (!content.backgroundY) { content.backgroundY = 0; };
-        if (!content.backgroundWidth) { content.backgroundWidth = 100; };
-        if (!content.backgroundHeight) { content.backgroundHeight = 100; };
-        if (!content.backgroundRadius) { content.backgroundRadius = 20; };
-        if (!content.backgroundColor) { content.backgroundColor = ColorScheme.DarkBlue; };
-        if (!content.backgroundTransparency) { content.backgroundTransparency = 1; };
-
-        if (!content.titleTextSize) { content.titleTextSize = 48; };
-        if (!content.titleAlign) { content.titleAlign = 'center'; };
-        if (!content.titleBackgroundColor) { content.titleBackgroundColor = ColorScheme.DarkBlue; };
-
-        if (!content.captionTextSize) { content.captionTextSize = 28; };
-        if (!content.captionAlign) { content.captionAlign = 'center'; };
-
-        if (!content.descriptionType) { content.descriptionType = 'text'; };
-        if (!content.descriptionTextSize) { content.descriptionTextSize = 28; };
-        if (!content.descriptionAlign) { content.descriptionAlign = 'center'; };
-        if (!content.descriptionColor) { content.descriptionColor = ColorScheme.Blue; };
-        if (!content.descriptionSpace) { content.descriptionSpace = {} };
-        if (!content.descriptionSpace.left) { content.descriptionSpace.left = 10; };
-        if (!content.descriptionSpace.right) { content.descriptionSpace.right = 10; };
-        if (!content.descriptionSpace.top) { content.descriptionSpace.top = 8; };
-        if (!content.descriptionSpace.bottom) { content.descriptionSpace.bottom = 8; };
-
-        if (!content.buttonTextSize) { content.buttonTextSize = 28; };
-        if (!content.buttonColor) { content.buttonColor = ColorScheme.Blue; };
-        if (!content.buttonColorOnHover) { content.buttonColorOnHover = ColorScheme.LightBlue; };
-        if (!content.buttonSpace) { content.buttonSpace = {} };
-        if (!content.buttonSpace.left) { content.buttonSpace.left = 10; };
-        if (!content.buttonSpace.right) { content.buttonSpace.right = 10; };
-        if (!content.buttonSpace.top) { content.buttonSpace.top = 8; };
-        if (!content.buttonSpace.bottom) { content.buttonSpace.bottom = 8; };
-
-        if (!content.space) { content.space = {} };
-        if (!content.space.left) { content.space.left = 20; };
-        if (!content.space.right) { content.space.right = 20; };
-        if (!content.space.top) { content.space.top = -20; };
-        if (!content.space.bottom) { content.space.bottom = -20; };
-        if (!content.space.title) { content.space.title = 25; };
-        if (!content.space.titleLeft) { content.space.titleLeft = 0; };
-        if (!content.space.content) { content.space.content = 0; };
-        if (!content.space.description) { content.space.description = 0; };
-        if (!content.space.descriptionLeft) { content.space.descriptionLeft = 25; };
-        if (!content.space.descriptionRight) { content.space.descriptionRight = 25; };
-        if (!content.space.choices) { content.space.choices = 0; };
-        if (!content.space.choice) { content.space.choice = 0; };
-        if (!content.space.toolbarItem) { content.space.toolbarItem = 0; };
-        if (!content.space.action) { content.space.action = 0; };
-
-        if (!content.expand) { content.expand = {} };
-        if (!content.expand.title) { content.expand.title = false; };
-        if (!content.expand.content) { content.expand.content = false; };
-        if (!content.expand.description) { content.expand.description = false; };
-        if (!content.expand.choices) { content.expand.choices = false; };
-        if (!content.expand.actions) { content.expand.actions = false; };
-
-        if (!content.align) { content.align = {} };
-        if (!content.align.title) { content.align.title = 'center'; };
-        if (!content.align.content) { content.align.content = 'center'; };
-        if (!content.align.description) { content.align.description = 'center'; };
-        if (!content.align.choices) { content.align.choices = 'center'; };
-        if (!content.align.actions) { content.align.actions = 'center'; };
-
-        if (!content.draggable) { content.draggable = false; };
-
-        if (!content.animation) { content.animation = {} };
-        if (!content.animation.ease) { content.animation.ease = 'Bounce'; };
-        if (!content.animation.duration) { content.animation.duration = 100; };
-
-        //create elements
-        const background = scene.rexUI.add.roundRectangle(content.backgroundX, content.backgroundY, content.backgroundWidth, content.backgroundHeight, content.backgroundRadius, content.backgroundColor, content.backgroundTransparency);
-
-        const title = this.createLabel(scene, { text: content.titleText, textSize: content.titleTextSize, align: content.titleAlign, backgroundColor: content.titleBackgroundColor });
-
-        if (content.toolbar) {
-            var toolbar = [];
-            for (let i = 0; i < content.toolbar.length; i++) {
-                //get action content
-                const toolbarContent = content.toolbar[i];
-    
-                //defaults
-                if (!toolbarContent.textSize) { toolbarContent.textSize = 30 };
-                if (!toolbarContent.align) { toolbarContent.align = 'center' };
-    
-                //add to toolbar
-                toolbar.push(
-                    this.createLabel(scene, { text: toolbarContent.text, textSize: toolbarContent.textSize, align: toolbarContent.align, backgroundColor: content.buttonColor, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
-                );
-            };
-        };
-
-        const caption = this.createText(scene, { text: content.captionText, textSize: content.captionTextSize, align: content.captionAlign });
-
-        var description;
-        if (content.descriptionType == 'text') {
-            description = this.createText(scene, { text: content.descriptionText, textSize: content.descriptionTextSize, align: content.descriptionAlign, space: {left: content.descriptionSpace.left, right: content.descriptionSpace.right, top: content.descriptionSpace.top, bottom: content.descriptionSpace.bottom} });
-        } else if (content.descriptionType == 'label') {
-            description = this.createLabel(scene, { text: content.descriptionText, textSize: content.descriptionTextSize, align: content.descriptionAlign, backgroundColor: content.descriptionColor, space: {left: content.descriptionSpace.left, right: content.descriptionSpace.right, top: content.descriptionSpace.top, bottom: content.descriptionSpace.bottom} });
-        } else if (content.descriptionType == 'slider') {
-            description = this.createSlider(scene, { id: content.sliderID , value: content.sliderValue});
-        };
-
-        if (content.choices) {
-            var choices = [];
-            for (let i = 0; i < content.choices.length; i++) {
-                //get action content
-                const choiceContent = content.choices[i];
-    
-                //defaults
-                if (!choiceContent.align) { choiceContent.align = 'center' };
-    
-                //add to actions
-                choices.push(
-                    this.createLabel(scene, { text: choiceContent.text, textSize: content.buttonTextSize, align: choiceContent.align, backgroundColor: content.buttonColor, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
-                );
-            };
-        };
-
-        if (content.actions) {
-            var actions = [];
-            for (let i = 0; i < content.actions.length; i++) {
-                //get action content
-                const actionContent = content.actions[i];
-    
-                //defaults
-                if (!actionContent.align) { actionContent.align = 'center' };
-    
-                //add to actions
-                actions.push(
-                    this.createLabel(scene, { text: actionContent.text, textSize: content.buttonTextSize, align: actionContent.align, backgroundColor: content.buttonColor, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
-                );
-            };
-        };
-        
-        //create dialog
-        var dialog = scene.rexUI.add.dialog({
-            x: content.x,
-            y: content.y,
-
-            width: content.width,
-            height: content.height,
-
-            background: background,
-
-            title: title,
-
-            toolbar: toolbar,
-
-            content: caption,
-
-            description: description,
-
-            choices: choices,
-
-            actions: actions,
-
-            space: {
-                left: content.space.left,
-                right: content.space.right,
-                top: content.space.top,
-                bottom: content.space.bottom,
-
-                title: content.space.title,
-                titleLeft: content.space.titleLeft,
-                description: content.space.description,
-                descriptionLeft: content.space.descriptionLeft,
-                descriptionRight: content.space.descriptionRight,
-                choices: content.space.choices,
-
-                toolbarItem: content.space.toolbarItem,
-                choice: content.space.choice,
-                action: content.space.action,
-            },
-
-            expand: {
-                title: content.expand.title,
-                content: content.expand.content,
-                description: content.expand.description,
-                choices: content.expand.choices,
-                actions: content.expand.actions
-            },
-
-            align: {
-                title: content.align.title,
-                content: content.align.content,
-                description: content.align.description,
-                choices: content.align.choices,
-                actions: content.align.actions
-            },
-
-            // draggable: content.draggable,
-
-            click: {
-                mode: 'release'
-            }
-        })
-        .layout()
-        .popUp(1000)
-
-        //animation
-        .on('button.over', function (button, groupName, index, pointer, event) {
-            button.getElement('background').setFillStyle(content.buttonColorOnHover);
-        })
-        .on('button.out', function (button, groupName, index, pointer, event) {
-            button.getElement('background').setFillStyle(content.buttonColor);
-        });
-        scene.tweens.add({
-            targets: dialog,
-            scaleX: 1,
-            scaleY: 1,
-            ease: content.animation.ease, // 'Cubic', 'Elastic', 'Bounce', 'Back'
-            duration: content.animation.duration,
-            repeat: 0, // -1: infinity
-            yoyo: false
-        });
-
-        //draggable
-        if (content.draggable == true) {
-            dialog.setDraggable('background');
-        };
-
-        return dialog;
-    };
-
     //create input box
     createInputBox(scene, content) {
 
@@ -464,7 +257,7 @@ class UI {
         );
 
         //create background
-        const background = scene.rexUI.add.roundRectangle(content.x - (content.backgroundSpace.left/2), content.y + (content.backgroundSpace.bottom/2), content.width + (content.backgroundSpace.left + content.backgroundSpace.right), content.height + (content.backgroundSpace.top + content.backgroundSpace.bottom), content.backgroundRadius, content.backgroundColor, 1)
+        scene.rexUI.add.roundRectangle(content.x - (content.backgroundSpace.left/2), content.y + (content.backgroundSpace.bottom/2), content.width + (content.backgroundSpace.left + content.backgroundSpace.right), content.height + (content.backgroundSpace.top + content.backgroundSpace.bottom), content.backgroundRadius, content.backgroundColor, 1)
         .setDepth(content.depth);
 
         return inputBox;
@@ -509,7 +302,7 @@ class UI {
 
             //add to buttons
             buttons.push(
-                this.createLabel(scene, { icon: buttonsContent.icon, text: buttonsContent.text, textSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundWidth: buttonsContent.backgroundWidth, backgroundHeight: buttonsContent.backgroundHeight, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
+                this.createLabel(scene, { icon: buttonsContent.icon, text: buttonsContent.text, fontSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundWidth: buttonsContent.backgroundWidth, backgroundHeight: buttonsContent.backgroundHeight, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
             );
         };
 
@@ -627,13 +420,346 @@ class UI {
         return colorPicker;
     };
 
-    //show options menu
-    showOptions(scene) {
-        this.showDialog;
+    //format passage
+    formatPassage(scene, element, passage, options = {}) {
+
+        //defaults
+        if (!options.fontSize) { options.fontSize = 18; };
+        if (!options.fontFamily) { options.fontFamily = 'Burbin'; };
+
+        //clear text in element
+        element.clear(true);
+
+        //split the passage into an array
+        var lines = passage.split('\n');
+
+        //add text
+        for (var li = 0, lcnt = lines.length; li < lcnt; li++) {
+
+            //get words in the line
+            var words = lines[li].split(' ');
+
+            //add text for each line
+            for (var wi = 0, wcnt = words.length; wi < wcnt; wi++) {
+                element.add(
+                    scene.add.text(0, 0, words[wi], {
+                        fontSize: options.fontSize,
+                        fontFamily: options.fontFamily
+                    })
+                );
+            }
+
+            //new line if doesnt fit
+            if (li < (lcnt - 1)) {
+                element.addNewLine();
+            }
+        };
+
+        element.layout();
     };
 
-    //show toast
-    showToast(message) {
-        toast.showMessage(message);
+    //create dialog box
+    createDialog(scene, content, options = { background: {}, title: {}, description: {}, button: { space: {} }, space: {}, expand: {}, align: {}, animation: {}}) {
+
+        //defaults
+        if (!options.x) { options.x = scene.canvas.width/2; };
+        if (!options.y) { options.y = scene.canvas.height/2; };
+        if (!options.width) { options.width = 500; };
+        if (!options.height) { options.height = 80; };
+
+        if (!options.background.width) { options.background.width = 100; };
+        if (!options.background.height) { options.background.width = 100; };
+        if (!options.background.radius) { options.background.radius = 20; };
+        if (!options.background.color) { options.background.color = ColorScheme.DarkBlue; };
+
+        if (!options.title.fontSize) { options.title.fontSize = 48; };
+        if (!options.title.align) { options.title.align = 'center'; };
+
+        if (!options.description.fontSize) { options.description.fontSize = 28; };
+        if (!options.description.align) { options.description.align = 'center'; };
+
+        if (!options.button.fontSize) { options.button.fontSize = 28; };
+        if (!options.button.align) { options.button.align = 'center'; };
+        if (!options.button.color) { options.button.color = ColorScheme.Blue; };
+        if (!options.button.colorOnHover) { options.button.colorOnHover = ColorScheme.LightBlue; };
+        if (!options.button.space.left) { options.button.space.left = 10; };
+        if (!options.button.space.right) { options.button.space.right = 10; };
+        if (!options.button.space.top) { options.button.space.top = 8; };
+        if (!options.button.space.bottom) { options.button.space.bottom = 8; };
+
+        if (!options.space.left) { options.space.left = 20; };
+        if (!options.space.right) { options.space.right = 20; };
+        if (!options.space.top) { options.space.top = -20; };
+        if (!options.space.bottom) { options.space.bottom = -20; };
+        if (!options.space.title) { options.space.title = 10; };
+        if (!options.space.content) { options.space.content = 15; };
+        if (!options.space.action) { options.space.action = 0; };
+
+        if (!options.align.title) { options.align.title = 'center'; };
+        if (!options.align.options) { options.align.options = 'center'; };
+        if (!options.align.actions) { options.align.actions = 'center'; };
+
+        if (!options.draggable) { options.draggable = false; };
+
+        if (!options.animation.ease) { options.animation.ease = 'Bounce'; };
+        if (!options.animation.duration) { options.animation.duration = 100; };
+
+        //create elements
+        const background = scene.rexUI.add.roundRectangle(0, 0, options.background.width, options.background.height, options.background.radius, options.background.color, 1);
+
+        const title = this.createLabel(scene, { text: content.title, fontSize: options.title.fontSize, align: options.title.align, backgroundColor: options.background.color,  });
+
+        const description = this.createText(scene, { text: content.description, fontSize: options.description.fontSize, align: options.description.align });
+
+        const button = [ this.createLabel(scene, { text: content.button, fontSize: options.button.fontSize, align: options.button.align, backgroundColor: options.button.color, space: {left: options.button.space.left, right: options.button.space.right, top: options.button.space.top, bottom: options.button.space.bottom} }) ]
+
+        //create dialog
+        var dialog = scene.rexUI.add.dialog({
+            x: options.x,
+            y: options.y,
+
+            width: options.width,
+            height: options.height,
+
+            background: background,
+
+            title: title,
+
+            content: description,
+
+            actions: button,
+
+            space: {
+                left: options.space.left,
+                right: options.space.right,
+                top: options.space.top,
+                bottom: options.space.bottom,
+
+                title: options.space.title,
+                content: options.space.content,
+                action: options.space.action
+            },
+
+            expand: {
+                title: false
+            },
+
+            align: {
+                title: options.align.title,
+                options: options.align.options,
+                actions: options.align.actions
+            },
+
+            click: {
+                mode: 'release'
+            }
+        })
+        .layout()
+        .popUp(1000)
+
+        //animation
+        .on('button.over', function (button, groupName, index, pointer, event) {
+            button.getElement('background').setFillStyle(options.button.colorOnHover);
+        })
+        .on('button.out', function (button, groupName, index, pointer, event) {
+            button.getElement('background').setFillStyle(options.button.color);
+        });
+        scene.tweens.add({
+            targets: dialog,
+            scaleX: 1,
+            scaleY: 1,
+            ease: options.animation.ease, // 'Cubic', 'Elastic', 'Bounce', 'Back'
+            duration: options.animation.duration,
+            repeat: 0, // -1: infinity
+            yoyo: false
+        });
+
+        //draggable
+        if (options.draggable == true) {
+            dialog.setDraggable('background');
+        };
+
+        return dialog;
+    };
+
+    //create menu (exit button top right, draggable, and filled with sizer and extra content added by the executor)
+    createMenu(scene, content, options = {}) {
+
+        //default options
+        if (!options.x) { options.x = scene.canvas.width/2; };
+        if (!options.y) { options.y = scene.canvas.height/2; };
+        if (!options.width) { options.width = 400; };
+        if (!options.height) { options.height = 200; };
+
+        if (!options.title) { options.title = {}; };
+        if (!options.title.fontSize) { options.title.fontSize = 48; };
+
+        if (!options.background) { options.background = {} };
+        if (!options.background.x) { options.background.x = 0 };
+        if (!options.background.y) { options.background.y = 0 };
+        if (!options.background.width) { options.background.width = options.width };
+        if (!options.background.height) { options.background.height = options.height };
+        if (!options.background.radius) { options.background.radius = 20 };
+        if (!options.background.color) { options.background.color = ColorScheme.DarkBlue };
+        if (!options.background.transparency) { options.background.transparency = 1 };
+
+        if (!options.exitButton) { options.exitButton = {}; };
+        if (!options.exitButton.color) { options.exitButton.color = ColorScheme.Blue; };
+        if (!options.exitButton.colorOnHover) { options.exitButton.colorOnHover = ColorScheme.LightBlue; };
+
+        //content
+        const background = scene.rexUI.add.roundRectangle(options.background.x, options.background.y, options.background.width, options.background.height, options.background.radius, options.background.color, options.background.transparency);
+        
+        const title = this.createText(scene, { text: content.title, fontSize: options.title.fontSize, align: 'center' });
+
+        const exitButton = this.createLabel(scene, { text: 'X' });
+
+        var sizer = this.createSizer(scene, {});
+
+        if (content.content) {
+            for (let i = 0; i < content.content.length; i++) {
+
+                //get this internal's content
+                const internalContent = content.content[i];
+    
+                //defaults
+                if (!internalContent.align) { internalContent.align = 'center' };
+
+                //add to sizer
+                if (internalContent.type == 'text') {
+                    sizer.add( this.createText(scene, { text: internalContent.text, fontSize: internalContent.fontSize, align: internalContent.align }) );
+                }
+                else if (internalContent.type == 'slider') {
+                    sizer.add( this.createSlider(scene, { id: internalContent.id , value: internalContent.value}) );
+                }
+                else if (internalContent.type == 'scrollable') {
+                    var panel = scene.rexUI.add.scrollablePanel({
+                        width: options.width,
+
+                        height: options.height,
+
+                        mouseWheelScroller: {
+                            focus: true,
+                            speed: 0.7
+                        },
+
+                        panel: {
+                            child: scene.rexUI.add.fixWidthSizer({
+                                space: {
+                                    left: 3,
+                                    right: 3,
+                                    top: 3,
+                                    bottom: 3,
+                                    item: 8,
+                                    line: 8,
+                                }
+                            }),
+                
+                            mask: {
+                                padding: 1
+                            },
+                        },
+
+                        slider: {
+                            track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, internalContent.track.color),
+                            thumb: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 13, internalContent.thumb.color),
+                        },
+
+                        space: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 10,
+            
+                            panel: 10,
+                        }
+                    });
+
+                    this.formatPassage(scene, panel.getElement('panel'), internalContent.text);
+
+                    sizer.add(panel);
+                };
+            };
+        };
+
+        //create menu
+        var menu = scene.rexUI.add.dialog({
+            x: options.x,
+            y: options.y,
+
+            width: options.width,
+            height: options.height,
+
+            background: background,
+
+            title: title,
+
+            toolbar: [ exitButton ],
+
+            description: sizer,
+
+            space: {
+                left: 10,
+                right: 10,
+                top: 0,
+                bottom: 0,
+
+                title: 5,
+                titleLeft: 30,
+            },
+
+            align: {
+                title: 'center'
+            },
+
+            click: {
+                mode: 'release'
+            }
+        })
+        .layout()
+
+        //set menu as draggable
+        .setDraggable('background')
+
+        //set menu depth
+        .setDepth(scene.depthUI)
+
+        //exit button function/animation
+        .on('button.over', function (button, groupName, index, pointer, event) {
+            button.getElement('background').setFillStyle(options.exitButton.colorOnHover);
+        })
+        .on('button.out', function (button, groupName, index, pointer, event) {
+            button.getElement('background').setFillStyle(options.exitButton.color);
+        })
+        .on('button.click', function (button, groupName, index, pointer, event) {
+
+            //sfx
+            scene.sfx_button_click.play();
+
+            //close
+            menu.emit('modal.requestClose', { index: index, text: button.text });
+
+            //enable input and menu opening again
+            scene.disableInput = false;
+            scene.menuOpen = false;
+        }, scene);
+
+        //close menu when exit button is pressed
+        scene.rexUI.modalPromise(
+
+            //assign menu to promise
+            menu,
+
+            //options
+            {
+                cover: false,
+                duration: {
+                    in: 200,
+                    out: 200
+                }
+            }
+        );
+
+        return menu;
     };
 };

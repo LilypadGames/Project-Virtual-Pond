@@ -283,24 +283,24 @@ io.on('connection', async function(socket) {
             };
         });
 
-        //triggers when player stops moving
-        socket.on('playerHalted', function(data) {
-            if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
+        // //triggers when player stops moving
+        // socket.on('playerHalted', function(data) {
+        //     if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
 
-                //log
-                console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
+        //         //log
+        //         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
 
-                //store player location
-                socket.player.x = data.x;
-                socket.player.y = data.y;
+        //         //store player location
+        //         socket.player.x = data.x;
+        //         socket.player.y = data.y;
 
-                //send the halting of this players movement for ALL clients in this room
-                io.in(socket.roomID).emit('haltPlayer', socket.player);
+        //         //send the halting of this players movement for ALL clients in this room
+        //         io.in(socket.roomID).emit('haltPlayer', socket.player);
 
-                //change player movement for ONLY OTHER clients in this room
-                socket.to(socket.roomID).emit('changePlayerMovement', socket.player);
-            };
-        });
+        //         //change player movement for ONLY OTHER clients in this room
+        //         socket.to(socket.roomID).emit('changePlayerMovement', socket.player);
+        //     };
+        // });
 
         //triggers when player sends a message
         socket.on('playerSendingMessage', function(message) {

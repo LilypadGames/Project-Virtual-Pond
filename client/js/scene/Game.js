@@ -8,7 +8,8 @@ class Game extends Phaser.Scene {
     //settings
     gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
     defaultOptions = [
-        { id: 'music', volume: 1 }
+        { id: 'music', volume: 1 },
+        { id: 'sfx', volume: 1 }
     ];
 
     //world
@@ -46,7 +47,7 @@ class Game extends Phaser.Scene {
     npcLines = [
         ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
         ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
-        ['you invest in a hangry hippos nft yet?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn'],
+        ['have you heard about hangry hippos NFTs?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn', 'im workin on this new NFT called Smokey Frogs'],
         ['IDGAF']
     ];
 
@@ -83,7 +84,6 @@ class Game extends Phaser.Scene {
 
     // INIT
     constructor() {
-
         super({ key: 'Game' });
     };
 
@@ -97,7 +97,7 @@ class Game extends Phaser.Scene {
     preload() {
 
         //set up localStorage settings
-        if (this.gameOptions === null || this.gameOptions.length <= 0) {
+        if (this.gameOptions === null || this.gameOptions.length <= 0 || this.gameOptions.length != this.defaultOptions.length) {
             localStorage.setItem('gameOptions', JSON.stringify(this.defaultOptions));
             this.gameOptions = this.defaultOptions;
         };
@@ -154,7 +154,8 @@ class Game extends Phaser.Scene {
         this.outlineFX = this.plugins.get('rexoutlinepipelineplugin');
 
         //register sfxs
-        this.sfx_button_click = this.sound.add('button_click');
+        this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
+        this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
 
         //detect when window is re-focused
         this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this);
@@ -186,16 +187,23 @@ class Game extends Phaser.Scene {
 
     update() {
 
-        //handle collisions
-        if (this.playerCharacter[clientID]) {
+        // //handle collisions
+        // if (this.playerCharacter[clientID]) {
 
-            //NPCs
-            for(var i = 0; i < this.npcList.length; i++) {
-                this.physics.world.collide(this.playerCharacter[clientID], this.npcCharacter[i], () => {this.interactNPC(clientID, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
-            };
+        //     //NPCs
+        //     for(var i = 0; i < this.npcList.length; i++) {
+        //         this.physics.world.collide(this.playerCharacter[clientID], this.npcCharacter[i], () => {this.interactNPC(clientID, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
+        //     };
+        // };
+
+        //handle collisions between player and npc characters
+        for(var i = 0; i < this.npcList.length; i++) {
+            Object.keys(this.playerCharacter).forEach((key) => {
+                this.physics.world.collide(this.playerCharacter[key], this.npcCharacter[i], () => {this.interactNPC(key, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
+            });
         };
 
-        //handle depth
+        //handle player character depth
         Object.keys(this.playerCharacter).forEach((key) => {
             this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
         });
@@ -228,22 +236,24 @@ class Game extends Phaser.Scene {
 
     addRoomObjects(room) {
 
-        // //forest
-        // if (room == 'forest') {
-        //     //news sign
-        //     let signNews = this.add.image(187, 630, 'Sign_News')
-        //     .setDepth(628)
-        //     .setOrigin(0.5, 1)
-        //     .setInteractive();
-        //     this.setInteractObject(signNews);
-        //     signNews.on('pointerdown', () => {
+        //forest
+        if (room == 'forest') {
+            //news sign
+            let signNews = this.add.image(187, 630, 'Sign_News')
+            .setDepth(628)
+            .setOrigin(0.5, 1)
+            .setInteractive();
+            this.setInteractObject(signNews);
+            signNews.on('pointerdown', () => {
 
-        //         //movement
-        //         if(this.navigationCheck()) {
-        //             this.onClick();
-        //         };
-        //     }, this);
-        // }
+                // //movement
+                // if(this.navigationCheck()) {
+                //     this.onClick();
+                // };
+
+                this.openNews();
+            }, this);
+        }
     };
 
     addRoomMusic(room) {
@@ -354,13 +364,13 @@ class Game extends Phaser.Scene {
     };
 
     //show refresh dialog
-    showRefreshDialog(content) {
+    showRefreshDialog(content, options) {
 
         //fade background
         this.add.rexCover({ alpha: 0.8 }).setDepth(this.depthUI);
 
         //create dialog with refresh button
-        const dialog = ui.createDialog(this, content)
+        const dialog = ui.createDialog(this, content, options)
         .on('button.click', function () {
 
             //sfx
@@ -387,67 +397,49 @@ class Game extends Phaser.Scene {
             }
         );
 
+        //disable input
         this.disableInput = true;
     };
 
     //show options menu
     showOptions() {
-
         if (!this.menuOpen) {
-            //create dialog
-            const dialog = ui.createDialog(this, {titleText: 'Options', draggable: true, width: 400, height: 200, captionText: 'Music Volume', descriptionType: 'slider', sliderID: 'volume', sliderValue: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume, toolbar: [{text: 'X', textSize: 12}], space: {titleLeft: 40, description: 60} });
 
-            //close dialog when X is pressed
-            dialog.on('button.click', function (button, groupName, index, pointer, event) {
+            //show options menu
+            ui.createMenu(this, { title: 'Options', content: [
+                { type: 'text', text: 'Music Volume', fontSize: 24 }, 
+                { type: 'slider', id: 'musicVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume },
+                { type: 'text', text: 'Sound Effects Volume', fontSize: 24 }, 
+                { type: 'slider', id: 'sfxVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume }
+            ]});
 
-                //sfx
-                this.sfx_button_click.play();
-
-                //close
-                dialog.emit('modal.requestClose', { index: index, text: button.text });
-                
-                //enable input and menu opening again
-                this.disableInput = false;
-                this.menuOpen = false;
-            }, this),
-
-            //close dialog when X is pressed
-            this.rexUI.modalPromise(
-
-                //create dialog
-                dialog.setDepth(this.depthUI),
-
-                //config
-                {
-                    cover: false,
-                    duration: {
-                        in: 200,
-                        out: 200
-                    }
-                }
-            );
-
+            //disable input
             this.disableInput = true;
             this.menuOpen = true;
         };
     };
 
-    //on slider change
-    onSliderChange(value, sliderID) {
-        if (sliderID == 'volume') {
+    //show news menu
+    openNews() {
+        if (!this.menuOpen) {
 
-            //store locally for the user to persist changes between sessions
-            var options = utility.getLocalStorage('gameOptions');
-            options[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume = value;
-            utility.storeLocalStorageArray('gameOptions', options);
+            //parse and format news text
+            const passage = news.join('\n__________________________\n\n');
 
-            //change volume
-            this.music.setVolume(value);
+            //show news menu
+            ui.createMenu(this, 
+                { title: 'News', content: [ { type: 'scrollable', text: passage, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}} ]}, 
+                { height: 500 }
+            );
+
+            //disable input
+            this.disableInput = true;
+            this.menuOpen = true;
         };
     };
 
     // INPUT
-    //on keypres
+    //on keypress
     onKeyUp(event) {
         // ignore keyboard presses when chat box is focused
         if (!this.chatBox.isFocused) {
@@ -474,10 +466,7 @@ class Game extends Phaser.Scene {
             };
 
             //tell server that this client stopped its movement
-            if (event.key === 's') { client.onHalt(this.playerCharacter[clientID].x, this.playerCharacter[clientID].y) };
-
-            //toggle options
-            if (event.key === 'o') { this.showOptions(); };
+            // if (event.key === 's') { client.onHalt(this.playerCharacter[clientID].x, this.playerCharacter[clientID].y) };
 
             //toggle console logging
             if (event.key === 'Shift') { this.toggleDebugMode(); };
@@ -497,6 +486,34 @@ class Game extends Phaser.Scene {
 
             //tell the server that the player is moving
             client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+        };
+    };
+
+    //on slider change
+    onSliderChange(value, sliderID) {
+
+        //music
+        if (sliderID == 'musicVolume') {
+
+            //store locally for the user to persist changes between sessions
+            var options = utility.getLocalStorage('gameOptions');
+            options[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume = value;
+            utility.storeLocalStorageArray('gameOptions', options);
+
+            //change volume
+            this.music.setVolume(value);
+        }
+
+        //sfx
+        else if (sliderID == 'sfxVolume') {
+
+            //store locally for the user to persist changes between sessions
+            var options = utility.getLocalStorage('gameOptions');
+            options[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume = value;
+            utility.storeLocalStorageArray('gameOptions', options);
+
+            //change volume
+            this.sfx_button_click.setVolume(value);
         };
     };
 
@@ -783,20 +800,26 @@ class Game extends Phaser.Scene {
         this.npcCharacter[id].setDepth(y);
     };
 
-    //player interacts with NPC
+    //player interacts/collides with NPC
     interactNPC(playerID, npcID) {
 
-        //interact only once per movement
-        if (this.playerInteracting === npcID) {
+        // //stop player when colliding with npc
+        // this.haltPlayer(playerID, this.playerCharacter[playerID].x, this.playerCharacter[playerID].y);
 
-            //tell server that this player halted
-            client.onHalt(this.playerCharacter[playerID].x, this.playerCharacter[playerID].y)
+        //client
+        if (playerID == clientID) {
+            //interact only once per movement
+            if (this.playerInteracting === npcID) {
 
-            //npc message
-            this.displayMessage(npcID, utility.randomFromArray(this.npcLines[npcID]), 'npc');
+                // //tell server that this player halted
+                // client.onHalt(this.playerCharacter[playerID].x, this.playerCharacter[playerID].y)
 
-            //reset interacting check
-            this.playerInteracting = false;
+                //npc message
+                this.displayMessage(npcID, utility.randomFromArray(this.npcLines[npcID]), 'npc');
+
+                //reset interacting check
+                this.playerInteracting = false;
+            };
         };
     };
 
@@ -941,8 +964,6 @@ class Game extends Phaser.Scene {
 
     //remove player character from game
     removePlayer(id) {
-        console.log(id)
-        console.log(this.playerCharacter[id])
         this.playerCharacter[id].destroy();
         delete this.playerCharacter[id];
     };

@@ -71,7 +71,8 @@ class CharacterCreator extends Phaser.Scene {
         this.canvas = this.sys.game.canvas;
 
         //sfx
-        this.sfx_button_click = this.sound.add('button_click');
+        this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
+        this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
 
         //set background color
         this.cameras.main.setBackgroundColor(ColorScheme.DarkBlue);
