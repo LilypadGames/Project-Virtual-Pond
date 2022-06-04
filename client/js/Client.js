@@ -19,13 +19,8 @@ class Client {
     };
 
     //tell server that the client has clicked at a specific coordinate
-    onMove(x, y) {
-        socket.emit('playerMoved', {x: x, y: y});
-    };
-
-    //tell server that client is stopping its movement
-    onHalt(x, y) {
-        socket.emit('playerHalted', {x: x, y: y});
+    onMove(x, y, direction) {
+        socket.emit('playerMoved', { x: x, y: y, direction: direction });
     };
 
     //tell server that client is sending a message
@@ -51,7 +46,12 @@ class Client {
     //tell server that the player is no longer in the game world (minigame/character creator)
     leaveWorld() {
         socket.emit('leaveWorld');
-    }
+    };
+
+    //tell server that player is going to interact with an NPC
+    onInteractNPC(npcID) {
+        socket.emit('playerInteractingWithNPC', npcID);
+    };
 };
 
 //calculate latency
@@ -126,42 +126,35 @@ socket.on('getAllPlayers', function(data) {
     };
 
     //recieved reload of all currently connected players
-    socket.on('reloadPlayer',function(data){
+    socket.on('reloadPlayer', function(data) {
         if (currentScene.scene.key == 'Game') {
 
             //log
             if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Reloaded the Pond')); };
 
             for(var i = 0; i < data.length; i++){
-                currentScene.placePlayer(data[i].id, data[i].x, data[i].y);
+                currentScene.updatePlayer(data[i]);
             };
         };
     });
 
     //recieved player movement
-    socket.on('movePlayer',function(data){
+    socket.on('movePlayer', function(data) {
         if (currentScene.scene.key == 'Game') {
 
             //log
             if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Moving To> x:' + data.x + ', y:' + data.y)); };
             
-            currentScene.movePlayer(data.id, data.x, data.y);
+            //set player direction
+            if (!document.hidden) currentScene.setPlayerDirection(data.id, data.direction);
+
+            //move player
+            if (!document.hidden) currentScene.movePlayer(data.id, data.x, data.y);
         };
     });
 
-    //recieved player halting
-    socket.on('haltPlayer',function(data){
-        if (currentScene.scene.key == 'Game') {
-
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y)); };
-
-            currentScene.haltPlayer(data.id, data.x, data.y);
-        }
-    });
-
     //recieved player movement changed
-    socket.on('changePlayerMovement',function(data){
+    socket.on('changePlayerMovement', function(data) {
         if (currentScene.scene.key == 'Game') {
 
             //log
@@ -172,7 +165,7 @@ socket.on('getAllPlayers', function(data) {
     });
 
     //recieved player message
-    socket.on('showPlayerMessage',function(data){
+    socket.on('showPlayerMessage', function(data) {
         if (currentScene.scene.key == 'Game') {
 
             //log
@@ -183,18 +176,18 @@ socket.on('getAllPlayers', function(data) {
     });
 
     //recieved new player character look
-    socket.on('updatePlayerCharacter',function(data){
+    socket.on('updatePlayerCharacter', function(data) {
         if (currentScene.scene.key == 'Game') {
 
             //log
             if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Character> Color: ' + data.character.color + ' Eye Type: ' + data.character.eye_type)); };
             
-            currentScene.updatePlayerCharacter(data);
+            currentScene.updatePlayer(data);
         };
     });
 
     //recieved removal of player
-    socket.on('removePlayer',function(id){
+    socket.on('removePlayer', function(id) {
         if (currentScene.scene.key == 'Game') {
 
             //log
@@ -204,4 +197,15 @@ socket.on('getAllPlayers', function(data) {
         };
     });
 
+    //recieved interactNPC data of player
+    socket.on('setPlayerInteractNPC', function(playerInteractNPC) {
+        if (currentScene.scene.key == 'Game') {
+
+            //log
+            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + playerInteractNPC.playerID + ' - Trying to Interact With NPC: ' + playerInteractNPC.npcID)) };
+
+            //set data
+            utility.getObject(currentScene.playerData, playerInteractNPC.playerID).interactNPC = playerInteractNPC.npcID;
+        };
+    });
 });

@@ -36,6 +36,17 @@ class Utility {
         localStorage.setItem(item, JSON.stringify(array));
     };
 
+    // OBJECT ARRAYS
+    //get object from object array
+    getObject(objectArray, id) {
+
+        //if doesnt exist, create it
+        if (!objectArray.find(id => id == id)) { objectArray.push({ id: id }) };
+
+        //return it
+        return objectArray.find(id => id == id);
+    };
+
     // COLORS
     //hex integer to hex string
     hexIntegerToString(hex) {

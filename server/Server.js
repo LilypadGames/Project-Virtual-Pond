@@ -274,33 +274,15 @@ io.on('connection', async function(socket) {
                 //log
                 console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Moving To> x:' + data.x + ', y:' + data.y));
 
-                //store player location
+                //store player location and direction
                 socket.player.x = data.x;
                 socket.player.y = data.y;
+                socket.player.direction = data.direction;
 
-                //send the players movement for ALL clients in this room
-                io.in(socket.roomID).emit('movePlayer', socket.player);
+                //send the players movement to ONLY OTHER players
+                socket.to(socket.roomID).emit('movePlayer', socket.player);
             };
         });
-
-        // //triggers when player stops moving
-        // socket.on('playerHalted', function(data) {
-        //     if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
-
-        //         //log
-        //         console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Stopped Moving At> x:' + data.x + ', y:' + data.y));
-
-        //         //store player location
-        //         socket.player.x = data.x;
-        //         socket.player.y = data.y;
-
-        //         //send the halting of this players movement for ALL clients in this room
-        //         io.in(socket.roomID).emit('haltPlayer', socket.player);
-
-        //         //change player movement for ONLY OTHER clients in this room
-        //         socket.to(socket.roomID).emit('changePlayerMovement', socket.player);
-        //     };
-        // });
 
         //triggers when player sends a message
         socket.on('playerSendingMessage', function(message) {
@@ -331,6 +313,19 @@ io.on('connection', async function(socket) {
             if (message !== '' || null) {
                 io.in(socket.roomID).emit('showPlayerMessage', {id: socket.player.id, message: message});
             };
+        });
+
+        //triggers when player interacts with NPC
+        socket.on('playerInteractingWithNPC', function(npcID) {
+
+            //log
+            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Interacting With NPC: ' + npcID));
+
+            //merge player ID and npc ID
+            let playerInteractNPC = { playerID: socket.player.id, npcID: npcID }
+
+            //send interacting NPCs ID to ONLY OTHER clients
+            socket.to(socket.roomID).emit('setPlayerInteractNPC', playerInteractNPC);
         });
 
         //triggers when player disconnects their client
@@ -391,12 +386,15 @@ async function getPlayerData(socket) {
         //get ID
         id: socket.request.user.data[0].id,
 
+        //get name
+        name: socket.request.user.data[0].display_name,
+
         //generate starting location
         x: utility.getRandomInt(281, 975),
         y: utility.getRandomInt(560, 731),
 
-        //get name
-        name: socket.request.user.data[0].display_name
+        //generate direction
+        direction: utility.randomFromArray(['right', 'left'])
     };
 
     //check if character data exists

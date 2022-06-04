@@ -1,7 +1,5 @@
 // Game Scene
 
-// Client = new Client();
-
 class Game extends Phaser.Scene {
 
     // LOCAL VARIABLES
@@ -32,8 +30,7 @@ class Game extends Phaser.Scene {
 
     //player variables
     playerCharacter = {};
-    playerData = {};
-    playerInteracting;
+    playerData = [];
 
     //object variables
     npcList = [
@@ -187,19 +184,24 @@ class Game extends Phaser.Scene {
 
     update() {
 
-        // //handle collisions
-        // if (this.playerCharacter[clientID]) {
-
-        //     //NPCs
-        //     for(var i = 0; i < this.npcList.length; i++) {
-        //         this.physics.world.collide(this.playerCharacter[clientID], this.npcCharacter[i], () => {this.interactNPC(clientID, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
-        //     };
-        // };
-
         //handle collisions between player and npc characters
         for(var i = 0; i < this.npcList.length; i++) {
             Object.keys(this.playerCharacter).forEach((key) => {
-                this.physics.world.collide(this.playerCharacter[key], this.npcCharacter[i], () => {this.interactNPC(key, i); if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));});
+                this.physics.world.collide(this.playerCharacter[key], this.npcCharacter[i], () => {
+
+                    //get player interact NPC data
+                    let interactNPC = utility.getObject(this.playerData, key).interactNPC
+
+                    //if player is trying to interact with this NPC
+                    if (interactNPC == i) {
+
+                        //interact with NPC
+                        this.interactNPC(key, i);
+
+                        //log
+                        if (debugMode) console.log(utility.timestampString('Interacted With NPC: ' + i));
+                    };
+                });
             });
         };
 
@@ -210,6 +212,7 @@ class Game extends Phaser.Scene {
     };
 
     // WORLD
+    //add layers
     addRoomLayers(room) {
 
         //forest
@@ -234,6 +237,7 @@ class Game extends Phaser.Scene {
         }
     };
 
+    //add room objects
     addRoomObjects(room) {
 
         //forest
@@ -246,16 +250,13 @@ class Game extends Phaser.Scene {
             this.setInteractObject(signNews);
             signNews.on('pointerdown', () => {
 
-                // //movement
-                // if(this.navigationCheck()) {
-                //     this.onClick();
-                // };
-
+                //open news menu
                 this.openNews();
             }, this);
         }
     };
 
+    //add room music
     addRoomMusic(room) {
 
         //forest
@@ -276,6 +277,7 @@ class Game extends Phaser.Scene {
         }
     };
 
+    //add room NPCs
     addRoomNPCs(room) {
 
         //forest
@@ -284,23 +286,14 @@ class Game extends Phaser.Scene {
                 this.addNewNPC(this.npcList[i].id, this.npcList[i].name, this.npcList[i].x, this.npcList[i].y, this.npcList[i].direction);
             };
         }
-    }
-
-    // UTILITY    
-    //get players current direction
-    getPlayerDirection(id) {
-
-        //get player sprite container
-        var playerSprites = this.playerCharacter[id].list[0];
-
-        //player character is facing right
-        if (playerSprites.scaleX > 0) { return 'right' }
-
-        //player character is facing left
-        else if (playerSprites.scaleX < 0) { return 'left' };
     };
 
     // UI
+    //reload the world when window is re-focused
+    onFocus() {
+        client.onReload();
+    };
+
     //create outlines on hover
     setInteractObject(sprite) {
         sprite.on('pointerover', function () {
@@ -464,10 +457,7 @@ class Game extends Phaser.Scene {
                 //start character creator scene
                 this.scene.start('CharacterCreator');
             };
-
-            //tell server that this client stopped its movement
-            // if (event.key === 's') { client.onHalt(this.playerCharacter[clientID].x, this.playerCharacter[clientID].y) };
-
+            
             //toggle console logging
             if (event.key === 'Shift') { this.toggleDebugMode(); };
         };
@@ -484,8 +474,11 @@ class Game extends Phaser.Scene {
                 this.chatBox.setBlur();
             };
 
-            //tell the server that the player is moving
-            client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+            //move client player
+            this.movePlayer(clientID, this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+
+             //tell the server that this player is moving
+            client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY, this.getPlayerDirection(clientID));
         };
     };
 
@@ -551,11 +544,6 @@ class Game extends Phaser.Scene {
     };
 
     // FUNCTIONS
-    //reload the world when window is re-focused
-    onFocus() {
-        client.onReload();
-    };
-
     //add player character to game at specific coordinates
     addNewPlayer(data) {
 
@@ -600,7 +588,7 @@ class Game extends Phaser.Scene {
 
         //set depth
         this.playerCharacter[data.id].setDepth(data.y);
-
+        
         // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
         //
         // playerCharacter[<Player ID>] = Player Container
@@ -618,7 +606,7 @@ class Game extends Phaser.Scene {
         // the entire Player Container needs to be moved.
 
         //update the look of the character from the provided server data
-        this.updatePlayerCharacter(data);
+        this.updatePlayer(data);
     };
 
     //move player character to specific coordinates
@@ -630,27 +618,28 @@ class Game extends Phaser.Scene {
         //get player's character
         var player = this.playerCharacter[id];
 
-        //move player
-        this.playerData[id] = {
-            movement: this.add.tween({
-                targets: player, 
-                x: x,
-                y: y,
-                duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
-                onComplete: function() { this.playerInteracting = false; }
-            })
-        };
+        //move player (and store it for alteration later)
+        let playerMovement = utility.getObject(this.playerData, id).movement;
+        if (playerMovement) utility.getObject(this.playerData, id).movement.stop();
+        utility.getObject(this.playerData, id).movement = this.add.tween({
+            targets: player,
+            x: x,
+            y: y,
+            duration: Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4
+        });
     };
 
     //stop a player's movement
     haltPlayer(id, newX, newY) {
 
         //stop movement
-        this.playerData[id].movement.stop();
+        let playerMovement = utility.getObject(this.playerData, id).movement;
+        if (playerMovement) utility.getObject(this.playerData, id).movement.stop();
+        utility.getObject(this.playerData, id).movement.stop();
 
         //sync check
         if (newX != this.playerCharacter[id].x || newY != this.playerCharacter[id].y) {
-            this.placePlayer(id, newX, newY);
+            this.updatePlayer({ id: id, x: newX, y: newY });
         };
     };
 
@@ -664,26 +653,69 @@ class Game extends Phaser.Scene {
         var newDuration = Phaser.Math.Distance.Between(player.x, player.y, newX, newY) * 5;
         
         //change x
-        this.playerData[id].movement.updateTo('x', newX, true);
+        utility.getObject(this.playerData, id).movement.updateTo('x', newX, true);
 
         //change y
-        this.playerData[id].movement.updateTo('y', newY, true);
+        utility.getObject(this.playerData, id).movement.updateTo('y', newY, true);
 
         //change duration
-        this.playerData[id].movement.updateTo('duration', newDuration, true);
+        utility.getObject(this.playerData, id).movement.updateTo('duration', newDuration, true);
     };
 
     //place a player at a specific coordinate
-    placePlayer(id, x, y) {
+    updatePlayer(data) {
 
         //get player container
-        var player = this.playerCharacter[id];
+        var player = this.playerCharacter[data.id];
 
         //place x
-        player.x = x;
+        if (data.x) {
+            player.x = data.x;
+        };
 
         //place y
-        player.y = y;
+        if (data.y) {
+            player.y = data.y;
+        };
+
+        //direction
+        if (data.direction) this.setPlayerDirection(data.id, data.direction);
+
+        //character
+        if (data.character) {
+            //color
+            if (data.character.color) {
+
+                //get player body sprite
+                var playerBody = this.playerCharacter[data.id].list[0].list[0];
+
+                //update color
+                playerBody.tint = data.character.color;
+            };
+
+            //eye type
+            if (data.character.eye_type) {
+
+                //get player eyes sprite
+                var playerEyes = this.playerCharacter[data.id].list[0].list[2];
+
+                //update eye type
+                playerEyes.setTexture('frog_eyes_' + data.character.eye_type);
+            };
+        };
+    };
+
+    //get players current direction
+    getPlayerDirection(id) {
+
+        //get player sprite container
+        var playerSprites = this.playerCharacter[id].list[0];
+
+        //player character is facing right
+        if (playerSprites.scaleX > 0) { return 'right' }
+
+        //player character is facing left
+        else if (playerSprites.scaleX < 0) { return 'left' };
     };
 
     //update a players look direction
@@ -719,27 +751,20 @@ class Game extends Phaser.Scene {
         if ((newDirection === 'right' && currentDirection === 'left') || (newDirection === 'left' && currentDirection === 'right')) { playerSprites.scaleX *= -1; };
     };
 
-    //update player character
-    updatePlayerCharacter(data) {
+    //set a players look direction
+    setPlayerDirection(id, direction) {
 
-        //color
-        if (data.character.color) {
+        //get player sprite container
+        var playerSprites = this.playerCharacter[id].list[0];
 
-            //get player body sprite
-            var playerBody = this.playerCharacter[data.id].list[0].list[0];
+        //left
+        if (direction == 'left' && playerSprites.scaleX > 0) {
+            playerSprites.scaleX *= -1;
+        }
 
-            //update color
-            playerBody.tint = data.character.color;
-        };
-
-        //eye type
-        if (data.character.eye_type) {
-
-            //get player eyes sprite
-            var playerEyes = this.playerCharacter[data.id].list[0].list[2];
-
-            //update eye type
-            playerEyes.setTexture('frog_eyes_' + data.character.eye_type);
+        //right
+        else if (direction == 'right' && playerSprites.scaleX < 0) {
+            playerSprites.scaleX *= -1;
         };
     };
 
@@ -773,7 +798,13 @@ class Game extends Phaser.Scene {
         //detect clicks
         this.npcCharacter[id].list[0].setInteractive().on('pointerup', () => {
             if(this.navigationCheck()) {
-                this.playerInteracting = id;
+                
+                //set player as interacting with this NPC
+                utility.getObject(this.playerData, clientID).interactNPC = id;
+                
+                //tell server that the player is interacting with an NPC
+                client.onInteractNPC(id);
+
                 this.onClick();
             };
         }, this);
@@ -803,23 +834,15 @@ class Game extends Phaser.Scene {
     //player interacts/collides with NPC
     interactNPC(playerID, npcID) {
 
-        // //stop player when colliding with npc
-        // this.haltPlayer(playerID, this.playerCharacter[playerID].x, this.playerCharacter[playerID].y);
+        //reset interactNPC player data
+        delete utility.getObject(this.playerData, playerID).interactNPC;
 
-        //client
+        //stop player when colliding with npc
+        this.haltPlayer(playerID, this.playerCharacter[playerID].x, this.playerCharacter[playerID].y);
+
+        //show message if client interacted with NPC
         if (playerID == clientID) {
-            //interact only once per movement
-            if (this.playerInteracting === npcID) {
-
-                // //tell server that this player halted
-                // client.onHalt(this.playerCharacter[playerID].x, this.playerCharacter[playerID].y)
-
-                //npc message
-                this.displayMessage(npcID, utility.randomFromArray(this.npcLines[npcID]), 'npc');
-
-                //reset interacting check
-                this.playerInteracting = false;
-            };
+            this.displayMessage(npcID, utility.randomFromArray(this.npcLines[npcID]), 'npc');
         };
     };
 
@@ -843,11 +866,10 @@ class Game extends Phaser.Scene {
             var spriteContainer = this.playerCharacter[id].list[0];
 
             //store message data
-            this.playerData[id] = {
-                message: messageData.message,
-                messageID: messageData.messageID,
-                messageDuration: messageData.messageDuration
-            };
+            let playerData = utility.getObject(this.playerData, id)
+            playerData.message = messageData.message
+            playerData.messageID = messageData.messageID
+            playerData.messageDuration = messageData.messageDuration
         }
 
         //npc message
@@ -902,6 +924,9 @@ class Game extends Phaser.Scene {
     //remove player message
     removeMessage(id, messageID, characterType = 'player') {
 
+        //get player data
+        let playerData = utility.getObject(this.playerData, id)
+
         //player message
         if (characterType === 'player') {
 
@@ -910,9 +935,9 @@ class Game extends Phaser.Scene {
 
             //get message data
             var messageData = {
-                message: this.playerData[id].message,
-                messageID: this.playerData[id].messageID,
-                messageDuration: this.playerData[id].messageDuration
+                message: playerData.message,
+                messageID: playerData.messageID,
+                messageDuration: playerData.messageDuration
             };
         }
 
@@ -935,13 +960,9 @@ class Game extends Phaser.Scene {
 
             //reset chat data
             if (characterType === 'player') {
-
-                //get message data
-                this.playerData[id] = {
-                    message: '',
-                    messageID: 0,
-                    messageDuration: 0
-                };
+                playerData.message = ''
+                playerData.messageID = 0
+                playerData.messageDuration = 0
             }
             else if (characterType === 'npc') {
 
@@ -988,6 +1009,7 @@ class Game extends Phaser.Scene {
             this.debugPing.setVisible(false);
         };
     };
+
     //toggle console logging
     toggleDebugMode() {
 
@@ -1009,6 +1031,7 @@ class Game extends Phaser.Scene {
             this.debugPing.setVisible(true);
         };
     };
+
     //update ping text
     newPing(latency) {
         if (debugMode) {

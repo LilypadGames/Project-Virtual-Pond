@@ -85,7 +85,7 @@ class CharacterCreator extends Phaser.Scene {
 
         //eye type label
         this.rexUI.add.sizer({ x: 685, y: 140, width: 250, height: 50 })
-        .add(ui.createLabel(this, { text: 'Eye Type', textSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
+        .add(ui.createLabel(this, { text: 'Eye Type', fontSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
         .layout()
         .setDepth(this.depthCharacterUI);
         
@@ -106,7 +106,7 @@ class CharacterCreator extends Phaser.Scene {
 
         //color label
         this.rexUI.add.sizer({ x: 638, y: 400, width: 150, height: 50 })
-        .add(ui.createLabel(this, { text: 'Color', textSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
+        .add(ui.createLabel(this, { text: 'Color', fontSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
         .layout()
         .setDepth(this.depthCharacterUI);
 
