@@ -10,6 +10,17 @@ const client = new Client();
 const gameWidth = 1280;
 const gameHeight = 800;
 
+//settings (cookies)
+var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
+const defaultOptions = [
+    { id: 'music', volume: 1 },
+    { id: 'sfx', volume: 1 }
+];
+if (gameOptions === null || gameOptions.length <= 0 || gameOptions.length != defaultOptions.length) {
+    localStorage.setItem('gameOptions', JSON.stringify(defaultOptions));
+    gameOptions = defaultOptions;
+};
+
 //scene
 var currentScene;
 
