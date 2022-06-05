@@ -3,6 +3,12 @@
 //connect to server
 socket = io.connect();
 
+//network time protocol
+ntp.init(socket);
+setInterval(function () {
+    console.log(ntp.offset());
+}, 1000);
+
 // GLOBAL VARIABLES
 var kickReason = '';
 

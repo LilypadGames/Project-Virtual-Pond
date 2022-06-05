@@ -32,6 +32,7 @@ var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var request = require('request');
 
 //dependency: misc
+var ntp = require('socket-ntp');
 var chatFilter = require('leo-profanity');
 var cookieParse = require('cookie-parser')();
 const crypto = require('crypto');
@@ -185,6 +186,7 @@ io.on('connection', async function(socket) {
     socket.player = await getPlayerData(socket);
 
     //latency calculation
+    ntp.sync(socket);
     socket.on("ping", (cb) => {
         if (typeof cb === "function")
           cb();
