@@ -3,13 +3,6 @@
 class Game extends Phaser.Scene {
 
     // LOCAL VARIABLES
-    //settings
-    gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
-    defaultOptions = [
-        { id: 'music', volume: 1 },
-        { id: 'sfx', volume: 1 }
-    ];
-
     //world
     walkableLayer;
     unWalkableLayer = [];
@@ -92,12 +85,6 @@ class Game extends Phaser.Scene {
 
     // LOGIC
     preload() {
-
-        //set up localStorage settings
-        if (this.gameOptions === null || this.gameOptions.length <= 0 || this.gameOptions.length != this.defaultOptions.length) {
-            localStorage.setItem('gameOptions', JSON.stringify(this.defaultOptions));
-            this.gameOptions = this.defaultOptions;
-        };
 
         //get canvas
         this.canvas = this.sys.game.canvas;
