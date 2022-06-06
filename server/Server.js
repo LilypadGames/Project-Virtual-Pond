@@ -157,6 +157,11 @@ server.listen(process.env.PORT || config.server.port, function () {
 
 //dependency: websocket
 var io = require('socket.io')(server);
+// const { RateLimiterMemory } = require('rate-limiter-flexible');
+// const rateLimiter = new RateLimiterMemory({
+//     points: 5, // 5 points
+//     duration: 1, // per second
+// });
 
 io.use(function(socket, next){
     socket.client.request.originalUrl = socket.client.request.url;

@@ -86,39 +86,45 @@ class Game extends Phaser.Scene {
     // LOGIC
     preload() {
 
-        //get canvas
+        //register canvas
         this.canvas = this.sys.game.canvas;
 
+        //loading screen
+        loadingScreen.run(this);
+
+        //asset path
+        this.load.setPath('assets/');
+
         //room layers
-        this.load.image('Forest_Background', 'assets/room/forest/layers/Background.png');
-        this.load.image('Forest_Ground', 'assets/room/forest/layers/Ground.png');
-        this.load.image('Forest_Tree_3', 'assets/room/forest/layers/Tree_3.png');
-        this.load.image('Forest_Tree_2', 'assets/room/forest/layers/Tree_2.png');
-        this.load.image('Forest_Rock_1', 'assets/room/forest/layers/Rock_1.png');
-        this.load.image('Forest_Tree_1', 'assets/room/forest/layers/Tree_1.png');
-        this.load.image('Forest_Foreground', 'assets/room/forest/layers/Foreground.png');
+        this.load.image('Forest_Background', 'room/forest/layers/Background.png');
+        this.load.image('Forest_Ground', 'room/forest/layers/Ground.png');
+        this.load.image('Forest_Tree_3', 'room/forest/layers/Tree_3.png');
+        this.load.image('Forest_Tree_2', 'room/forest/layers/Tree_2.png');
+        this.load.image('Forest_Rock_1', 'room/forest/layers/Rock_1.png');
+        this.load.image('Forest_Tree_1', 'room/forest/layers/Tree_1.png');
+        this.load.image('Forest_Foreground', 'room/forest/layers/Foreground.png');
 
         //room objects
-        this.load.image('Sign_News', 'assets/room/forest/objects/Sign_News.png');
+        this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
 
         //room audio
-        this.load.audio('frog_caves_chill', "assets/room/forest/audio/music/frog_caves_chill.mp3");
-        this.load.audio('forest_ambience', "assets/room/forest/audio/sfx/ambience/forest_ambience.mp3");
+        this.load.audio('frog_caves_chill', "room/forest/audio/music/frog_caves_chill.mp3");
+        this.load.audio('forest_ambience', "room/forest/audio/sfx/ambience/forest_ambience.mp3");
 
         //sfx
-        this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
+        this.load.audio('button_click', "audio/sfx/UI/button_click.mp3");
 
         //character
-        this.load.image('frog_body', 'assets/character/player/Tintable.png');
-        this.load.image('frog_belly', 'assets/character/player/Non-Tintable.png');
-        this.load.image('frog_eyes_0', 'assets/character/player/eyes/Eyes_0.png');
-        this.load.image('frog_eyes_1', 'assets/character/player/eyes/Eyes_1.png');
+        this.load.image('frog_body', 'character/player/Tintable.png');
+        this.load.image('frog_belly', 'character/player/Non-Tintable.png');
+        this.load.image('frog_eyes_0', 'character/player/eyes/Eyes_0.png');
+        this.load.image('frog_eyes_1', 'character/player/eyes/Eyes_1.png');
 
         //npc
-        this.load.image('Poke', 'assets/character/npc/Poke.png');
-        this.load.image('Gigi', 'assets/character/npc/Gigi.png');
-        this.load.image('Jesse', 'assets/character/npc/Jesse.png');
-        this.load.image('Snic', 'assets/character/npc/Snic.png');
+        this.load.image('Poke', 'character/npc/Poke.png');
+        this.load.image('Gigi', 'character/npc/Gigi.png');
+        this.load.image('Jesse', 'character/npc/Jesse.png');
+        this.load.image('Snic', 'character/npc/Snic.png');
 
         //plugins
         this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
@@ -126,13 +132,10 @@ class Game extends Phaser.Scene {
         this.load.plugin('rexoutlinepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexoutlinepipelineplugin.min.js', true);
 
         //debug
-        this.load.image('target', 'assets/debug/target.png');
+        this.load.image('target', 'debug/target.png');
     };
 
     create() {
-
-        //register canvas width/height
-        this.canvas = this.sys.game.canvas;
 
         //register shaders
         this.outlineFX = this.plugins.get('rexoutlinepipelineplugin');
@@ -321,7 +324,7 @@ class Game extends Phaser.Scene {
             width: this.canvas.width * 0.6,
             height: 30,
             placeholder: 'Say Yo...',
-            backgroundColor: ui.colorWhite,
+            backgroundColor: ColorScheme.White,
             backgroundRadius: 15,
             maxLength: this.messageLength,
             depth: this.depthUI

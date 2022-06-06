@@ -70,6 +70,9 @@ class CharacterCreator extends Phaser.Scene {
         //get canvas
         this.canvas = this.sys.game.canvas;
 
+        //loading screen
+        loadingScreen.run(this);
+
         //sfx
         this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
         this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);

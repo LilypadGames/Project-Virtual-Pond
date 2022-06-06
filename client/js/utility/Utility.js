@@ -38,13 +38,13 @@ class Utility {
 
     // OBJECT ARRAYS
     //get object from object array
-    getObject(objectArray, id) {
-
+    getObject(objectArray, objectID) {
+        
         //if doesnt exist, create it
-        if (!objectArray.find(id => id == id)) { objectArray.push({ id: id }) };
+        if (!objectArray.find(({ id }) => id == objectID)) { objectArray.push({ id: objectID }); };
 
         //return it
-        return objectArray.find(id => id == id);
+        return objectArray.find(({ id }) => id == objectID);
     };
 
     // COLORS

@@ -234,7 +234,7 @@ class UI {
         if (!content.border) { content.border = 0; };
         if (!content.borderColor) { content.borderColor = ColorScheme.Black; };
         if (!content.spellCheck) { content.spellCheck = false; };
-        if (!content.autoComplete) { content.autoComplete = false; };
+        if (!content.autoComplete) { content.autoComplete = 'off'; };
         if (!content.maxLength) { content.maxLength = 1000; };
 
         //create input box

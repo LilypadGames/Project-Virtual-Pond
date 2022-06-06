@@ -25,6 +25,12 @@ class Menu extends Phaser.Scene {
     // LOGIC
     preload() {
 
+        // //register canvas
+        // this.canvas = this.sys.game.canvas;
+
+        // //loading screen
+        // loadingScreen.run(this);
+
         //sfx
         this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
 
