@@ -1,8 +1,8 @@
 # Project Virtual Pond
 
-**A Physical Social Space for Twitch Frogs to Hang and Chat.**
+**A Social Virtual World for Twitch Frogs to Hang and Chat.**
 
-A Virtual World game written in HTML/CSS/JS using Node.js, Phaser3, Socket.io, Express, and Firebase.
+Written in HTML/CSS/JS using Node.js, Socket.io, Firebase, and Phaser3.
 
 
 ---
