@@ -4,6 +4,7 @@
 const ui = new UI();
 const utility = new Utility();
 const client = new Client();
+const loadingScreen = new LoadingScreen();
 
 // GLOBAL VARIABLES
 //canvas
@@ -52,6 +53,7 @@ window.onload = function() {
             width: gameWidth,
             height: gameHeight
         },
+        backgroundColor: ColorScheme.Blue,
         render: {
             // pixelArt: true,
             antialiasGL: false
