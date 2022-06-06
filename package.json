@@ -33,6 +33,7 @@
     "rate-limiter-flexible": "^2.3.7",
     "request": "^2.88.2",
     "socket-ntp": "^0.1.0",
-    "socket.io": "^4.5.0"
+    "socket.io": "^4.5.0",
+    "tmi-emote-parse": "^1.2.2"
   }
 }

@@ -36,6 +36,15 @@ var ntp = require('socket-ntp');
 var chatFilter = require('leo-profanity');
 var cookieParse = require('cookie-parser')();
 const crypto = require('crypto');
+const emoteParser = require("tmi-emote-parse");
+
+//get twitch emotes
+emoteParser.loadAssets("pokelawls");
+var emotes;
+emoteParser.events.on("emotes", (event) => {
+    // get all Twitch, BTTV, FFZ, and 7tv emotes
+    emotes = emoteParser.getAllEmotes(event.channel);
+});
 
 //proxy setting
 app.set('trust proxy', config.server.proxy);
