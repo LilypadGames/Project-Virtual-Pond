@@ -1,6 +1,6 @@
 <p align="center">
   <a align="center" href='https://pond.danmizu.dev/'/>
-    <img src="logo.svg" width="50%" alt="Frosty Logo" />
+    <img src="logo.svg" width="65%" alt="Frosty Logo" />
   </a>
 </p>
 
