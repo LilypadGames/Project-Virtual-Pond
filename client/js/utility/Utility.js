@@ -47,6 +47,11 @@ class Utility {
         return objectArray.find(({ id }) => id == objectID);
     };
 
+    //remove object from object array
+    removeObject(objectArray, objectID) {
+        objectArray = objectArray.filter(object => { return object.id != objectID; }); 
+    };
+
     // COLORS
     //hex integer to hex string
     hexIntegerToString(hex) {

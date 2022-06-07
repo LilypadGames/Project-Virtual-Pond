@@ -37,6 +37,7 @@ var chatFilter = require('leo-profanity');
 var cookieParse = require('cookie-parser')();
 const crypto = require('crypto');
 const emoteParser = require("tmi-emote-parse");
+const { disconnect } = require('process');
 
 //get twitch emotes
 emoteParser.loadAssets("pokelawls");
@@ -193,6 +194,9 @@ io.use(function(socket, next){
 //on new websocket connection
 io.on('connection', async function(socket) {
 
+    //kick instance if id not provided
+    if (!socket.request.user.data[0].id) socket.disconnect();
+
     //kick other connection instances of this player
     await kickOtherInstance(socket.request.user.data[0].id);
 
@@ -311,7 +315,7 @@ io.on('connection', async function(socket) {
             if (message.length > 80) {
 
                 //kick
-                kickInstance(socket.player, 'Abusing chat message maximum length.');
+                kickClient(socket.player, 'Abusing chat message maximum length.');
 
                 //add flag to user profile in database
 
@@ -488,7 +492,7 @@ async function kickOtherInstance(id) {
 };
 
 //kick client
-async function kickInstance(player, reason, kickMessage = 'You have been kicked.') {
+async function kickClient(player, reason, kickMessage = 'You have been kicked.') {
 
     //log
     message = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
