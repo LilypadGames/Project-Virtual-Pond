@@ -299,7 +299,7 @@ class Game extends Phaser.Scene {
             //remove outline
             this.outlineFX.remove(sprite);
         }, this)
-    }
+    };
 
     //create toolbar
     createToolbar() {
@@ -699,13 +699,11 @@ class Game extends Phaser.Scene {
 
             //show message
             this.showMessage(data.id, data.message);
-
-            // //check if message's time is stil valid
-            // if (data.message.endTime < Date.now()) {
-
-            //     //show message
-            //     this.showMessage(data.id, data.message);
-            // };
+        }
+        else if (utility.getObject(this.playerData, data.id).message) {
+            
+            //remove message
+            this.removeMessage(data.id, utility.getObject(this.playerData, id).message.id)
         };
     };
 

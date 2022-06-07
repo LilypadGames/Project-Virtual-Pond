@@ -5,9 +5,9 @@ socket = io.connect();
 
 //network time protocol
 ntp.init(socket);
-setInterval(function () {
-    // console.log(ntp.offset());
-}, 1000);
+// setInterval(function () {
+//     console.log(ntp.offset());
+// }, 1000);
 
 // GLOBAL VARIABLES
 var kickReason = '';
@@ -96,6 +96,19 @@ socket.on('changeScene', function(scene) {
     currentScene.scene.start(scene);
 });
 
+//recieved reload of all currently connected players
+socket.on('reloadPlayer', function(data) {
+    if (currentScene.scene.key == 'Game') {
+
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Reloaded the Pond')); };
+
+        for(var i = 0; i < data.length; i++){
+            currentScene.updatePlayer(data[i]);
+        };
+    };
+});
+
 //on this client disconnecting
 socket.on('disconnect', function(){
 
@@ -130,19 +143,6 @@ socket.on('getAllPlayers', function(data) {
             currentScene.addNewPlayer(data[i]);
         };
     };
-
-    //recieved reload of all currently connected players
-    socket.on('reloadPlayer', function(data) {
-        if (currentScene.scene.key == 'Game') {
-
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Reloaded the Pond')); };
-
-            for(var i = 0; i < data.length; i++){
-                currentScene.updatePlayer(data[i]);
-            };
-        };
-    });
 
     //recieved player movement
     socket.on('movePlayer', function(data) {
