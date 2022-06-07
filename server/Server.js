@@ -267,6 +267,17 @@ io.on('connection', async function(socket) {
         leaveAllRooms(socket);
     });
 
+    //triggers when player reloads their client
+    socket.on('playerReloaded', async function() {
+
+        //log
+        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Reloaded the Pond'));
+
+        //send current position of all connected players in this room to ONLY THIS client
+        const currentPlayers = await getAllPlayers(socket.roomID);
+        socket.emit('reloadPlayer', currentPlayers);
+    });
+
     //triggers on player loading into new room
     socket.on('playerJoinedRoom', async function(room) {
 
@@ -278,17 +289,6 @@ io.on('connection', async function(socket) {
 
         //add player to room
         joinRoom(socket, room);
-
-        //triggers when player reloads their client
-        socket.on('playerReloaded', async function() {
-
-            //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Reloaded the Pond'));
-
-            //send current position of all connected players in this room to ONLY THIS client
-            const currentPlayers = await getAllPlayers(socket.roomID);
-            socket.emit('reloadPlayer', currentPlayers);
-        });
 
         //triggers when player moves
         socket.on('playerMoved',  function(data) {
