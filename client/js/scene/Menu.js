@@ -12,6 +12,9 @@ class Menu extends Phaser.Scene {
     //depth
     depthUI = 100002;
 
+    //server
+    receivedSignal;
+
     // INIT
     constructor() {
         super({ key: 'Menu' });
@@ -25,14 +28,17 @@ class Menu extends Phaser.Scene {
     // LOGIC
     preload() {
 
-        // //register canvas
-        // this.canvas = this.sys.game.canvas;
+        //register canvas
+        this.canvas = this.sys.game.canvas;
 
-        // //loading screen
-        // loadingScreen.run(this);
+        //asset path
+        this.load.setPath('assets/');
 
         //sfx
-        this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
+        this.load.audio('button_click', "audio/sfx/UI/button_click.mp3");
+
+        //ui
+        this.load.spritesheet('loadingIcon', 'ui/loading.png', { frameWidth: 64, frameHeight: 64 });
 
         //plugins
         this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
@@ -44,8 +50,20 @@ class Menu extends Phaser.Scene {
         //sfx
         this.sfx_button_click = this.sound.add('button_click');
 
-        //get player data
-        client.requestPlayerData();
+        //create loading icon animation
+        this.anims.create({
+            key: 'loadingIconAnim',
+            frames: this.anims.generateFrameNumbers('loadingIcon', { end: 7 }),
+            frameRate: 18,
+            repeat: -1
+        });
+
+        //create loading icon
+        let loadingIcon = this.add.sprite(this.canvas.width/2, this.canvas.height/2, 'loadingIcon');
+        loadingIcon.play('loadingIconAnim');
+
+        //attempt player data request from server
+        this.attemptRequest();
     };
 
     // UI
@@ -87,11 +105,31 @@ class Menu extends Phaser.Scene {
     };
 
     // FUNCTIONS
+    //attempt player data request
+    attemptRequest() {
+
+        //signal not received yet
+        if (!this.receivedSignal) {
+            //get player data
+            client.requestPlayerData();
+
+            //attempt again
+            setTimeout(() => {
+
+                //attempt request again
+                this.attemptRequest();
+            }, 1000);
+        };
+    };
+
     //get character information
     parsePlayerData(data) {
 
         //save client ID
         clientID = data.id;
+
+        //set as signal recieved
+        this.receivedSignal = true;
         
         //send to character creator or game
         if (!data.character) {

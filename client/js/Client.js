@@ -177,7 +177,14 @@ socket.on('getAllPlayers', function(data) {
             //log
             if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message)); };
 
-            currentScene.displayMessage(data.id, data.message);
+            currentScene.showMessage(data.id, data.messageData);
+        };
+    });
+
+    //recieved player message
+    socket.on('removePlayerMessage', function(data) {
+        if (currentScene.scene.key == 'Game') {
+            currentScene.removeMessage(data.id, data.messageID);
         };
     });
 

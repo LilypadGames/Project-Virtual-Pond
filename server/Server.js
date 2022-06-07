@@ -197,8 +197,11 @@ io.on('connection', async function(socket) {
     //kick instance if id not provided
     if (!socket.request.user.data[0].id) socket.disconnect();
 
+    //log
+    console.log(utility.timestampString('PLAYER ID: ' + socket.request.user.data[0].id + ' (' + socket.request.user.data[0].display_name + ')' + ' - Connected'));
+
     //kick other connection instances of this player
-    await kickOtherInstance(socket.request.user.data[0].id);
+    await kickClientsWithID(socket.request.user.data[0].id);
 
     //set up player data
     socket.player = await getPlayerData(socket);
@@ -329,10 +332,30 @@ io.on('connection', async function(socket) {
             //filter message
             message = chatFilter.clean(message);
 
+            //create message data
+            let messageData = {
+                id: Date.now(),
+                text: message,
+                endTime: Date.now() + 5000
+            };
+
+            //store message data in player data
+            socket.player.message = messageData;
+
             //send the player message to ALL clients in this room
             if (message !== '' || null) {
-                io.in(socket.roomID).emit('showPlayerMessage', {id: socket.player.id, message: message});
+                io.in(socket.roomID).emit('showPlayerMessage', {id: socket.player.id, messageData: messageData});
             };
+
+            //queue message for removal
+            setTimeout(() => {
+
+                //remove message for all clients
+                io.in(socket.roomID).emit('removePlayerMessage', {id: socket.player.id, messageID: messageData.id});
+
+                //remove from server-side player data
+                resetMessageData(socket.id, messageData.id);
+            }, 5000);
         });
 
         //triggers when player interacts with NPC
@@ -438,6 +461,18 @@ function updatePlayerData(socket) {
     database.setValue(path + '/color', socket.player.character.color);
 };
 
+//reset message data
+function resetMessageData(socketID, messageID) {
+
+    //get socket
+    const socket = io.sockets.sockets.get(socketID);
+
+    //reset message data if its the same as the players current message
+    if (socket.player.message) {
+        if (socket.player.message.id == messageID) delete io.sockets.sockets.get(socketID).player.message;
+    };
+};
+
 //get currently connected players as an array
 async function getAllPlayers(room) {
 
@@ -469,7 +504,7 @@ async function getAllPlayers(room) {
 };
 
 //disconnect clients with the same ID
-async function kickOtherInstance(id) {
+async function kickClientsWithID(id) {
 
     //get connected clients
     const connectedClients = await io.fetchSockets();

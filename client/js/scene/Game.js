@@ -33,7 +33,7 @@ class Game extends Phaser.Scene {
         { id: 3, name: 'Snic', x: 1238, y: 554, direction: 'left'}
     ];
     npcCharacter = {};
-    npcData = {};
+    npcData = [];
     npcLines = [
         ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
         ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
@@ -211,7 +211,7 @@ class Game extends Phaser.Scene {
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
             .setInteractive().on('pointerdown', () => {
                 if(this.navigationCheck('Forest_Ground')) {
-                    this.onClick();
+                    this.onClick(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
                 };
             }, this);
             this.walkableLayer = 'Forest_Ground';
@@ -454,7 +454,7 @@ class Game extends Phaser.Scene {
     };
 
     //on mouse down
-    onClick() {
+    onClick(x, y) {
 
         //if clicking is not disabled
         if (!this.disableInput) {
@@ -465,10 +465,10 @@ class Game extends Phaser.Scene {
             };
 
             //move client player
-            this.movePlayer(clientID, this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+            this.movePlayer(clientID, x, y);
 
-             //tell the server that this player is moving
-            client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY, this.getPlayerDirection(clientID));
+            //tell the server that this player is moving
+            client.onMove(x, y, this.getPlayerDirection(clientID));
         };
     };
 
@@ -603,7 +603,7 @@ class Game extends Phaser.Scene {
     movePlayer(id, x, y) {
 
         //update player direction
-        this.updatePlayerDirection(id, x, y)
+        this.updatePlayerDirection(id, x, y);
 
         //get player's character
         var player = this.playerCharacter[id];
@@ -692,6 +692,20 @@ class Game extends Phaser.Scene {
                 //update eye type
                 playerEyes.setTexture('frog_eyes_' + data.character.eye_type);
             };
+        };
+
+        //message
+        if (data.message) {
+
+            //show message
+            this.showMessage(data.id, data.message);
+
+            // //check if message's time is stil valid
+            // if (data.message.endTime < Date.now()) {
+
+            //     //show message
+            //     this.showMessage(data.id, data.message);
+            // };
         };
     };
 
@@ -795,7 +809,7 @@ class Game extends Phaser.Scene {
                 //tell server that the player is interacting with an NPC
                 client.onInteractNPC(id);
 
-                this.onClick();
+                this.onClick(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
             };
         }, this);
 
@@ -831,20 +845,11 @@ class Game extends Phaser.Scene {
         this.haltPlayer(playerID, this.playerCharacter[playerID].x, this.playerCharacter[playerID].y);
 
         //show message if client interacted with NPC
-        if (playerID == clientID) {
-            this.displayMessage(npcID, utility.randomFromArray(this.npcLines[npcID]), 'npc');
-        };
+        if (playerID == clientID) this.showMessage(npcID, { id: Date.now(), text: utility.randomFromArray(this.npcLines[npcID]), endTime: Date.now() + 5000 }, 'npc');
     };
 
     //display player message
-    displayMessage(id, message, characterType = 'player') {
-
-        //create message data
-        var messageData = {
-            message: message,
-            messageID: this.time.now,
-            messageDuration: 5000
-        };
+    showMessage(id, messageData, characterType = 'player') {
 
         //player message
         if (characterType === 'player') {
@@ -856,10 +861,7 @@ class Game extends Phaser.Scene {
             var spriteContainer = this.playerCharacter[id].list[0];
 
             //store message data
-            let playerData = utility.getObject(this.playerData, id)
-            playerData.message = messageData.message
-            playerData.messageID = messageData.messageID
-            playerData.messageDuration = messageData.messageDuration
+            utility.getObject(this.playerData, id).message = messageData;
         }
 
         //npc message
@@ -872,15 +874,11 @@ class Game extends Phaser.Scene {
             var spriteContainer = this.npcCharacter[id].list[0];
 
             //store message data
-            this.npcData[id] = {
-                message: messageData.message,
-                messageID: messageData.messageID,
-                messageDuration: messageData.messageDuration
-            };
+            utility.getObject(this.npcData, id).message = messageData;
         };
 
         //format message
-        var messageFormatted = this.add.text(0, 0, message, this.messageConfig).setFontSize(this.messageFontSize).setOrigin(0.5, 0);
+        var messageFormatted = this.add.text(0, 0, messageData.text, this.messageConfig).setFontSize(this.messageFontSize).setOrigin(0.5, 0);
 
         //remove older messages
         if (overlayContainer.list[1]) { overlayContainer.list[1].setVisible(false); }
@@ -907,15 +905,17 @@ class Game extends Phaser.Scene {
         //make sure message is visible
         overlayContainer.list[1].setVisible(true);
 
-        //schedule message for removal
-        this.time.delayedCall(messageData.messageDuration, this.removeMessage, [id, this.time.now, characterType], this);
+        //schedule NPCs messages for removal
+        if (characterType === 'npc') {
+            this.time.delayedCall(5000, this.removeMessage, [id, messageData.id, characterType], this);
+        };
     };
 
     //remove player message
-    removeMessage(id, messageID, characterType = 'player') {
+    removeMessage(id, queuedID, characterType = 'player') {
 
-        //get player data
-        let playerData = utility.getObject(this.playerData, id)
+        //init message ID
+        var currentID;
 
         //player message
         if (characterType === 'player') {
@@ -923,12 +923,11 @@ class Game extends Phaser.Scene {
             //get player overlay container
             var overlayContainer = this.playerCharacter[id].list[1];
 
-            //get message data
-            var messageData = {
-                message: playerData.message,
-                messageID: playerData.messageID,
-                messageDuration: playerData.messageDuration
-            };
+            //check if the message still exists
+            if (!utility.getObject(this.playerData, id).message) return;
+
+            //get message id
+            currentID = utility.getObject(this.playerData, id).message.id;
         }
 
         //npc message
@@ -937,31 +936,19 @@ class Game extends Phaser.Scene {
             //get npc overlay container
             var overlayContainer = this.npcCharacter[id].list[1];
 
-            //get message data
-            var messageData = {
-                message: this.npcData[id].message,
-                messageID: this.npcData[id].messageID,
-                messageDuration: this.npcData[id].messageDuration
-            };
+            //get message id
+            currentID = utility.getObject(this.npcData, id).message.id
         };
 
-        //check if the message scheduled for removal is the same as the players current message shown
-        if (messageData.messageID === messageID) {
+        //check if the message queued for removal is the same as the characters current message shown
+        if (queuedID === currentID) {
 
             //reset chat data
             if (characterType === 'player') {
-                playerData.message = ''
-                playerData.messageID = 0
-                playerData.messageDuration = 0
+                delete utility.getObject(this.playerData, id).message;
             }
             else if (characterType === 'npc') {
-
-                //get message data
-                this.npcData[id] = {
-                    message: '',
-                    messageID: 0,
-                    messageDuration: 0
-                };
+                delete utility.getObject(this.npcData, id).message;
             };
 
             //remove message from player character
@@ -970,12 +957,12 @@ class Game extends Phaser.Scene {
 
         } else {
             return;
-        }
+        };
     };
 
     //remove player character from game
     removePlayer(id) {
-        this.playerCharacter[id].destroy();
+        if (this.playerCharacter[id]) this.playerCharacter[id].destroy();
         delete this.playerCharacter[id];
     };
 
