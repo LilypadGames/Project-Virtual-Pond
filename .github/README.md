@@ -52,16 +52,20 @@
 
 
 <p align="center" > <h3 style="text-align: center;">Player Movement</h3> </p>
-<p align="center"> <img title="Player Movement" alt="Player Movement" src="PlayerMovement.gif" width="35%" /> </p>
+
+<p align="center"> <img title="Player Movement" alt="Player Movement" src="PlayerMovement.gif" width="40%" /> </p>
 
 <p align="center" > <h3 style="text-align: center;">Character Creator</h3> </p>
-<p align="center"> <img title="Character Creator" alt="Character Creator" src="CharacterCreator.gif" width="35%" /> </p>
+
+<p align="center"> <img title="Character Creator" alt="Character Creator" src="CharacterCreator.gif" width="40%" /> </p>
 
 <p align="center" > <h3 style="text-align: center;">Chatting</h3> </p>
-<p align="center"> <img title="Chatting" alt="Chatting" src="Chatting.gif" width="35%" /> </p>
+
+<p align="center"> <img title="Chatting" alt="Chatting" src="Chatting.gif" width="40%" /> </p>
 
 <p align="center" > <h3 style="text-align: center;">NPCs</h3> </p>
-<p align="center"> <img title="NPCs" alt="NPCs" src="NPCs.gif" width="35%" /> </p>
+
+<p align="center"> <img title="NPCs" alt="NPCs" src="NPCs.gif" width="40%" /> </p>
 
 
 ---
