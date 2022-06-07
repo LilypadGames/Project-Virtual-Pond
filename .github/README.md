@@ -16,33 +16,33 @@
 
 
 <p align="center">
-    <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/issues">
+    <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/issues" target="_blank">
         <img src="https://img.shields.io/github/issues/Dan-Mizu/Project-Virtual-Pond?color=red&style=for-the-badge" alt="Issues"/>
     </a>
-    <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/commits">
+    <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/commits" target="_blank">
         <img src="https://img.shields.io/github/last-commit/Dan-Mizu/Project-Virtual-Pond?color=darkgreen&style=for-the-badge" alt="Last Commit"/>
     </a>
-    <a href="https://discord.gg/2aVq8qmcSr">
+    <a href="https://discord.gg/2aVq8qmcSr" target="_blank">
         <img src="https://img.shields.io/discord/975772011970306148?color=purple&label=Discord%20&logo=discord&logoColor=white&style=for-the-badge" alt="Discord">
     </a>
-    <a href="https://trello.com/b/2EppX5wM/project-virtual-pond">
+    <a href="https://trello.com/b/2EppX5wM/project-virtual-pond" target="_blank">
         <img src="https://img.shields.io/badge/-Trello-blue?logo=trello&style=for-the-badge" alt="Trello">
     </a>
 </p>
 
 
 <p align="center">
-    <a href="https://pond.danmizu.dev/">
+    <a href="https://pond.danmizu.dev/" target="_blank">
         <img src="https://img.shields.io/static/v1?label=Game&message=Production&color=green&style=for-the-badge" alt="Issues"/>
     </a>
-    <a href="https://pte.danmizu.dev/">
+    <a href="https://pte.danmizu.dev/" target="_blank">
         <img src="https://img.shields.io/static/v1?label=Game&message=PTE&color=green&style=for-the-badge" alt="Last Commit"/>
     </a>
 </p>
 
 
 <p align="center">
-    <a href="https://ko-fi.com/C0C37J4MF">
+    <a href="https://ko-fi.com/C0C37J4MF" target="_blank">
         <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Issues"/>
     </a>
 </p>
@@ -94,7 +94,11 @@ There are two ways to contribute.
 
 I am currently working alone on this project- creating both the assets and the code. I do not have a job and am attending university, so any donations would help a ton. I could use the money to hire artists, since art is not my strong suite and I want this game to be the best it could be.
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/C0C37J4MF)
+<p align="center">
+    <a href="https://ko-fi.com/C0C37J4MF" target="_blank">
+        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Issues"/>
+    </a>
+</p>
 
 ### Developing
 
