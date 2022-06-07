@@ -50,18 +50,25 @@
 
 ---
 
+<div class="row" style="text-align:center; padding-bottom: 2%;">
+    <h3 style="display: inline-block; padding-right: 5%;">Player Movement</h3>
+    <img style="vertical-align: middle;" title="Player Movement" alt="Player Movement" src="PlayerMovement.gif" width="35%"/>
+</div>
 
-<p align="center"> <h3 style="text-align: center;">Player Movement</h3> </p>
-<p align="center"> <img title="Player Movement" alt="Player Movement" src="PlayerMovement.gif" width="35%"/> </p>
+<div class="row" style="text-align:center; padding-bottom: 2%;">
+    <h3 style="display: inline-block; padding-right: 5%;">Character Creator</h3>
+    <img style="vertical-align: middle;" title="Character Creator" alt="Character Creator" src="CharacterCreator.gif" width="35%"/>
+</div>
 
-<p align="center"> <h3 style="text-align: center;">Character Creator</h3> </p>
-<p align="center"> <img title="Character Creator" alt="Character Creator" src="CharacterCreator.gif" width="35%"/> </p>
+<div class="row" style="text-align:center; padding-bottom: 2%;">
+    <h3 style="display: inline-block; padding-right: 5%;">Chatting</h3>
+    <img style="vertical-align: middle;" title="Chatting" alt="Chatting" src="Chatting.gif" width="35%"/>
+</div>
 
-<p align="center"> <h3 style="text-align: center;">Chatting</h3> </p>
-<p align="center"> <img title="Chatting" alt="Chatting" src="Chatting.gif" width="35%"/> </p>
-
-<p align="center"> <h3 style="text-align: center;">NPCs</h3> </p>
-<p align="center"> <img title="NPCs" alt="NPCs" src="NPCs.gif" width="35%"/> </p>
+<div class="row" style="text-align:center; padding-bottom: 2%;">
+    <h3 style="display: inline-block; padding-right: 5%;">NPCs</h3>
+    <img style="vertical-align: middle;" title="NPCs" alt="NPCs" src="NPCs.gif" width="35%"/>
+</div>
 
 
 ---
