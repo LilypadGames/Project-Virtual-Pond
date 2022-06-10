@@ -1,8 +1,73 @@
-# Project Virtual Pond
+<p align="center">
+  <a align="center" href='https://pond.danmizu.dev/'/>
+    <img src="logo.svg" width="65%" alt="Frosty Logo" />
+  </a>
+</p>
 
-**A Social Virtual World for Twitch Frogs to Hang and Chat.**
 
-Written in HTML/CSS/JS using Node.js, Socket.io, Firebase, and Phaser3.
+<p align="center">
+    <b>A Social Virtual World for Twitch Frogs to Hang and Chat.</b>
+</p>
+
+<p align="center">
+    Written in HTML/CSS/JS using Node.js, Socket.io, Firebase, and Phaser3.
+</p>
+
+
+<p align="center">
+    <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/issues" target="_blank">
+        <img src="https://img.shields.io/github/issues/Dan-Mizu/Project-Virtual-Pond?color=red&style=for-the-badge" alt="Issues"/>
+    </a>
+    <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/commits" target="_blank">
+        <img src="https://img.shields.io/github/last-commit/Dan-Mizu/Project-Virtual-Pond?color=darkgreen&style=for-the-badge" alt="Last Commit"/>
+    </a>
+    <a href="https://discord.gg/2aVq8qmcSr" target="_blank">
+        <img src="https://img.shields.io/discord/975772011970306148?color=purple&label=Discord%20&logo=discord&logoColor=white&style=for-the-badge" alt="Discord">
+    </a>
+    <a href="https://trello.com/b/2EppX5wM/project-virtual-pond" target="_blank">
+        <img src="https://img.shields.io/badge/-Trello-blue?logo=trello&style=for-the-badge" alt="Trello">
+    </a>
+</p>
+
+
+<p align="center">
+    <a href="https://pond.danmizu.dev/" target="_blank">
+        <img src="https://img.shields.io/static/v1?label=Game&message=Production&color=green&style=for-the-badge" alt="Issues"/>
+    </a>
+    <a href="https://pte.danmizu.dev/" target="_blank">
+        <img src="https://img.shields.io/static/v1?label=Game&message=PTE&color=green&style=for-the-badge" alt="Last Commit"/>
+    </a>
+</p>
+
+
+<p align="center">
+    <a href="https://ko-fi.com/C0C37J4MF" target="_blank">
+        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Issues"/>
+    </a>
+</p>
+
+
+---
+
+<div class="row" align="center" style="text-align: center; padding-bottom: 2%;">
+    <h3>Player Movement</h3>
+    <img title="Player Movement" alt="Player Movement" src="PlayerMovement.gif" width="50%"/>
+</div>
+
+<div class="row" align="center" style="text-align: center; padding-bottom: 2%;">
+    <h3>Character Creator</h3>
+    <img title="Character Creator" alt="Character Creator" src="CharacterCreator.gif" width="50%"/>
+</div>
+
+<div class="row" align="center" style="text-align: center; padding-bottom: 2%;">
+    <h3>Chatting</h3>
+    <img title="Chatting" alt="Chatting" src="Chatting.gif" width="50%"/>
+</div>
+
+<div class="row" align="center" style="text-align: center; padding-bottom: 2%;">
+    <h3>NPCs</h3>
+    <img title="NPCs" alt="NPCs" src="NPCs.gif" width="50%"/>
+</div>
 
 
 ---
@@ -19,40 +84,6 @@ Written in HTML/CSS/JS using Node.js, Socket.io, Firebase, and Phaser3.
 ---
 
 
-## Game
-[Production](https://pond.danmizu.dev/)|[Public Test Environment](https://pte.danmizu.dev/)|
-|---|---|
-
-
-## Links:
-|[Trello](https://trello.com/b/2EppX5wM/project-virtual-pond)|[Discord](https://discord.gg/2aVq8qmcSr)|
-|---|---|
-
-
----
-
-
-## Features:
-
-**Character Creator**
-
-<img src="CharacterCreator.gif" width="500">
-
-**Player Movement and Direction**
-
-<img src="PlayerMovement.gif" width="500">
-
-**Chatting**
-
-<img src="Chatting.gif" width="500">
-
-**NPCs**
-
-<img src="NPCs.gif" width="500">
-
----
-
-
 ## Contribute:
 
 There are two ways to contribute. 
@@ -62,9 +93,11 @@ There are two ways to contribute.
 
 I am currently working alone on this project- creating both the assets and the code. I do not have a job and am attending university, so any donations would help a ton. I could use the money to hire artists, since art is not my strong suite and I want this game to be the best it could be.
 
-[Ko-Fi Donations](https://ko-fi.com/danmizu)|
-|---|
-
+<p align="center">
+    <a href="https://ko-fi.com/C0C37J4MF" target="_blank">
+        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Issues"/>
+    </a>
+</p>
 
 ### Developing
 
@@ -84,7 +117,7 @@ I personally use Github Desktop to clone repos.
 
 3. **Open a Terminal at your Local Environment**
 
-Open a console/terminal at the directory where the cloned repo lives on your PC. 
+Open a console/terminal within the directory the cloned repo lives at either within finder on your PC, or using your IDE such as Visual Studio Code. 
 
 4. **Install Dependencies**
 
@@ -104,4 +137,8 @@ npm start
 
 7. **Develop**
 
-Any changes you now make will automatically restart the server. Access the game with `localhost:<specified port in config>` in your browser. When you're finished implementing a new feature/mechanic, push your changes and submit them for review. This process is detailed here: https://github.com/firstcontributions/first-contributions. If you dont what to start working on, please check the Trello cited above in the links section and look for planned and unfinished features/mechanics that you would like to contribute to.
+Any changes you now make will automatically restart the server. Access the game with `localhost:<specified port in config>` in your browser. If you dont know what to start working on, please check the Trello cited above in the links section and look for planned and unfinished features/mechanics that you would like to contribute to.
+
+8. **Submit Changes For Review**
+
+When you're finished implementing a new feature/mechanic, push your changes and submit them for review. This process is detailed here: https://github.com/firstcontributions/first-contributions.

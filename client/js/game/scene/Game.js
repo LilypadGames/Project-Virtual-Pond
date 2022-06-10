@@ -8,7 +8,7 @@ class Game extends Phaser.Scene {
     unWalkableLayer = [];
 
     //shaders
-    outlineFX;
+    rexOutlineFX;
 
     //depth
     depthUI = 100002;
@@ -33,11 +33,11 @@ class Game extends Phaser.Scene {
         { id: 3, name: 'Snic', x: 1238, y: 554, direction: 'left'}
     ];
     npcCharacter = {};
-    npcData = {};
+    npcData = [];
     npcLines = [
         ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
-        ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
-        ['have you heard about hangry hippos NFTs?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn', 'im workin on this new NFT called Smokey Frogs'],
+        ['*thinking of something HUH to say*', 'people call me a very accurate gamer', 'GEORGIEEEEEE!'],
+        ['have you heard about the hangry hippos NFT?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn'],
         ['IDGAF']
     ];
 
@@ -86,6 +86,9 @@ class Game extends Phaser.Scene {
     // LOGIC
     preload() {
 
+        //plugins
+        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
+
         //register canvas
         this.canvas = this.sys.game.canvas;
 
@@ -106,6 +109,7 @@ class Game extends Phaser.Scene {
 
         //room objects
         this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
+        this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
 
         //room audio
         this.load.audio('frog_caves_chill', "room/forest/audio/music/frog_caves_chill.mp3");
@@ -126,26 +130,18 @@ class Game extends Phaser.Scene {
         this.load.image('Jesse', 'character/npc/Jesse.png');
         this.load.image('Snic', 'character/npc/Snic.png');
 
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
-        this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
-        this.load.plugin('rexoutlinepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexoutlinepipelineplugin.min.js', true);
-
         //debug
         this.load.image('target', 'debug/target.png');
     };
 
     create() {
 
-        //register shaders
-        this.outlineFX = this.plugins.get('rexoutlinepipelineplugin');
-
         //register sfxs
         this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
         this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
 
         //detect when window is re-focused
-        this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this);
+        this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //register keyboard inputs
         this.input.keyboard.on('keyup', (event) => this.onKeyUp(event), this);
@@ -166,7 +162,7 @@ class Game extends Phaser.Scene {
         this.addRoomNPCs('forest');
 
         //tell server that player is joining (when the signal returns, the game adds the player and other players)
-        client.onRoomJoin('forest');
+        client.joinRoom('forest');
 
         //add toolbar
         this.createToolbar();
@@ -211,7 +207,7 @@ class Game extends Phaser.Scene {
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
             .setInteractive().on('pointerdown', () => {
                 if(this.navigationCheck('Forest_Ground')) {
-                    this.onClick();
+                    this.onClick(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
                 };
             }, this);
             this.walkableLayer = 'Forest_Ground';
@@ -243,6 +239,15 @@ class Game extends Phaser.Scene {
                 //open news menu
                 this.openNews();
             }, this);
+
+            //find four table
+            // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
+            // .setDepth(600)
+            // .setOrigin(0.5, 1)
+            // .setInteractive();
+            // this.setInteractObject(tableFindFour);
+            // tableFindFour.on('pointerdown', () => {
+            // }, this);
         }
     };
 
@@ -289,7 +294,7 @@ class Game extends Phaser.Scene {
         sprite.on('pointerover', function () {
 
             //show outline
-            this.outlineFX.add(sprite, {
+            this.rexOutlineFX.add(sprite, {
                 thickness: 3,
                 outlineColor: ColorScheme.White
             });
@@ -297,9 +302,63 @@ class Game extends Phaser.Scene {
         .on('pointerout', function () {
 
             //remove outline
-            this.outlineFX.remove(sprite);
+            this.rexOutlineFX.remove(sprite);
         }, this)
-    }
+    };
+
+    //open menu
+    menuOpened() {
+
+        //disable input
+        this.disableInput = true;
+        this.menuOpen = true;
+
+        //stop chatbox input
+        this.chatBox.setBlur();
+    };
+
+    //close menu
+    menuClosed() {
+
+        //enable input
+        this.disableInput = false;
+        this.menuOpen = false;
+    };
+
+    //create chat box
+    createChatBox() {
+        return ui.createInputBox(this, {
+            id: 'chat-box',
+            x: this.canvas.width / 2,
+            y: this.canvas.height - (this.canvas.height / 23),
+            width: this.canvas.width * 0.6,
+            height: 30,
+            placeholder: 'Say Yo...',
+            backgroundColor: ColorScheme.White,
+            backgroundRadius: 15,
+            maxLength: this.messageLength,
+            depth: this.depthUI
+        })
+        .on('focus', function(inputBox, event){
+            if (this.menuOpen) inputBox.setBlur();
+        }
+        , this)
+        .on('keydown', function (inputBox, event) {
+            if (event.key == 'Enter') {
+
+                //format message
+                const chatMessage = inputBox.text.substr(0, this.messageLength).trim().replace(/\s+/g, " ");
+
+                //send the message to the server
+                if (chatMessage !== '' || null) {
+                    client.sendMessage(chatMessage);
+                };
+
+                //clear chat box
+                inputBox.setText('');
+            };
+        }, this);
+    };
 
     //create toolbar
     createToolbar() {
@@ -317,33 +376,7 @@ class Game extends Phaser.Scene {
         .setDepth(this.depthUI);
 
         //chat box
-        this.chatBox = ui.createInputBox(this, {
-            id: 'chat-box',
-            x: this.canvas.width / 2,
-            y: this.canvas.height - (this.canvas.height / 23),
-            width: this.canvas.width * 0.6,
-            height: 30,
-            placeholder: 'Say Yo...',
-            backgroundColor: ColorScheme.White,
-            backgroundRadius: 15,
-            maxLength: this.messageLength,
-            depth: this.depthUI
-        })
-        .on('keydown', function (inputBox, event) {
-            if (event.key == 'Enter') {
-
-                //format message
-                const chatMessage = inputBox.text.substr(0, this.messageLength).trim().replace(/\s+/g, " ");
-
-                //send the message to the server
-                if (chatMessage !== '' || null) {
-                    client.sendMessage(chatMessage);
-                };
-
-                //clear chat box
-                inputBox.setText('');
-            };
-        }, this);
+        this.chatBox = this.createChatBox();
     };
 
     //show refresh dialog
@@ -362,8 +395,7 @@ class Game extends Phaser.Scene {
             //reload window
             window.location.reload();
 
-            //enable input
-            this.disableInput = false;
+            this.menuClosed();
         }, this);
 
         //dark background
@@ -380,8 +412,7 @@ class Game extends Phaser.Scene {
             }
         );
 
-        //disable input
-        this.disableInput = true;
+        this.menuOpened();
     };
 
     //show options menu
@@ -396,9 +427,7 @@ class Game extends Phaser.Scene {
                 { type: 'slider', id: 'sfxVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume }
             ]});
 
-            //disable input
-            this.disableInput = true;
-            this.menuOpen = true;
+            this.menuOpened();
         };
     };
 
@@ -415,9 +444,7 @@ class Game extends Phaser.Scene {
                 { height: 500 }
             );
 
-            //disable input
-            this.disableInput = true;
-            this.menuOpen = true;
+            this.menuOpened();
         };
     };
 
@@ -426,6 +453,8 @@ class Game extends Phaser.Scene {
     onKeyUp(event) {
         // ignore keyboard presses when chat box is focused
         if (!this.chatBox.isFocused) {
+
+            console.log(event);
 
             //focus the chat box when Enter key is pressed
             if (event.key === 'Enter') { this.chatBox.setFocus() };
@@ -438,23 +467,24 @@ class Game extends Phaser.Scene {
 
                 //reset data
                 this.registry.destroy();
-                this.events.off();
+                this.game.events.removeAllListeners();
+                this.input.keyboard.removeAllListeners();
                 this.scene.stop();
 
                 //leave game world
-                client.leaveWorld();
+                client.leaveRoom();
 
                 //start character creator scene
                 this.scene.start('CharacterCreator');
             };
-            
+
             //toggle console logging
             if (event.key === 'Shift') { this.toggleDebugMode(); };
         };
     };
 
     //on mouse down
-    onClick() {
+    onClick(x, y) {
 
         //if clicking is not disabled
         if (!this.disableInput) {
@@ -465,10 +495,10 @@ class Game extends Phaser.Scene {
             };
 
             //move client player
-            this.movePlayer(clientID, this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+            this.movePlayer(clientID, x, y);
 
-             //tell the server that this player is moving
-            client.onMove(this.input.mousePointer.worldX, this.input.mousePointer.worldY, this.getPlayerDirection(clientID));
+            //tell the server that this player is moving
+            client.onMove(x, y, this.getPlayerDirection(clientID));
         };
     };
 
@@ -603,7 +633,7 @@ class Game extends Phaser.Scene {
     movePlayer(id, x, y) {
 
         //update player direction
-        this.updatePlayerDirection(id, x, y)
+        this.updatePlayerDirection(id, x, y);
 
         //get player's character
         var player = this.playerCharacter[id];
@@ -692,6 +722,18 @@ class Game extends Phaser.Scene {
                 //update eye type
                 playerEyes.setTexture('frog_eyes_' + data.character.eye_type);
             };
+        };
+
+        //message
+        if (data.message) {
+
+            //show message
+            this.showMessage(data.id, data.message);
+        }
+        else if (utility.getObject(this.playerData, data.id).message) {
+            
+            //remove message
+            this.removeMessage(data.id, utility.getObject(this.playerData, id).message.id)
         };
     };
 
@@ -795,7 +837,7 @@ class Game extends Phaser.Scene {
                 //tell server that the player is interacting with an NPC
                 client.onInteractNPC(id);
 
-                this.onClick();
+                this.onClick(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
             };
         }, this);
 
@@ -831,20 +873,11 @@ class Game extends Phaser.Scene {
         this.haltPlayer(playerID, this.playerCharacter[playerID].x, this.playerCharacter[playerID].y);
 
         //show message if client interacted with NPC
-        if (playerID == clientID) {
-            this.displayMessage(npcID, utility.randomFromArray(this.npcLines[npcID]), 'npc');
-        };
+        if (playerID == clientID) this.showMessage(npcID, { id: Date.now(), text: utility.randomFromArray(this.npcLines[npcID]), endTime: Date.now() + 5000 }, 'npc');
     };
 
     //display player message
-    displayMessage(id, message, characterType = 'player') {
-
-        //create message data
-        var messageData = {
-            message: message,
-            messageID: this.time.now,
-            messageDuration: 5000
-        };
+    showMessage(id, messageData, characterType = 'player') {
 
         //player message
         if (characterType === 'player') {
@@ -856,10 +889,7 @@ class Game extends Phaser.Scene {
             var spriteContainer = this.playerCharacter[id].list[0];
 
             //store message data
-            let playerData = utility.getObject(this.playerData, id)
-            playerData.message = messageData.message
-            playerData.messageID = messageData.messageID
-            playerData.messageDuration = messageData.messageDuration
+            utility.getObject(this.playerData, id).message = messageData;
         }
 
         //npc message
@@ -872,15 +902,11 @@ class Game extends Phaser.Scene {
             var spriteContainer = this.npcCharacter[id].list[0];
 
             //store message data
-            this.npcData[id] = {
-                message: messageData.message,
-                messageID: messageData.messageID,
-                messageDuration: messageData.messageDuration
-            };
+            utility.getObject(this.npcData, id).message = messageData;
         };
 
         //format message
-        var messageFormatted = this.add.text(0, 0, message, this.messageConfig).setFontSize(this.messageFontSize).setOrigin(0.5, 0);
+        var messageFormatted = this.add.text(0, 0, messageData.text, this.messageConfig).setFontSize(this.messageFontSize).setOrigin(0.5, 0);
 
         //remove older messages
         if (overlayContainer.list[1]) { overlayContainer.list[1].setVisible(false); }
@@ -907,15 +933,17 @@ class Game extends Phaser.Scene {
         //make sure message is visible
         overlayContainer.list[1].setVisible(true);
 
-        //schedule message for removal
-        this.time.delayedCall(messageData.messageDuration, this.removeMessage, [id, this.time.now, characterType], this);
+        //schedule NPCs messages for removal
+        if (characterType === 'npc') {
+            this.time.delayedCall(5000, this.removeMessage, [id, messageData.id, characterType], this);
+        };
     };
 
     //remove player message
-    removeMessage(id, messageID, characterType = 'player') {
+    removeMessage(id, queuedID, characterType = 'player') {
 
-        //get player data
-        let playerData = utility.getObject(this.playerData, id)
+        //init message ID
+        var currentID;
 
         //player message
         if (characterType === 'player') {
@@ -923,12 +951,11 @@ class Game extends Phaser.Scene {
             //get player overlay container
             var overlayContainer = this.playerCharacter[id].list[1];
 
-            //get message data
-            var messageData = {
-                message: playerData.message,
-                messageID: playerData.messageID,
-                messageDuration: playerData.messageDuration
-            };
+            //check if the message still exists
+            if (!utility.getObject(this.playerData, id).message) return;
+
+            //get message id
+            currentID = utility.getObject(this.playerData, id).message.id;
         }
 
         //npc message
@@ -937,31 +964,19 @@ class Game extends Phaser.Scene {
             //get npc overlay container
             var overlayContainer = this.npcCharacter[id].list[1];
 
-            //get message data
-            var messageData = {
-                message: this.npcData[id].message,
-                messageID: this.npcData[id].messageID,
-                messageDuration: this.npcData[id].messageDuration
-            };
+            //get message id
+            currentID = utility.getObject(this.npcData, id).message.id
         };
 
-        //check if the message scheduled for removal is the same as the players current message shown
-        if (messageData.messageID === messageID) {
+        //check if the message queued for removal is the same as the characters current message shown
+        if (queuedID === currentID) {
 
             //reset chat data
             if (characterType === 'player') {
-                playerData.message = ''
-                playerData.messageID = 0
-                playerData.messageDuration = 0
+                delete utility.getObject(this.playerData, id).message;
             }
             else if (characterType === 'npc') {
-
-                //get message data
-                this.npcData[id] = {
-                    message: '',
-                    messageID: 0,
-                    messageDuration: 0
-                };
+                delete utility.getObject(this.npcData, id).message;
             };
 
             //remove message from player character
@@ -970,12 +985,12 @@ class Game extends Phaser.Scene {
 
         } else {
             return;
-        }
+        };
     };
 
     //remove player character from game
     removePlayer(id) {
-        this.playerCharacter[id].destroy();
+        if (this.playerCharacter[id]) this.playerCharacter[id].destroy();
         delete this.playerCharacter[id];
     };
 

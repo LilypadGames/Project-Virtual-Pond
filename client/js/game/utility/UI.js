@@ -739,9 +739,7 @@ class UI {
             //close
             menu.emit('modal.requestClose', { index: index, text: button.text });
 
-            //enable input and menu opening again
-            scene.disableInput = false;
-            scene.menuOpen = false;
+            scene.menuClosed();
         }, scene);
 
         //close menu when exit button is pressed

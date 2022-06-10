@@ -31,7 +31,7 @@ html, body, #game-container {
 }
 
 /* Make Game Canvas Have Round Edges */
-#game-container>canvas {
+#game-container > canvas {
   border-radius: 8px;
 }
 
@@ -41,6 +41,17 @@ html, body, #game-container {
   left: 50%;
   position: absolute;
   width: 30%;
+  height: 100%;
+  padding-top: 2%;
+  padding-bottom: 2%;
+}
+
+/* Icons */
+.bi {
+  color: #fff;
+}
+.bi:hover {
+  color: #d0d0d0;
 }
 
 /* Twitch Button */
@@ -71,5 +82,28 @@ html, body, #game-container {
   text-decoration: none;
 }
 .credit-link:hover {
+  color: #00ff1a;
+}
+
+/* Dark Mode */
+/* Body */
+.dark {
+  background: linear-gradient(180deg, #102121 -50%, #111623 69.71%, #02091b 150%);
+  color: #b6b6b6;
+}
+
+/* Icons */
+body.dark .bi {
+  color: #b6b6b6;
+}
+body.dark .bi:hover {
+  color: #828282;
+}
+
+/* Credit Links */
+body.dark .credit-link, body.dark .credit-link:link, body.dark.credit-link:active, body.dark .credit-link:visited {
+  color: #b6b6b6;
+}
+body.dark .credit-link:hover {
   color: #00ff1a;
 }
