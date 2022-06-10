@@ -28,21 +28,17 @@ class Menu extends Phaser.Scene {
     // LOGIC
     preload() {
 
+        //plugins
+        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
+
         //register canvas
         this.canvas = this.sys.game.canvas;
 
-        //asset path
-        this.load.setPath('assets/');
-
         //sfx
-        this.load.audio('button_click', "audio/sfx/UI/button_click.mp3");
+        this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
 
         //ui
-        this.load.spritesheet('loadingIcon', 'ui/loading.png', { frameWidth: 64, frameHeight: 64 });
-
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
-        this.load.plugin('rexcoverplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexcoverplugin.min.js', true);
+        this.load.spritesheet('loadingIcon', 'assets/ui/loading.png', { frameWidth: 64, frameHeight: 64 });
     };
 
     create() {
@@ -111,7 +107,7 @@ class Menu extends Phaser.Scene {
         //signal not received yet
         if (!this.receivedSignal) {
             //get player data
-            client.requestPlayerData();
+            client.requestClientPlayerData();
 
             //attempt again
             setTimeout(() => {

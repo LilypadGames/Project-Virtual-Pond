@@ -47,6 +47,9 @@ class CharacterCreator extends Phaser.Scene {
     // LOGIC
     preload() {
 
+        //plugins
+        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
+
         //character
         this.load.image('CC_frog_body', 'assets/character/player/5x/Tintable.png');
         this.load.image('CC_frog_belly', 'assets/character/player/5x/Non-Tintable.png');
@@ -59,10 +62,6 @@ class CharacterCreator extends Phaser.Scene {
 
         //sfx
         this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
-
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
-        this.load.plugin('rexcoverplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexcoverplugin.min.js', true);
     };
 
     create() {
@@ -84,7 +83,7 @@ class CharacterCreator extends Phaser.Scene {
         this.rexUI.add.roundRectangle(300, 400, 500, 600, 15, ColorScheme.Blue).setDepth(this.depthBackgroundUI);
 
         //get player data
-        client.requestPlayerData();
+        client.requestClientPlayerData();
 
         //eye type label
         this.rexUI.add.sizer({ x: 685, y: 140, width: 250, height: 50 })
@@ -135,10 +134,18 @@ class CharacterCreator extends Phaser.Scene {
             };
 
             //save character data
-            client.updatePlayerData(data);
+            client.updateClientPlayerData(data);
 
             //set character as created
             this.characterCreated = false;
+
+            // //stop music
+            // this.music.stop();
+
+            //reset data
+            this.registry.destroy();
+            this.game.events.removeAllListeners();
+            this.scene.stop();
             
         }, this)
         .setDepth(this.depthCharacterUI);

@@ -4,7 +4,7 @@
 socket = io.connect();
 
 //network time protocol
-ntp.init(socket);
+// ntp.init(socket);
 // setInterval(function () {
 //     console.log(ntp.offset());
 // }, 1000);
@@ -14,44 +14,62 @@ var kickReason = '';
 
 class Client {
 
-    //tell server that this client just joined
-    onRoomJoin(room) {
-        socket.emit('playerJoinedRoom', room);
+    //get player data from server
+    requestClientPlayerData() {
+
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Requested Clients Player Data')); };
+
+        //request data from server
+        socket.emit('requestClientPlayerData', data => {
+            currentScene.parsePlayerData(data);
+        });
     };
 
-    //tell server that player just re-focused on window
+    //tell server that the player updated their character data
+    updateClientPlayerData(data) {
+        socket.emit('updateClientPlayerData', data);
+    };
+
+    //get all player data from the sockets current room
     onReload() {
-        socket.emit('playerReloaded');
+
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Reloaded the Pond')); };
+        
+        //request data from server
+        socket.emit('requestAllPlayersInRoom', data => {
+            if (currentScene.scene.key == 'Game') {
+        
+                //update players in room
+                for(var i = 0; i < data.length; i++){
+                    currentScene.updatePlayer(data[i]);
+                };
+            };
+        });
+    };
+
+    //tell server that the player left a room (to go to another room or a menu/minigame)
+    leaveRoom() {
+        socket.emit('leaveRoom');
+
+        // //remove all player listeners
+        // socket.removeAllListeners('payloadAllPlayerData');
+    };
+
+    //tell server that this client just joined
+    joinRoom(room) {
+        socket.emit('joinRoom', room);
     };
 
     //tell server that the client has clicked at a specific coordinate
     onMove(x, y, direction) {
-        socket.emit('playerMoved', { x: x, y: y, direction: direction });
+        socket.emit('playerMoved', x, y, direction);
     };
 
     //tell server that client is sending a message
     sendMessage(message) {
         socket.emit('playerSendingMessage', message);
-    };
-
-    //get player data from server
-    requestPlayerData() {
-        socket.emit('requestPlayerData');
-    };
-
-    //tell server that the player updated their character data
-    updatePlayerData(data) {
-        socket.emit('updatePlayerData', data);
-    };
-
-    //tell server that the player wants to leave from all connected rooms
-    leaveRooms() {
-        socket.emit('leaveRooms');
-    };
-
-    //tell server that the player is no longer in the game world (minigame/character creator)
-    leaveWorld() {
-        socket.emit('leaveWorld');
     };
 
     //tell server that player is going to interact with an NPC
@@ -71,42 +89,19 @@ setInterval(() => {
     };
 }, 2000);
 
-//recieve this client's player data
-socket.on('playerData', function(data) {
-    currentScene.parsePlayerData(data);
-});
-
-//on player join
-socket.on('addNewPlayer', function(data) {
-    if (currentScene.scene.key == 'Game') currentScene.addNewPlayer(data);
-});
-
-//recieve kick reason
-socket.on('getKickReason', function(reason) {
-    kickReason = reason;
-});
-
-//recieve console message
-socket.on('consoleMessage', function(message) {
-    if (currentScene.scene.key == 'Game') currentScene.showToast(message);
-});
-
 //recieve next scene
-socket.on('changeScene', function(scene) {
+socket.on('payloadNewScene', function(scene) {
     currentScene.scene.start(scene);
 });
 
-//recieved reload of all currently connected players
-socket.on('reloadPlayer', function(data) {
-    if (currentScene.scene.key == 'Game') {
+//recieve kick reason
+socket.on('payloadKickReason', function(reason) {
+    kickReason = reason;
+});
 
-        //log
-        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Reloaded the Pond')); };
-
-        for(var i = 0; i < data.length; i++){
-            currentScene.updatePlayer(data[i]);
-        };
-    };
+//recieve new player data
+socket.on('payloadNewPlayerData', function(data) {
+    if (currentScene.scene.key == 'Game') currentScene.addNewPlayer(data);
 });
 
 //on this client disconnecting
@@ -127,8 +122,8 @@ socket.on('disconnect', function(){
     socket.disconnect();
 });
 
-//update all players
-socket.on('getAllPlayers', function(data) {
+//recieve all player data
+socket.on('payloadAllPlayerData', function(data) {
 
     //import Utility functions
     const util = new Utility();

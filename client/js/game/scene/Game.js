@@ -8,7 +8,7 @@ class Game extends Phaser.Scene {
     unWalkableLayer = [];
 
     //shaders
-    outlineFX;
+    rexOutlineFX;
 
     //depth
     depthUI = 100002;
@@ -36,8 +36,8 @@ class Game extends Phaser.Scene {
     npcData = [];
     npcLines = [
         ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
-        ['*thinking of something HUH to say*', 'people call me a very accurate gamer'],
-        ['have you heard about hangry hippos NFTs?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn', 'im workin on this new NFT called Smokey Frogs'],
+        ['*thinking of something HUH to say*', 'people call me a very accurate gamer', 'GEORGIEEEEEE!'],
+        ['have you heard about the hangry hippos NFT?', 'fuck all the bitches I know I don\'t give a fuck about flow', 'a ha ha...', 'i could be playing among us rn'],
         ['IDGAF']
     ];
 
@@ -86,6 +86,9 @@ class Game extends Phaser.Scene {
     // LOGIC
     preload() {
 
+        //plugins
+        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
+
         //register canvas
         this.canvas = this.sys.game.canvas;
 
@@ -106,6 +109,7 @@ class Game extends Phaser.Scene {
 
         //room objects
         this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
+        this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
 
         //room audio
         this.load.audio('frog_caves_chill', "room/forest/audio/music/frog_caves_chill.mp3");
@@ -126,26 +130,18 @@ class Game extends Phaser.Scene {
         this.load.image('Jesse', 'character/npc/Jesse.png');
         this.load.image('Snic', 'character/npc/Snic.png');
 
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', sceneKey: 'rexUI'});
-        this.load.plugin('rexinputtextplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexinputtextplugin.min.js', true);
-        this.load.plugin('rexoutlinepipelineplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexoutlinepipelineplugin.min.js', true);
-
         //debug
         this.load.image('target', 'debug/target.png');
     };
 
     create() {
 
-        //register shaders
-        this.outlineFX = this.plugins.get('rexoutlinepipelineplugin');
-
         //register sfxs
         this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
         this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
 
         //detect when window is re-focused
-        this.game.events.addListener(Phaser.Core.Events.FOCUS, this.onFocus, this);
+        this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //register keyboard inputs
         this.input.keyboard.on('keyup', (event) => this.onKeyUp(event), this);
@@ -166,7 +162,7 @@ class Game extends Phaser.Scene {
         this.addRoomNPCs('forest');
 
         //tell server that player is joining (when the signal returns, the game adds the player and other players)
-        client.onRoomJoin('forest');
+        client.joinRoom('forest');
 
         //add toolbar
         this.createToolbar();
@@ -243,6 +239,15 @@ class Game extends Phaser.Scene {
                 //open news menu
                 this.openNews();
             }, this);
+
+            //find four table
+            let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
+            .setDepth(600)
+            .setOrigin(0.5, 1)
+            .setInteractive();
+            this.setInteractObject(tableFindFour);
+            // tableFindFour.on('pointerdown', () => {
+            // }, this);
         }
     };
 
@@ -289,7 +294,7 @@ class Game extends Phaser.Scene {
         sprite.on('pointerover', function () {
 
             //show outline
-            this.outlineFX.add(sprite, {
+            this.rexOutlineFX.add(sprite, {
                 thickness: 3,
                 outlineColor: ColorScheme.White
             });
@@ -297,8 +302,62 @@ class Game extends Phaser.Scene {
         .on('pointerout', function () {
 
             //remove outline
-            this.outlineFX.remove(sprite);
+            this.rexOutlineFX.remove(sprite);
         }, this)
+    };
+
+    //open menu
+    menuOpened() {
+
+        //disable input
+        this.disableInput = true;
+        this.menuOpen = true;
+
+        //stop chatbox input
+        this.chatBox.setBlur();
+    };
+
+    //close menu
+    menuClosed() {
+
+        //enable input
+        this.disableInput = false;
+        this.menuOpen = false;
+    };
+
+    //create chat box
+    createChatBox() {
+        return ui.createInputBox(this, {
+            id: 'chat-box',
+            x: this.canvas.width / 2,
+            y: this.canvas.height - (this.canvas.height / 23),
+            width: this.canvas.width * 0.6,
+            height: 30,
+            placeholder: 'Say Yo...',
+            backgroundColor: ColorScheme.White,
+            backgroundRadius: 15,
+            maxLength: this.messageLength,
+            depth: this.depthUI
+        })
+        .on('focus', function(inputBox, event){
+            if (this.menuOpen) inputBox.setBlur();
+        }
+        , this)
+        .on('keydown', function (inputBox, event) {
+            if (event.key == 'Enter') {
+
+                //format message
+                const chatMessage = inputBox.text.substr(0, this.messageLength).trim().replace(/\s+/g, " ");
+
+                //send the message to the server
+                if (chatMessage !== '' || null) {
+                    client.sendMessage(chatMessage);
+                };
+
+                //clear chat box
+                inputBox.setText('');
+            };
+        }, this);
     };
 
     //create toolbar
@@ -317,33 +376,7 @@ class Game extends Phaser.Scene {
         .setDepth(this.depthUI);
 
         //chat box
-        this.chatBox = ui.createInputBox(this, {
-            id: 'chat-box',
-            x: this.canvas.width / 2,
-            y: this.canvas.height - (this.canvas.height / 23),
-            width: this.canvas.width * 0.6,
-            height: 30,
-            placeholder: 'Say Yo...',
-            backgroundColor: ColorScheme.White,
-            backgroundRadius: 15,
-            maxLength: this.messageLength,
-            depth: this.depthUI
-        })
-        .on('keydown', function (inputBox, event) {
-            if (event.key == 'Enter') {
-
-                //format message
-                const chatMessage = inputBox.text.substr(0, this.messageLength).trim().replace(/\s+/g, " ");
-
-                //send the message to the server
-                if (chatMessage !== '' || null) {
-                    client.sendMessage(chatMessage);
-                };
-
-                //clear chat box
-                inputBox.setText('');
-            };
-        }, this);
+        this.chatBox = this.createChatBox();
     };
 
     //show refresh dialog
@@ -362,8 +395,7 @@ class Game extends Phaser.Scene {
             //reload window
             window.location.reload();
 
-            //enable input
-            this.disableInput = false;
+            this.menuClosed();
         }, this);
 
         //dark background
@@ -380,8 +412,7 @@ class Game extends Phaser.Scene {
             }
         );
 
-        //disable input
-        this.disableInput = true;
+        this.menuOpened();
     };
 
     //show options menu
@@ -396,9 +427,7 @@ class Game extends Phaser.Scene {
                 { type: 'slider', id: 'sfxVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume }
             ]});
 
-            //disable input
-            this.disableInput = true;
-            this.menuOpen = true;
+            this.menuOpened();
         };
     };
 
@@ -415,9 +444,7 @@ class Game extends Phaser.Scene {
                 { height: 500 }
             );
 
-            //disable input
-            this.disableInput = true;
-            this.menuOpen = true;
+            this.menuOpened();
         };
     };
 
@@ -426,6 +453,8 @@ class Game extends Phaser.Scene {
     onKeyUp(event) {
         // ignore keyboard presses when chat box is focused
         if (!this.chatBox.isFocused) {
+
+            console.log(event);
 
             //focus the chat box when Enter key is pressed
             if (event.key === 'Enter') { this.chatBox.setFocus() };
@@ -438,16 +467,17 @@ class Game extends Phaser.Scene {
 
                 //reset data
                 this.registry.destroy();
-                this.events.off();
+                this.game.events.removeAllListeners();
+                this.input.keyboard.removeAllListeners();
                 this.scene.stop();
 
                 //leave game world
-                client.leaveWorld();
+                client.leaveRoom();
 
                 //start character creator scene
                 this.scene.start('CharacterCreator');
             };
-            
+
             //toggle console logging
             if (event.key === 'Shift') { this.toggleDebugMode(); };
         };

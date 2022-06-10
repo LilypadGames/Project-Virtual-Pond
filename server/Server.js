@@ -32,20 +32,8 @@ var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
 var request = require('request');
 
 //dependency: misc
-var ntp = require('socket-ntp');
-var chatFilter = require('leo-profanity');
 var cookieParse = require('cookie-parser')();
 const crypto = require('crypto');
-const emoteParser = require("tmi-emote-parse");
-const { disconnect } = require('process');
-
-//get twitch emotes
-emoteParser.loadAssets("pokelawls");
-var emotes;
-emoteParser.events.on("emotes", (event) => {
-    // get all Twitch, BTTV, FFZ, and 7tv emotes
-    emotes = emoteParser.getAllEmotes(event.channel);
-});
 
 //proxy setting
 app.set('trust proxy', config.server.proxy);
@@ -167,397 +155,41 @@ server.listen(process.env.PORT || config.server.port, function () {
 
 //dependency: websocket
 var io = require('socket.io')(server);
+const { instrument } = require('@socket.io/admin-ui');
+instrument(io, {
+    auth: {
+        type: config.socketio_admin_dash.auth.type,
+        username: config.socketio_admin_dash.auth.username,
+        password: require("bcrypt").hashSync(config.socketio_admin_dash.auth.password, 10)
+    },
+});
 // const { RateLimiterMemory } = require('rate-limiter-flexible');
 // const rateLimiter = new RateLimiterMemory({
 //     points: 5, // 5 points
 //     duration: 1, // per second
 // });
 
-io.use(function(socket, next){
+//authentication socket session
+io.use((socket, next) => {
     socket.client.request.originalUrl = socket.client.request.url;
     cookieParse(socket.client.request, socket.client.request.res, next);
 });
-
-io.use(function(socket, next){
+io.use((socket, next) => {
     socket.client.request.originalUrl = socket.client.request.url;
     sessionAuthentication(socket.client.request, socket.client.request.res, next);
 });
-
-io.use(function(socket, next){
+io.use((socket, next) => {
     passportInit(socket.client.request, socket.client.request.res, next);
 });
-
-io.use(function(socket, next){
+io.use((socket, next) => {
     passportSession(socket.client.request, socket.client.request.res, next);
 });
 
+//import socket events
+const Connection = require(path.join(__dirname, '/event/Connection.js'));
+
 //on new websocket connection
 io.on('connection', async function(socket) {
-
-    //kick instance if id not provided
-    if (!socket.request.user.data[0].id) socket.disconnect();
-
-    //log
-    console.log(utility.timestampString('PLAYER ID: ' + socket.request.user.data[0].id + ' (' + socket.request.user.data[0].display_name + ')' + ' - Connected'));
-
-    //kick other connection instances of this player
-    await kickClientsWithID(socket.request.user.data[0].id);
-
-    //set up player data
-    socket.player = await getPlayerData(socket);
-
-    //latency calculation
-    ntp.sync(socket);
-    socket.on("ping", (cb) => {
-        if (typeof cb === "function")
-          cb();
-    });
-
-    //triggers when client wants to leave all rooms
-    socket.on('leaveRooms', function() {
-
-        //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left All Rooms'));
-
-        //leave rooms
-        leaveAllRooms(socket);
-    });
-
-    //triggers when client requests the players data
-    socket.on('requestPlayerData', function() {
-
-        //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Requested Player Data'));
-
-        //send this client's player data to ONLY THIS client
-        socket.emit('playerData', socket.player);
-    });
-
-    //triggers when client requests the players data
-    socket.on('updatePlayerData', function(data) {
-
-        //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Updated Player Data> Color:' + data.character.color + ', Eye Type: ' + data.character.eye_type));
-
-        //update data
-        if (!socket.player.character) socket.player.character = {};
-        socket.player.character.eye_type = data.character.eye_type;
-        socket.player.character.color = data.character.color;
-
-        //player changing scene
-        if (data.queueScene) {
-            //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Going to Scene: ' + data.queueScene));
-
-            //send scene change to ONLY THIS client
-            socket.emit('changeScene', data.queueScene);
-        };
-    });
-
-    //triggers when client leaves game world (to go to another scene)
-    socket.on('leaveWorld', function() {
-
-        //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left Game World'));
-
-        //send the removal of the player for ALL clients in this room
-        io.in(socket.roomID).emit('removePlayer', socket.player.id);
-
-        //leave rooms
-        leaveAllRooms(socket);
-    });
-
-    //triggers when player reloads their client
-    socket.on('playerReloaded', async function() {
-
-        //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Reloaded the Pond'));
-
-        //send current position of all connected players in this room to ONLY THIS client
-        const currentPlayers = await getAllPlayers(socket.roomID);
-        socket.emit('reloadPlayer', currentPlayers);
-    });
-
-    //triggers on player loading into new room
-    socket.on('playerJoinedRoom', async function(room) {
-
-        //log
-        console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Joined the Pond'));
-
-        //update player data
-        updatePlayerData(socket);
-
-        //add player to room
-        joinRoom(socket, room);
-
-        //triggers when player moves
-        socket.on('playerMoved',  function(data) {
-            if ((socket.player.x != data.x) || (socket.player.y != data.y)) {
-
-                //log
-                console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Moving To> x:' + data.x + ', y:' + data.y));
-
-                //store player location and direction
-                socket.player.x = data.x;
-                socket.player.y = data.y;
-                socket.player.direction = data.direction;
-
-                //send the players movement to ONLY OTHER players
-                socket.to(socket.roomID).emit('movePlayer', socket.player);
-            };
-        });
-
-        //triggers when player sends a message
-        socket.on('playerSendingMessage', function(message) {
-
-            //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Sending Message> ' + message));
-            logs.logMessage('chat', utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' > ' + message))
-
-            //kick if larger than allowed max length
-            if (message.length > 80) {
-
-                //kick
-                kickClient(socket.player, 'Abusing chat message maximum length.');
-
-                //add flag to user profile in database
-
-                //do not do the rest
-                return;
-            };
-
-            //sanitize message
-            message = typeof(message) === 'string' && message.trim().length > 0 ? message.trim() : '';
-
-            //filter message
-            message = chatFilter.clean(message);
-
-            //create message data
-            let messageData = {
-                id: Date.now(),
-                text: message,
-                endTime: Date.now() + 5000
-            };
-
-            //store message data in player data
-            socket.player.message = messageData;
-
-            //send the player message to ALL clients in this room
-            if (message !== '' || null) {
-                io.in(socket.roomID).emit('showPlayerMessage', {id: socket.player.id, messageData: messageData});
-            };
-
-            //queue message for removal
-            setTimeout(() => {
-
-                //remove message for all clients
-                io.in(socket.roomID).emit('removePlayerMessage', {id: socket.player.id, messageID: messageData.id});
-
-                //remove from server-side player data
-                resetMessageData(socket.id, messageData.id);
-            }, 5000);
-        });
-
-        //triggers when player interacts with NPC
-        socket.on('playerInteractingWithNPC', function(npcID) {
-
-            //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Interacting With NPC: ' + npcID));
-
-            //merge player ID and npc ID
-            let playerInteractNPC = { playerID: socket.player.id, npcID: npcID }
-
-            //send interacting NPCs ID to ONLY OTHER clients
-            socket.to(socket.roomID).emit('setPlayerInteractNPC', playerInteractNPC);
-        });
-
-        //triggers when player disconnects their client
-        socket.on('disconnect', function() {
-
-            //log
-            console.log(utility.timestampString('PLAYER ID: ' + socket.player.id + ' (' + socket.player.name + ')' + ' - Left the Pond'));
-
-            //update player data
-            updatePlayerData(socket);
-
-            //send the removal of the player for ALL clients in this room
-            io.in(socket.roomID).emit('removePlayer', socket.player.id);
-        });
-
-        //send new player to ONLY OTHER clients in this room
-        socket.to(socket.roomID).emit('addNewPlayer', socket.player);
-
-        //send all currently connected players in this room to ONLY THIS client
-        socket.emit('getAllPlayers', await getAllPlayers(socket.roomID));
-    });
-
-    //set up player data
-    socket.player = await getPlayerData(socket);
+    const connection = new Connection(io, socket);
+    await connection.init();
 });
-
-///// FUNCTIONS
-
-//add player to room
-function joinRoom(socket, room) {
-
-    //leave previous rooms
-    leaveAllRooms(socket);
-
-    //join new room
-    socket.join(room);
-
-    //set as current room
-    socket.roomID = room;
-};
-
-//remove player from all rooms
-function leaveAllRooms(socket) {
-
-    //leave room
-    socket.leave(socket.roomID);
-
-    //delete players room ID
-    delete socket.roomID;
-};
-
-//get player data
-async function getPlayerData(socket) {
-
-    //set up initial data
-    var playerData = {
-
-        //get ID
-        id: socket.request.user.data[0].id,
-
-        //get name
-        name: socket.request.user.data[0].display_name,
-
-        //generate starting location
-        x: utility.getRandomInt(281, 975),
-        y: utility.getRandomInt(560, 731),
-
-        //generate direction
-        direction: utility.randomFromArray(['right', 'left'])
-    };
-
-    //check if character data exists
-    const pathExists = await database.pathExists('users/' + socket.request.user.data[0].id + '/character');
-
-    //get character data from database
-    if (pathExists) {
-        playerData.character = {
-            eye_type: await database.getValue('users/' + socket.request.user.data[0].id + '/character/eye_type'),
-            color: await database.getValue('users/' + socket.request.user.data[0].id + '/character/color')
-        };
-    };
-
-    return playerData;
-};
-
-//update player data
-function updatePlayerData(socket) {
-    const path = 'users/' + socket.player.id + '/character'
-    database.setValue(path + '/eye_type', socket.player.character.eye_type);
-    database.setValue(path + '/color', socket.player.character.color);
-};
-
-//reset message data
-function resetMessageData(socketID, messageID) {
-
-    //get socket
-    const socket = io.sockets.sockets.get(socketID);
-
-    //reset message data if its the same as the players current message
-    if (socket.player.message) {
-        if (socket.player.message.id == messageID) delete io.sockets.sockets.get(socketID).player.message;
-    };
-};
-
-//get currently connected players as an array
-async function getAllPlayers(room) {
-
-    //init connected player list
-    var connectedPlayers = [];
-    var connectedClients;
-
-    //get connected clients
-    if (room) {
-        connectedClients = await io.in(room).fetchSockets();
-    } else {
-        connectedClients = await io.fetchSockets();
-    };
-
-    //loop through connected clients
-    for (const client of connectedClients) {
-
-        //get player information from this client
-        var player = client.player
-
-        //if there is player information, add them to the connected player list
-        if(player){
-            connectedPlayers.push(player);
-        };
-    };
-
-    //return list of connected players
-    return connectedPlayers;
-};
-
-//disconnect clients with the same ID
-async function kickClientsWithID(id) {
-
-    //get connected clients
-    const connectedClients = await io.fetchSockets();
-
-    //loop through connected clients
-    for (const client of connectedClients) {
-
-        //if this client has player information
-        if (client.player) {
-            //get player ID
-            var playerID = client.player.id
-
-            //kick currently connected clients if they match the ID of the client attempting to connect
-            if(playerID == id){
-                //kick
-                client.disconnect();
-            };
-        };
-    };
-};
-
-//kick client
-async function kickClient(player, reason, kickMessage = 'You have been kicked.') {
-
-    //log
-    message = utility.timestampString('PLAYER ID: ' + player.id + ' (' + player.name + ')' + ' - KICKED> Reason: ' + reason + ', Message: ' + kickMessage)
-    logs.logMessage('moderation', message);
-
-    //get connected clients
-    const connectedClients = await io.fetchSockets();
-
-    //loop through connected clients
-    for (const client of connectedClients) {
-
-        //if this client has player information
-        if (client.player) {
-            //get player ID
-            var playerID = client.player.id
-
-            //kick currently connected clients if they match the ID of the client attempting to connect
-            if(playerID == player.id){
-
-                //send kick message
-                io.emit('getKickReason', kickMessage);
-
-                //kick client
-                client.disconnect();
-
-                //end loop
-                break;
-            };
-        };
-    };
-};
-
-//////

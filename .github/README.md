@@ -4,7 +4,6 @@
   </a>
 </p>
 
----
 
 <p align="center">
     <b>A Social Virtual World for Twitch Frogs to Hang and Chat.</b>
@@ -118,7 +117,7 @@ I personally use Github Desktop to clone repos.
 
 3. **Open a Terminal at your Local Environment**
 
-Open a console/terminal at the directory where the cloned repo lives on your PC. 
+Open a console/terminal within the directory the cloned repo lives at either within finder on your PC, or using your IDE such as Visual Studio Code. 
 
 4. **Install Dependencies**
 
