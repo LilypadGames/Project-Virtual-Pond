@@ -95,8 +95,6 @@ class Connection {
     //triggers when client leaves a room
     leaveRoom() {
 
-        if(!this.room) return;
-
         //log
         console.log(utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' - Left Room: ' + this.socket.roomID));
 
