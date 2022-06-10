@@ -47,9 +47,6 @@ class CharacterCreator extends Phaser.Scene {
     // LOGIC
     preload() {
 
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
-
         //character
         this.load.image('CC_frog_body', 'assets/character/player/5x/Tintable.png');
         this.load.image('CC_frog_belly', 'assets/character/player/5x/Non-Tintable.png');

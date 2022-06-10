@@ -86,9 +86,6 @@ class Game extends Phaser.Scene {
     // LOGIC
     preload() {
 
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
-
         //register canvas
         this.canvas = this.sys.game.canvas;
 
@@ -454,13 +451,11 @@ class Game extends Phaser.Scene {
         // ignore keyboard presses when chat box is focused
         if (!this.chatBox.isFocused) {
 
-            console.log(event);
-
             //focus the chat box when Enter key is pressed
             if (event.key === 'Enter') { this.chatBox.setFocus() };
 
             //tell server that this client changed its color
-            if (event.key === 'c') { 
+            if (event.key === 'c') {
 
                 //stop music
                 this.music.stop();

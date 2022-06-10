@@ -28,9 +28,6 @@ class Menu extends Phaser.Scene {
     // LOGIC
     preload() {
 
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
-
         //register canvas
         this.canvas = this.sys.game.canvas;
 
