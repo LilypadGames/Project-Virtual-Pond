@@ -241,11 +241,11 @@ class Game extends Phaser.Scene {
             }, this);
 
             //find four table
-            let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
-            .setDepth(600)
-            .setOrigin(0.5, 1)
-            .setInteractive();
-            this.setInteractObject(tableFindFour);
+            // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
+            // .setDepth(600)
+            // .setOrigin(0.5, 1)
+            // .setInteractive();
+            // this.setInteractObject(tableFindFour);
             // tableFindFour.on('pointerdown', () => {
             // }, this);
         }
