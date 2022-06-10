@@ -30,9 +30,12 @@ html, body, #game-container {
   image-rendering: pixelated;                  /* Chrome 41 */
 }
 
-/* Make Game Canvas Have Round Edges */
+/* Game Style */
 #game-container > canvas {
   border-radius: 8px;
+}
+#chat-box {
+  color: #000;
 }
 
 /* Centered Logo */
