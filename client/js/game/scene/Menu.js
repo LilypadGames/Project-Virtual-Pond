@@ -59,6 +59,16 @@ class Menu extends Phaser.Scene {
         this.attemptRequest();
     };
 
+    end() {
+
+        //reset data
+        this.registry.destroy();
+        // this.events.removeAllListeners();
+        this.game.events.removeAllListeners();
+        this.input.keyboard.removeAllListeners();
+        this.scene.stop();
+    };
+
     // UI
     //show refresh dialog
     showRefreshDialog(content) {
@@ -123,12 +133,12 @@ class Menu extends Phaser.Scene {
 
         //set as signal recieved
         this.receivedSignal = true;
-        
+
         //send to character creator or game
         if (!data.character) {
-            this.scene.start('CharacterCreator');
+            this.scene.start('CharacterCreator', 'forest');
         } else {
-            this.scene.start('Game');
+            this.scene.start('Game', 'forest');
         };
     };
-}
+};

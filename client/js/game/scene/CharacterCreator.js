@@ -33,10 +33,13 @@ class CharacterCreator extends Phaser.Scene {
         super({ key: 'CharacterCreator' });
     };
 
-    init() {
+    init(previousRoom) {
 
         //set scene
         currentScene = this;
+
+        //set previous room
+        this.previousRoom = previousRoom;
 
         //reset variables
         this.characterData = {};
@@ -46,6 +49,12 @@ class CharacterCreator extends Phaser.Scene {
 
     // LOGIC
     preload() {
+
+        //get canvas
+        this.canvas = this.sys.game.canvas;
+
+        //loading screen
+        loadingScreen.run(this);
 
         //character
         this.load.image('CC_frog_body', 'assets/character/player/5x/Tintable.png');
@@ -63,89 +72,34 @@ class CharacterCreator extends Phaser.Scene {
 
     create() {
 
-        //get canvas
-        this.canvas = this.sys.game.canvas;
-
-        //loading screen
-        loadingScreen.run(this);
-
-        //sfx
+        //register sfx
         this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
         this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
-
-        //set background color
-        this.cameras.main.setBackgroundColor(ColorScheme.DarkBlue);
-
-        //backgrounds
-        this.rexUI.add.roundRectangle(300, 400, 500, 600, 15, ColorScheme.Blue).setDepth(this.depthBackgroundUI);
 
         //get player data
         client.requestClientPlayerData();
 
-        //eye type label
-        this.rexUI.add.sizer({ x: 685, y: 140, width: 250, height: 50 })
-        .add(ui.createLabel(this, { text: 'Eye Type', fontSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
-        .layout()
-        .setDepth(this.depthCharacterUI);
-        
-        //eye types
-        ui.createButtons(this, { x: 650, y: 230, buttons: [{ icon: 'UI_frog_eyes_0', backgroundRadius: 8 }, { icon: 'UI_frog_eyes_1', backgroundRadius: 8 }]})
-        .on('button.click', function (button, index, pointer, event) {
+        //set up character creator menu
+        this.createCharacterCreatorMenu();
+    };
 
-            //sfx
-            this.sfx_button_click.play();
+    end() {
 
-            //set eye type
-            this.characterData.eye_type = index;
+        //reset data
+        this.registry.destroy();
+        // this.events.removeAllListeners();
+        this.game.events.removeAllListeners();
+        this.input.keyboard.removeAllListeners();
+        this.scene.stop();
+    };
 
-            //update character display
-            this.updateCharacter();
-        }, this)
-        .setDepth(this.depthCharacterUI);
+    quit() {
 
-        //color label
-        this.rexUI.add.sizer({ x: 638, y: 400, width: 150, height: 50 })
-        .add(ui.createLabel(this, { text: 'Color', fontSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
-        .layout()
-        .setDepth(this.depthCharacterUI);
+        //end scene
+        this.end();
 
-        //color wheel
-        ui.createColorPicker(this, {x: 770, y: 500, width: 400, height: 60, sliderID: 'color',})
-        .setDepth(this.depthCharacterUI);
-
-        //save & play button
-        ui.createButtons(this, { x: 800, y: 700, buttonTextSize: 50, buttons: [{ text: 'Save & Play', backgroundRadius: 16 }]})
-        .on('button.click', function (button, index, pointer, event) {
-
-            //sfx
-            this.sfx_button_click.play();
-
-            //parse player data
-            const data = {
-                name: this.characterData.name,
-                character: {
-                    color: this.characterData.color,
-                    eye_type: this.characterData.eye_type
-                },
-                queueScene: 'Game'
-            };
-
-            //save character data
-            client.updateClientPlayerData(data);
-
-            //set character as created
-            this.characterCreated = false;
-
-            // //stop music
-            // this.music.stop();
-
-            //reset data
-            this.registry.destroy();
-            this.game.events.removeAllListeners();
-            this.scene.stop();
-            
-        }, this)
-        .setDepth(this.depthCharacterUI);
+        //join game world
+        this.scene.start('Game');
     };
 
     // UI
@@ -184,6 +138,72 @@ class CharacterCreator extends Phaser.Scene {
         );
 
         this.disableInput = true;
+    };
+
+    //create menu
+    createCharacterCreatorMenu() {
+
+        //set background color
+        this.cameras.main.setBackgroundColor(ColorScheme.DarkBlue);
+
+        //backgrounds
+        this.rexUI.add.roundRectangle(300, 400, 500, 600, 15, ColorScheme.Blue).setDepth(this.depthBackgroundUI);
+
+        //eye type label
+        this.rexUI.add.sizer({ x: 685, y: 140, width: 250, height: 50 })
+        .add(ui.createLabel(this, { text: 'Eye Type', fontSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
+        .layout()
+        .setDepth(this.depthCharacterUI);
+
+        //eye types
+        ui.createButtons(this, { x: 650, y: 230, buttons: [{ icon: 'UI_frog_eyes_0', backgroundRadius: 8 }, { icon: 'UI_frog_eyes_1', backgroundRadius: 8 }]})
+        .on('button.click', function (button, index, pointer, event) {
+
+            //sfx
+            this.sfx_button_click.play();
+
+            //set eye type
+            this.characterData.eye_type = index;
+
+            //update character display
+            this.updateCharacter();
+        }, this)
+        .setDepth(this.depthCharacterUI);
+
+        //color label
+        this.rexUI.add.sizer({ x: 638, y: 400, width: 150, height: 50 })
+        .add(ui.createLabel(this, { text: 'Color', fontSize: 45, align: 'center', backgroundColor: ColorScheme.Blue, space: {left: 10, right: 10, top: 0, bottom: 0} }))
+        .layout()
+        .setDepth(this.depthCharacterUI);
+
+        //color wheel
+        ui.createColorPicker(this, {x: 770, y: 500, width: 400, height: 60, sliderID: 'color',})
+        .setDepth(this.depthCharacterUI);
+
+        //save & play button
+        ui.createButtons(this, { x: 800, y: 700, buttonTextSize: 50, buttons: [{ text: 'Save & Play', backgroundRadius: 16 }]})
+        .on('button.click', function (button, index, pointer, event) {
+
+            //sfx
+            this.sfx_button_click.play();
+
+            //parse player data
+            const data = {
+                name: this.characterData.name,
+                character: {
+                    color: this.characterData.color,
+                    eye_type: this.characterData.eye_type
+                }
+            };
+
+            //save character data
+            client.updateClientPlayerData(data);
+
+            //set character as created
+            this.characterCreated = false;
+        }, this)
+        .setDepth(this.depthCharacterUI);
+        this.events.on('updatedClientPlayerData', this.quit, this);
     };
 
     //on slider change

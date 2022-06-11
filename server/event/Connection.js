@@ -75,13 +75,13 @@ class Connection {
         this.socket.on('requestClientPlayerData', (cb) => { cb(this.playerData.requestClientPlayerData()); });
 
         //triggers when client changes their player data and may want to go to next scene only AFTER the data has been updated
-        this.socket.on('updateClientPlayerData', (data) => this.playerData.updateClientPlayerData(data));
+        this.socket.on('updateClientPlayerData', (data, cb) => { this.playerData.updateClientPlayerData(data); cb(); });
 
         //triggers when client leaves a room
         this.socket.on('leaveRoom', () => this.leaveRoom());
 
         //triggers when client joins a room
-        this.socket.on('joinRoom', await ((room) => this.joinRoom(room)));
+        this.socket.on('joinRoom', async (room, cb) => { cb(await this.joinRoom(room)); });
 
         //triggers on connection error
         this.socket.on('connect_error', (err) => {
@@ -132,7 +132,10 @@ class Connection {
         this.socket.to(this.socket.roomID).emit('payloadNewPlayerData', this.socket.player);
 
         //send all currently connected players in this room to ONLY THIS client
-        this.socket.emit('payloadAllPlayerData', await this.playerData.getAllPlayers(this.socket.roomID));
+        // this.socket.emit('payloadAllPlayerData', await this.playerData.getAllPlayers(this.socket.roomID));
+        const playersInRoom = await this.playerData.getAllPlayers(this.socket.roomID);
+
+        return playersInRoom;
     };
 
     //add player to room

@@ -117,15 +117,6 @@ class PlayerData {
         if (data.currency) {
             if (data.currency.clovers != undefined) this.socket.player.currency.clovers = data.currency.clovers;
         };
-
-        //player changing scene
-        if (data.queueScene) {
-            //log
-            console.log(utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' - Going to Scene: ' + data.queueScene));
-
-            //send scene change to ONLY THIS client
-            this.socket.emit('payloadNewScene', data.queueScene);
-        };
     };
 
     //get currently connected players as an array

@@ -1,5 +1,8 @@
 // Handles Client
 
+//imports
+const util = new Utility();
+
 //connect to server
 socket = io.connect();
 
@@ -8,6 +11,17 @@ socket = io.connect();
 // setInterval(function () {
 //     console.log(ntp.offset());
 // }, 1000);
+
+//calculate latency
+setInterval(() => {
+    if (debugMode) {
+        const start = Date.now();
+        socket.volatile.emit("ping", () => {
+            const latency = Date.now() - start;
+            if (currentScene.scene.key == 'Game') currentScene.newPing(latency);
+        });
+    };
+}, 2000);
 
 // GLOBAL VARIABLES
 var kickReason = '';
@@ -18,7 +32,7 @@ class Client {
     requestClientPlayerData() {
 
         //log
-        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Requested Clients Player Data')); };
+        if (debugMode) { console.log(util.timestampString('Requested Clients Player Data')); };
 
         //request data from server
         socket.emit('requestClientPlayerData', data => {
@@ -28,14 +42,16 @@ class Client {
 
     //tell server that the player updated their character data
     updateClientPlayerData(data) {
-        socket.emit('updateClientPlayerData', data);
+        socket.emit('updateClientPlayerData', data, () => {
+            currentScene.events.emit('updatedClientPlayerData');
+        });
     };
 
     //get all player data from the sockets current room
     onReload() {
 
         //log
-        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Reloaded the Pond')); };
+        if (debugMode) { console.log(util.timestampString('Reloaded the Pond')); };
         
         //request data from server
         socket.emit('requestAllPlayersInRoom', data => {
@@ -59,7 +75,19 @@ class Client {
 
     //tell server that this client just joined
     joinRoom(room) {
-        socket.emit('joinRoom', room);
+        socket.emit('joinRoom', room, (data) => {
+
+            //populate room with players
+            for(var i = 0; i < data.length; i++){
+                if (currentScene.scene.key == 'Game') {
+
+                    //log
+                    if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond')); };
+
+                    currentScene.addNewPlayer(data[i]);
+                };
+            };
+        });
     };
 
     //tell server that the client has clicked at a specific coordinate
@@ -77,17 +105,6 @@ class Client {
         socket.emit('playerInteractingWithNPC', npcID);
     };
 };
-
-//calculate latency
-setInterval(() => {
-    if (debugMode) {
-        const start = Date.now();
-        socket.volatile.emit("ping", () => {
-            const latency = Date.now() - start;
-            if (currentScene.scene.key == 'Game') currentScene.newPing(latency);
-        });
-    };
-}, 2000);
 
 //recieve next scene
 socket.on('payloadNewScene', function(scene) {
@@ -122,98 +139,80 @@ socket.on('disconnect', function(){
     socket.disconnect();
 });
 
-//recieve all player data
-socket.on('payloadAllPlayerData', function(data) {
+//recieved player movement
+socket.on('movePlayer', function(data) {
+    if (currentScene.scene.key == 'Game') {
 
-    //import Utility functions
-    const util = new Utility();
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Moving To> x:' + data.x + ', y:' + data.y)); };
+        
+        //set player direction
+        if (!document.hidden) currentScene.setPlayerDirection(data.id, data.direction);
 
-    //populate game world with currently connected players
-    for(var i = 0; i < data.length; i++){
-        if (currentScene.scene.key == 'Game') {
-
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond')); };
-
-            currentScene.addNewPlayer(data[i]);
-        };
+        //move player
+        if (!document.hidden) currentScene.movePlayer(data.id, data.x, data.y);
     };
+});
 
-    //recieved player movement
-    socket.on('movePlayer', function(data) {
-        if (currentScene.scene.key == 'Game') {
+//recieved player movement changed
+socket.on('changePlayerMovement', function(data) {
+    if (currentScene.scene.key == 'Game') {
 
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Moving To> x:' + data.x + ', y:' + data.y)); };
-            
-            //set player direction
-            if (!document.hidden) currentScene.setPlayerDirection(data.id, data.direction);
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Changed Movement Location To> x:' + data.x + ', y:' + data.y)); };
 
-            //move player
-            if (!document.hidden) currentScene.movePlayer(data.id, data.x, data.y);
-        };
-    });
+        currentScene.changePlayerMovement(data.id, data.x, data.y);
+    };
+});
 
-    //recieved player movement changed
-    socket.on('changePlayerMovement', function(data) {
-        if (currentScene.scene.key == 'Game') {
+//recieved player message
+socket.on('showPlayerMessage', function(data) {
+    if (currentScene.scene.key == 'Game') {
 
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Changed Movement Location To> x:' + data.x + ', y:' + data.y)); };
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message)); };
 
-            currentScene.changePlayerMovement(data.id, data.x, data.y);
-        };
-    });
+        currentScene.showMessage(data.id, data.messageData);
+    };
+});
 
-    //recieved player message
-    socket.on('showPlayerMessage', function(data) {
-        if (currentScene.scene.key == 'Game') {
+//recieved player message
+socket.on('removePlayerMessage', function(data) {
+    if (currentScene.scene.key == 'Game') {
+        currentScene.removeMessage(data.id, data.messageID);
+    };
+});
 
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message)); };
+//recieved new player character look
+socket.on('updatePlayerCharacter', function(data) {
+    if (currentScene.scene.key == 'Game') {
 
-            currentScene.showMessage(data.id, data.messageData);
-        };
-    });
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Character> Color: ' + data.character.color + ' Eye Type: ' + data.character.eye_type)); };
+        
+        currentScene.updatePlayer(data);
+    };
+});
 
-    //recieved player message
-    socket.on('removePlayerMessage', function(data) {
-        if (currentScene.scene.key == 'Game') {
-            currentScene.removeMessage(data.id, data.messageID);
-        };
-    });
+//recieved removal of player
+socket.on('removePlayer', function(id) {
+    if (currentScene.scene.key == 'Game') {
 
-    //recieved new player character look
-    socket.on('updatePlayerCharacter', function(data) {
-        if (currentScene.scene.key == 'Game') {
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + id + ' - Left the Pond')); };
 
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Updating Player Character> Color: ' + data.character.color + ' Eye Type: ' + data.character.eye_type)); };
-            
-            currentScene.updatePlayer(data);
-        };
-    });
+        currentScene.removePlayer(id);
+    };
+});
 
-    //recieved removal of player
-    socket.on('removePlayer', function(id) {
-        if (currentScene.scene.key == 'Game') {
+//recieved interactNPC data of player
+socket.on('setPlayerInteractNPC', function(playerInteractNPC) {
+    if (currentScene.scene.key == 'Game') {
 
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + id + ' - Left the Pond')); };
+        //log
+        if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + playerInteractNPC.playerID + ' - Trying to Interact With NPC: ' + playerInteractNPC.npcID)) };
 
-            currentScene.removePlayer(id);
-        };
-    });
-
-    //recieved interactNPC data of player
-    socket.on('setPlayerInteractNPC', function(playerInteractNPC) {
-        if (currentScene.scene.key == 'Game') {
-
-            //log
-            if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + playerInteractNPC.playerID + ' - Trying to Interact With NPC: ' + playerInteractNPC.npcID)) };
-
-            //set data
-            utility.getObject(currentScene.playerData, playerInteractNPC.playerID).interactNPC = playerInteractNPC.npcID;
-        };
-    });
+        //set data
+        utility.getObject(currentScene.playerData, playerInteractNPC.playerID).interactNPC = playerInteractNPC.npcID;
+    };
 });

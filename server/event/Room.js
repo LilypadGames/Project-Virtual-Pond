@@ -40,7 +40,7 @@ class Room {
     async register() {
 
         //triggers when player reloads their client and requests current player data
-        this.socket.on('requestAllPlayersInRoom', await ((cb) => { cb(this.playerData.requestAllPlayersInRoom()) }));
+        this.socket.on('requestAllPlayersInRoom', async (cb) => { cb(await this.playerData.requestAllPlayersInRoom()) });
 
         //triggers when player moves
         this.socket.on('playerMoved', (x, y, direction) => this.playerMoved(x, y, direction));

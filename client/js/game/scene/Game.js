@@ -26,14 +26,14 @@ class Game extends Phaser.Scene {
     playerData = [];
 
     //object variables
+    npcCharacter = {};
+    npcData = [];
     npcList = [
         { id: 0, name: 'Poke', x: 363, y: 629, direction: 'right'},
         { id: 1, name: 'Gigi', x: 250, y: 540, direction: 'right'},
         { id: 2, name: 'Jesse', x: 1032, y: 666, direction: 'left'},
         { id: 3, name: 'Snic', x: 1238, y: 554, direction: 'left'}
     ];
-    npcCharacter = {};
-    npcData = [];
     npcLines = [
         ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
         ['*thinking of something HUH to say*', 'people call me a very accurate gamer', 'GEORGIEEEEEE!'],
@@ -77,10 +77,13 @@ class Game extends Phaser.Scene {
         super({ key: 'Game' });
     };
 
-    init() {
+    init(room) {
 
         //set scene
         currentScene = this;
+
+        //set room
+        this.room = room;
     };
 
     // LOGIC
@@ -147,19 +150,19 @@ class Game extends Phaser.Scene {
         this.createDebug();
 
         //add room layers
-        this.addRoomLayers('forest');
+        this.addRoomLayers(this.room);
 
         //add room objects
-        this.addRoomObjects('forest');
+        this.addRoomObjects(this.room);
 
         //add room music
-        this.addRoomMusic('forest');
+        this.addRoomMusic(this.room);
 
         //add room NPCs
-        this.addRoomNPCs('forest');
+        this.addRoomNPCs(this.room);
 
         //tell server that player is joining (when the signal returns, the game adds the player and other players)
-        client.joinRoom('forest');
+        client.joinRoom(this.room);
 
         //add toolbar
         this.createToolbar();
@@ -192,6 +195,31 @@ class Game extends Phaser.Scene {
         Object.keys(this.playerCharacter).forEach((key) => {
             this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
         });
+    };
+
+    end() {
+
+        //remove DOM elements
+        this.chatBox.destroy();
+
+        //delete data
+        this.playerCharacter = {};
+        this.playerData = [];
+        this.npcCharacter = {};
+        this.npcData = [];
+
+        //stop music
+        this.music.stop();
+
+        //reset data
+        this.registry.destroy();
+        // this.events.removeAllListeners();
+        this.game.events.removeAllListeners();
+        this.input.keyboard.removeAllListeners();
+        this.scene.stop();
+
+        //leave game world
+        client.leaveRoom();
     };
 
     // WORLD
@@ -457,17 +485,8 @@ class Game extends Phaser.Scene {
             //tell server that this client changed its color
             if (event.key === 'c') {
 
-                //stop music
-                this.music.stop();
-
-                //reset data
-                this.registry.destroy();
-                this.game.events.removeAllListeners();
-                this.input.keyboard.removeAllListeners();
-                this.scene.stop();
-
-                //leave game world
-                client.leaveRoom();
+                //end scene
+                this.end();
 
                 //start character creator scene
                 this.scene.start('CharacterCreator');
@@ -622,6 +641,9 @@ class Game extends Phaser.Scene {
 
         //update the look of the character from the provided server data
         this.updatePlayer(data);
+
+        console.log('character');
+        console.log(data);
     };
 
     //move player character to specific coordinates
