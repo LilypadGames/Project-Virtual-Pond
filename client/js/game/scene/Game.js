@@ -641,9 +641,6 @@ class Game extends Phaser.Scene {
 
         //update the look of the character from the provided server data
         this.updatePlayer(data);
-
-        console.log('character');
-        console.log(data);
     };
 
     //move player character to specific coordinates

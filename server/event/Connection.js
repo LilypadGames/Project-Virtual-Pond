@@ -108,6 +108,9 @@ class Connection {
     //triggers on player loading into new room
     async joinRoom(room) {
 
+        //leave rooms currently in
+        if (this.socket.roomID) this.leaveRoom();
+
         //log
         console.log(utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' - Joined Room: ' + room));
 
@@ -141,8 +144,8 @@ class Connection {
     //add player to room
     joinSocketRoom(room) {
 
-        //leave previous rooms
-        this.leaveAllSocketRooms();
+        // //leave previous rooms
+        // this.leaveAllSocketRooms();
 
         //join new room
         this.socket.join(room);
