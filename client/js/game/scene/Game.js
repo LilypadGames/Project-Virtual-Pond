@@ -144,7 +144,10 @@ class Game extends Phaser.Scene {
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //register keyboard inputs
-        this.input.keyboard.on('keyup', (event) => this.onKeyUp(event), this);
+        this.input.keyboard.on('keydown-' + 'C', function () { this.end(); this.scene.start('CharacterCreator'); }, this);
+        this.input.keyboard.on('keydown-' + 'ENTER', () => { if (!this.chatBox.isFocused) { this.chatBox.setFocus(); } else if (this.chatBox.isFocused) { this.chatBox.setBlur(); } }, this);
+        this.input.keyboard.on('keydown-' + 'ESC', () => { if (this.chatBox.isFocused) this.chatBox.setBlur(); }, this);
+        this.input.keyboard.on('keydown-' + 'SHIFT', this.toggleDebugMode, this);
 
         //add debug info
         this.createDebug();
@@ -161,7 +164,7 @@ class Game extends Phaser.Scene {
         //add room NPCs
         this.addRoomNPCs(this.room);
 
-        //tell server that player is joining (when the signal returns, the game adds the player and other players)
+        //join room and get currently connected players in this room
         client.joinRoom(this.room);
 
         //add toolbar
@@ -213,9 +216,7 @@ class Game extends Phaser.Scene {
 
         //reset data
         this.registry.destroy();
-        // this.events.removeAllListeners();
-        this.game.events.removeAllListeners();
-        this.input.keyboard.removeAllListeners();
+        this.game.events.off(Phaser.Core.Events.FOCUS, this.onFocus, this);
         this.scene.stop();
 
         //leave game world
@@ -474,29 +475,6 @@ class Game extends Phaser.Scene {
     };
 
     // INPUT
-    //on keypress
-    onKeyUp(event) {
-        // ignore keyboard presses when chat box is focused
-        if (!this.chatBox.isFocused) {
-
-            //focus the chat box when Enter key is pressed
-            if (event.key === 'Enter') { this.chatBox.setFocus() };
-
-            //tell server that this client changed its color
-            if (event.key === 'c') {
-
-                //end scene
-                this.end();
-
-                //start character creator scene
-                this.scene.start('CharacterCreator');
-            };
-
-            //toggle console logging
-            if (event.key === 'Shift') { this.toggleDebugMode(); };
-        };
-    };
-
     //on mouse down
     onClick(x, y) {
 
@@ -504,9 +482,7 @@ class Game extends Phaser.Scene {
         if (!this.disableInput) {
 
             // un-focus chatbox
-            if (this.chatBox.isFocused) { 
-                this.chatBox.setBlur();
-            };
+            if (this.chatBox.isFocused) this.chatBox.setBlur();
 
             //move client player
             this.movePlayer(clientID, x, y);

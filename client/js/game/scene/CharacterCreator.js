@@ -88,8 +88,6 @@ class CharacterCreator extends Phaser.Scene {
         //reset data
         this.registry.destroy();
         this.events.removeAllListeners('updatedClientPlayerData');
-        this.game.events.removeAllListeners();
-        this.input.keyboard.removeAllListeners();
         this.scene.stop();
     };
 
