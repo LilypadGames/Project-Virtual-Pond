@@ -26,14 +26,14 @@ class Game extends Phaser.Scene {
     playerData = [];
 
     //object variables
+    npcCharacter = {};
+    npcData = [];
     npcList = [
         { id: 0, name: 'Poke', x: 363, y: 629, direction: 'right'},
         { id: 1, name: 'Gigi', x: 250, y: 540, direction: 'right'},
         { id: 2, name: 'Jesse', x: 1032, y: 666, direction: 'left'},
         { id: 3, name: 'Snic', x: 1238, y: 554, direction: 'left'}
     ];
-    npcCharacter = {};
-    npcData = [];
     npcLines = [
         ['*cough* i\'m sick', 'yo', 'i\'ll be on lacari later', 'one sec gunna take a water break', 'u ever have a hemorrhoid?'],
         ['*thinking of something HUH to say*', 'people call me a very accurate gamer', 'GEORGIEEEEEE!'],
@@ -77,17 +77,17 @@ class Game extends Phaser.Scene {
         super({ key: 'Game' });
     };
 
-    init() {
+    init(room) {
 
         //set scene
         currentScene = this;
+
+        //set room
+        this.room = room;
     };
 
     // LOGIC
     preload() {
-
-        //plugins
-        this.load.scenePlugin({key: 'rexuiplugin', url: 'js/plugin/rexuiplugin.min.js', sceneKey: 'rexUI'});
 
         //register canvas
         this.canvas = this.sys.game.canvas;
@@ -144,25 +144,28 @@ class Game extends Phaser.Scene {
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //register keyboard inputs
-        this.input.keyboard.on('keyup', (event) => this.onKeyUp(event), this);
+        this.input.keyboard.on('keydown-' + 'C', function () { this.end(); this.scene.start('CharacterCreator'); }, this);
+        this.input.keyboard.on('keydown-' + 'ENTER', () => { if (!this.chatBox.isFocused) { this.chatBox.setFocus(); } else if (this.chatBox.isFocused) { this.chatBox.setBlur(); } }, this);
+        this.input.keyboard.on('keydown-' + 'ESC', () => { if (this.chatBox.isFocused) this.chatBox.setBlur(); }, this);
+        this.input.keyboard.on('keydown-' + 'SHIFT', this.toggleDebugMode, this);
 
         //add debug info
         this.createDebug();
 
         //add room layers
-        this.addRoomLayers('forest');
+        this.addRoomLayers(this.room);
 
         //add room objects
-        this.addRoomObjects('forest');
+        this.addRoomObjects(this.room);
 
         //add room music
-        this.addRoomMusic('forest');
+        this.addRoomMusic(this.room);
 
         //add room NPCs
-        this.addRoomNPCs('forest');
+        this.addRoomNPCs(this.room);
 
-        //tell server that player is joining (when the signal returns, the game adds the player and other players)
-        client.joinRoom('forest');
+        //join room and get currently connected players in this room
+        client.joinRoom(this.room);
 
         //add toolbar
         this.createToolbar();
@@ -195,6 +198,29 @@ class Game extends Phaser.Scene {
         Object.keys(this.playerCharacter).forEach((key) => {
             this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
         });
+    };
+
+    end() {
+
+        //remove DOM elements
+        this.chatBox.destroy();
+
+        //delete data
+        this.playerCharacter = {};
+        this.playerData = [];
+        this.npcCharacter = {};
+        this.npcData = [];
+
+        //stop music
+        this.music.stop();
+
+        //reset data
+        this.registry.destroy();
+        this.game.events.off(Phaser.Core.Events.FOCUS, this.onFocus, this);
+        this.scene.stop();
+
+        //leave game world
+        client.leaveRoom();
     };
 
     // WORLD
@@ -449,40 +475,6 @@ class Game extends Phaser.Scene {
     };
 
     // INPUT
-    //on keypress
-    onKeyUp(event) {
-        // ignore keyboard presses when chat box is focused
-        if (!this.chatBox.isFocused) {
-
-            console.log(event);
-
-            //focus the chat box when Enter key is pressed
-            if (event.key === 'Enter') { this.chatBox.setFocus() };
-
-            //tell server that this client changed its color
-            if (event.key === 'c') { 
-
-                //stop music
-                this.music.stop();
-
-                //reset data
-                this.registry.destroy();
-                this.game.events.removeAllListeners();
-                this.input.keyboard.removeAllListeners();
-                this.scene.stop();
-
-                //leave game world
-                client.leaveRoom();
-
-                //start character creator scene
-                this.scene.start('CharacterCreator');
-            };
-
-            //toggle console logging
-            if (event.key === 'Shift') { this.toggleDebugMode(); };
-        };
-    };
-
     //on mouse down
     onClick(x, y) {
 
@@ -490,9 +482,7 @@ class Game extends Phaser.Scene {
         if (!this.disableInput) {
 
             // un-focus chatbox
-            if (this.chatBox.isFocused) { 
-                this.chatBox.setBlur();
-            };
+            if (this.chatBox.isFocused) this.chatBox.setBlur();
 
             //move client player
             this.movePlayer(clientID, x, y);

@@ -30,9 +30,12 @@ html, body, #game-container {
   image-rendering: pixelated;                  /* Chrome 41 */
 }
 
-/* Make Game Canvas Have Round Edges */
+/* Game Style */
 #game-container > canvas {
   border-radius: 8px;
+}
+#chat-box {
+  color: #000;
 }
 
 /* Centered Logo */
@@ -87,8 +90,16 @@ html, body, #game-container {
 
 /* Dark Mode */
 /* Body */
-.dark {
+body.dark {
   background: linear-gradient(180deg, #102121 -50%, #111623 69.71%, #02091b 150%);
+  color: #b6b6b6;
+}
+
+/* Button */
+body.dark button { 
+  color: #b6b6b6;
+}
+body.dark button:hover, button:focus, button:active, button.active, .open .dropdown-toggle.button {
   color: #b6b6b6;
 }
 
