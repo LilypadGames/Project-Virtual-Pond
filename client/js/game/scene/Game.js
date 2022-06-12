@@ -144,10 +144,10 @@ class Game extends Phaser.Scene {
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //register keyboard inputs
-        this.input.keyboard.on('keydown-' + 'C', function () { this.end(); this.scene.start('CharacterCreator'); }, this);
+        this.input.keyboard.on('keydown-' + 'C', () => { if (!this.chatBox.isFocused) { this.end(); this.scene.start('CharacterCreator'); } }, this);
         this.input.keyboard.on('keydown-' + 'ENTER', () => { if (!this.chatBox.isFocused) { this.chatBox.setFocus(); } else if (this.chatBox.isFocused) { this.chatBox.setBlur(); } }, this);
         this.input.keyboard.on('keydown-' + 'ESC', () => { if (this.chatBox.isFocused) this.chatBox.setBlur(); }, this);
-        this.input.keyboard.on('keydown-' + 'SHIFT', this.toggleDebugMode, this);
+        this.input.keyboard.on('keydown-' + 'SHIFT', () => {if (!this.chatBox.isFocused) { this.toggleDebugMode(); } }, this);
 
         //add debug info
         this.createDebug();
