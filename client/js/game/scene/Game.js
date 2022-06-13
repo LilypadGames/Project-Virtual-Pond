@@ -19,6 +19,15 @@ class Game extends Phaser.Scene {
 
     //audio
     music;
+    defaultMusicSettings = {
+        mute: false,
+        volume: 0,
+        rate: 1,
+        detune: 0,
+        seek: 0,
+        loop: true,
+        delay: 0
+    };
     sfx_button_click;
 
     //player variables
@@ -98,24 +107,6 @@ class Game extends Phaser.Scene {
         //asset path
         this.load.setPath('assets/');
 
-        //room layers
-        this.load.image('Forest_Background', 'room/forest/layers/Background.png');
-        this.load.image('Forest_Ground', 'room/forest/layers/Ground.png');
-        this.load.image('Forest_Tree_3', 'room/forest/layers/Tree_3.png');
-        this.load.image('Forest_Tree_2', 'room/forest/layers/Tree_2.png');
-        this.load.image('Forest_Rock_1', 'room/forest/layers/Rock_1.png');
-        this.load.image('Forest_Tree_1', 'room/forest/layers/Tree_1.png');
-        this.load.image('Forest_Foreground', 'room/forest/layers/Foreground.png');
-
-        //room objects
-        this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
-        this.load.image('Banner', 'room/forest/objects/Banner.png');
-        // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
-
-        //room audio
-        this.load.audio('frog_caves_chill', "room/forest/audio/music/frog_caves_chill.mp3");
-        this.load.audio('forest_ambience', "room/forest/audio/sfx/ambience/forest_ambience.mp3");
-
         //sfx
         this.load.audio('button_click', "audio/sfx/UI/button_click.mp3");
 
@@ -125,14 +116,43 @@ class Game extends Phaser.Scene {
         this.load.image('frog_eyes_0', 'character/player/eyes/Eyes_0.png');
         this.load.image('frog_eyes_1', 'character/player/eyes/Eyes_1.png');
 
-        //npc
-        this.load.image('Poke', 'character/npc/Poke.png');
-        this.load.image('Gigi', 'character/npc/Gigi.png');
-        this.load.image('Jesse', 'character/npc/Jesse.png');
-        this.load.image('Snic', 'character/npc/Snic.png');
-
         //debug
         this.load.image('target', 'debug/target.png');
+
+        //forest
+        if (this.room === 'forest') {
+            //layers
+            this.load.image('Forest_Background', 'room/forest/layers/Background.png');
+            this.load.image('Forest_Ground', 'room/forest/layers/Ground.png');
+            this.load.image('Forest_Tree_3', 'room/forest/layers/Tree_3.png');
+            this.load.image('Forest_Tree_2', 'room/forest/layers/Tree_2.png');
+            this.load.image('Forest_Rock_1', 'room/forest/layers/Rock_1.png');
+            this.load.image('Forest_Stump_1', 'room/forest/layers/Stump_1.png');
+            this.load.image('Forest_Tree_1', 'room/forest/layers/Tree_1.png');
+            this.load.image('Forest_Foreground', 'room/forest/layers/Foreground.png');
+
+            //npc
+            this.load.image('Poke', 'character/npc/Poke.png');
+            this.load.image('Gigi', 'character/npc/Gigi.png');
+            this.load.image('Jesse', 'character/npc/Jesse.png');
+            this.load.image('Snic', 'character/npc/Snic.png');
+
+            //objects
+            this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
+            this.load.image('Banner', 'room/forest/objects/Banner.png');
+            this.load.image('Radio', 'room/forest/objects/Radio.png');
+            // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
+
+            //object sfx
+            this.load.audio('radio_click', "room/forest/audio/sfx/object/radio_click.mp3");
+
+            //music
+            this.load.audio('frog_caves_chill', "room/forest/audio/music/frog_caves_chill.mp3");
+            this.load.audio('mask', "room/forest/audio/music/mask.mp3");
+
+            //ambience
+            // this.load.audio('forest_ambience', "room/forest/audio/sfx/ambience/forest_ambience.mp3");
+        };
     };
 
     create() {
@@ -243,6 +263,7 @@ class Game extends Phaser.Scene {
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_2').setDepth(628);
             this.unWalkableLayer.push('Forest_Tree_2');
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Rock_1').setDepth(629);
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Stump_1').setDepth(649);
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Tree_1').setDepth(665);
             this.unWalkableLayer.push('Forest_Tree_1');
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(this.depthForeground);
@@ -271,6 +292,23 @@ class Game extends Phaser.Scene {
             let banner = this.add.image(797, 226, 'Banner')
             .setDepth(666);
 
+            //radio
+            this.sfx_radio_click = this.sound.add('radio_click', { volume: 0 });
+            this.sfx_radio_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
+            let radio = this.add.image(294, 625, 'Radio')
+            .setDepth(649)
+            .setInteractive();
+            this.setInteractObject(radio);
+            radio.on('pointerdown', () => {
+
+                //play music
+                if (this.music.key === 'mask') this.addRoomMusic(this.room);
+                else this.playMusic('mask');
+
+                //click sfx
+                this.sfx_radio_click.play();
+            }, this);
+
             //find four table
             // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
             // .setDepth(600)
@@ -287,19 +325,7 @@ class Game extends Phaser.Scene {
 
         //forest
         if (room == 'forest') {
-            //music
-            this.music = this.sound.add('frog_caves_chill', {
-                mute: false,
-                volume: 0,
-                rate: 1,
-                detune: 0,
-                seek: 0,
-                loop: true,
-                delay: 0
-            });
-            this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
-            this.music.play();
-            this.sound.pauseOnBlur = false;
+            this.playMusic('frog_caves_chill');
         }
     };
 
@@ -522,6 +548,7 @@ class Game extends Phaser.Scene {
 
             //change volume
             this.sfx_button_click.setVolume(value);
+            this.sfx_radio_click.setVolume(value);
         };
     };
 
@@ -559,6 +586,20 @@ class Game extends Phaser.Scene {
     };
 
     // FUNCTIONS
+    //play music
+    playMusic(song) {
+
+        if (this.music) if (this.music.isPlaying) this.music.stop();
+
+        //set
+        this.music = this.sound.add(song, this.defaultMusicSettings);
+
+        //start music and set volume from localStorage settings
+        this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
+        this.music.play();
+        this.sound.pauseOnBlur = false;
+    };
+
     //add player character to game at specific coordinates
     addNewPlayer(data) {
 
