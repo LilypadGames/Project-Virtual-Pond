@@ -145,7 +145,7 @@ class Game extends Phaser.Scene {
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
         //register keyboard inputs
-        this.input.keyboard.on('keydown-' + 'C', () => { if (!this.chatBox.isFocused) { this.end(); this.scene.start('CharacterCreator'); } }, this);
+        this.input.keyboard.on('keydown-' + 'C', () => { if (!this.chatBox.isFocused) { this.end(); this.scene.start('CharacterCreator', this.room); } }, this);
         this.input.keyboard.on('keydown-' + 'ENTER', () => { if (!this.chatBox.isFocused) { this.chatBox.setFocus(); } else if (this.chatBox.isFocused) { this.chatBox.setBlur(); } }, this);
         this.input.keyboard.on('keydown-' + 'ESC', () => { if (this.chatBox.isFocused) this.chatBox.setBlur(); }, this);
         this.input.keyboard.on('keydown-' + 'SHIFT', () => {if (!this.chatBox.isFocused) { this.toggleDebugMode(); } }, this);
@@ -269,9 +269,7 @@ class Game extends Phaser.Scene {
 
             //banner
             let banner = this.add.image(797, 226, 'Banner')
-            .setDepth(666)
-            // .setOrigin(0.5, 1)
-            // .setInteractive();
+            .setDepth(666);
 
             //find four table
             // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')

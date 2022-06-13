@@ -68,7 +68,7 @@ class Connection {
               cb();
         });
 
-        // //triggers when client requests emotes
+        //triggers when client requests emotes
         // this.socket.on('requestEmotes', () => this.requestEmotes());
 
         //triggers when client requests the players data
