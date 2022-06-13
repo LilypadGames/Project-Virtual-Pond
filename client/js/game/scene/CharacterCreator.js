@@ -97,7 +97,7 @@ class CharacterCreator extends Phaser.Scene {
         this.end();
 
         //join game world
-        this.scene.start('Game');
+        this.scene.start('Game', this.previousRoom);
     };
 
     // UI
