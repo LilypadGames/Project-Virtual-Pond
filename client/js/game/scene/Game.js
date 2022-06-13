@@ -109,7 +109,8 @@ class Game extends Phaser.Scene {
 
         //room objects
         this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
-        this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
+        this.load.image('Banner', 'room/forest/objects/Banner.png');
+        // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
 
         //room audio
         this.load.audio('frog_caves_chill', "room/forest/audio/music/frog_caves_chill.mp3");
@@ -265,6 +266,12 @@ class Game extends Phaser.Scene {
                 //open news menu
                 this.openNews();
             }, this);
+
+            //banner
+            let banner = this.add.image(797, 226, 'Banner')
+            .setDepth(666)
+            // .setOrigin(0.5, 1)
+            // .setInteractive();
 
             //find four table
             // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
