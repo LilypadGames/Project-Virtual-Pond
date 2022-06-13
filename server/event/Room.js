@@ -40,7 +40,7 @@ class Room {
     async register() {
 
         //triggers when player reloads their client and requests current player data
-        this.socket.on('requestAllPlayersInRoom', async (cb) => { cb(await this.playerData.requestAllPlayersInRoom()) });
+        this.socket.on('requestAllPlayersInRoom', async (cb) => { cb(await this.playerData.requestAllPlayersInRoom()); });
 
         //triggers when player moves
         this.socket.on('playerMoved', (x, y, direction) => this.playerMoved(x, y, direction));
@@ -127,7 +127,7 @@ class Room {
         console.log(utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' - Interacting With NPC: ' + npcID));
 
         //merge player ID and npc ID
-        let playerInteractNPC = { playerID: this.socket.player.id, npcID: npcID }
+        let playerInteractNPC = { playerID: this.socket.player.id, npcID: npcID };
 
         //send interacting NPCs ID to ONLY OTHER clients
         this.socket.to(this.socket.roomID).emit('setPlayerInteractNPC', playerInteractNPC);
