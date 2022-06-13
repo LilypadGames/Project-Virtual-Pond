@@ -10,6 +10,11 @@ module.exports ={
         return Math.floor(Math.random() * (high - low) + low);
     },
 
+    //get random from array
+    randomFromArray(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    },
+
     //return timestamped string
     timestampString: function(string) {
         var timestamp = new Date(Date.now()).toLocaleString()

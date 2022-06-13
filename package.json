@@ -20,6 +20,7 @@
   ],
   "license": "GNU GPL V3.0",
   "dependencies": {
+    "@socket.io/admin-ui": "^0.3.0",
     "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
     "express": "^4.15.2",
@@ -30,7 +31,10 @@
     "passport": "^0.5.3",
     "passport-oauth": "^1.0.0",
     "path": "^0.12.7",
+    "rate-limiter-flexible": "^2.3.7",
     "request": "^2.88.2",
-    "socket.io": "^4.5.0"
+    "socket-ntp": "^0.1.0",
+    "socket.io": "^4.5.0",
+    "tmi-emote-parse": "^1.2.2"
   }
 }

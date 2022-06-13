@@ -36,6 +36,22 @@ class Utility {
         localStorage.setItem(item, JSON.stringify(array));
     };
 
+    // OBJECT ARRAYS
+    //get object from object array
+    getObject(objectArray, objectID) {
+        
+        //if doesnt exist, create it
+        if (!objectArray.find(({ id }) => id == objectID)) { objectArray.push({ id: objectID }); };
+
+        //return it
+        return objectArray.find(({ id }) => id == objectID);
+    };
+
+    //remove object from object array
+    removeObject(objectArray, objectID) {
+        objectArray = objectArray.filter(object => { return object.id != objectID; }); 
+    };
+
     // COLORS
     //hex integer to hex string
     hexIntegerToString(hex) {

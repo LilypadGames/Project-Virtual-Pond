@@ -3,6 +3,14 @@
         "port": "",
         "proxy": false
     },
+    
+    "socket-admin-dash": {
+        "auth": {
+            "type": "",
+            "username": "",
+            "password": ""
+        }
+    },
 
     "twitch": {
         "clientID": "",
