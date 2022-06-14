@@ -15,6 +15,7 @@ const gameHeight = 800;
 var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
 const defaultOptions = [
     { id: 'music', volume: 0.5 },
+    { id: 'ambience', volume: 0.5 },
     { id: 'sfx', volume: 1 }
 ];
 if (gameOptions === null || gameOptions.length <= 0 || gameOptions.length != defaultOptions.length) {
