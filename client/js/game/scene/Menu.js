@@ -7,7 +7,7 @@ class Menu extends Phaser.Scene {
     disableInput = false;
 
     //audio
-    sfx_button_click;
+    sfxButtonClick;
 
     //depth
     depthUI = 100002;
@@ -41,7 +41,7 @@ class Menu extends Phaser.Scene {
     create() {
 
         //sfx
-        this.sfx_button_click = this.sound.add('button_click');
+        this.sfxButtonClick = this.sound.add('button_click');
 
         //create loading icon animation
         this.anims.create({
@@ -81,7 +81,7 @@ class Menu extends Phaser.Scene {
         .on('button.click', function () {
 
             //sfx
-            this.sfx_button_click.play();
+            this.sfxButtonClick.play();
 
             //reload window
             window.location.reload();

@@ -20,7 +20,7 @@ class CharacterCreator extends Phaser.Scene {
     disableInput = false;
 
     //audio
-    sfx_button_click;
+    sfxButtonClick;
 
     //depth
     depthUI = 100002;
@@ -73,8 +73,8 @@ class CharacterCreator extends Phaser.Scene {
     create() {
 
         //register sfx
-        this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
-        this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
+        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
+        this.sfxButtonClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
 
         //get player data
         client.requestClientPlayerData();
@@ -112,7 +112,7 @@ class CharacterCreator extends Phaser.Scene {
         .on('button.click', function () {
 
             //sfx
-            this.sfx_button_click.play();
+            this.sfxButtonClick.play();
 
             //reload window
             window.location.reload();
@@ -158,7 +158,7 @@ class CharacterCreator extends Phaser.Scene {
         .on('button.click', function (button, index, pointer, event) {
 
             //sfx
-            this.sfx_button_click.play();
+            this.sfxButtonClick.play();
 
             //set eye type
             this.characterData.eye_type = index;
@@ -183,7 +183,7 @@ class CharacterCreator extends Phaser.Scene {
         .on('button.click', function (button, index, pointer, event) {
 
             //sfx
-            this.sfx_button_click.play();
+            this.sfxButtonClick.play();
 
             //parse player data
             const data = {
