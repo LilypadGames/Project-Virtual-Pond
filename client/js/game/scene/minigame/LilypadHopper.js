@@ -7,7 +7,7 @@ class LilypadHopper extends Phaser.Scene {
     disableInput = false;
 
     //audio
-    sfx_button_click;
+    sfxButtonClick;
 
     // INIT
     constructor() {
@@ -31,7 +31,7 @@ class LilypadHopper extends Phaser.Scene {
     create() {
 
         //sfx
-        this.sfx_button_click = this.sound.add('button_click');
+        this.sfxButtonClick = this.sound.add('button_click');
     };
 
     // UTILITY
@@ -48,7 +48,7 @@ class LilypadHopper extends Phaser.Scene {
         .on('button.click', function () {
 
             //sfx
-            this.sfx_button_click.play();
+            this.sfxButtonClick.play();
 
             //reload window
             window.location.reload();

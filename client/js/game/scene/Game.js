@@ -7,9 +7,6 @@ class Game extends Phaser.Scene {
     walkableLayer;
     unWalkableLayer = [];
 
-    //shaders
-    rexOutlineFX;
-
     //depth
     depthUI = 100002;
     depthOverlay = 100001;
@@ -18,7 +15,6 @@ class Game extends Phaser.Scene {
     depthBackground = 0;
 
     //audio
-    music;
     defaultMusicSettings = {
         mute: false,
         volume: 0,
@@ -28,7 +24,15 @@ class Game extends Phaser.Scene {
         loop: true,
         delay: 0
     };
-    sfx_button_click;
+    defaultAmbienceSettings = {
+        mute: false,
+        volume: 0,
+        rate: 1,
+        detune: 0,
+        seek: 0,
+        loop: true,
+        delay: 0
+    };
 
     //player variables
     playerCharacter = {};
@@ -73,13 +77,8 @@ class Game extends Phaser.Scene {
         wordWrap: { width: 250 }
     };
     messageLength = 80;
-    chatBox;
     disableInput = false;
     menuOpen = false;
-
-    //debug
-    debugCursor;
-    debugPing;
 
     // INIT
     constructor() {
@@ -147,19 +146,19 @@ class Game extends Phaser.Scene {
             this.load.audio('radio_click', "room/forest/audio/sfx/object/radio_click.mp3");
 
             //music
-            this.load.audio('frog_caves_chill', "room/forest/audio/music/frog_caves_chill.mp3");
+            this.load.audio('frog_caves_chill_kopie', "room/forest/audio/music/frog_caves_chill_kopie.mp3");
             this.load.audio('mask', "room/forest/audio/music/mask.mp3");
 
             //ambience
-            // this.load.audio('forest_ambience', "room/forest/audio/sfx/ambience/forest_ambience.mp3");
+            this.load.audio('forest_ambience', "room/forest/audio/ambience/forest_ambience.mp3");
         };
     };
 
     create() {
 
         //register sfxs
-        this.sfx_button_click = this.sound.add('button_click', { volume: 0 });
-        this.sfx_button_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
+        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
+        this.sfxButtonClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
 
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
@@ -178,6 +177,9 @@ class Game extends Phaser.Scene {
 
         //add room objects
         this.addRoomObjects(this.room);
+
+        //add room ambience
+        this.addRoomAmbience(this.room);
 
         //add room music
         this.addRoomMusic(this.room);
@@ -233,7 +235,7 @@ class Game extends Phaser.Scene {
         this.npcData = [];
 
         //stop music
-        this.music.stop();
+        this.audioMusic.stop();
 
         //reset data
         this.registry.destroy();
@@ -293,8 +295,8 @@ class Game extends Phaser.Scene {
             .setDepth(666);
 
             //radio
-            this.sfx_radio_click = this.sound.add('radio_click', { volume: 0 });
-            this.sfx_radio_click.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
+            this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
+            this.sfxRadioClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
             let radio = this.add.image(294, 625, 'Radio')
             .setDepth(649)
             .setInteractive();
@@ -302,11 +304,11 @@ class Game extends Phaser.Scene {
             radio.on('pointerdown', () => {
 
                 //play music
-                if (this.music.key === 'mask') this.addRoomMusic(this.room);
+                if (this.audioMusic.key === 'mask') this.addRoomMusic(this.room);
                 else this.playMusic('mask');
 
                 //click sfx
-                this.sfx_radio_click.play();
+                this.sfxRadioClick.play();
             }, this);
 
             //find four table
@@ -325,8 +327,17 @@ class Game extends Phaser.Scene {
 
         //forest
         if (room == 'forest') {
-            this.playMusic('frog_caves_chill');
-        }
+            this.playMusic('frog_caves_chill_kopie');
+        };
+    };
+
+    //add room music
+    addRoomAmbience(room) {
+
+        //forest
+        if (room == 'forest') {
+            this.playAmbience('forest_ambience');
+        };
     };
 
     //add room NPCs
@@ -428,7 +439,7 @@ class Game extends Phaser.Scene {
             this.showOptions();
 
             //sfx
-            this.sfx_button_click.play();
+            this.sfxButtonClick.play();
         } ,this)
         .setDepth(this.depthUI);
 
@@ -447,11 +458,12 @@ class Game extends Phaser.Scene {
         .on('button.click', function () {
 
             //sfx
-            this.sfx_button_click.play();
+            this.sfxButtonClick.play();
 
             //reload window
             window.location.reload();
 
+            //set menu as closed
             this.menuClosed();
         }, this);
 
@@ -469,6 +481,7 @@ class Game extends Phaser.Scene {
             }
         );
 
+        //set menu as opened
         this.menuOpened();
     };
 
@@ -477,13 +490,36 @@ class Game extends Phaser.Scene {
         if (!this.menuOpen) {
 
             //show options menu
-            ui.createMenu(this, { title: 'Options', content: [
+            let menu = ui.createMenu(this, { title: 'Options', content: [
+
+                //music volume slider
                 { type: 'text', text: 'Music Volume', fontSize: 24 }, 
                 { type: 'slider', id: 'musicVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume },
-                { type: 'text', text: 'Sound Effects Volume', fontSize: 24 }, 
+
+                //ambience volume slider
+                { type: 'text', text: 'Ambience Volume', fontSize: 24 },
+                { type: 'slider', id: 'ambienceVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'ambience')].volume },
+
+                //sfx volume slider
+                { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
                 { type: 'slider', id: 'sfxVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume }
             ]});
 
+            //exit button function
+            menu
+            .on('button.click', function (button, groupName, index, pointer, event) {
+    
+                //sfx
+                this.sfxButtonClick.play();
+    
+                //close
+                menu.emit('modal.requestClose', { index: index, text: button.text });
+    
+                //set menu as closed
+                this.menuClosed();
+            }, this);
+
+            //set menu as opened
             this.menuOpened();
         };
     };
@@ -501,6 +537,7 @@ class Game extends Phaser.Scene {
                 { height: 500 }
             );
 
+            //set menu as opened
             this.menuOpened();
         };
     };
@@ -535,7 +572,19 @@ class Game extends Phaser.Scene {
             utility.storeLocalStorageArray('gameOptions', options);
 
             //change volume
-            this.music.setVolume(value);
+            this.audioMusic.setVolume(value);
+        }
+
+        //ambience
+        else if (sliderID == 'ambienceVolume') {
+
+            //store locally for the user to persist changes between sessions
+            var options = utility.getLocalStorage('gameOptions');
+            options[utility.getLocalStorageArrayIndex('gameOptions', 'ambience')].volume = value;
+            utility.storeLocalStorageArray('gameOptions', options);
+
+            //change volume
+            this.audioAmbience.setVolume(value);
         }
 
         //sfx
@@ -547,8 +596,8 @@ class Game extends Phaser.Scene {
             utility.storeLocalStorageArray('gameOptions', options);
 
             //change volume
-            this.sfx_button_click.setVolume(value);
-            this.sfx_radio_click.setVolume(value);
+            this.sfxButtonClick.setVolume(value);
+            this.sfxRadioClick.setVolume(value);
         };
     };
 
@@ -589,14 +638,29 @@ class Game extends Phaser.Scene {
     //play music
     playMusic(song) {
 
-        if (this.music) if (this.music.isPlaying) this.music.stop();
+        if (this.audioMusic) if (this.audioMusic.isPlaying) this.audioMusic.stop();
 
         //set
-        this.music = this.sound.add(song, this.defaultMusicSettings);
+        this.audioMusic = this.sound.add(song, this.defaultMusicSettings);
 
         //start music and set volume from localStorage settings
-        this.music.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
-        this.music.play();
+        this.audioMusic.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume);
+        this.audioMusic.play();
+        this.sound.pauseOnBlur = false;
+    };
+
+    //play ambience
+    playAmbience(song) {
+
+        if (this.audioAmbience) if (this.audioAmbience.isPlaying) this.audioAmbience.stop();
+
+        //set
+        this.audioAmbience = this.sound.add(song, this.defaultAmbienceSettings);
+
+        //start music and set volume from localStorage settings
+        this.audioAmbience.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'ambience')].volume);
+        this.audioAmbience.play();
+        // this.audioAmbience.pauseOnBlur = false;
         this.sound.pauseOnBlur = false;
     };
 

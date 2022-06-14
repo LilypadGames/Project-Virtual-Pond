@@ -724,23 +724,13 @@ class UI {
         //set menu depth
         .setDepth(scene.depthUI)
 
-        //exit button function/animation
+        //exit button animation
         .on('button.over', function (button, groupName, index, pointer, event) {
             button.getElement('background').setFillStyle(options.exitButton.colorOnHover);
         })
         .on('button.out', function (button, groupName, index, pointer, event) {
             button.getElement('background').setFillStyle(options.exitButton.color);
-        })
-        .on('button.click', function (button, groupName, index, pointer, event) {
-
-            //sfx
-            scene.sfx_button_click.play();
-
-            //close
-            menu.emit('modal.requestClose', { index: index, text: button.text });
-
-            scene.menuClosed();
-        }, scene);
+        });
 
         //close menu when exit button is pressed
         scene.rexUI.modalPromise(
