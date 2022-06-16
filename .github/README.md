@@ -4,7 +4,6 @@
   </a>
 </p>
 
-
 <p align="center">
     <b>A Social Virtual World for Twitch Frogs to Hang and Chat.</b>
 </p>
@@ -12,7 +11,6 @@
 <p align="center">
     Written in HTML/CSS/JS using Node.js, Socket.io, Firebase, and Phaser3.
 </p>
-
 
 <p align="center">
     <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/issues" target="_blank">
@@ -29,7 +27,6 @@
     </a>
 </p>
 
-
 <p align="center">
     <a href="https://pond.danmizu.dev/" target="_blank">
         <img src="https://img.shields.io/static/v1?label=Game&message=Production&color=green&style=for-the-badge" alt="Production"/>
@@ -39,13 +36,14 @@
     </a>
 </p>
 
-
-<p align="center">
-    <a href="https://ko-fi.com/C0C37J4MF" target="_blank">
-        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Donations"/>
+<p align="center" style="display: flex; justify-content: center; align-items: center;">
+    <a href="https://ko-fi.com/C0C37J4MF" target="_blank" style="padding: 1%">
+        <img height="30rem" src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Donations"/>
+    </a>
+    <a href="https://www.paypal.com/paypalme/DanMizu" target="_blank" style="padding: 1%">
+        <img height="60rem" src="paypal-donate-button.webp" alt="Donations"/>
     </a>
 </p>
-
 
 ---
 
@@ -69,9 +67,7 @@
     <img title="NPCs" alt="NPCs" src="NPCs.gif" width="50%"/>
 </div>
 
-
 ---
-
 
 ## Longterm Goals:
 - [ ] Several Minigames both Singleplayer and Multiplayer
@@ -80,22 +76,22 @@
 - [ ] Player Housing
 - [ ] Character Progression
 
-
 ---
-
 
 ## Contribute:
 
 There are two ways to contribute. 
 
-
 ### Donations
 
 I am currently working alone on this project- creating both the assets and the code. I do not have a job and am attending university, so any donations would help a ton. I could use the money to hire artists, since art is not my strong suite and I want this game to be the best it could be.
 
-<p align="center">
-    <a href="https://ko-fi.com/C0C37J4MF" target="_blank">
-        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Issues"/>
+<p align="center" style="display: flex; justify-content: center; align-items: center;">
+    <a href="https://ko-fi.com/C0C37J4MF" target="_blank" style="padding: 1%">
+        <img height="30rem" src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Donations"/>
+    </a>
+    <a href="https://www.paypal.com/paypalme/DanMizu" target="_blank" style="padding: 1%">
+        <img height="60rem" src="paypal-donate-button.webp" alt="Donations"/>
     </a>
 </p>
 
