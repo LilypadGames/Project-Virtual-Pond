@@ -4,7 +4,7 @@
         "proxy": false
     },
     
-    "socket-admin-dash": {
+    "socketio_admin_dash": {
         "auth": {
             "type": "",
             "username": "",
