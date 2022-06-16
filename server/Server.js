@@ -41,7 +41,7 @@ app.set('trust proxy', config.server.proxy);
 //serve client files (html/css/js/assets)
 app.use('/', express.static(__dirname + '/../client'));
 
-////// OVERRIDES
+// OVERRIDES
 
 //send console logs to server log file
 console.log = function() {
@@ -55,7 +55,7 @@ console.log = function() {
 };
 console.error = console.log;
 
-////// AUTHENTICATION
+// AUTHENTICATION
 
 //init authentication
 const sessionAuthentication = session({
@@ -144,14 +144,14 @@ app.get('/', function (req, res) {
     };
 });
 
-////// WEB SERVER
+// WEB SERVER
 
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {
     console.log(utility.timestampString('WEB SERVER STARTED> Listening on port ' + server.address().port));
 });
 
-////// WEBSOCKETS (Socket.io/Express)
+// WEBSOCKETS (Socket.io/Express)
 
 //dependency: websocket
 var io = require('socket.io')(server);

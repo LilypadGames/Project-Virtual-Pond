@@ -36,11 +36,22 @@ class Connection {
     };
 
     async init() {
+        //user info not found
+        if (!this.socket.request.user) {
+
+            //kick instance
+            this.socket.disconnect();
+
+            return;
+        }
+
         //id not found
         if (!this.socket.request.user.data[0].id) {
 
-            //kick instance with no ID provided
+            //kick instance
             this.socket.disconnect();
+
+            return;
         }
 
         //id exists
