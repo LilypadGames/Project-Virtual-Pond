@@ -140,10 +140,12 @@ class Game extends Phaser.Scene {
             this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
             this.load.image('Banner', 'room/forest/objects/Banner.png');
             this.load.image('Radio', 'room/forest/objects/Radio.png');
+            this.load.image('Lost_Recording', 'room/forest/objects/Lost_Recording.png');
             // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
 
             //object sfx
             this.load.audio('radio_click', "room/forest/audio/sfx/object/radio_click.mp3");
+            this.load.audio('lost_recording', "room/forest/audio/sfx/object/lost_recording.mp3");
 
             //music
             this.load.audio('frog_caves_chill_kopie', "room/forest/audio/music/frog_caves_chill_kopie.mp3");
@@ -159,6 +161,9 @@ class Game extends Phaser.Scene {
         //register sfxs
         this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
         this.sfxButtonClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
+        this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
+        this.sfxRadioClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
+        this.audioLostRecording = this.sound.add('lost_recording', { volume: 1 });
 
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
@@ -279,12 +284,12 @@ class Game extends Phaser.Scene {
         //forest
         if (room == 'forest') {
             //news sign
-            let signNews = this.add.image(187, 630, 'Sign_News')
+            let news_sign = this.add.image(187, 630, 'Sign_News')
             .setDepth(628)
             .setOrigin(0.5, 1)
             .setInteractive();
-            this.setInteractObject(signNews);
-            signNews.on('pointerdown', () => {
+            this.setInteractObject(news_sign);
+            news_sign.on('pointerdown', () => {
 
                 //open news menu
                 this.openNews();
@@ -295,8 +300,6 @@ class Game extends Phaser.Scene {
             .setDepth(666);
 
             //radio
-            this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
-            this.sfxRadioClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
             let radio = this.add.image(294, 625, 'Radio')
             .setDepth(649)
             .setInteractive();
@@ -306,6 +309,20 @@ class Game extends Phaser.Scene {
                 //play music
                 if (this.audioMusic.key === 'mask') this.addRoomMusic(this.room);
                 else this.playMusic('mask');
+
+                //click sfx
+                this.sfxRadioClick.play();
+            }, this);
+
+            //lost recording
+            let lost_recording = this.add.image(1209, 621.2, 'Lost_Recording')
+            .setDepth(655)
+            .setInteractive();
+            this.setInteractObject(lost_recording);
+            lost_recording.on('pointerdown', () => {
+
+                //play lost recording
+                this.audioLostRecording.play();
 
                 //click sfx
                 this.sfxRadioClick.play();
@@ -759,7 +776,12 @@ class Game extends Phaser.Scene {
 
         //move player (and store it for alteration later)
         let playerMovement = utility.getObject(this.playerData, id).movement;
-        if (playerMovement) utility.getObject(this.playerData, id).movement.stop();
+        try {
+            if (playerMovement) utility.getObject(this.playerData, id).movement.stop();
+        }
+        catch {
+            console.log('ERROR: Issue stopping movement')
+        }
         utility.getObject(this.playerData, id).movement = this.add.tween({
             targets: player,
             x: x,
@@ -773,7 +795,12 @@ class Game extends Phaser.Scene {
 
         //stop movement
         let playerMovement = utility.getObject(this.playerData, id).movement;
-        if (playerMovement) utility.getObject(this.playerData, id).movement.stop();
+        try {
+            if (playerMovement) utility.getObject(this.playerData, id).movement.stop();
+        }
+        catch {
+            console.log('ERROR: Issue stopping movement')
+        }
         utility.getObject(this.playerData, id).movement.stop();
 
         //sync check
