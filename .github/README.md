@@ -1,6 +1,6 @@
 <p align="center">
   <a align="center" href='https://pond.danmizu.dev/'/>
-    <img src="logo.svg" width="65%" alt="Frosty Logo" />
+    <img src="logo.svg" width="65%" alt="Logo" />
   </a>
 </p>
 
@@ -32,17 +32,17 @@
 
 <p align="center">
     <a href="https://pond.danmizu.dev/" target="_blank">
-        <img src="https://img.shields.io/static/v1?label=Game&message=Production&color=green&style=for-the-badge" alt="Issues"/>
+        <img src="https://img.shields.io/static/v1?label=Game&message=Production&color=green&style=for-the-badge" alt="Production"/>
     </a>
     <a href="https://pte.danmizu.dev/" target="_blank">
-        <img src="https://img.shields.io/static/v1?label=Game&message=PTE&color=green&style=for-the-badge" alt="Last Commit"/>
+        <img src="https://img.shields.io/static/v1?label=Game&message=PTE&color=green&style=for-the-badge" alt="Public Test Environment"/>
     </a>
 </p>
 
 
 <p align="center">
     <a href="https://ko-fi.com/C0C37J4MF" target="_blank">
-        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Issues"/>
+        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Donations"/>
     </a>
 </p>
 

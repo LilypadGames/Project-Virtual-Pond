@@ -165,7 +165,7 @@ class Game extends Phaser.Scene {
 
         //register keyboard inputs
         this.input.keyboard.on('keydown-' + 'C', () => { if (!this.chatBox.isFocused) { this.end(); this.scene.start('CharacterCreator', this.room); } }, this);
-        this.input.keyboard.on('keydown-' + 'ENTER', () => { if (!this.chatBox.isFocused) { this.chatBox.setFocus(); } else if (this.chatBox.isFocused) { this.chatBox.setBlur(); } }, this);
+        this.input.keyboard.on('keydown-' + 'ENTER', () => { if (!this.chatBox.isFocused) { this.chatBox.setFocus(); } }, this);
         this.input.keyboard.on('keydown-' + 'ESC', () => { if (this.chatBox.isFocused) this.chatBox.setBlur(); }, this);
         this.input.keyboard.on('keydown-' + 'SHIFT', () => {if (!this.chatBox.isFocused) { this.toggleDebugMode(); } }, this);
 
@@ -418,8 +418,13 @@ class Game extends Phaser.Scene {
                 const chatMessage = inputBox.text.substr(0, this.messageLength).trim().replace(/\s+/g, " ");
 
                 //send the message to the server
-                if (chatMessage !== '' || null) {
+                if (chatMessage !== '' || chatMessage !== null) {
                     client.sendMessage(chatMessage);
+                }
+                
+                //leave chat bar
+                else {
+                    inputBox.setBlur();
                 };
 
                 //clear chat box
@@ -532,10 +537,24 @@ class Game extends Phaser.Scene {
             const passage = news.join('\n__________________________\n\n');
 
             //show news menu
-            ui.createMenu(this, 
+            let newsMenu = ui.createMenu(this, 
                 { title: 'News', content: [ { type: 'scrollable', text: passage, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}} ]}, 
                 { height: 500 }
             );
+            
+            //exit button function
+            newsMenu
+            .on('button.click', function (button, groupName, index, pointer, event) {
+    
+                //sfx
+                this.sfxButtonClick.play();
+    
+                //close
+                newsMenu.emit('modal.requestClose', { index: index, text: button.text });
+    
+                //set menu as closed
+                this.menuClosed();
+            }, this);
 
             //set menu as opened
             this.menuOpened();

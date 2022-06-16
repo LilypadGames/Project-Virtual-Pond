@@ -74,7 +74,8 @@ class Room {
 
         //log
         console.log(utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' - Sending Message> ' + message));
-        logs.logMessage('chat', utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' > ' + message))
+        let logMessage = utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' > ' + message)
+        logs.logMessage('chat', logMessage)
 
         //kick if larger than allowed max length
         if (message.length > 80) {
@@ -91,8 +92,14 @@ class Room {
         //sanitize message
         message = typeof(message) === 'string' && message.trim().length > 0 ? message.trim() : '';
 
-        //filter message
-        message = chatFilter.clean(message);
+        //check if message contains blacklisted words
+        if(chatFilter.check(message)) {
+            //log in moderation file
+            logs.logMessage('moderation', logMessage);
+
+            //filter message
+            message = chatFilter.clean(message);
+        }
 
         //create message data
         let messageData = {
