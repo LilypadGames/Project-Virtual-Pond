@@ -1,13 +1,14 @@
 // Connection Events
 
 //dependencies
-const e = require('express');
+const fs = require('fs');
 const path = require('path');
-// var ntp = require('socket-ntp');
+
+//get config values
+const config = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/config.json')));
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
-const database = require(path.join(__dirname, '../utility/Database.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
 
 //import events
@@ -57,6 +58,9 @@ class Connection {
         //id exists
         else {
 
+            //send game version
+            this.socket.emit('payloadGameVer', config.version);
+
             //kick other connection instances of this player
             await this.kickClientsWithID(this.socket.request.user.data[0].id);
 
@@ -73,7 +77,6 @@ class Connection {
         console.log(utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' - Connected'));
 
         //latency calculation
-        // ntp.sync(socket);
         this.socket.on("ping", (cb) => {
             if (typeof cb === "function")
               cb();
@@ -146,9 +149,7 @@ class Connection {
         this.socket.to(this.socket.roomID).emit('payloadNewPlayerData', this.socket.player);
 
         //send all currently connected players in this room to ONLY THIS client
-        // this.socket.emit('payloadAllPlayerData', await this.playerData.getAllPlayers(this.socket.roomID));
         const playersInRoom = await this.playerData.getAllPlayers(this.socket.roomID);
-
         return playersInRoom;
     };
 
