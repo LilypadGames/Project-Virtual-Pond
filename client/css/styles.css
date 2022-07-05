@@ -56,6 +56,12 @@ html, body, #game-container {
 .bi:hover {
   color: #d0d0d0;
 }
+a.btn .bi {
+  color: #fff;
+}
+a.btn .bi:hover {
+  color: #b6b6b6;
+}
 
 /* Twitch Button */
 .btn-twitch { 
@@ -103,12 +109,19 @@ body.dark button:hover, button:focus, button:active, button.active, .open .dropd
   color: #b6b6b6;
 }
 
+
 /* Icons */
 body.dark .bi {
   color: #b6b6b6;
 }
 body.dark .bi:hover {
   color: #828282;
+}
+body.dark a.btn .bi {
+  color: #b6b6b6;
+}
+body.dark a.btn .bi:hover {
+  color: #353535;
 }
 
 /* Credit Links */

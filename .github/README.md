@@ -70,6 +70,7 @@
 ---
 
 ## Longterm Goals:
+
 - [ ] Several Minigames both Singleplayer and Multiplayer
 - [ ] Complete Character Customization
 - [ ] Extensive Chat Features including Twitch Emotes
@@ -80,7 +81,7 @@
 
 ## Contribute:
 
-There are two ways to contribute. 
+There are two ways to contribute.
 
 ### Donations
 
@@ -113,11 +114,11 @@ I personally use Github Desktop to clone repos.
 
 3. **Open a Terminal at your Local Environment**
 
-Open a console/terminal within the directory the cloned repo lives at either within finder on your PC, or using your IDE such as Visual Studio Code. 
+Open a console/terminal within the directory the cloned repo lives at either within finder on your PC, or using your IDE such as Visual Studio Code.
 
 4. **Install Dependencies**
 
-```
+```npm
 npm install
 ```
 
@@ -127,7 +128,7 @@ Open the project in your IDE of choice (I use Visual Studio Code). Go to the `/s
 
 6. **Run Node.js server**
 
-```
+```npm
 npm start
 ```
 
@@ -137,4 +138,4 @@ Any changes you now make will automatically restart the server. Access the game 
 
 8. **Submit Changes For Review**
 
-When you're finished implementing a new feature/mechanic, push your changes and submit them for review. This process is detailed here: https://github.com/firstcontributions/first-contributions.
+When you're finished implementing a new feature/mechanic, push your changes and submit them for review. This process is detailed here: <https://github.com/firstcontributions/first-contributions>.

@@ -4,8 +4,8 @@
   "description": "A Physical Space for Twitch Frogs to Hang and Chat.",
   "main": "server/Server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server/Server.js"
+    "start": "nodemon server/Server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "Node.js",
