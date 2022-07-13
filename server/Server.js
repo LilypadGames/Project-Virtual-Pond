@@ -9,6 +9,7 @@ var util = require('util');
 const utility = require(path.join(__dirname, '/utility/Utility.js'));
 const database = require(path.join(__dirname, '/utility/Database.js'));
 const logs = require(path.join(__dirname, '/utility/Logs.js'));
+const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
 
 //get config values
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, '/config/config.json')));
@@ -185,7 +186,10 @@ io.use((socket, next) => {
     passportSession(socket.client.request, socket.client.request.res, next);
 });
 
-//import socket events
+//init chat log storage
+chatLogs.init(io);
+
+//import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));
 
 //on new websocket connection

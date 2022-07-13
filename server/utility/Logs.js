@@ -14,7 +14,6 @@ utility.createDirectory(path.join(__dirname, '../logs/'));
 var logFile = [];
 
 module.exports = {
-
     //get log file
     getLog: function(logType) {
 

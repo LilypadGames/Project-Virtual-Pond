@@ -3,6 +3,7 @@
 //dependencies
 const path = require('path');
 var chatFilter = require('leo-profanity');
+const { Server } = require('http');
 // const emoteParser = require("tmi-emote-parse");
 
 // //get twitch emotes
@@ -16,6 +17,7 @@ var chatFilter = require('leo-profanity');
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
+const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -110,6 +112,9 @@ class Room {
 
         //store message data in player data
         this.socket.player.message = messageData;
+
+        //add message to room's chat log object array
+        chatLogs.logMessage(this.socket.roomID, this.socket.player.id, Date.now(), message);
 
         //send the player message to ALL clients in this room
         if (message !== '' || null) {
