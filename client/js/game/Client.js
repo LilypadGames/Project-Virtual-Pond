@@ -111,6 +111,11 @@ socket.on('payloadGameVer', function(version) {
     console.log('%c %c Project Virtual Pond - ' + version, 'background: #64BEFF;', 'background: #000000;');
 });
 
+//recieve room chat log
+socket.on('payloadRoomChatLog', function(chatLog) {
+    console.log(chatLog);
+});
+
 //recieve next scene
 socket.on('payloadNewScene', function(scene) {
     currentScene.scene.start(scene);

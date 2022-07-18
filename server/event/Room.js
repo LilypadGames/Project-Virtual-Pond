@@ -41,6 +41,9 @@ class Room {
 
     async register() {
 
+        //send player the recent chat log for this room
+        this.socket.emit('payloadRoomChatLog', chatLogs.getRoomLogs(this.room));
+
         //triggers when player reloads their client and requests current player data
         this.socket.on('requestAllPlayersInRoom', async (cb) => { cb(await this.playerData.requestAllPlayersInRoom()); });
 
