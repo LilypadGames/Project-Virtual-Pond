@@ -138,7 +138,7 @@ class Game extends Phaser.Scene {
 
             //objects
             this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
-            this.load.image('Banner', 'room/forest/objects/Banner.png');
+            // this.load.image('Banner', 'room/forest/objects/Banner.png');
             this.load.image('Radio', 'room/forest/objects/Radio.png');
             this.load.image('Lost_Recording', 'room/forest/objects/Lost_Recording.png');
             // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
@@ -295,9 +295,9 @@ class Game extends Phaser.Scene {
                 this.openNews();
             }, this);
 
-            //banner
-            let banner = this.add.image(797, 226, 'Banner')
-            .setDepth(666);
+            // //banner
+            // let banner = this.add.image(797, 226, 'Banner')
+            // .setDepth(666);
 
             //radio
             let radio = this.add.image(294, 625, 'Radio')
