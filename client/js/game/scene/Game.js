@@ -889,9 +889,9 @@ class Game extends Phaser.Scene {
             this.showMessage(data.id, data.message);
         }
         else if (utility.getObject(this.playerData, data.id).message) {
-            
+
             //remove message
-            this.removeMessage(data.id, utility.getObject(this.playerData, id).message.id)
+            this.removeMessage(data.id, utility.getObject(this.playerData, data.id).message.id)
         };
     };
 
@@ -1106,6 +1106,9 @@ class Game extends Phaser.Scene {
         //player message
         if (characterType === 'player') {
 
+            //check if player is still connected to the current scene
+            if (!this.playerCharacter[id]) return;
+
             //get player overlay container
             var overlayContainer = this.playerCharacter[id].list[1];
 
@@ -1148,8 +1151,14 @@ class Game extends Phaser.Scene {
 
     //remove player character from game
     removePlayer(id) {
-        if (this.playerCharacter[id]) this.playerCharacter[id].destroy();
-        delete this.playerCharacter[id];
+        //remove player character
+        if (this.playerCharacter[id]) {
+            this.playerCharacter[id].destroy();
+            delete this.playerCharacter[id];
+        };
+
+        //remove player data
+        this.playerData = utility.removeObject(this.playerData, id);
     };
 
     // DEBUG

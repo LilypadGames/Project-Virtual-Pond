@@ -49,7 +49,8 @@ class Utility {
 
     //remove object from object array
     removeObject(objectArray, objectID) {
-        objectArray = objectArray.filter(object => { return object.id != objectID; }); 
+        objectArray = objectArray.filter(object => object.id !== objectID );
+        return objectArray;
     };
 
     // COLORS
