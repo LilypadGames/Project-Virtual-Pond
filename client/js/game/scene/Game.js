@@ -35,7 +35,7 @@ class Game extends Phaser.Scene {
     };
 
     //chat log
-    chatLog = {};
+    chatLog = [];
 
     //player variables
     playerCharacter = {};
@@ -718,8 +718,10 @@ class Game extends Phaser.Scene {
         //format chat log
         for(const key in log) {
             var line = utility.getObject(this.playerData, log[key].userID).name + ": " + log[key].message;
-            console.log(line);
+            this.chatLog.push(line);
         }
+
+        console.log(this.chatLog);
     }
 
     //play music
@@ -753,6 +755,9 @@ class Game extends Phaser.Scene {
 
     //add player character to game at specific coordinates
     addNewPlayer(data) {
+
+        //save player data
+        utility.getObject(this.playerData, data.id).name = data.name
 
         //player character
         var playerBody = this.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
