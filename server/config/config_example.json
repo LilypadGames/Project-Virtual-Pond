@@ -1,4 +1,6 @@
 {
+    "version": "",
+
     "server": {
         "port": "",
         "proxy": false

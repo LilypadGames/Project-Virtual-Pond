@@ -12,7 +12,7 @@ var canvas = document.createElement('canvas');
 const gameWidth = 1280;
 const gameHeight = 800;
 
-//settings (cookies)
+//cookies
 var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
 const defaultOptions = [
     { id: 'music', volume: 0.5 },
@@ -22,6 +22,14 @@ const defaultOptions = [
 if (gameOptions === null || gameOptions.length <= 0 || gameOptions.length != defaultOptions.length) {
     localStorage.setItem('gameOptions', JSON.stringify(defaultOptions));
     gameOptions = defaultOptions;
+};
+var gameValues = JSON.parse(localStorage.getItem('gameValues'));
+const defaultValues = [
+    { id: 'welcome', value: 0 }
+]
+if (gameValues === null || gameValues.length <= 0 || gameValues.length != defaultValues.length) {
+    localStorage.setItem('gameValues', JSON.stringify(defaultValues));
+    gameValues = defaultValues;
 };
 
 //scene

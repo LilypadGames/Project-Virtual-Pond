@@ -678,7 +678,10 @@ class UI {
                     this.formatPassage(scene, panel.getElement('panel'), internalContent.text);
 
                     sizer.add(panel);
-                };
+                }
+                // else if (internalContent.type == 'button') {
+                //     sizer.add( this.createLabel(scene, { text: internalContent.button, fontSize: internalContent.button.fontSize, align: internalContent.button.align }) );
+                // }
             };
         };
 

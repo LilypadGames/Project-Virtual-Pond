@@ -196,6 +196,14 @@ class Game extends Phaser.Scene {
 
         //add toolbar
         this.createToolbar();
+
+        //welcome message
+        var options = utility.getLocalStorage('gameValues');
+        if (options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')].value !== 1) {
+            this.showIntroMessage();
+            options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')].value = 1;
+            utility.storeLocalStorageArray('gameValues', options);
+        }
     };
 
     update() {
@@ -517,6 +525,32 @@ class Game extends Phaser.Scene {
 
         //set menu as opened
         this.menuOpened();
+    };
+
+    //show intro message
+    showIntroMessage() {
+        if (!this.menuOpen) {
+
+            //create menu
+            let menu = ui.createMenu(this, { title: 'Welcome!', content: [
+                { type: 'text', text: 'Please turn Hardware Acceleration ON in your browser settings!', fontSize: 20 },
+                { type: 'text', text: 'Find a bug or need support?', fontSize: 20 },
+                { type: 'text', text: 'Join the Discord!', fontSize: 20 },
+            ]});
+
+            //exit button function
+            menu.on('button.click', function (button, groupName, index, pointer, event) {
+                //sfx
+                this.sfxButtonClick.play();
+                //close
+                menu.emit('modal.requestClose', { index: index, text: button.text });
+                //set menu as closed
+                this.menuClosed();
+            }, this);
+
+            //set menu as opened
+            this.menuOpened();
+        };
     };
 
     //show options menu
