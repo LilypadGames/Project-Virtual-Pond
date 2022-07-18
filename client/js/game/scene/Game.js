@@ -260,7 +260,7 @@ class Game extends Phaser.Scene {
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Background').setDepth(this.depthBackground);
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Ground').setDepth(this.depthGround)
             .setInteractive().on('pointerdown', () => {
-                if(this.navigationCheck('Forest_Ground')) {
+                if(this.navigationCheck()) {
                     this.onClick(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
                 };
             }, this);
