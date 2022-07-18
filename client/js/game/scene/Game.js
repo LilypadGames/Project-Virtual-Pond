@@ -453,8 +453,21 @@ class Game extends Phaser.Scene {
     //create toolbar
     createToolbar() {
 
+        //character creator button
+        ui.createButtons(this, { x: 1180, y: 765, buttonTextSize: 22, buttons: [{ text: '🎨', backgroundRadius: 8 }] })
+        .on('button.click', () => {
+            //sfx
+            this.sfxButtonClick.play();
+
+            //open character creator scene
+            this.end(); 
+            this.scene.start('CharacterCreator', this.room);
+
+        } ,this)
+        .setDepth(this.depthUI);
+
         //options menu button
-        ui.createButtons(this, { x: 1090, y: 765, buttonTextSize: 22, buttons: [{ text: '⚙️', backgroundRadius: 8 }] })
+        ui.createButtons(this, { x: 1240, y: 765, buttonTextSize: 22, buttons: [{ text: '⚙️', backgroundRadius: 8 }] })
         .on('button.click', () => {
 
             //open options menu
