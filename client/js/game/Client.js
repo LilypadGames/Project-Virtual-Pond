@@ -76,17 +76,21 @@ class Client {
     //tell server that this client just joined
     joinRoom(room) {
         socket.emit('joinRoom', room, (data) => {
-
-            //populate room with players
-            for(var i = 0; i < data.length; i++){
+            console.log(data);
+            //get players in this room
+            for(var i = 0; i < data["players"].length; i++){
                 if (currentScene.scene.key == 'Game') {
 
                     //log
-                    if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data[i].id + ' - In the Pond')); };
+                    if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data["players"][i].id + ' - In the Pond')); };
 
-                    currentScene.addNewPlayer(data[i]);
+                    //add players
+                    currentScene.addNewPlayer(data["players"][i]);
                 };
             };
+
+            //set chat log of this room
+            currentScene.setChatLog(data["chatLog"]);
         });
     };
 
@@ -109,11 +113,6 @@ class Client {
 //recieve game version
 socket.on('payloadGameVer', function(version) {
     console.log('%c %c Project Virtual Pond - ' + version, 'background: #64BEFF;', 'background: #000000;');
-});
-
-//recieve room chat log
-socket.on('payloadRoomChatLog', function(chatLog) {
-    console.log(chatLog);
 });
 
 //recieve next scene

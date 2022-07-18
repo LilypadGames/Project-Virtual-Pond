@@ -10,6 +10,7 @@ const config = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/config
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
+const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -148,9 +149,16 @@ class Connection {
         //send new player to ONLY OTHER clients in this room
         this.socket.to(this.socket.roomID).emit('payloadNewPlayerData', this.socket.player);
 
+        //init room info
+        var roomInfo = {}
+
         //send all currently connected players in this room to ONLY THIS client
-        const playersInRoom = await this.playerData.getAllPlayers(this.socket.roomID);
-        return playersInRoom;
+        roomInfo["players"] = await this.playerData.getAllPlayers(this.socket.roomID);
+
+        //send chat log of this room to this player
+        roomInfo["chatLog"] = chatLogs.getRoomLogs(room);
+
+        return roomInfo;
     };
 
     //add player to room

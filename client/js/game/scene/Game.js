@@ -34,6 +34,9 @@ class Game extends Phaser.Scene {
         delay: 0
     };
 
+    //chat log
+    chatLog = {};
+
     //player variables
     playerCharacter = {};
     playerData = [];
@@ -297,9 +300,10 @@ class Game extends Phaser.Scene {
             .setInteractive();
             this.setInteractObject(news_sign);
             news_sign.on('pointerdown', () => {
-
-                //open news menu
-                this.openNews();
+                if (!this.menuOpen) {
+                    //open news menu
+                    this.openNews();
+                }
             }, this);
 
             // //banner
@@ -463,25 +467,27 @@ class Game extends Phaser.Scene {
         //character creator button
         ui.createButtons(this, { x: 1180, y: 765, buttonTextSize: 22, buttons: [{ text: '🎨', backgroundRadius: 8 }] })
         .on('button.click', () => {
-            //sfx
-            this.sfxButtonClick.play();
+            if (!this.menuOpen) {
+                //sfx
+                this.sfxButtonClick.play();
 
-            //open character creator scene
-            this.end(); 
-            this.scene.start('CharacterCreator', this.room);
-
+                //open character creator scene
+                this.end(); 
+                this.scene.start('CharacterCreator', this.room);
+            }
         } ,this)
         .setDepth(this.depthUI);
 
         //options menu button
         ui.createButtons(this, { x: 1240, y: 765, buttonTextSize: 22, buttons: [{ text: '⚙️', backgroundRadius: 8 }] })
         .on('button.click', () => {
+            if (!this.menuOpen) {
+                //open options menu
+                this.showOptions();
 
-            //open options menu
-            this.showOptions();
-
-            //sfx
-            this.sfxButtonClick.play();
+                //sfx
+                this.sfxButtonClick.play();
+            }
         } ,this)
         .setDepth(this.depthUI);
 
@@ -498,7 +504,6 @@ class Game extends Phaser.Scene {
         //create dialog with refresh button
         const dialog = ui.createDialog(this, content, options)
         .on('button.click', function () {
-
             //sfx
             this.sfxButtonClick.play();
 
@@ -529,99 +534,90 @@ class Game extends Phaser.Scene {
 
     //show intro message
     showIntroMessage() {
-        if (!this.menuOpen) {
+        //create menu
+        let menu = ui.createMenu(this, { title: 'Welcome!', content: [
+            { type: 'text', text: 'Please turn Hardware Acceleration ON in your browser settings!', fontSize: 20 },
+            { type: 'text', text: 'Find a bug or need support?', fontSize: 20 },
+            { type: 'text', text: 'Join the Discord!', fontSize: 20 },
+        ]});
 
-            //create menu
-            let menu = ui.createMenu(this, { title: 'Welcome!', content: [
-                { type: 'text', text: 'Please turn Hardware Acceleration ON in your browser settings!', fontSize: 20 },
-                { type: 'text', text: 'Find a bug or need support?', fontSize: 20 },
-                { type: 'text', text: 'Join the Discord!', fontSize: 20 },
-            ]});
+        //exit button function
+        menu.on('button.click', function (button, groupName, index, pointer, event) {
+            //sfx
+            this.sfxButtonClick.play();
+            //close
+            menu.emit('modal.requestClose', { index: index, text: button.text });
+            //set menu as closed
+            this.menuClosed();
+        }, this);
 
-            //exit button function
-            menu.on('button.click', function (button, groupName, index, pointer, event) {
-                //sfx
-                this.sfxButtonClick.play();
-                //close
-                menu.emit('modal.requestClose', { index: index, text: button.text });
-                //set menu as closed
-                this.menuClosed();
-            }, this);
-
-            //set menu as opened
-            this.menuOpened();
-        };
+        //set menu as opened
+        this.menuOpened();
     };
 
     //show options menu
     showOptions() {
-        if (!this.menuOpen) {
+        //show options menu
+        let menu = ui.createMenu(this, { title: 'Options', content: [
 
-            //show options menu
-            let menu = ui.createMenu(this, { title: 'Options', content: [
+            //music volume slider
+            { type: 'text', text: 'Music Volume', fontSize: 24 }, 
+            { type: 'slider', id: 'musicVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume },
 
-                //music volume slider
-                { type: 'text', text: 'Music Volume', fontSize: 24 }, 
-                { type: 'slider', id: 'musicVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'music')].volume },
+            //ambience volume slider
+            { type: 'text', text: 'Ambience Volume', fontSize: 24 },
+            { type: 'slider', id: 'ambienceVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'ambience')].volume },
 
-                //ambience volume slider
-                { type: 'text', text: 'Ambience Volume', fontSize: 24 },
-                { type: 'slider', id: 'ambienceVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'ambience')].volume },
+            //sfx volume slider
+            { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
+            { type: 'slider', id: 'sfxVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume }
+        ]});
 
-                //sfx volume slider
-                { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
-                { type: 'slider', id: 'sfxVolume', value: utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume }
-            ]});
+        //exit button function
+        menu
+        .on('button.click', function (button, groupName, index, pointer, event) {
 
-            //exit button function
-            menu
-            .on('button.click', function (button, groupName, index, pointer, event) {
-    
-                //sfx
-                this.sfxButtonClick.play();
-    
-                //close
-                menu.emit('modal.requestClose', { index: index, text: button.text });
-    
-                //set menu as closed
-                this.menuClosed();
-            }, this);
+            //sfx
+            this.sfxButtonClick.play();
 
-            //set menu as opened
-            this.menuOpened();
-        };
+            //close
+            menu.emit('modal.requestClose', { index: index, text: button.text });
+
+            //set menu as closed
+            this.menuClosed();
+        }, this);
+
+        //set menu as opened
+        this.menuOpened();
     };
 
     //show news menu
     openNews() {
-        if (!this.menuOpen) {
+        //parse and format news text
+        const passage = news.join('\n__________________________\n\n');
 
-            //parse and format news text
-            const passage = news.join('\n__________________________\n\n');
+        //show news menu
+        let newsMenu = ui.createMenu(this, 
+            { title: 'News', content: [ { type: 'scrollable', text: passage, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}} ]}, 
+            { height: 500 }
+        );
+        
+        //exit button function
+        newsMenu
+        .on('button.click', function (button, groupName, index, pointer, event) {
 
-            //show news menu
-            let newsMenu = ui.createMenu(this, 
-                { title: 'News', content: [ { type: 'scrollable', text: passage, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}} ]}, 
-                { height: 500 }
-            );
-            
-            //exit button function
-            newsMenu
-            .on('button.click', function (button, groupName, index, pointer, event) {
-    
-                //sfx
-                this.sfxButtonClick.play();
-    
-                //close
-                newsMenu.emit('modal.requestClose', { index: index, text: button.text });
-    
-                //set menu as closed
-                this.menuClosed();
-            }, this);
+            //sfx
+            this.sfxButtonClick.play();
 
-            //set menu as opened
-            this.menuOpened();
-        };
+            //close
+            newsMenu.emit('modal.requestClose', { index: index, text: button.text });
+
+            //set menu as closed
+            this.menuClosed();
+        }, this);
+
+        //set menu as opened
+        this.menuOpened();
     };
 
     // INPUT
@@ -717,6 +713,15 @@ class Game extends Phaser.Scene {
     };
 
     // FUNCTIONS
+    //set room chat log from server
+    setChatLog(log) {
+        //format chat log
+        for(const key in log) {
+            var line = utility.getObject(this.playerData, log[key].userID).name + ": " + log[key].message;
+            console.log(line);
+        }
+    }
+
     //play music
     playMusic(song) {
 

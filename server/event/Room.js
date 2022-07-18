@@ -34,16 +34,11 @@ class Room {
     };
 
     async init() {
-
         //register events
         this.register();
     };
 
     async register() {
-
-        //send player the recent chat log for this room
-        this.socket.emit('payloadRoomChatLog', chatLogs.getRoomLogs(this.room));
-
         //triggers when player reloads their client and requests current player data
         this.socket.on('requestAllPlayersInRoom', async (cb) => { cb(await this.playerData.requestAllPlayersInRoom()); });
 
@@ -60,7 +55,6 @@ class Room {
     //triggers when player moves
     playerMoved(x, y, direction) {
         if ((this.socket.player.x != x) || (this.socket.player.y != y)) {
-
             //log
             console.log(utility.timestampString('PLAYER ID: ' + this.socket.player.id + ' (' + this.socket.player.name + ')' + ' - Moving To> x:' + x + ', y:' + y));
 
