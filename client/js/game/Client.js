@@ -62,9 +62,6 @@ class Client {
     //tell server that the player left a room (to go to another room or a menu/minigame)
     leaveRoom() {
         socket.emit('leaveRoom');
-
-        // //remove all player listeners
-        // socket.removeAllListeners('payloadAllPlayerData');
     };
 
     //tell server that this client just joined

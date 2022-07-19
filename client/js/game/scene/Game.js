@@ -658,11 +658,11 @@ class Game extends Phaser.Scene {
         this.chatLogUI = chatLogSizer[0];
         this.chatLogPanel = chatLogSizer[1];
 
-        //set scroll position
-        this.chatLogPanel.setT(scrollPosition);
-
         //arrange UI
         this.chatLogUI.layout();
+
+        //set scroll position
+        this.chatLogPanel.setT(scrollPosition);
 
         //close promise + animation
         this.rexUI.modalPromise(
@@ -1164,6 +1164,13 @@ class Game extends Phaser.Scene {
     logMessage(id, message) {
         //store message in chat log
         this.chatLog.push(utility.getObject(this.playerData, id).name + ": " + message);
+
+        //delete older entries if over max
+        if (this.chatLog.length > 30) {
+            this.chatLog.splice(0, 1);
+        };
+
+        //update chat log
         this.updateChatLog();
     };
 

@@ -111,7 +111,9 @@ class Room {
         this.socket.player.message = messageData;
 
         //add message to room's chat log object array
-        chatLogs.logMessage(this.socket.roomID, this.socket.player.id, Date.now(), message);
+        if (message !== '' || null) {
+            chatLogs.logMessage(this.socket.roomID, this.socket.player.id, Date.now(), message);
+        };
 
         //send the player message to ALL clients in this room
         if (message !== '' || null) {

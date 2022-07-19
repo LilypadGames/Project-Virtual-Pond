@@ -1,35 +1,34 @@
 chatLogs = {};
 
 module.exports = {
-    chatLogs,
+    chatLogs: {},
 
     init: function(io) {
         //on room creation
         io.of("/").adapter.on("create-room", (room) => {
-            console.log(room + ' created')
             //init chat log for room
-            chatLogs[room] = {};
+            this.chatLogs[room] = [];
         });
-
-        //purge older messages
     },
 
     logMessage: function(roomID, userID, date, message) {
-        //get new ID
-        let id = Object.keys(chatLogs[roomID]).length + 1;
-
         //create entry
         let entry = {
             userID: userID,
             date: date,
             message: message,
-        }
+        };
 
         //store entry
-        chatLogs[roomID][id] = entry;
+        this.chatLogs[roomID].push(entry);
+
+        //delete older entries if over max
+        if (this.chatLogs[roomID].length > 30) {
+            this.chatLogs[roomID].splice(0, 1);
+        };
     },
 
     getRoomLogs: function(roomID) {
-        return chatLogs[roomID];
+        return this.chatLogs[roomID];
     }
 }
