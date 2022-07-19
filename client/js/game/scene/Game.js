@@ -6,6 +6,8 @@ class Game extends Phaser.Scene {
     //world
     walkableLayer;
     unWalkableLayer = [];
+    teleportList = [];
+    DOMElements = [];
 
     //depth
     depthUI = 100002;
@@ -91,7 +93,6 @@ class Game extends Phaser.Scene {
     };
 
     init(room) {
-
         //set scene
         currentScene = this;
 
@@ -149,26 +150,37 @@ class Game extends Phaser.Scene {
             // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
 
             //object sfx
-            this.load.audio('radio_click', "room/forest/audio/sfx/object/radio_click.mp3");
-            this.load.audio('lost_recording', "room/forest/audio/sfx/object/lost_recording.mp3");
+            this.load.audio('radio_click', 'room/forest/audio/sfx/object/radio_click.mp3');
+            this.load.audio('lost_recording', 'room/forest/audio/sfx/object/lost_recording.mp3');
 
             //music
-            this.load.audio('frog_caves_chill_kopie', "room/forest/audio/music/frog_caves_chill_kopie.mp3");
-            this.load.audio('mask', "room/forest/audio/music/mask.mp3");
+            this.load.audio('frog_caves_chill_kopie', 'room/forest/audio/music/frog_caves_chill_kopie.mp3');
+            this.load.audio('mask', 'room/forest/audio/music/mask.mp3');
 
             //ambience
-            this.load.audio('forest_ambience', "room/forest/audio/ambience/forest_ambience.mp3");
+            this.load.audio('forest_ambience', 'room/forest/audio/ambience/forest_ambience.mp3');
+        }
+        else if (this.room === 'theatre') {
+            //layers
+            this.load.image('Theatre_Background', 'room/theatre/layers/Background.png');
+            this.load.image('Theatre_Stage', 'room/theatre/layers/Stage.png');
+            this.load.image('Theatre_Curtains', 'room/theatre/layers/Curtains.png');
+            this.load.image('Theatre_Seats_1', 'room/theatre/layers/Seats_1.png');
+            this.load.image('Theatre_Seats_2', 'room/theatre/layers/Seats_2.png');
+            this.load.image('Theatre_Seats_3', 'room/theatre/layers/Seats_3.png');
+            this.load.image('Theatre_Foreground', 'room/theatre/layers/Foreground.png');
         };
     };
 
     create() {
-
         //register sfxs
         this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
         this.sfxButtonClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
-        this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
-        this.sfxRadioClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
-        this.audioLostRecording = this.sound.add('lost_recording', { volume: 1 });
+        if (this.room === 'forest') {
+            this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
+            this.sfxRadioClick.setVolume(utility.getLocalStorage('gameOptions')[utility.getLocalStorageArrayIndex('gameOptions', 'sfx')].volume);
+            this.audioLostRecording = this.sound.add('lost_recording', { volume: 1 });
+        }
 
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
@@ -195,6 +207,12 @@ class Game extends Phaser.Scene {
 
         //add room NPCs
         this.addRoomNPCs(this.room);
+
+        //add room teleports
+        this.addRoomTeleports(this.room);
+
+        //add room DOM elements
+        this.addRoomDOMElements(this.room);
 
         //join room and get currently connected players in this room
         client.joinRoom(this.room);
@@ -234,6 +252,17 @@ class Game extends Phaser.Scene {
             });
         };
 
+        //detect teleports
+        for(var i = 0; i < this.teleportList.length; i++) {
+            Object.keys(this.playerCharacter).forEach((key) => {
+                this.physics.world.collide(this.playerCharacter[key], this.teleportList[i]["teleport"], () => {
+                    //open new room scene
+                    this.end(); 
+                    this.scene.start('Game', this.teleportList[i]["room"]);
+                });
+            });
+        };
+
         //handle player character depth
         Object.keys(this.playerCharacter).forEach((key) => {
             this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
@@ -253,6 +282,9 @@ class Game extends Phaser.Scene {
 
         //stop music
         this.audioMusic.stop();
+
+        //stop ambience
+        this.audioAmbience.stop();
 
         //reset data
         this.registry.destroy();
@@ -287,8 +319,45 @@ class Game extends Phaser.Scene {
             this.unWalkableLayer.push('Forest_Tree_1');
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Forest_Foreground').setDepth(this.depthForeground);
             this.unWalkableLayer.push('Forest_Foreground');
+
+        //theatre
+        } else if (room == 'theatre') {
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Background').setDepth(this.depthBackground);
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Stage').setDepth(this.depthGround)
+            .setInteractive().on('pointerdown', () => {
+                if(this.navigationCheck()) {
+                    this.onClick(this.input.mousePointer.worldX, this.input.mousePointer.worldY);
+                };
+            }, this);
+            this.walkableLayer = 'Theatre_Stage';
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Curtains').setDepth(610);
+            this.unWalkableLayer.push('Theatre_Curtains');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Seats_1').setDepth(736);
+            this.unWalkableLayer.push('Theatre_Seats_1');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Seats_2').setDepth(770);
+            this.unWalkableLayer.push('Theatre_Seats_2');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Seats_3').setDepth(786);
+            this.unWalkableLayer.push('Theatre_Seats_3');
+            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Foreground').setDepth(this.depthForeground);
+            this.unWalkableLayer.push('Theatre_Foreground');
         }
     };
+
+    //add room DOM elements
+    addRoomDOMElements(room) {
+        if (room == 'theatre') {
+            const twitch_stream = this.add.dom(169, 70).createFromHTML('<twitch-stream channel="pokelawls" height="420px" theme="dark" chat></twitch-stream>');
+            this.DOMElements.push(twitch_stream);
+        }
+    };
+
+    //remove room DOM elements
+    removeRoomDOMElements() {
+        for(var i = 0; i < this.DOMElements.length; i++) {
+            this.DOMElements[i].destroy();
+        };
+        this.DOMElements = [];
+    }
 
     //add room objects
     addRoomObjects(room) {
@@ -352,9 +421,37 @@ class Game extends Phaser.Scene {
         }
     };
 
+    addRoomTeleports(room) {
+        //forest
+        if (room == 'forest') {
+            //create collider
+            var theatreTeleport = this.add.sprite(142, 601);
+            theatreTeleport.width = 100;
+            theatreTeleport.height = 300;
+            this.physics.world.enable(theatreTeleport);
+            theatreTeleport.body.setCollideWorldBounds(true);
+
+            //add teleport to list
+            const theatreTeleportObject = { room: "theatre", teleport: theatreTeleport, xMin: 281, xMax: 975, yMin: 560, yMax: 731};
+            this.teleportList.push(theatreTeleportObject);
+
+        //theatre
+        } else if (room == 'theatre') {
+            //create collider
+            var forestTeleport = this.add.sprite(1502, 601);
+            forestTeleport.width = 100;
+            forestTeleport.height = 300;
+            this.physics.world.enable(forestTeleport);
+            forestTeleport.body.setCollideWorldBounds(true);
+
+            //add teleport to list
+            const forestTeleportObject = { room: "forest", teleport: forestTeleport, xMin: 281, xMax: 975, yMin: 560, yMax: 731};
+            this.teleportList.push(forestTeleportObject);
+        };
+    }
+
     //add room music
     addRoomMusic(room) {
-
         //forest
         if (room == 'forest') {
             this.playMusic('frog_caves_chill_kopie');
@@ -363,7 +460,6 @@ class Game extends Phaser.Scene {
 
     //add room music
     addRoomAmbience(room) {
-
         //forest
         if (room == 'forest') {
             this.playAmbience('forest_ambience');
@@ -372,7 +468,6 @@ class Game extends Phaser.Scene {
 
     //add room NPCs
     addRoomNPCs(room) {
-
         //forest
         if (room == 'forest') {
             for(var i = 0; i < this.npcList.length; i++) {
@@ -390,7 +485,6 @@ class Game extends Phaser.Scene {
     //create outlines on hover
     setInteractObject(sprite) {
         sprite.on('pointerover', function () {
-
             //show outline
             this.rexOutlineFX.add(sprite, {
                 thickness: 3,
@@ -406,21 +500,25 @@ class Game extends Phaser.Scene {
 
     //open menu
     menuOpened() {
-
         //disable input
         this.disableInput = true;
         this.menuOpen = true;
 
         //stop chatbox input
         this.chatBox.setBlur();
+
+        //remove DOM elements temporarily
+        this.removeRoomDOMElements();
     };
 
     //close menu
     menuClosed() {
-
         //enable input
         this.disableInput = false;
         this.menuOpen = false;
+
+        //place DOM elements back
+        this.addRoomDOMElements(this.room);
     };
 
     //create chat box

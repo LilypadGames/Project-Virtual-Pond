@@ -689,7 +689,7 @@ class UI {
     };
 
     //create menu (exit button top right, draggable, and filled with sizer and extra content added by the executor)
-    createMenu(scene, content, options = { title: {}, background: {}, space: {}, exitButton: {}}) {
+    createMenu(scene, content, options = { title: {}, background: {}, space: {} }) {
 
         //default options
         if (!options.x) { options.x = scene.canvas.width/2; };
