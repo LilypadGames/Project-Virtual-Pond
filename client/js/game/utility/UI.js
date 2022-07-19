@@ -272,6 +272,8 @@ class UI {
         if (!content.width) { content.width = 20; };
         if (!content.height) { content.height = 20; };
 
+        if (!content.align) { content.align = 'center'; };
+
         if (!content.orientation) { content.orientation = 'x'; };
 
         // if (!content.buttonTextSize) { content.buttonTextSize = 18; };
@@ -302,7 +304,7 @@ class UI {
 
             //add to buttons
             buttons.push(
-                this.createLabel(scene, { icon: buttonsContent.icon, text: buttonsContent.text, fontSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, backgroundWidth: buttonsContent.backgroundWidth, backgroundHeight: buttonsContent.backgroundHeight, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
+                this.createLabel(scene, { icon: buttonsContent.icon, text: buttonsContent.text, fontSize: content.buttonTextSize, align: buttonsContent.align, backgroundColor: content.buttonColor, width: buttonsContent.backgroundWidth, height: buttonsContent.backgroundHeight, backgroundRadius: buttonsContent.backgroundRadius, space: {left: content.buttonSpace.left, right: content.buttonSpace.right, top: content.buttonSpace.top, bottom: content.buttonSpace.bottom} })
             );
         };
 
@@ -466,6 +468,8 @@ class UI {
         if (!options.y) { options.y = scene.canvas.height/2; };
         if (!options.width) { options.width = 500; };
         if (!options.height) { options.height = 80; };
+        if (options.draggable == undefined) { options.draggable = true; };
+
 
         if (!options.background.width) { options.background.width = 100; };
         if (!options.background.height) { options.background.width = 100; };
@@ -498,8 +502,6 @@ class UI {
         if (!options.align.title) { options.align.title = 'center'; };
         if (!options.align.options) { options.align.options = 'center'; };
         if (!options.align.actions) { options.align.actions = 'center'; };
-
-        if (!options.draggable) { options.draggable = false; };
 
         if (!options.animation.ease) { options.animation.ease = 'Bounce'; };
         if (!options.animation.duration) { options.animation.duration = 100; };
@@ -575,7 +577,7 @@ class UI {
         });
 
         //draggable
-        if (options.draggable == true) {
+        if (options.draggable) {
             dialog.setDraggable('background');
         };
 
@@ -590,6 +592,7 @@ class UI {
         if (!options.y) { options.y = scene.canvas.height/2; };
         if (!options.width) { options.width = 400; };
         if (!options.height) { options.height = 200; };
+        if (options.draggable == undefined) { options.draggable = true; };
 
         if (!options.title) { options.title = {}; };
         if (!options.title.fontSize) { options.title.fontSize = 48; };
@@ -602,6 +605,17 @@ class UI {
         if (!options.background.radius) { options.background.radius = 20 };
         if (!options.background.color) { options.background.color = ColorScheme.DarkBlue };
         if (!options.background.transparency) { options.background.transparency = 1 };
+
+        console.log(options.background.transparency);
+
+        if (!options.space) { options.space = {}; };
+        if (!options.space.left) { options.space.left = 10; };
+        if (!options.space.right) { options.space.right = 10; };
+        if (!options.space.top) { options.space.top = 0; };
+        if (!options.space.bottom) { options.space.bottom = 0; };
+        if (!options.space.panel) { options.space.panel = 10; };
+        if (!options.space.title) { options.space.title = 5; };
+        if (!options.space.titleLeft) { options.space.titleLeft = 30; };
 
         if (!options.exitButton) { options.exitButton = {}; };
         if (!options.exitButton.color) { options.exitButton.color = ColorScheme.Blue; };
@@ -633,6 +647,14 @@ class UI {
                     sizer.add( this.createSlider(scene, { id: internalContent.id , value: internalContent.value}) );
                 }
                 else if (internalContent.type == 'scrollable') {
+                    if (!internalContent.space) { internalContent.space = {}; };
+                    if (!internalContent.space.left) { internalContent.space.left = 3; };
+                    if (!internalContent.space.right) { internalContent.space.right = 3; };
+                    if (!internalContent.space.top) { internalContent.space.top = 3; };
+                    if (!internalContent.space.bottom) { internalContent.space.bottom = 3; };
+                    if (!internalContent.space.item) { internalContent.space.item = 8; };
+                    if (!internalContent.space.line) { internalContent.space.line = 8; };
+
                     var panel = scene.rexUI.add.scrollablePanel({
                         width: options.width,
 
@@ -646,12 +668,12 @@ class UI {
                         panel: {
                             child: scene.rexUI.add.fixWidthSizer({
                                 space: {
-                                    left: 3,
-                                    right: 3,
-                                    top: 3,
-                                    bottom: 3,
-                                    item: 8,
-                                    line: 8,
+                                    left: internalContent.space.left,
+                                    right: internalContent.space.right,
+                                    top: internalContent.space.top,
+                                    bottom: internalContent.space.bottom,
+                                    item: internalContent.space.item,
+                                    line: internalContent.space.line,
                                 }
                             }),
                 
@@ -666,12 +688,12 @@ class UI {
                         },
 
                         space: {
-                            left: 10,
-                            right: 10,
-                            top: 10,
-                            bottom: 10,
+                            left: options.space.left,
+                            right: options.space.right,
+                            top: options.space.top,
+                            bottom: options.space.bottom,
             
-                            panel: 10,
+                            panel: options.space.panel,
                         }
                     });
 
@@ -702,13 +724,13 @@ class UI {
             description: sizer,
 
             space: {
-                left: 10,
-                right: 10,
-                top: 0,
-                bottom: 0,
+                left: options.space.left,
+                right: options.space.right,
+                top: options.space.top,
+                bottom: options.space.bottom,
 
-                title: 5,
-                titleLeft: 30,
+                title: options.space.title,
+                titleLeft: options.space.titleLeft,
             },
 
             align: {
@@ -721,9 +743,6 @@ class UI {
         })
         .layout()
 
-        //set menu as draggable
-        .setDraggable('background')
-
         //set menu depth
         .setDepth(scene.depthUI)
 
@@ -734,6 +753,11 @@ class UI {
         .on('button.out', function (button, groupName, index, pointer, event) {
             button.getElement('background').setFillStyle(options.exitButton.color);
         });
+
+        //draggable
+        if (options.draggable) {
+            menu.setDraggable('background');
+        };
 
         //close menu when exit button is pressed
         scene.rexUI.modalPromise(

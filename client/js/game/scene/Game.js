@@ -464,6 +464,19 @@ class Game extends Phaser.Scene {
     //create toolbar
     createToolbar() {
 
+        //chat log button
+        ui.createButtons(this, { x: 120, y: 765, align: 'left', buttonTextSize: 18, buttons: [{ text: 'Chat Log', backgroundRadius: 8, backgroundWidth: 230 }] })
+        .on('button.click', () => {
+            if (!this.menuOpen) {
+                //sfx
+                this.sfxButtonClick.play();
+
+                //open chat log
+                this.openChatLog();
+            }
+        } ,this)
+        .setDepth(this.depthUI);
+
         //character creator button
         ui.createButtons(this, { x: 1180, y: 765, buttonTextSize: 22, buttons: [{ text: '🎨', backgroundRadius: 8 }] })
         .on('button.click', () => {
@@ -593,19 +606,18 @@ class Game extends Phaser.Scene {
 
     //show news menu
     openNews() {
-        //parse and format news text
+        //combine news lines into one string separated by new lines
         const passage = news.join('\n__________________________\n\n');
 
         //show news menu
         let newsMenu = ui.createMenu(this, 
-            { title: 'News', content: [ { type: 'scrollable', text: passage, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}} ]}, 
+            { title: 'News', content: [ { type: 'scrollable', text: passage, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}} ]},
             { height: 500 }
         );
-        
+
         //exit button function
         newsMenu
         .on('button.click', function (button, groupName, index, pointer, event) {
-
             //sfx
             this.sfxButtonClick.play();
 
@@ -618,6 +630,39 @@ class Game extends Phaser.Scene {
 
         //set menu as opened
         this.menuOpened();
+    };
+
+    //open chat log
+    openChatLog() {
+        //combine chat log into one string seperated by new line
+        const log = this.chatLog.join('\n');
+
+        //show news menu
+        let chatLog = ui.createMenu(this,
+            { content: [ { type: 'scrollable', text: log, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}, space: { left: 0, right: 0, item: 0, line: 0} } ] }, 
+            { x: 120, y: 565, width: 175 , height: 200, draggable: false, background: {color: ColorScheme.DarkBlue, transparency: 0.5}, space: { left: 0, right: 0, panel: 0 }}
+        );
+        
+        //exit button function
+        chatLog
+        .on('button.click', function (button, groupName, index, pointer, event) {
+            //sfx
+            this.sfxButtonClick.play();
+
+            //close
+            chatLog.emit('modal.requestClose', { index: index, text: button.text });
+
+            //set menu as closed
+            this.menuClosed();
+        }, this);
+
+        //set menu as opened
+        this.menuOpened();
+    };
+
+    //update chat log
+    updateChatLog() {
+
     };
 
     // INPUT
@@ -721,7 +766,7 @@ class Game extends Phaser.Scene {
             this.chatLog.push(line);
         }
 
-        console.log(this.chatLog);
+        this.updateChatLog();
     }
 
     //play music
@@ -1139,6 +1184,10 @@ class Game extends Phaser.Scene {
         if (characterType === 'npc') {
             this.time.delayedCall(5000, this.removeMessage, [id, messageData.id, characterType], this);
         };
+
+        //store message in chat log
+        this.chatLog.push(utility.getObject(this.playerData, id).name + ": " + messageData.text);
+        this.updateChatLog();
     };
 
     //remove player message
