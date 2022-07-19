@@ -1,34 +1,6 @@
 // UI Functions
 
 class UI {
-
-    //create sizer
-    createSizer(scene, content = {}) {
-
-        //defaults
-        if (!content.width) { content.width = 400; };
-        if (!content.height) { content.height = 80; };
-
-        if (!content.orientation) { content.orientation = 'y'; };
-
-        if (!content.space) { content.space = {}; };
-        if (!content.space.item) { content.space.item = 5; };
-
-        //create
-        return scene.rexUI.add.sizer({
-            // weight: content.width,
-            // height: content.height,
-            orientation: content.orientation,
-            space: {
-                left: 20,
-                right: 20,
-                top: 20, 
-                bottom: 20,
-                item: content.space.item
-            }
-        })
-    };
-
     //create text with background
     createText(scene, content) {
 
@@ -460,6 +432,139 @@ class UI {
         element.layout();
     };
 
+    //create sizer
+    createSizer(scene, content = {}, options = { space: {} }) {
+
+        //default options
+        if (!options.x) { options.x = 0; };
+        if (!options.y) { options.y = 0; };
+        if (!options.width) { options.width = 400; };
+        if (!options.height) { options.height = 80; };
+        if (!options.orientation) { options.orientation = 'y'; };
+
+        if (!options.space) { options.space = {}; };
+        if (!options.space.left) { options.space.left = 20; };
+        if (!options.space.right) { options.space.right = 20; };
+        if (!options.space.top) { options.space.top = 20; };
+        if (!options.space.bottom) { options.space.bottom = 20; };
+        if (!options.space.item) { options.space.item = 5; };
+
+        //init sizer
+        var sizer = scene.rexUI.add.sizer({
+            x: options.x,
+            y: options.y,
+
+            orientation: options.orientation,
+
+            space: {
+                left: options.space.left,
+                right: options.space.right,
+                top: options.space.top,
+                bottom: options.space.bottom,
+                item: options.space.item
+            }
+        });
+
+        //add background
+        if (options.background) {
+            //default options
+            if (!options.background.x) { options.background.x = 0 };
+            if (!options.background.y) { options.background.y = 0 };
+            if (!options.background.radius) { options.background.radius = 20 };
+            if (!options.background.color) { options.background.color = ColorScheme.DarkBlue };
+            if (!options.background.transparency) { options.background.transparency = 1 };
+
+            sizer.addBackground(
+                scene.rexUI.add.roundRectangle(options.background.x, options.background.y, 0, 0, options.background.radius, options.background.color, options.background.transparency)
+            )
+        };
+
+        //add content
+        if (content.content) {
+            for (let i = 0; i < content.content.length; i++) {
+
+                //get this internal's content
+                const internalContent = content.content[i];
+
+                //defaults
+                if (!internalContent.align) { internalContent.align = 'center' };
+
+                //add to sizer
+                if (internalContent.type == 'text') {
+                    sizer.add( this.createText(scene, { text: internalContent.text, fontSize: internalContent.fontSize, align: internalContent.align }) );
+                }
+                else if (internalContent.type == 'slider') {
+                    sizer.add( this.createSlider(scene, { id: internalContent.id , value: internalContent.value}) );
+                }
+                else if (internalContent.type == 'scrollable') {
+                    //default options
+                    if (!internalContent.x) { internalContent.x = 0; };
+                    if (!internalContent.y) { internalContent.y = 0; };
+                    if (!internalContent.width) { internalContent.width = options.width; };
+                    if (!internalContent.height) { internalContent.height = options.height; };
+                    if (!internalContent.position) { internalContent.position = 1; };
+                    if (!internalContent.space) { internalContent.space = {}; };
+                    if (!internalContent.space.left) { internalContent.space.left = 3; };
+                    if (!internalContent.space.right) { internalContent.space.right = 3; };
+                    if (!internalContent.space.top) { internalContent.space.top = 3; };
+                    if (!internalContent.space.bottom) { internalContent.space.bottom = 3; };
+                    if (!internalContent.space.item) { internalContent.space.item = 8; };
+                    if (!internalContent.space.line) { internalContent.space.line = 8; };
+
+                    var panel = scene.rexUI.add.scrollablePanel({
+                        x: internalContent.x,
+                        y: internalContent.y,
+
+                        width: internalContent.width,
+                        height: internalContent.height,
+
+                        mouseWheelScroller: {
+                            focus: true,
+                            speed: 0.7
+                        },
+
+                        panel: {
+                            child: scene.rexUI.add.fixWidthSizer({
+                                space: {
+                                    left: internalContent.space.left,
+                                    right: internalContent.space.right,
+                                    top: internalContent.space.top,
+                                    bottom: internalContent.space.bottom,
+                                    item: internalContent.space.item,
+                                    line: internalContent.space.line,
+                                }
+                            }),
+
+                            mask: {
+                                padding: 1
+                            },
+                        },
+
+                        slider: {
+                            track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, internalContent.track.color),
+                            thumb: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 13, internalContent.thumb.color)
+                        },
+
+                        space: {
+                            left: options.space.left,
+                            right: options.space.right,
+                            top: options.space.top,
+                            bottom: options.space.bottom,
+            
+                            panel: options.space.panel
+                        }
+                    });
+
+                    this.formatPassage(scene, panel.getElement('panel'), internalContent.text);
+
+                    sizer.add(panel);
+                };
+            };
+        };
+
+        return [sizer.setDepth(scene.depthUI), panel];
+    };
+
     //create dialog box
     createDialog(scene, content, options = { background: {}, title: {}, description: {}, button: { space: {} }, space: {}, expand: {}, align: {}, animation: {}}) {
 
@@ -469,7 +574,6 @@ class UI {
         if (!options.width) { options.width = 500; };
         if (!options.height) { options.height = 80; };
         if (options.draggable == undefined) { options.draggable = true; };
-
 
         if (!options.background.width) { options.background.width = 100; };
         if (!options.background.height) { options.background.width = 100; };
@@ -585,7 +689,7 @@ class UI {
     };
 
     //create menu (exit button top right, draggable, and filled with sizer and extra content added by the executor)
-    createMenu(scene, content, options = {}) {
+    createMenu(scene, content, options = { title: {}, background: {}, space: {}, exitButton: {}}) {
 
         //default options
         if (!options.x) { options.x = scene.canvas.width/2; };
@@ -597,7 +701,7 @@ class UI {
         if (!options.title) { options.title = {}; };
         if (!options.title.fontSize) { options.title.fontSize = 48; };
 
-        if (!options.background) { options.background = {} };
+        if (!options.background) { options.background = {}; };
         if (!options.background.x) { options.background.x = 0 };
         if (!options.background.y) { options.background.y = 0 };
         if (!options.background.width) { options.background.width = options.width };
@@ -606,14 +710,13 @@ class UI {
         if (!options.background.color) { options.background.color = ColorScheme.DarkBlue };
         if (!options.background.transparency) { options.background.transparency = 1 };
 
-        console.log(options.background.transparency);
-
         if (!options.space) { options.space = {}; };
         if (!options.space.left) { options.space.left = 10; };
         if (!options.space.right) { options.space.right = 10; };
         if (!options.space.top) { options.space.top = 0; };
         if (!options.space.bottom) { options.space.bottom = 0; };
         if (!options.space.panel) { options.space.panel = 10; };
+        if (!options.space.item) { options.space.item = 0; };
         if (!options.space.title) { options.space.title = 5; };
         if (!options.space.titleLeft) { options.space.titleLeft = 30; };
 
@@ -626,87 +729,11 @@ class UI {
         
         const title = this.createText(scene, { text: content.title, fontSize: options.title.fontSize, align: 'center' });
 
-        const exitButton = this.createLabel(scene, { text: 'X' });
+        var exitButton = this.createLabel(scene, { text: 'X' });
 
-        var sizer = this.createSizer(scene, {});
-
-        if (content.content) {
-            for (let i = 0; i < content.content.length; i++) {
-
-                //get this internal's content
-                const internalContent = content.content[i];
-    
-                //defaults
-                if (!internalContent.align) { internalContent.align = 'center' };
-
-                //add to sizer
-                if (internalContent.type == 'text') {
-                    sizer.add( this.createText(scene, { text: internalContent.text, fontSize: internalContent.fontSize, align: internalContent.align }) );
-                }
-                else if (internalContent.type == 'slider') {
-                    sizer.add( this.createSlider(scene, { id: internalContent.id , value: internalContent.value}) );
-                }
-                else if (internalContent.type == 'scrollable') {
-                    if (!internalContent.space) { internalContent.space = {}; };
-                    if (!internalContent.space.left) { internalContent.space.left = 3; };
-                    if (!internalContent.space.right) { internalContent.space.right = 3; };
-                    if (!internalContent.space.top) { internalContent.space.top = 3; };
-                    if (!internalContent.space.bottom) { internalContent.space.bottom = 3; };
-                    if (!internalContent.space.item) { internalContent.space.item = 8; };
-                    if (!internalContent.space.line) { internalContent.space.line = 8; };
-
-                    var panel = scene.rexUI.add.scrollablePanel({
-                        width: options.width,
-
-                        height: options.height,
-
-                        mouseWheelScroller: {
-                            focus: true,
-                            speed: 0.7
-                        },
-
-                        panel: {
-                            child: scene.rexUI.add.fixWidthSizer({
-                                space: {
-                                    left: internalContent.space.left,
-                                    right: internalContent.space.right,
-                                    top: internalContent.space.top,
-                                    bottom: internalContent.space.bottom,
-                                    item: internalContent.space.item,
-                                    line: internalContent.space.line,
-                                }
-                            }),
-                
-                            mask: {
-                                padding: 1
-                            },
-                        },
-
-                        slider: {
-                            track: scene.rexUI.add.roundRectangle(0, 0, 20, 10, 10, internalContent.track.color),
-                            thumb: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 13, internalContent.thumb.color),
-                        },
-
-                        space: {
-                            left: options.space.left,
-                            right: options.space.right,
-                            top: options.space.top,
-                            bottom: options.space.bottom,
-            
-                            panel: options.space.panel,
-                        }
-                    });
-
-                    this.formatPassage(scene, panel.getElement('panel'), internalContent.text);
-
-                    sizer.add(panel);
-                }
-                // else if (internalContent.type == 'button') {
-                //     sizer.add( this.createLabel(scene, { text: internalContent.button, fontSize: internalContent.button.fontSize, align: internalContent.button.align }) );
-                // }
-            };
-        };
-
+        var sizer = this.createSizer(scene, content, { width: options.width, height: options.height, space: { top: options.space.top, bottom: options.space.bottom, left: options.space.left, right: options.space.right, item: options.space.item } });
+        sizer = sizer[0];
+        
         //create menu
         var menu = scene.rexUI.add.dialog({
             x: options.x,
@@ -759,9 +786,8 @@ class UI {
             menu.setDraggable('background');
         };
 
-        //close menu when exit button is pressed
+        //close promise + animation
         scene.rexUI.modalPromise(
-
             //assign menu to promise
             menu,
 

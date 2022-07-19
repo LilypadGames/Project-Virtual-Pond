@@ -36,6 +36,8 @@ class Game extends Phaser.Scene {
 
     //chat log
     chatLog = [];
+    chatLogUI;
+    chatLogPanel;
 
     //player variables
     playerCharacter = {};
@@ -467,12 +469,21 @@ class Game extends Phaser.Scene {
         //chat log button
         ui.createButtons(this, { x: 120, y: 765, align: 'left', buttonTextSize: 18, buttons: [{ text: 'Chat Log', backgroundRadius: 8, backgroundWidth: 230 }] })
         .on('button.click', () => {
-            if (!this.menuOpen) {
+            //chat log not open
+            if (!this.chatLogUI) {
                 //sfx
                 this.sfxButtonClick.play();
 
                 //open chat log
                 this.openChatLog();
+
+            //chat log is open
+            } else {
+                //sfx
+                this.sfxButtonClick.play();
+
+                //close chat log
+                this.chatLogUI.emit('modal.requestClose');
             }
         } ,this)
         .setDepth(this.depthUI);
@@ -633,36 +644,62 @@ class Game extends Phaser.Scene {
     };
 
     //open chat log
-    openChatLog() {
+    openChatLog(animationIn = 200, scrollPosition = 1) {
         //combine chat log into one string seperated by new line
         const log = this.chatLog.join('\n');
 
-        //show news menu
-        let chatLog = ui.createMenu(this,
-            { content: [ { type: 'scrollable', text: log, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}, space: { left: 0, right: 0, item: 0, line: 0} } ] }, 
-            { x: 120, y: 565, width: 175 , height: 200, draggable: false, background: {color: ColorScheme.DarkBlue, transparency: 0.5}, space: { left: 0, right: 0, panel: 0 }}
+        //show chat log
+        var chatLogSizer = ui.createSizer(this,
+            { content: [ 
+                { type: 'scrollable', width: 550 , height: 250, text: log, position: 0, track: {color: ColorScheme.Blue}, thumb: {color: ColorScheme.LightBlue}, space: { top: 0, bottom: 0, left: 0, right: 0, item: 0, line: 0} }
+            ]},
+            { x: 300, y: 585, background: { transparency: 0.5 }, space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 }}
         );
-        
-        //exit button function
-        chatLog
-        .on('button.click', function (button, groupName, index, pointer, event) {
-            //sfx
-            this.sfxButtonClick.play();
+        this.chatLogUI = chatLogSizer[0];
+        this.chatLogPanel = chatLogSizer[1];
 
-            //close
-            chatLog.emit('modal.requestClose', { index: index, text: button.text });
+        //set scroll position
+        this.chatLogPanel.setT(scrollPosition);
 
-            //set menu as closed
-            this.menuClosed();
+        //arrange UI
+        this.chatLogUI.layout();
+
+        //close promise + animation
+        this.rexUI.modalPromise(
+            //assign chat log to promise
+            this.chatLogUI,
+
+            //options
+            {
+                cover: false,
+                duration: {
+                    in: animationIn,
+                    out: 200
+                }
+            }
+        );
+
+        //on close
+        this.chatLogUI.on('modal.close', function() {
+            //clear chatLogUI
+            this.chatLogUI = undefined;
+            this.chatLogPanel = undefined;
         }, this);
-
-        //set menu as opened
-        this.menuOpened();
     };
 
     //update chat log
     updateChatLog() {
+        //if chat log currently open
+        if (this.chatLogUI) {
+            //get current scroll position
+            const scrollPosition = this.chatLogPanel.t;
 
+            //close
+            this.chatLogUI.destroy();
+            
+            //open
+            this.openChatLog(0, scrollPosition);
+        }
     };
 
     // INPUT
@@ -1123,6 +1160,13 @@ class Game extends Phaser.Scene {
         if (playerID == clientID) this.showMessage(npcID, { id: Date.now(), text: utility.randomFromArray(this.npcLines[npcID]), endTime: Date.now() + 5000 }, 'npc');
     };
 
+    //store message in chat log
+    logMessage(id, message) {
+        //store message in chat log
+        this.chatLog.push(utility.getObject(this.playerData, id).name + ": " + message);
+        this.updateChatLog();
+    };
+
     //display player message
     showMessage(id, messageData, characterType = 'player') {
 
@@ -1184,10 +1228,6 @@ class Game extends Phaser.Scene {
         if (characterType === 'npc') {
             this.time.delayedCall(5000, this.removeMessage, [id, messageData.id, characterType], this);
         };
-
-        //store message in chat log
-        this.chatLog.push(utility.getObject(this.playerData, id).name + ": " + messageData.text);
-        this.updateChatLog();
     };
 
     //remove player message

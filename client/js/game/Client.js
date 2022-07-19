@@ -6,12 +6,6 @@ const util = new Utility();
 //connect to server
 socket = io.connect();
 
-//network time protocol
-// ntp.init(socket);
-// setInterval(function () {
-//     console.log(ntp.offset());
-// }, 1000);
-
 //calculate latency
 setInterval(() => {
     if (debugMode) {
@@ -76,7 +70,6 @@ class Client {
     //tell server that this client just joined
     joinRoom(room) {
         socket.emit('joinRoom', room, (data) => {
-            console.log(data);
             //get players in this room
             for(var i = 0; i < data["players"].length; i++){
                 if (currentScene.scene.key == 'Game') {
@@ -181,6 +174,10 @@ socket.on('showPlayerMessage', function(data) {
         //log
         if (debugMode) { console.log(util.timestampString('PLAYER ID: ' + data.id + ' - Sent Message> ' + data.message)); };
 
+        //store message
+        currentScene.logMessage(data.id, data.messageData.text)
+
+        //show message
         currentScene.showMessage(data.id, data.messageData);
     };
 });
