@@ -144,9 +144,10 @@ class Game extends Phaser.Scene {
 
             //objects
             this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
-            // this.load.image('Banner', 'room/forest/objects/Banner.png');
+            this.load.image('Sign_Theatre', 'room/forest/objects/Sign_Theatre.png');
             this.load.image('Radio', 'room/forest/objects/Radio.png');
             this.load.image('Lost_Recording', 'room/forest/objects/Lost_Recording.png');
+            // this.load.image('Banner', 'room/forest/objects/Banner.png');
             // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
 
             //object sfx
@@ -165,10 +166,10 @@ class Game extends Phaser.Scene {
             this.load.image('Theatre_Background', 'room/theatre/layers/Background.png');
             this.load.image('Theatre_Stage', 'room/theatre/layers/Stage.png');
             this.load.image('Theatre_Curtains', 'room/theatre/layers/Curtains.png');
-            this.load.image('Theatre_Seats_1', 'room/theatre/layers/Seats_1.png');
-            this.load.image('Theatre_Seats_2', 'room/theatre/layers/Seats_2.png');
-            this.load.image('Theatre_Seats_3', 'room/theatre/layers/Seats_3.png');
             this.load.image('Theatre_Foreground', 'room/theatre/layers/Foreground.png');
+
+            //objects
+            this.load.image('Sign_Forest', 'room/theatre/objects/Sign_Forest.png');
         };
     };
 
@@ -230,7 +231,6 @@ class Game extends Phaser.Scene {
     };
 
     update() {
-
         //handle collisions between player and npc characters
         for(var i = 0; i < this.npcList.length; i++) {
             Object.keys(this.playerCharacter).forEach((key) => {
@@ -252,17 +252,17 @@ class Game extends Phaser.Scene {
             });
         };
 
-        //detect teleports
-        for(var i = 0; i < this.teleportList.length; i++) {
-            Object.keys(this.playerCharacter).forEach((key) => {
-                this.physics.world.collide(this.playerCharacter[key], this.teleportList[i]["teleport"], () => {
+        //check if player attempts to teleport
+        if (this.playerCharacter[clientID]) {
+            for(var i = 0; i < this.teleportList.length; i++) {
+                this.physics.world.collide(this.playerCharacter[clientID], this.teleportList[i]["teleport"], () => {
                     //open new room scene
-                    this.end(); 
+                    this.end();
                     this.scene.start('Game', this.teleportList[i]["room"]);
                 });
-            });
-        };
-
+            };
+        }
+        
         //handle player character depth
         Object.keys(this.playerCharacter).forEach((key) => {
             this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
@@ -332,12 +332,6 @@ class Game extends Phaser.Scene {
             this.walkableLayer = 'Theatre_Stage';
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Curtains').setDepth(610);
             this.unWalkableLayer.push('Theatre_Curtains');
-            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Seats_1').setDepth(736);
-            this.unWalkableLayer.push('Theatre_Seats_1');
-            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Seats_2').setDepth(770);
-            this.unWalkableLayer.push('Theatre_Seats_2');
-            this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Seats_3').setDepth(786);
-            this.unWalkableLayer.push('Theatre_Seats_3');
             this.add.image(this.canvas.width/2, this.canvas.height/2, 'Theatre_Foreground').setDepth(this.depthForeground);
             this.unWalkableLayer.push('Theatre_Foreground');
         }
@@ -361,12 +355,16 @@ class Game extends Phaser.Scene {
 
     //add room objects
     addRoomObjects(room) {
-
         //forest
         if (room == 'forest') {
+            //theatre sign
+            let theatre_sign = this.add.image(148, 600, 'Sign_Theatre')
+            .setDepth(600)
+            .setOrigin(0.5, 1);
+
             //news sign
-            let news_sign = this.add.image(187, 630, 'Sign_News')
-            .setDepth(628)
+            let news_sign = this.add.image(1020, 620, 'Sign_News')
+            .setDepth(630)
             .setOrigin(0.5, 1)
             .setInteractive();
             this.setInteractObject(news_sign);
@@ -418,6 +416,13 @@ class Game extends Phaser.Scene {
             // this.setInteractObject(tableFindFour);
             // tableFindFour.on('pointerdown', () => {
             // }, this);
+
+        //theatre
+        } else if (room == 'theatre') {
+            //forest sign
+            let forest_sign = this.add.image(1236, 692, 'Sign_Forest')
+            .setDepth(700)
+            .setOrigin(0.5, 1);
         }
     };
 
@@ -427,12 +432,12 @@ class Game extends Phaser.Scene {
             //create collider
             var theatreTeleport = this.add.sprite(142, 601);
             theatreTeleport.width = 100;
-            theatreTeleport.height = 300;
+            theatreTeleport.height = 500;
             this.physics.world.enable(theatreTeleport);
             theatreTeleport.body.setCollideWorldBounds(true);
 
             //add teleport to list
-            const theatreTeleportObject = { room: "theatre", teleport: theatreTeleport, xMin: 281, xMax: 975, yMin: 560, yMax: 731};
+            const theatreTeleportObject = { room: "theatre", teleport: theatreTeleport, spawn: {x: 1042, y: 637, direction: 'left'} };
             this.teleportList.push(theatreTeleportObject);
 
         //theatre
@@ -445,7 +450,7 @@ class Game extends Phaser.Scene {
             forestTeleport.body.setCollideWorldBounds(true);
 
             //add teleport to list
-            const forestTeleportObject = { room: "forest", teleport: forestTeleport, xMin: 281, xMax: 975, yMin: 560, yMax: 731};
+            const forestTeleportObject = { room: "forest", teleport: forestTeleport, spawn: {x: 252, y: 632, direction: 'right'}};
             this.teleportList.push(forestTeleportObject);
         };
     }
