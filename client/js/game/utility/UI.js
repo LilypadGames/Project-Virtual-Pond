@@ -74,7 +74,7 @@ class UI {
                 icon: scene.add.sprite(content.width, content.height, content.icon),
     
                 text: scene.add.text(0, 0, content.text, { fontSize: content.fontSize, fontFamily: content.fontFamily }),
-    
+
                 align: content.align,
         
                 space: {
@@ -433,7 +433,7 @@ class UI {
     };
 
     //create sizer
-    createSizer(scene, content = {}, options = { space: {} }) {
+    createSizer(scene, content = {}, options = {}) {
 
         //default options
         if (!options.x) { options.x = 0; };
@@ -699,7 +699,7 @@ class UI {
         if (options.draggable == undefined) { options.draggable = true; };
 
         if (!options.title) { options.title = {}; };
-        if (!options.title.fontSize) { options.title.fontSize = 48; };
+        if (!options.title.fontSize) { options.title.fontSize = 30; };
 
         if (!options.background) { options.background = {}; };
         if (!options.background.x) { options.background.x = 0 };
@@ -729,7 +729,7 @@ class UI {
         
         const title = this.createText(scene, { text: content.title, fontSize: options.title.fontSize, align: 'center' });
 
-        var exitButton = this.createLabel(scene, { text: 'X' });
+        const exitButton = this.createLabel(scene, { text: 'X' });
 
         var sizer = this.createSizer(scene, content, { width: options.width, height: options.height, space: { top: options.space.top, bottom: options.space.bottom, left: options.space.left, right: options.space.right, item: options.space.item } });
         sizer = sizer[0];
