@@ -1,11 +1,9 @@
 {
     "version": "",
-
     "server": {
         "port": "",
         "proxy": false
     },
-    
     "socketio_admin_dash": {
         "auth": {
             "type": "",
@@ -13,17 +11,14 @@
             "password": ""
         }
     },
-
     "twitch": {
         "clientID": "",
         "clientSecret": "",
         "callbackURL": ""
     },
-
     "database": {
         "databaseURL": ""
     },
-
     "firebase": {
         "type": "",
         "project_id": "",

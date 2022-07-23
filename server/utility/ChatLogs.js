@@ -3,15 +3,15 @@ chatLogs = {};
 module.exports = {
     chatLogs: {},
 
-    init: function(io) {
+    init: function (io) {
         //on room creation
-        io.of("/").adapter.on("create-room", (room) => {
+        io.of('/').adapter.on('create-room', (room) => {
             //init chat log for room
             this.chatLogs[room] = [];
         });
     },
 
-    logMessage: function(roomID, userID, date, message) {
+    logMessage: function (roomID, userID, date, message) {
         //create entry
         let entry = {
             userID: userID,
@@ -25,10 +25,10 @@ module.exports = {
         //delete older entries if over max
         if (this.chatLogs[roomID].length > 30) {
             this.chatLogs[roomID].splice(0, 1);
-        };
+        }
     },
 
-    getRoomLogs: function(roomID) {
+    getRoomLogs: function (roomID) {
         return this.chatLogs[roomID];
-    }
-}
+    },
+};
