@@ -4,8 +4,8 @@
   "description": "A Physical Space for Twitch Frogs to Hang and Chat.",
   "main": "server/Server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server/Server.js"
+    "start": "nodemon server/Server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "Node.js",
@@ -20,15 +20,16 @@
   ],
   "license": "GNU GPL V3.0",
   "dependencies": {
-    "@socket.io/admin-ui": "^0.3.0",
+    "@socket.io/admin-ui": "^0.4.0",
     "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
-    "express": "^4.15.2",
+    "express": "^4.18.1",
     "express-session": "^1.17.3",
-    "firebase-admin": "^10.2.0",
+    "firebase-admin": "^11.0.0",
     "fs": "0.0.1-security",
-    "leo-profanity": "^1.5.0",
-    "passport": "^0.5.3",
+    "jsonpath": "^1.1.1",
+    "leo-profanity": "^1.5.1",
+    "passport": "^0.6.0",
     "passport-oauth": "^1.0.0",
     "path": "^0.12.7",
     "rate-limiter-flexible": "^2.3.7",
