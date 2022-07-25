@@ -1,91 +1,91 @@
 // Game Scene
 
 class Game extends Phaser.Scene {
-    // LOCAL VARIABLES
-    //world
-    walkableLayer;
-    unWalkableLayer = [];
-    teleportList = [];
-    DOMElements = [];
-
-    //depth
-    depthUI = 100002;
-    depthOverlay = 100001;
-    depthForeground = 100000;
-    depthGround = 1;
-    depthBackground = 0;
-
-    //audio
-    defaultMusicSettings = {
-        mute: false,
-        volume: 0,
-        rate: 1,
-        detune: 0,
-        seek: 0,
-        loop: true,
-        delay: 0,
-    };
-    defaultAmbienceSettings = {
-        mute: false,
-        volume: 0,
-        rate: 1,
-        detune: 0,
-        seek: 0,
-        loop: true,
-        delay: 0,
-    };
-
-    //chat log
-    chatLog = [];
-    chatLogUI;
-    chatLogPanel;
-
-    //player variables
-    playerCharacter = {};
-    playerData = [];
-
-    //object variables
-    npcCharacter = {};
-    npcData = [];
-    npcList = [];
-
-    //UI
-    overlayPadding = 8;
-    nametagFontSize = 14;
-    nametagClientConfig = {
-        fontFamily: 'Burbin',
-        color: utility.hexIntegerToString(ColorScheme.White),
-        stroke: utility.hexIntegerToString(ColorScheme.Black),
-        strokeThickness: 6,
-    };
-    nametagConfig = {
-        fontFamily: 'Burbin',
-        color: utility.hexIntegerToString(ColorScheme.Black),
-    };
-    messageFontSize = 18;
-    messageConfig = {
-        fontFamily: 'Arial',
-        color: utility.hexIntegerToString(ColorScheme.Black),
-        lineSpacing: 2,
-        align: 'center',
-        padding: { left: 8, right: 8, top: 6, bottom: 6 },
-        wordWrap: { width: 250 },
-    };
-    messageLength = 80;
-    disableInput = false;
-    menuOpen = false;
-
     // INIT
     constructor() {
         super({ key: 'Game' });
     }
 
     init(room) {
-        //set scene
+        //client file needs the current game instance
         currentScene = this;
 
-        //set room
+        //save room
         this.room = room;
+
+        // LOCAL VARIABLES
+        //world
+        this.walkableLayer = undefined;
+        this.unWalkableLayer = [];
+        this.teleportList = [];
+        this.DOMElements = [];
+
+        //depth
+        this.depthUI = 100002;
+        this.depthOverlay = 100001;
+        this.depthForeground = 100000;
+        this.depthGround = 1;
+        this.depthBackground = 0;
+
+        //audio
+        this.defaultMusicSettings = {
+            mute: false,
+            volume: 0,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0,
+        };
+        this.defaultAmbienceSettings = {
+            mute: false,
+            volume: 0,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0,
+        };
+
+        //chat log
+        this.chatLog = [];
+        this.chatLogUI = undefined;
+        this.chatLogPanel;
+
+        //player variables
+        this.playerCharacter = {};
+        this.playerData = [];
+
+        //object variables
+        this.npcCharacter = {};
+        this.npcData = [];
+        this.npcList = [];
+
+        //UI
+        this.overlayPadding = 8;
+        this.nametagFontSize = 14;
+        this.nametagClientConfig = {
+            fontFamily: 'Burbin',
+            color: utility.hexIntegerToString(ColorScheme.White),
+            stroke: utility.hexIntegerToString(ColorScheme.Black),
+            strokeThickness: 6,
+        };
+        this.nametagConfig = {
+            fontFamily: 'Burbin',
+            color: utility.hexIntegerToString(ColorScheme.Black),
+        };
+        this.messageFontSize = 18;
+        this.messageConfig = {
+            fontFamily: 'Arial',
+            color: utility.hexIntegerToString(ColorScheme.Black),
+            lineSpacing: 2,
+            align: 'center',
+            padding: { left: 8, right: 8, top: 6, bottom: 6 },
+            wordWrap: { width: 250 },
+        };
+        this.messageLength = 80;
+        this.disableInput = false;
+        this.menuOpen = false;
     }
 
     // LOGIC
@@ -111,139 +111,8 @@ class Game extends Phaser.Scene {
         //debug
         this.load.image('target', 'debug/target.png');
 
-        //forest
-        if (this.room === 'forest') {
-            //layers
-            this.load.image(
-                'Forest_Background',
-                'room/forest/layers/Background.png'
-            );
-            this.load.image('Forest_Ground', 'room/forest/layers/Ground.png');
-            this.load.image('Forest_Tree_3', 'room/forest/layers/Tree_3.png');
-            this.load.image('Forest_Tree_2', 'room/forest/layers/Tree_2.png');
-            this.load.image('Forest_Rock_1', 'room/forest/layers/Rock_1.png');
-            this.load.image('Forest_Stump_1', 'room/forest/layers/Stump_1.png');
-            this.load.image('Forest_Tree_1', 'room/forest/layers/Tree_1.png');
-            this.load.image(
-                'Forest_Foreground',
-                'room/forest/layers/Foreground.png'
-            );
-
-            //npc
-            this.load.image('Poke', 'character/npc/Poke.png');
-            this.load.image('Gigi', 'character/npc/Gigi.png');
-            this.load.image('Jesse', 'character/npc/Jesse.png');
-            this.load.image('Snic', 'character/npc/Snic.png');
-
-            //npc data
-            this.npcList = [
-                {
-                    id: 0,
-                    name: 'Poke',
-                    x: 363,
-                    y: 629,
-                    direction: 'right',
-                    lines: [
-                        "*cough* i'm sick",
-                        'yo',
-                        "i'll be on lacari later",
-                        'one sec gunna take a water break',
-                        'u ever have a hemorrhoid?',
-                    ],
-                },
-                {
-                    id: 1,
-                    name: 'Gigi',
-                    x: 250,
-                    y: 540,
-                    direction: 'right',
-                    lines: [
-                        '*thinking of something HUH to say*',
-                        'people call me a very accurate gamer',
-                        'GEORGIEEEEEE!',
-                    ],
-                },
-                {
-                    id: 2,
-                    name: 'Jesse',
-                    x: 1032,
-                    y: 666,
-                    direction: 'left',
-                    lines: [
-                        'have you heard about the hangry hippos NFT?',
-                        "fuck all the bitches I know I don't give a fuck about flow",
-                        'a ha ha...',
-                        'i could be playing among us rn',
-                    ],
-                },
-                {
-                    id: 3,
-                    name: 'Snic',
-                    x: 1238,
-                    y: 554,
-                    direction: 'left',
-                    lines: ['IDGAF'],
-                },
-            ];
-
-            //objects
-            this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
-            this.load.image(
-                'Sign_Theatre',
-                'room/forest/objects/Sign_Theatre.png'
-            );
-            this.load.image('Radio', 'room/forest/objects/Radio.png');
-            this.load.image(
-                'Lost_Recording',
-                'room/forest/objects/Lost_Recording.png'
-            );
-            // this.load.image('Banner', 'room/forest/objects/Banner.png');
-            // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
-
-            //object sfx
-            this.load.audio(
-                'radio_click',
-                'room/forest/audio/sfx/object/radio_click.mp3'
-            );
-            this.load.audio(
-                'lost_recording',
-                'room/forest/audio/sfx/object/lost_recording.mp3'
-            );
-
-            //music
-            this.load.audio(
-                'frog_caves_chill_kopie',
-                'room/forest/audio/music/frog_caves_chill_kopie.mp3'
-            );
-            this.load.audio('mask', 'room/forest/audio/music/mask.mp3');
-
-            //ambience
-            this.load.audio(
-                'forest_ambience',
-                'room/forest/audio/ambience/forest_ambience.mp3'
-            );
-        } else if (this.room === 'theatre') {
-            //layers
-            this.load.image(
-                'Theatre_Background',
-                'room/theatre/layers/Background.png'
-            );
-            this.load.image('Theatre_Stage', 'room/theatre/layers/Stage.png');
-            this.load.image(
-                'Theatre_Curtains',
-                'room/theatre/layers/Curtains.png'
-            );
-            this.load.image(
-                'Theatre_Foreground',
-                'room/theatre/layers/Foreground.png'
-            );
-
-            //objects
-            this.load.image(
-                'Sign_Forest',
-                'room/theatre/objects/Sign_Forest.png'
-            );
-        }
+        //load room assets
+        this.preloadRoomAssets(this.room);
     }
 
     create() {
@@ -419,6 +288,144 @@ class Game extends Phaser.Scene {
     }
 
     // WORLD
+    //preload room assets
+    preloadRoomAssets(room) {
+        //forest
+        if (room === 'forest') {
+            //layers
+            this.load.image(
+                'Forest_Background',
+                'room/forest/layers/Background.png'
+            );
+            this.load.image('Forest_Ground', 'room/forest/layers/Ground.png');
+            this.load.image('Forest_Tree_3', 'room/forest/layers/Tree_3.png');
+            this.load.image('Forest_Tree_2', 'room/forest/layers/Tree_2.png');
+            this.load.image('Forest_Rock_1', 'room/forest/layers/Rock_1.png');
+            this.load.image('Forest_Stump_1', 'room/forest/layers/Stump_1.png');
+            this.load.image('Forest_Tree_1', 'room/forest/layers/Tree_1.png');
+            this.load.image(
+                'Forest_Foreground',
+                'room/forest/layers/Foreground.png'
+            );
+
+            //npc
+            this.load.image('Poke', 'character/npc/Poke.png');
+            this.load.image('Gigi', 'character/npc/Gigi.png');
+            this.load.image('Jesse', 'character/npc/Jesse.png');
+            this.load.image('Snic', 'character/npc/Snic.png');
+
+            //npc data
+            this.npcList = [
+                {
+                    id: 0,
+                    name: 'Poke',
+                    x: 363,
+                    y: 629,
+                    direction: 'right',
+                    lines: [
+                        "*cough* i'm sick",
+                        'yo',
+                        "i'll be on lacari later",
+                        'one sec gunna take a water break',
+                        'u ever have a hemorrhoid?',
+                    ],
+                },
+                {
+                    id: 1,
+                    name: 'Gigi',
+                    x: 250,
+                    y: 540,
+                    direction: 'right',
+                    lines: [
+                        '*thinking of something HUH to say*',
+                        'people call me a very accurate gamer',
+                        'GEORGIEEEEEE!',
+                    ],
+                },
+                {
+                    id: 2,
+                    name: 'Jesse',
+                    x: 1032,
+                    y: 666,
+                    direction: 'left',
+                    lines: [
+                        'have you heard about the hangry hippos NFT?',
+                        "fuck all the bitches I know I don't give a fuck about flow",
+                        'a ha ha...',
+                        'i could be playing among us rn',
+                    ],
+                },
+                {
+                    id: 3,
+                    name: 'Snic',
+                    x: 1238,
+                    y: 554,
+                    direction: 'left',
+                    lines: ['IDGAF'],
+                },
+            ];
+
+            //objects
+            this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
+            this.load.image(
+                'Sign_Theatre',
+                'room/forest/objects/Sign_Theatre.png'
+            );
+            this.load.image('Radio', 'room/forest/objects/Radio.png');
+            this.load.image(
+                'Lost_Recording',
+                'room/forest/objects/Lost_Recording.png'
+            );
+            // this.load.image('Banner', 'room/forest/objects/Banner.png');
+            // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
+
+            //object sfx
+            this.load.audio(
+                'radio_click',
+                'room/forest/audio/sfx/object/radio_click.mp3'
+            );
+            this.load.audio(
+                'lost_recording',
+                'room/forest/audio/sfx/object/lost_recording.mp3'
+            );
+
+            //music
+            this.load.audio(
+                'frog_caves_chill_kopie',
+                'room/forest/audio/music/frog_caves_chill_kopie.mp3'
+            );
+            this.load.audio('mask', 'room/forest/audio/music/mask.mp3');
+
+            //ambience
+            this.load.audio(
+                'forest_ambience',
+                'room/forest/audio/ambience/forest_ambience.mp3'
+            );
+
+        } else if (room === 'theatre') {
+            //layers
+            this.load.image(
+                'Theatre_Background',
+                'room/theatre/layers/Background.png'
+            );
+            this.load.image('Theatre_Stage', 'room/theatre/layers/Stage.png');
+            this.load.image(
+                'Theatre_Curtains',
+                'room/theatre/layers/Curtains.png'
+            );
+            this.load.image(
+                'Theatre_Foreground',
+                'room/theatre/layers/Foreground.png'
+            );
+
+            //objects
+            this.load.image(
+                'Sign_Forest',
+                'room/theatre/objects/Sign_Forest.png'
+            );
+        }
+    }
+
     //add layers
     addRoomLayers(room) {
         //forest

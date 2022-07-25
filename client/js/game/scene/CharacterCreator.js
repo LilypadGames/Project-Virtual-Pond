@@ -1,47 +1,42 @@
 // Character Creator Scene
 
 class CharacterCreator extends Phaser.Scene {
-    // LOCAL VARIABLES
-    //character
-    characterData;
-    character;
-    characterCreated;
-
-    //UI
-    nametag;
-    nametagFontSize = 60;
-    nametagConfig = {
-        fontFamily: 'Burbin',
-        color: utility.hexIntegerToString(ColorScheme.White),
-        stroke: utility.hexIntegerToString(ColorScheme.Black),
-        strokeThickness: 6,
-    };
-    disableInput = false;
-
-    //audio
-    sfxButtonClick;
-
-    //depth
-    depthUI = 100002;
-    depthCharacterUI = 100001;
-    depthBackgroundUI = 1;
-
     // INIT
     constructor() {
         super({ key: 'CharacterCreator' });
     }
 
     init(previousRoom) {
-        //set scene
+        //client file needs the game instance
         currentScene = this;
 
-        //set previous room
+        //save previous room
         this.previousRoom = previousRoom;
 
-        //reset variables
+        // LOCAL VARIABLES
+        //character
         this.characterData = {};
         this.character = {};
         this.characterCreated = false;
+
+        //UI
+        this.nametag = undefined;
+        this.nametagFontSize = 60;
+        this.nametagConfig = {
+            fontFamily: 'Burbin',
+            color: utility.hexIntegerToString(ColorScheme.White),
+            stroke: utility.hexIntegerToString(ColorScheme.Black),
+            strokeThickness: 6,
+        };
+        this.disableInput = false;
+
+        //audio
+        this.sfxButtonClick = undefined;
+
+        //depth
+        this.depthUI = 100002;
+        this.depthCharacterUI = 100001;
+        this.depthBackgroundUI = 1;
     }
 
     // LOGIC
@@ -105,6 +100,11 @@ class CharacterCreator extends Phaser.Scene {
         this.registry.destroy();
         this.events.removeAllListeners('updatedClientPlayerData');
         this.scene.stop();
+
+        //reset variables
+        this.characterData = {};
+        this.character = {};
+        this.characterCreated = false;
     }
 
     quit() {
