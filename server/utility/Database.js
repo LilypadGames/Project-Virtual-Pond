@@ -1,39 +1,39 @@
 // Database Functions
 
 //dependency: file parsing
-const fs = require('fs');
 const path = require('path');
 
 //get config values
-const config = JSON.parse(fs.readFileSync(path.join(__dirname, '../config/config.json')));
+const config = require(path.join(__dirname, '../config/config.json'));
 
 //dependency: database
-var firebase = require("firebase-admin");
+var firebase = require('firebase-admin');
 
 //init database
 firebase.initializeApp({
     credential: firebase.credential.cert(config.firebase),
-    databaseURL: config.database.databaseURL
+    databaseURL: config.database.databaseURL,
 });
 const database = firebase.database();
 
 module.exports = {
-
     //set value in database
-    setValue: function(path, value){
+    setValue: function (path, value) {
         database.ref(path).set(value);
     },
 
     //get value in database
-    getValue: async function(path) {
-
+    getValue: async function (path) {
         //init value
         var value;
 
         //get value in database
-        await database.ref(path).orderByKey().once('value', async (data) => {
-            value = await data.val();
-        });
+        await database
+            .ref(path)
+            .orderByKey()
+            .once('value', async (data) => {
+                value = await data.val();
+            });
 
         // //set value if none set and default value provided
         // if (!value && base != undefined) {
@@ -46,7 +46,12 @@ module.exports = {
     },
 
     //check to see if a path in the database exists
-    pathExists: async function(path) {
-        return await database.ref(path).orderByKey().limitToFirst(1).once('value').then(res => res.exists());
-    }
-}
+    pathExists: async function (path) {
+        return await database
+            .ref(path)
+            .orderByKey()
+            .limitToFirst(1)
+            .once('value')
+            .then((res) => res.exists());
+    },
+};

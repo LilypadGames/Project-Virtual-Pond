@@ -19,12 +19,6 @@
     <a href="https://github.com/Dan-Mizu/Project-Virtual-Pond/commits" target="_blank">
         <img src="https://img.shields.io/github/last-commit/Dan-Mizu/Project-Virtual-Pond?color=darkgreen&style=for-the-badge" alt="Last Commit"/>
     </a>
-    <a href="https://discord.gg/2aVq8qmcSr" target="_blank">
-        <img src="https://img.shields.io/discord/975772011970306148?color=purple&label=Discord%20&logo=discord&logoColor=white&style=for-the-badge" alt="Discord">
-    </a>
-    <a href="https://trello.com/b/2EppX5wM/project-virtual-pond" target="_blank">
-        <img src="https://img.shields.io/badge/-Trello-blue?logo=trello&style=for-the-badge" alt="Trello">
-    </a>
 </p>
 
 <p align="center">
@@ -37,9 +31,15 @@
 </p>
 
 <p align="center" style="display: flex; justify-content: center; align-items: center;">
-    <a href="https://ko-fi.com/C0C37J4MF" target="_blank" style="padding: 1%">
-        <img height="30rem" src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Donations"/>
+    <a href="https://discord.gg/2aVq8qmcSr" target="_blank">
+        <img src="https://img.shields.io/discord/975772011970306148?color=purple&label=Discord%20&logo=discord&logoColor=white&style=for-the-badge" alt="Discord">
     </a>
+    <a href="https://trello.com/b/2EppX5wM/project-virtual-pond" target="_blank">
+        <img src="https://img.shields.io/badge/-Trello-blue?logo=trello&style=for-the-badge" alt="Trello">
+    </a>
+</a>
+
+<p align="center" style="display: flex; justify-content: center; align-items: center;">
     <a href="https://www.paypal.com/paypalme/DanMizu" target="_blank" style="padding: 1%">
         <img height="60rem" src="paypal-donate-button.webp" alt="Donations"/>
     </a>
@@ -70,6 +70,7 @@
 ---
 
 ## Longterm Goals:
+
 - [ ] Several Minigames both Singleplayer and Multiplayer
 - [ ] Complete Character Customization
 - [ ] Extensive Chat Features including Twitch Emotes
@@ -80,16 +81,13 @@
 
 ## Contribute:
 
-There are two ways to contribute. 
+There are two ways to contribute.
 
 ### Donations
 
 I am currently working alone on this project- creating both the assets and the code. I do not have a job and am attending university, so any donations would help a ton. I could use the money to hire artists, since art is not my strong suite and I want this game to be the best it could be.
 
 <p align="center" style="display: flex; justify-content: center; align-items: center;">
-    <a href="https://ko-fi.com/C0C37J4MF" target="_blank" style="padding: 1%">
-        <img height="30rem" src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Donations"/>
-    </a>
     <a href="https://www.paypal.com/paypalme/DanMizu" target="_blank" style="padding: 1%">
         <img height="60rem" src="paypal-donate-button.webp" alt="Donations"/>
     </a>
@@ -113,11 +111,11 @@ I personally use Github Desktop to clone repos.
 
 3. **Open a Terminal at your Local Environment**
 
-Open a console/terminal within the directory the cloned repo lives at either within finder on your PC, or using your IDE such as Visual Studio Code. 
+Open a console/terminal within the directory the cloned repo lives at either within finder on your PC, or using your IDE such as Visual Studio Code.
 
 4. **Install Dependencies**
 
-```
+```npm
 npm install
 ```
 
@@ -127,7 +125,7 @@ Open the project in your IDE of choice (I use Visual Studio Code). Go to the `/s
 
 6. **Run Node.js server**
 
-```
+```npm
 npm start
 ```
 
@@ -137,4 +135,4 @@ Any changes you now make will automatically restart the server. Access the game 
 
 8. **Submit Changes For Review**
 
-When you're finished implementing a new feature/mechanic, push your changes and submit them for review. This process is detailed here: https://github.com/firstcontributions/first-contributions.
+When you're finished implementing a new feature/mechanic, push your changes and submit them for review. This process is detailed here: <https://github.com/firstcontributions/first-contributions>.

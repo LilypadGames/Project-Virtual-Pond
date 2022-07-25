@@ -1,0 +1,19 @@
+{
+    "forest": {
+        "spawnpoint": {
+            "minX": 281,
+            "maxX": 975,
+            "minY": 560,
+            "maxY": 731
+        }
+    },
+
+    "theatre": {
+        "spawnpoint": {
+            "minX": 172,
+            "maxX": 1078,
+            "minY": 566,
+            "maxY": 649
+        }
+    }
+}

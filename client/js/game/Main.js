@@ -12,17 +12,31 @@ var canvas = document.createElement('canvas');
 const gameWidth = 1280;
 const gameHeight = 800;
 
-//settings (cookies)
+//cookies
 var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
 const defaultOptions = [
     { id: 'music', volume: 0.5 },
     { id: 'ambience', volume: 0.5 },
-    { id: 'sfx', volume: 1 }
+    { id: 'sfx', volume: 1 },
 ];
-if (gameOptions === null || gameOptions.length <= 0 || gameOptions.length != defaultOptions.length) {
+if (
+    gameOptions === null ||
+    gameOptions.length <= 0 ||
+    gameOptions.length != defaultOptions.length
+) {
     localStorage.setItem('gameOptions', JSON.stringify(defaultOptions));
     gameOptions = defaultOptions;
-};
+}
+var gameValues = JSON.parse(localStorage.getItem('gameValues'));
+const defaultValues = [{ id: 'welcome', value: 0 }];
+if (
+    gameValues === null ||
+    gameValues.length <= 0 ||
+    gameValues.length != defaultValues.length
+) {
+    localStorage.setItem('gameValues', JSON.stringify(defaultValues));
+    gameValues = defaultValues;
+}
 
 //scene
 var currentScene;
@@ -35,8 +49,7 @@ const depthDebug = 1000000;
 var clientID;
 
 //runs when window loads
-window.onload = function() {
-
+window.onload = function () {
     //game configuration
     var config = {
         gameTitle: 'Project Virtual Pond',
@@ -50,63 +63,60 @@ window.onload = function() {
             resolution: window.devicePixelRatio,
             max: {
                 width: gameWidth,
-                height: gameHeight
+                height: gameHeight,
             },
             width: gameWidth,
-            height: gameHeight
+            height: gameHeight,
         },
         backgroundColor: ColorScheme.Blue,
         render: {
             // pixelArt: true,
-            antialiasGL: false
+            antialiasGL: false,
         },
         physics: {
             // arcade: {
             //     debug: true
             // },
-            default: 'arcade'
+            default: 'arcade',
         },
         dom: {
-            createContainer: true
+            createContainer: true,
         },
         plugins: {
             scene: [
                 {
                     key: 'rexUI',
                     plugin: rexuiplugin,
-                    mapping: 'rexUI'
-                }
+                    mapping: 'rexUI',
+                },
             ],
             global: [
                 {
                     key: 'rexCover',
                     plugin: rexcoverplugin,
                     start: true,
-                    mapping: 'rexCover'
+                    mapping: 'rexCover',
                 },
                 {
                     key: 'rexOutlineFX',
                     plugin: rexoutlinepipelineplugin,
                     start: true,
-                    mapping: 'rexOutlineFX'
+                    mapping: 'rexOutlineFX',
                 },
                 {
                     key: 'rexInputText',
                     plugin: rexinputtextplugin,
                     start: true,
-                    mapping: 'rexInputText'
-                }
-            ]
+                    mapping: 'rexInputText',
+                },
+            ],
         },
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
-        scene: [ Menu, Game, CharacterCreator ]
+        scene: [Menu, Game, CharacterCreator],
     };
 
     //init game
     game = new Phaser.Game(config);
-
-    //version
-    console.log('%c %c Project Virtual Pond - InDev v0.0.1', 'background: #64BEFF;', 'background: #000000;');
 };
