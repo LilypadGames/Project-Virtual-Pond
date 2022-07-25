@@ -402,7 +402,6 @@ class Game extends Phaser.Scene {
                 'forest_ambience',
                 'room/forest/audio/ambience/forest_ambience.mp3'
             );
-
         } else if (room === 'theatre') {
             //variables
             this.chatLogUIHeight = 195;
