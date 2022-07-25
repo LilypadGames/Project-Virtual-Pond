@@ -50,6 +50,7 @@ class Game extends Phaser.Scene {
         //chat log
         this.chatLog = [];
         this.chatLogUI = undefined;
+        this.chatLogUIHeight = 250;
         this.chatLogPanel;
 
         //player variables
@@ -403,6 +404,9 @@ class Game extends Phaser.Scene {
             );
 
         } else if (room === 'theatre') {
+            //variables
+            this.chatLogUIHeight = 195;
+
             //layers
             this.load.image(
                 'Theatre_Background',
@@ -1125,7 +1129,7 @@ class Game extends Phaser.Scene {
                     {
                         type: 'scrollable',
                         width: 550,
-                        height: 250,
+                        height: this.chatLogUIHeight,
                         text: log,
                         position: 0,
                         track: { color: ColorScheme.Blue },
@@ -1142,8 +1146,8 @@ class Game extends Phaser.Scene {
                 ],
             },
             {
-                x: 300,
-                y: 585,
+                x: 5,
+                y: 740,
                 background: { transparency: 0.5 },
                 space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 },
             }
@@ -1152,6 +1156,7 @@ class Game extends Phaser.Scene {
         this.chatLogPanel = chatLogSizer[1];
 
         //arrange UI
+        this.chatLogUI.setOrigin(0, 1);
         this.chatLogUI.layout();
 
         //set scroll position
