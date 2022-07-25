@@ -190,7 +190,7 @@ class Game extends Phaser.Scene {
         //add room DOM elements
         this.addRoomDOMElements(this.room);
 
-        //join room and get currently connected players in this room
+        //tell server that the client has joined this room and recieve information such as currently connected players to this room
         client.joinRoom(this.room);
 
         //add toolbar

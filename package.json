@@ -27,6 +27,7 @@
     "express-session": "^1.17.3",
     "firebase-admin": "^11.0.0",
     "fs": "0.0.1-security",
+    "jsonpath": "^1.1.1",
     "leo-profanity": "^1.5.1",
     "passport": "^0.6.0",
     "passport-oauth": "^1.0.0",

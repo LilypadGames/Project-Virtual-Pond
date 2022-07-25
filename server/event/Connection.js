@@ -1,13 +1,12 @@
 // Connection Events
 
 //dependencies
-const fs = require('fs');
 const path = require('path');
+const jsonPath = require('jsonpath');
 
 //get config values
-const config = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '../config/config.json'))
-);
+const config = require(path.join(__dirname, '../config/config.json'));
+const roomConfig = require(path.join(__dirname, '../config/room.json'));
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
@@ -24,6 +23,7 @@ class Connection {
     playerData;
 
     constructor(io, socket) {
+        //save socket and socket.io instance
         this.socket = socket;
         this.io = io;
 
@@ -180,14 +180,20 @@ class Connection {
 
         //register room events
         if (!this.roomInstance) {
+            //new room instance
             this.roomInstance = new Room(this.io, this.socket, room);
             await this.roomInstance.init();
-
-            //store new room
         } else {
             //store room
             this.roomInstance.room = room;
         }
+
+        //get room spawnpoint data
+        const roomSpawnpoint = jsonPath.query(roomConfig, '$..' + room + '.spawnpoint')[0];
+
+        //set new location for this client dependent on room config
+        this.socket.player.x = utility.getRandomInt(roomSpawnpoint.minX, roomSpawnpoint.maxX);
+        this.socket.player.y = utility.getRandomInt(roomSpawnpoint.minY, roomSpawnpoint.maxY);
 
         //send new player to ONLY OTHER clients in this room
         this.socket

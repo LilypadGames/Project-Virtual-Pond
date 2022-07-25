@@ -117,8 +117,9 @@ socket.on('payloadGameVer', function (version) {
 });
 
 //recieve next scene
-socket.on('payloadNewScene', function (scene) {
-    currentScene.scene.start(scene);
+socket.on('payloadNewScene', function (scene, parameters) {
+    currentScene.end();
+    currentScene.scene.start(scene, parameters);
 });
 
 //recieve kick reason

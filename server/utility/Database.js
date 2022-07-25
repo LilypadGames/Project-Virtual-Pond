@@ -1,13 +1,10 @@
 // Database Functions
 
 //dependency: file parsing
-const fs = require('fs');
 const path = require('path');
 
 //get config values
-const config = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '../config/config.json'))
-);
+const config = require(path.join(__dirname, '../config/config.json'));
 
 //dependency: database
 var firebase = require('firebase-admin');
