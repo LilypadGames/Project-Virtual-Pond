@@ -402,7 +402,6 @@ class Game extends Phaser.Scene {
                 'forest_ambience',
                 'room/forest/audio/ambience/forest_ambience.mp3'
             );
-
         } else if (room === 'theatre') {
             //variables
             this.chatLogUIHeight = 195;
@@ -426,6 +425,20 @@ class Game extends Phaser.Scene {
             this.load.image(
                 'Sign_Forest',
                 'room/theatre/objects/Sign_Forest.png'
+            );
+            this.load.image(
+                'Sign_Free_Sub',
+                'room/theatre/objects/Sign_Free_Sub.png'
+            );
+            this.load.image(
+                'CrazySlickd',
+                'room/theatre/objects/CrazySlickd.png'
+            );
+
+            //audio
+            this.load.audio(
+                'crazyslickd',
+                'room/theatre/audio/crazyslickd.mp3'
             );
         }
     }
@@ -664,6 +677,52 @@ class Game extends Phaser.Scene {
                 .image(1236, 692, 'Sign_Forest')
                 .setDepth(700)
                 .setOrigin(0.5, 1);
+
+            //free sub sign
+            let free_sub_sign = this.add
+                .image(204, 580, 'Sign_Free_Sub')
+                .setDepth(528)
+                .setOrigin(0.5, 1)
+                .setInteractive();
+            this.setInteractObject(free_sub_sign);
+            free_sub_sign.on(
+                'pointerdown',
+                () => {
+                    //stop interactions temporarily
+                    free_sub_sign.disableInteractive();
+
+                    //remove DOM objects
+                    this.removeRoomDOMElements();
+
+                    //play music
+                    this.playMusic('crazyslickd');
+
+                    //show sprite
+                    const crazySlickdSprite = this.add
+                        .image(630, 20, 'CrazySlickd')
+                        .setDepth(this.depthForeground)
+                        .setOrigin(0.5, 0)
+                        .setScale(2);
+
+                    //wait
+                    setTimeout(() => {
+                        //stop music
+                        this.audioMusic.stop();
+
+                        //remove sprite
+                        crazySlickdSprite.destroy();
+
+                        //re-enable DOM objects
+                        if (!this.menuOpen) {
+                            this.addRoomDOMElements(room);
+                        }
+
+                        //re-enable interactions
+                        free_sub_sign.setInteractive();
+                    }, 8000);
+                },
+                this
+            );
         }
     }
 

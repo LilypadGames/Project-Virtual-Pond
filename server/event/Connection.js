@@ -12,6 +12,10 @@ const roomConfig = require(path.join(__dirname, '../config/room.json'));
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
+const serverMetrics = require(path.join(
+    __dirname,
+    '../utility/ServerMetrics.js'
+));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -72,6 +76,9 @@ class Connection {
     }
 
     async register() {
+        //add 1 to player count
+        serverMetrics.playerJoined();
+
         //log
         console.log(
             utility.timestampString(
@@ -80,7 +87,10 @@ class Connection {
                     ' (' +
                     this.socket.player.name +
                     ')' +
-                    ' - Connected'
+                    ' - Connected' +
+                    ' [Online Players: ' +
+                    serverMetrics.getPlayerCount() +
+                    ']'
             )
         );
 
@@ -189,11 +199,20 @@ class Connection {
         }
 
         //get room spawnpoint data
-        const roomSpawnpoint = jsonPath.query(roomConfig, '$..' + room + '.spawnpoint')[0];
+        const roomSpawnpoint = jsonPath.query(
+            roomConfig,
+            '$..' + room + '.spawnpoint'
+        )[0];
 
         //set new location for this client dependent on room config
-        this.socket.player.x = utility.getRandomInt(roomSpawnpoint.minX, roomSpawnpoint.maxX);
-        this.socket.player.y = utility.getRandomInt(roomSpawnpoint.minY, roomSpawnpoint.maxY);
+        this.socket.player.x = utility.getRandomInt(
+            roomSpawnpoint.minX,
+            roomSpawnpoint.maxX
+        );
+        this.socket.player.y = utility.getRandomInt(
+            roomSpawnpoint.minY,
+            roomSpawnpoint.maxY
+        );
 
         //send new player to ONLY OTHER clients in this room
         this.socket
@@ -299,6 +318,9 @@ class Connection {
 
     //on disconnect
     onDisconnect() {
+        //remove 1 from playercount
+        serverMetrics.playerLeft();
+
         //log
         console.log(
             utility.timestampString(
@@ -307,7 +329,10 @@ class Connection {
                     ' (' +
                     this.socket.player.name +
                     ')' +
-                    ' - Disconnected'
+                    ' - Disconnected' +
+                    ' [Online Players: ' +
+                    serverMetrics.getPlayerCount() +
+                    ']'
             )
         );
 
