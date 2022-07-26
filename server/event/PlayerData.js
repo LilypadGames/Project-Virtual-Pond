@@ -18,9 +18,6 @@ class PlayerData {
 
     //get player data
     async getPlayerData() {
-        //get room spawnpoint data
-        const roomSpawnpoint = roomConfig.forest.spawnpoint;
-
         //set up initial data
         var playerData = {
             //get ID
@@ -28,10 +25,6 @@ class PlayerData {
 
             //get name
             name: this.socket.request.user.data[0].display_name,
-
-            // //generate starting location
-            // x: utility.getRandomInt(roomSpawnpoint.minX, roomSpawnpoint.maxX),
-            // y: utility.getRandomInt(roomSpawnpoint.minY, roomSpawnpoint.maxY),
 
             //generate direction
             direction: utility.randomFromArray(['right', 'left']),

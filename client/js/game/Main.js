@@ -2,9 +2,11 @@
 
 //imports
 const ui = new UI();
+const globalUI = new GlobalUI();
 const utility = new Utility();
 const client = new Client();
 const loadingScreen = new LoadingScreen();
+const twitchEmotes = new Emotes();
 
 // GLOBAL VARIABLES
 //canvas

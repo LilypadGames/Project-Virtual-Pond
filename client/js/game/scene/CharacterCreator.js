@@ -116,44 +116,6 @@ class CharacterCreator extends Phaser.Scene {
     }
 
     // UI
-    //show refresh dialog
-    showRefreshDialog(content) {
-        //fade background
-        this.add.rexCover({ alpha: 0.8 }).setDepth(this.depthUI);
-
-        //create dialog with refresh button
-        const dialog = ui.createDialog(this, content).on(
-            'button.click',
-            function () {
-                //sfx
-                this.sfxButtonClick.play();
-
-                //reload window
-                window.location.reload();
-
-                //enable input
-                this.disableInput = false;
-            },
-            this
-        );
-
-        //dark background
-        this.rexUI.modalPromise(
-            dialog.setDepth(this.depthUI),
-
-            //config
-            {
-                cover: false,
-                duration: {
-                    in: 200,
-                    out: 200,
-                },
-            }
-        );
-
-        this.disableInput = true;
-    }
-
     //create menu
     createCharacterCreatorMenu() {
         //set background color
@@ -166,10 +128,10 @@ class CharacterCreator extends Phaser.Scene {
 
         //eye type label
         this.rexUI.add
-            .sizer({ x: 685, y: 140, width: 250, height: 50 })
+            .sizer({ x: 630, y: 140, width: 0, height: 0 })
             .add(
                 ui.createLabel(this, {
-                    text: 'Eye Type',
+                    text: 'Eyes',
                     fontSize: 45,
                     align: 'center',
                     backgroundColor: ColorScheme.Blue,
@@ -177,7 +139,8 @@ class CharacterCreator extends Phaser.Scene {
                 })
             )
             .layout()
-            .setDepth(this.depthCharacterUI);
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5);
 
         //eye types
         ui.createButtons(this, {
@@ -206,7 +169,7 @@ class CharacterCreator extends Phaser.Scene {
 
         //color label
         this.rexUI.add
-            .sizer({ x: 638, y: 400, width: 150, height: 50 })
+            .sizer({ x: 630, y: 400, width: 0, height: 0 })
             .add(
                 ui.createLabel(this, {
                     text: 'Color',
@@ -217,7 +180,8 @@ class CharacterCreator extends Phaser.Scene {
                 })
             )
             .layout()
-            .setDepth(this.depthCharacterUI);
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5);
 
         //color wheel
         ui.createColorPicker(this, {
