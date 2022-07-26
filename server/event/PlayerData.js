@@ -29,9 +29,9 @@ class PlayerData {
             //get name
             name: this.socket.request.user.data[0].display_name,
 
-            //generate starting location
-            x: utility.getRandomInt(roomSpawnpoint.minX, roomSpawnpoint.maxX),
-            y: utility.getRandomInt(roomSpawnpoint.minY, roomSpawnpoint.maxY),
+            // //generate starting location
+            // x: utility.getRandomInt(roomSpawnpoint.minX, roomSpawnpoint.maxX),
+            // y: utility.getRandomInt(roomSpawnpoint.minY, roomSpawnpoint.maxY),
 
             //generate direction
             direction: utility.randomFromArray(['right', 'left']),

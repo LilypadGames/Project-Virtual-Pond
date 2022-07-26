@@ -28,7 +28,10 @@ if (
     gameOptions = defaultOptions;
 }
 var gameValues = JSON.parse(localStorage.getItem('gameValues'));
-const defaultValues = [{ id: 'welcome', value: 0 }];
+const defaultValues = [
+    { id: 'welcome', value: 0 },
+    { id: 'show_stream_chat', value: 1 },
+];
 if (
     gameValues === null ||
     gameValues.length <= 0 ||

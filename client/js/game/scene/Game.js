@@ -574,10 +574,23 @@ class Game extends Phaser.Scene {
     //add room DOM elements
     addRoomDOMElements(room) {
         if (room == 'theatre') {
+            //element variable
+            const chatEnabled =
+                utility.getLocalStorage('gameValues')[
+                    utility.getLocalStorageArrayIndex(
+                        'gameValues',
+                        'show_stream_chat'
+                    )
+                ].value;
+            let chatTag = chatEnabled ? ' chat' : '';
+
+            //create element
             const twitch_stream = this.add
                 .dom(169, 70)
                 .createFromHTML(
-                    '<twitch-stream channel="pokelawls" height="420px" theme="dark" chat></twitch-stream>'
+                    '<twitch-stream channel="pokelawls" height="420px" theme="dark"' +
+                        chatTag +
+                        '></twitch-stream>'
                 );
             this.DOMElements.push(twitch_stream);
         }
@@ -1065,46 +1078,74 @@ class Game extends Phaser.Scene {
 
     //show options menu
     showOptions() {
+        //options content
+        let content = [
+            //music volume slider
+            { type: 'text', text: 'Music Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'musicVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
+                ].volume,
+            },
+
+            //ambience volume slider
+            { type: 'text', text: 'Ambience Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'ambienceVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
+                ].volume,
+            },
+
+            //sfx volume slider
+            { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'sfxVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
+                ].volume,
+            },
+        ];
+
+        //theatre room options
+        if (this.room === 'theatre') {
+            //get local game options
+            var options = utility.getLocalStorage('gameValues');
+
+            //stream chat toggle
+            content.push(
+                { type: 'text', text: 'Enable Stream Chat', fontSize: 24 },
+                {
+                    type: 'checkbox',
+                    initialValue:
+                        options[
+                            utility.getLocalStorageArrayIndex(
+                                'gameValues',
+                                'show_stream_chat'
+                            )
+                        ].value,
+                    onClick: function (state) {
+                        //store new value
+                        options[
+                            utility.getLocalStorageArrayIndex(
+                                'gameValues',
+                                'show_stream_chat'
+                            )
+                        ].value = state;
+                        utility.storeLocalStorageArray('gameValues', options);
+                    },
+                }
+            );
+        }
+
         //show options menu
         let menu = ui.createMenu(this, {
             title: 'Options',
-            content: [
-                //music volume slider
-                { type: 'text', text: 'Music Volume', fontSize: 24 },
-                {
-                    type: 'slider',
-                    id: 'musicVolume',
-                    value: utility.getLocalStorage('gameOptions')[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'music'
-                        )
-                    ].volume,
-                },
-
-                //ambience volume slider
-                { type: 'text', text: 'Ambience Volume', fontSize: 24 },
-                {
-                    type: 'slider',
-                    id: 'ambienceVolume',
-                    value: utility.getLocalStorage('gameOptions')[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'ambience'
-                        )
-                    ].volume,
-                },
-
-                //sfx volume slider
-                { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
-                {
-                    type: 'slider',
-                    id: 'sfxVolume',
-                    value: utility.getLocalStorage('gameOptions')[
-                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                    ].volume,
-                },
-            ],
+            content: content,
         });
 
         //exit button function

@@ -855,7 +855,7 @@ class UI {
                     internalContent.align = 'center';
                 }
 
-                //add to sizer
+                //add text
                 if (internalContent.type == 'text') {
                     sizer.add(
                         this.createText(scene, {
@@ -864,6 +864,91 @@ class UI {
                             align: internalContent.align,
                         })
                     );
+
+                    //add checkbox
+                } else if (internalContent.type == 'checkbox') {
+                    //create checkbox
+                    let checkbox = scene.rexUI.add.buttons({
+                        x: 0,
+                        y: 0,
+                        orientation: 'y',
+
+                        buttons: [
+                            scene.rexUI.add.label({
+                                width: 25,
+                                height: 25,
+                                icon: scene.rexUI.add
+                                    .roundRectangle(
+                                        0,
+                                        0,
+                                        25,
+                                        25,
+                                        5,
+                                        ColorScheme.Blue
+                                    )
+                                    .setStrokeStyle(1, ColorScheme.LightBlue),
+                                space: {
+                                    left: 0,
+                                    right: 0,
+                                    icon: 0,
+                                },
+                                name: 'checkbox',
+                            }),
+                        ],
+
+                        click: {
+                            mode: 'pointerup',
+                            clickInterval: 100,
+                        },
+
+                        type: 'checkboxes',
+
+                        setButtonStateCallback: function (
+                            button,
+                            value,
+                            previousValue
+                        ) {
+                            console.log(
+                                'Previous: ' +
+                                    previousValue +
+                                    ' Value: ' +
+                                    value
+                            );
+                            //init
+                            if (previousValue === undefined) {
+                                //initial look state
+                                button
+                                    .getElement('icon')
+                                    .setFillStyle(
+                                        internalContent.initialValue
+                                            ? ColorScheme.LightBlue
+                                            : undefined
+                                    );
+                            } else {
+                                //show look state of checkbox
+                                button
+                                    .getElement('icon')
+                                    .setFillStyle(
+                                        value
+                                            ? ColorScheme.LightBlue
+                                            : undefined
+                                    );
+
+                                //callback
+                                internalContent.onClick(value);
+                            }
+                        },
+                    });
+
+                    //set initial state
+                    checkbox.setButtonState(
+                        'checkbox',
+                        internalContent.initialValue
+                    );
+
+                    sizer.add(checkbox);
+
+                    //add slider
                 } else if (internalContent.type == 'slider') {
                     sizer.add(
                         this.createSlider(scene, {
@@ -871,6 +956,8 @@ class UI {
                             value: internalContent.value,
                         })
                     );
+
+                    //add scrollable panel
                 } else if (internalContent.type == 'scrollable') {
                     //default options
                     if (!internalContent.x) {
