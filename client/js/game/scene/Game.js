@@ -197,17 +197,18 @@ class Game extends Phaser.Scene {
         this.createToolbar();
 
         //welcome message
-        var options = utility.getLocalStorage('gameValues');
-        if (
-            options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
-                .value !== 1
-        ) {
-            this.showIntroMessage();
-            options[
-                utility.getLocalStorageArrayIndex('gameValues', 'welcome')
-            ].value = 1;
-            utility.storeLocalStorageArray('gameValues', options);
-        }
+        this.showWelcomeMessage();
+        // var options = utility.getLocalStorage('gameValues');
+        // if (
+        //     options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
+        //         .value !== 1
+        // ) {
+        //     this.showWelcomeMessage();
+        //     options[
+        //         utility.getLocalStorageArrayIndex('gameValues', 'welcome')
+        //     ].value = 1;
+        //     utility.storeLocalStorageArray('gameValues', options);
+        // }
     }
 
     update() {
@@ -995,26 +996,69 @@ class Game extends Phaser.Scene {
         //chat box
         this.chatBox = this.createChatBox();
     }
-    
+
     //show intro message
-    showIntroMessage() {
+    showWelcomeMessage() {
         //create menu
-        let menu = ui.createMenu(this, {
-            title: 'Welcome!',
-            content: [
-                {
-                    type: 'text',
-                    text: 'Please turn Hardware Acceleration ON in your browser settings!',
-                    fontSize: 20,
-                },
-                {
-                    type: 'text',
-                    text: 'Find a bug or need support?',
-                    fontSize: 20,
-                },
-                { type: 'text', text: 'Join the Discord!', fontSize: 20 },
-            ],
-        });
+        let menu = ui.createMenu(
+            this,
+            {
+                title: 'Welcome!',
+                content: [
+                    {
+                        type: 'text',
+                        text: 'This game runs smoother with Hardware Acceleration enabled.',
+                        fontSize: 20,
+                    },
+                    {
+                        type: 'button',
+                        text: 'Turn on Hardware Acceleration',
+                        fontSize: 20,
+                        onClick: function () {
+                            window.open(
+                                'https://www.webnots.com/what-is-hardware-acceleration-and-how-to-enable-in-browsers/',
+                                '_blank'
+                            );
+                        },
+                    },
+                    {
+                        type: 'text',
+                        text: 'Find a bug or need support?',
+                        fontSize: 20,
+                    },
+                    {
+                        type: 'button',
+                        text: 'Join the Discord',
+                        fontSize: 20,
+                        onClick: function () {
+                            window.open(
+                                'https://discord.gg/2aVq8qmcSr',
+                                '_blank'
+                            );
+                        },
+                    },
+                    {
+                        type: 'text',
+                        text: 'This game is free. However, any donations of any amount\n would help a ton with my development and are very much appreciated!',
+                        fontSize: 20,
+                    },
+                    {
+                        type: 'button',
+                        text: 'Donate',
+                        fontSize: 20,
+                        onClick: function () {
+                            window.open(
+                                'https://www.paypal.com/paypalme/DanMizu',
+                                '_blank'
+                            );
+                        },
+                    },
+                ],
+            },
+            {
+                cover: true,
+            }
+        );
 
         //exit button function
         menu.on(

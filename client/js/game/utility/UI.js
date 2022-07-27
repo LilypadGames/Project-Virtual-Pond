@@ -42,6 +42,7 @@ class UI {
             text: scene.add.text(content.x, content.y, content.text, {
                 fontSize: content.fontSize,
                 fontFamily: content.fontFamily,
+                align: content.align,
             }),
 
             align: content.align,
@@ -541,6 +542,8 @@ class UI {
             //add to buttons
             buttons.push(
                 this.createLabel(scene, {
+                    x: buttonsContent.x,
+                    y: buttonsContent.y,
                     icon: buttonsContent.icon,
                     text: buttonsContent.text,
                     fontSize: content.buttonTextSize,
@@ -863,6 +866,22 @@ class UI {
                             fontSize: internalContent.fontSize,
                             align: internalContent.align,
                         })
+                    );
+
+                    //add button
+                } else if (internalContent.type == 'button') {
+                    sizer.add(
+                        this.createButtons(scene, {
+                            align: internalContent.align,
+                            buttonTextSize: internalContent.fontSize,
+                            buttons: [{ text: internalContent.text }],
+                        }).on(
+                            'button.click',
+                            () => {
+                                internalContent.onClick();
+                            },
+                            scene
+                        )
                     );
 
                     //add checkbox
@@ -1404,6 +1423,10 @@ class UI {
             options.exitButton.colorOnHover = ColorScheme.LightBlue;
         }
 
+        if (!options.cover) {
+            options.cover = false;
+        }
+
         //content
         const background = scene.rexUI.add.roundRectangle(
             options.background.x,
@@ -1421,7 +1444,19 @@ class UI {
             align: 'center',
         });
 
-        const exitButton = this.createLabel(scene, { text: 'X' });
+        const exitButton = this.createButtons(scene, {
+            buttonTextSize: 22,
+            buttons: [
+                {
+                    x: 10,
+                    y: -10,
+                    text: 'X',
+                    backgroundRadius: 8,
+                    buttonColor: options.exitButton.color,
+                    buttonColorOnHover: options.exitButton.colorOnHover,
+                },
+            ],
+        });
 
         var sizer = this.createSizer(scene, content, {
             width: options.width,
@@ -1473,24 +1508,28 @@ class UI {
             })
             .layout()
 
-            //set menu depth
-            .setDepth(scene.depthUI)
-
             //exit button animation
             .on(
                 'button.over',
                 function (button, groupName, index, pointer, event) {
-                    button
-                        .getElement('background')
-                        .setFillStyle(options.exitButton.colorOnHover);
+                    //exit button
+                    if (groupName == 'toolbar' && index == 0) {
+                        console.log(menu.getToolbar(index));
+                        menu.getToolbar(index)
+                            .getElement('background')
+                            .setFillStyle(options.exitButton.colorOnHover);
+                    }
                 }
             )
             .on(
                 'button.out',
                 function (button, groupName, index, pointer, event) {
-                    button
-                        .getElement('background')
-                        .setFillStyle(options.exitButton.color);
+                    //exit button
+                    if (groupName == 'toolbar' && index == 0) {
+                        menu.getToolbar(index)
+                            .getElement('background')
+                            .setFillStyle(options.exitButton.color);
+                    }
                 }
             );
 
@@ -1502,17 +1541,20 @@ class UI {
         //close promise + animation
         scene.rexUI.modalPromise(
             //assign menu to promise
-            menu,
+            menu.setDepth(scene.depthUI),
 
             //options
             {
-                cover: false,
+                cover: options.cover,
                 duration: {
                     in: 200,
                     out: 200,
                 },
             }
         );
+
+        //set UI depth
+        // menu.setDepth(scene.depthUI);
 
         return menu;
     }
