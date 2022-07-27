@@ -1,5 +1,45 @@
 // Dark Mode
 
+//init dark mode value
+if (
+    localStorage.getItem('dark-mode') === null &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+) {
+    //enable dark mode
+    enableDarkMode();
+
+    //set dark mode switch to on
+    $('#dark-mode-switch').prop('checked', true);
+}
+
+//get dark mode value
+else if (localStorage.getItem('dark-mode') === 'true') {
+    //enable dark mode css
+    enableStylesheet(document.getElementById('dark-stylesheet'));
+
+    //add dark class to body
+    $('body').addClass('dark');
+
+    //set dark mode switch to on
+    $('#dark-mode-switch').prop('checked', true);
+}
+
+//detect dark mode toggle
+$('#dark-mode-switch').change(() => {
+    let $body = $('body');
+
+    //toggle off
+    if ($body.hasClass('dark')) {
+        disableDarkMode();
+    }
+
+    //toggle on
+    else {
+        enableDarkMode();
+    }
+});
+
 //enable/disable stylesheets
 function enableStylesheet(node) {
     node.rel = 'stylesheet';
@@ -34,46 +74,3 @@ function disableDarkMode() {
     //remove dark class from body
     $body.removeClass('dark');
 }
-
-//detect dark or light mode on load
-$(window).on('load', () => {
-    //init dark mode value
-    if (
-        localStorage.getItem('dark-mode') === null &&
-        window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches
-    ) {
-        //enable dark mode
-        enableDarkMode();
-
-        //set dark mode switch to on
-        $('#dark-mode-switch').prop('checked', true);
-    }
-
-    //get dark mode value
-    else if (localStorage.getItem('dark-mode') === 'true') {
-        //enable dark mode css
-        enableStylesheet(document.getElementById('dark-stylesheet'));
-
-        //add dark class to body
-        $('body').addClass('dark');
-
-        //set dark mode switch to on
-        $('#dark-mode-switch').prop('checked', true);
-    }
-});
-
-//detect dark mode toggle
-$('#dark-mode-switch').change(() => {
-    let $body = $('body');
-
-    //toggle off
-    if ($body.hasClass('dark')) {
-        disableDarkMode();
-    }
-
-    //toggle on
-    else {
-        enableDarkMode();
-    }
-});
