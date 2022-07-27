@@ -572,8 +572,8 @@ class Game extends Phaser.Scene {
     }
 
     //add room DOM elements
-    addRoomDOMElements(room) {
-        if (room == 'theatre') {
+    addRoomDOMElements() {
+        if (this.room == 'theatre') {
             //element variable
             const chatEnabled =
                 utility.getLocalStorage('gameValues')[
@@ -614,23 +614,23 @@ class Game extends Phaser.Scene {
                 .setDepth(600)
                 .setOrigin(0.5, 1);
 
-            //news sign
-            let news_sign = this.add
-                .image(1020, 620, 'Sign_News')
-                .setDepth(630)
-                .setOrigin(0.5, 1)
-                .setInteractive();
-            this.setInteractObject(news_sign);
-            news_sign.on(
-                'pointerdown',
-                () => {
-                    if (!this.menuOpen) {
-                        //open news menu
-                        this.openNews();
-                    }
-                },
-                this
-            );
+            // //news sign
+            // let news_sign = this.add
+            //     .image(1020, 620, 'Sign_News')
+            //     .setDepth(630)
+            //     .setOrigin(0.5, 1)
+            //     .setInteractive();
+            // this.setInteractObject(news_sign);
+            // news_sign.on(
+            //     'pointerdown',
+            //     () => {
+            //         if (!this.menuOpen) {
+            //             //open news menu
+            //             this.openNews();
+            //         }
+            //     },
+            //     this
+            // );
 
             // //banner
             // let banner = this.add.image(797, 226, 'Banner')
@@ -727,7 +727,7 @@ class Game extends Phaser.Scene {
 
                         //re-enable DOM objects
                         if (!this.menuOpen) {
-                            this.addRoomDOMElements(room);
+                            this.addRoomDOMElements();
                         }
 
                         //re-enable interactions
@@ -858,7 +858,7 @@ class Game extends Phaser.Scene {
         this.menuOpen = false;
 
         //place DOM elements back
-        this.addRoomDOMElements(this.room);
+        this.addRoomDOMElements();
     }
 
     //create chat box
@@ -919,76 +919,72 @@ class Game extends Phaser.Scene {
             y: 765,
             align: 'left',
             fontSize: 18,
-            buttons: [{ text: 'Chat Log', backgroundRadius: 8, width: 230 }],
-        })
-            .on(
-                'button.click',
-                () => {
-                    //chat log not open
-                    if (!this.chatLogUI) {
-                        //sfx
-                        this.sfxButtonClick.play();
-
-                        //open chat log
-                        this.openChatLog();
-
-                        //chat log is open
-                    } else {
-                        //sfx
-                        this.sfxButtonClick.play();
-
-                        //close chat log
-                        this.chatLogUI.emit('modal.requestClose');
-                    }
+            buttons: [
+                {
+                    text: 'Chat Log',
+                    backgroundRadius: 8,
+                    width: 230,
+                    onClick: function (scene) {
+                        //chat log not open
+                        if (!scene.chatLogUI) {
+                            //open chat log
+                            scene.openChatLog();
+                        } else {
+                            //close chat log
+                            scene.chatLogUI.emit('modal.requestClose');
+                        }
+                    },
                 },
-                this
-            )
-            .setDepth(this.depthUI);
+            ],
+        }).setDepth(this.depthUI);
 
-        //character creator button
+        //mini buttons
         ui.createButtons(this, {
-            x: 1180,
+            x: 1185,
             y: 765,
             fontSize: 22,
-            buttons: [{ text: '🎨', backgroundRadius: 8 }],
-        })
-            .on(
-                'button.click',
-                () => {
-                    if (!this.menuOpen) {
-                        //sfx
-                        this.sfxButtonClick.play();
-
+            space: {
+                item: 10,
+            },
+            buttons: [
+                //news
+                {
+                    text: '📰',
+                    backgroundRadius: 8,
+                    onClick: function (scene) {
+                        //check if menu is open
+                        if (!scene.menuOpen) {
+                            //open news menu
+                            scene.openNews();
+                        }
+                    },
+                },
+                //character creator
+                {
+                    text: '🎨',
+                    backgroundRadius: 8,
+                    onClick: function (scene) {
                         //open character creator scene
-                        this.end();
-                        this.scene.start('CharacterCreator', this.room);
-                    }
+                        scene.end();
+                        scene.scene.start('CharacterCreator', scene.room);
+                    },
                 },
-                this
-            )
-            .setDepth(this.depthUI);
-
-        //options menu button
-        ui.createButtons(this, {
-            x: 1240,
-            y: 765,
-            fontSize: 22,
-            buttons: [{ text: '⚙️', backgroundRadius: 8 }],
+                //options menu
+                {
+                    text: '⚙️',
+                    backgroundRadius: 8,
+                    onClick: function (scene) {
+                        //check if menu is open
+                        if (!scene.menuOpen) {
+                            //open options menu
+                            scene.showOptions();
+                        }
+                    },
+                },
+            ],
         })
-            .on(
-                'button.click',
-                () => {
-                    if (!this.menuOpen) {
-                        //open options menu
-                        this.showOptions();
-
-                        //sfx
-                        this.sfxButtonClick.play();
-                    }
-                },
-                this
-            )
-            .setDepth(this.depthUI);
+            .setDepth(this.depthUI)
+            .setOrigin(0, 0.5);
 
         //chat box
         this.chatBox = this.createChatBox();

@@ -646,6 +646,16 @@ class UI {
                             .setFillStyle(content.color);
                     }
                 )
+
+                //click event
+                .on('button.click', function (button, index, pointer, event) {
+                    //sfx
+                    scene.sfxButtonClick.play();
+
+                    //click callback
+                    if (content.buttons[index].onClick)
+                        content.buttons[index].onClick(scene);
+                })
         );
     }
 
