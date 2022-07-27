@@ -1,11 +1,17 @@
 // Room Events
 
-//dependencies
+//dependency: file path
 const path = require('path');
-var chatFilter = require('leo-profanity');
-const { Server } = require('http');
-// const emoteParser = require("tmi-emote-parse");
 
+// config
+const badWords = require(path.join(__dirname, '../config/bad_words.js'));
+
+//dependencies
+var chatFilter = require('leo-profanity');
+chatFilter.add(badWords.badWords);
+const { Server } = require('http');
+
+// const emoteParser = require("tmi-emote-parse");
 // //get twitch emotes
 // emoteParser.loadAssets("pokelawls");
 // var emotes;
@@ -136,7 +142,7 @@ class Room {
                 : '';
 
         //check if message contains blacklisted words
-        if (chatFilter.check(message)) {
+        if (chatFilter.check(message.toLowerCase())) {
             //log in moderation file
             logs.logMessage('moderation', logMessage);
 

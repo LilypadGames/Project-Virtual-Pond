@@ -1,6 +1,6 @@
 // Connection Events
 
-//dependencies
+//dependencies: file parsing
 const path = require('path');
 const jsonPath = require('jsonpath');
 

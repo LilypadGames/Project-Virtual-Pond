@@ -1,6 +1,6 @@
 // PlayerData Events
 
-//dependencies
+//dependency: file path
 const path = require('path');
 
 //get config values

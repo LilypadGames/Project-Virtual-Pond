@@ -3,7 +3,6 @@
 //dependency: file parsing
 const fs = require('fs');
 const path = require('path');
-var util = require('util');
 
 //imports
 const utility = require(path.join(__dirname, '/Utility.js'));

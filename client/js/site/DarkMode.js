@@ -43,8 +43,6 @@ $(window).on('load', () => {
         window.matchMedia &&
         window.matchMedia('(prefers-color-scheme: dark)').matches
     ) {
-        console.log('dark mode is set');
-
         //enable dark mode
         enableDarkMode();
 

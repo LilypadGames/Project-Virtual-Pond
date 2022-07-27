@@ -955,12 +955,6 @@ class UI {
                             value,
                             previousValue
                         ) {
-                            console.log(
-                                'Previous: ' +
-                                    previousValue +
-                                    ' Value: ' +
-                                    value
-                            );
                             //init
                             if (previousValue === undefined) {
                                 //initial look state
