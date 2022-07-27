@@ -200,12 +200,12 @@ class Game extends Phaser.Scene {
         var options = utility.getLocalStorage('gameValues');
         if (
             options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
-                .value !== 1
+                .value !== welcomeMessageVersion
         ) {
-            this.showIntroMessage();
+            this.showWelcomeMessage();
             options[
                 utility.getLocalStorageArrayIndex('gameValues', 'welcome')
-            ].value = 1;
+            ].value = welcomeMessageVersion;
             utility.storeLocalStorageArray('gameValues', options);
         }
     }
@@ -574,10 +574,23 @@ class Game extends Phaser.Scene {
     //add room DOM elements
     addRoomDOMElements(room) {
         if (room == 'theatre') {
+            //element variable
+            const chatEnabled =
+                utility.getLocalStorage('gameValues')[
+                    utility.getLocalStorageArrayIndex(
+                        'gameValues',
+                        'show_stream_chat'
+                    )
+                ].value;
+            let chatTag = chatEnabled ? ' chat' : '';
+
+            //create element
             const twitch_stream = this.add
                 .dom(169, 70)
                 .createFromHTML(
-                    '<twitch-stream channel="pokelawls" height="420px" theme="dark" chat></twitch-stream>'
+                    '<twitch-stream channel="pokelawls" height="420px" theme="dark"' +
+                        chatTag +
+                        '></twitch-stream>'
                 );
             this.DOMElements.push(twitch_stream);
         }
@@ -905,10 +918,8 @@ class Game extends Phaser.Scene {
             x: 120,
             y: 765,
             align: 'left',
-            buttonTextSize: 18,
-            buttons: [
-                { text: 'Chat Log', backgroundRadius: 8, backgroundWidth: 230 },
-            ],
+            fontSize: 18,
+            buttons: [{ text: 'Chat Log', backgroundRadius: 8, width: 230 }],
         })
             .on(
                 'button.click',
@@ -938,7 +949,7 @@ class Game extends Phaser.Scene {
         ui.createButtons(this, {
             x: 1180,
             y: 765,
-            buttonTextSize: 22,
+            fontSize: 22,
             buttons: [{ text: '🎨', backgroundRadius: 8 }],
         })
             .on(
@@ -961,7 +972,7 @@ class Game extends Phaser.Scene {
         ui.createButtons(this, {
             x: 1240,
             y: 765,
-            buttonTextSize: 22,
+            fontSize: 22,
             buttons: [{ text: '⚙️', backgroundRadius: 8 }],
         })
             .on(
@@ -983,37 +994,69 @@ class Game extends Phaser.Scene {
         this.chatBox = this.createChatBox();
     }
 
-    //show refresh dialog
-    showRefreshDialog(content, options) {
-        //fade background
-        this.add.rexCover({ alpha: 0.8 }).setDepth(this.depthUI);
-
-        //create dialog with refresh button
-        const dialog = ui.createDialog(this, content, options).on(
-            'button.click',
-            function () {
-                //sfx
-                this.sfxButtonClick.play();
-
-                //reload window
-                window.location.reload();
-
-                //set menu as closed
-                this.menuClosed();
-            },
-            this
-        );
-
-        //dark background
-        this.rexUI.modalPromise(
-            dialog.setDepth(this.depthUI),
-
-            //config
+    //show intro message
+    showWelcomeMessage() {
+        //create welcome message prompt
+        ui.createMenu(
+            this,
             {
-                cover: false,
-                duration: {
-                    in: 200,
-                    out: 200,
+                title: 'Welcome!',
+                content: [
+                    {
+                        type: 'text',
+                        text: 'This game runs smoother with Hardware Acceleration enabled.',
+                        fontSize: 20,
+                    },
+                    {
+                        type: 'button',
+                        text: 'Turn on Hardware Acceleration',
+                        fontSize: 20,
+                        onClick: function () {
+                            window.open(
+                                'https://www.webnots.com/what-is-hardware-acceleration-and-how-to-enable-in-browsers/',
+                                '_blank'
+                            );
+                        },
+                    },
+                    {
+                        type: 'text',
+                        text: 'Find a bug or need support?',
+                        fontSize: 20,
+                    },
+                    {
+                        type: 'button',
+                        text: 'Join the Discord',
+                        fontSize: 20,
+                        onClick: function () {
+                            window.open(
+                                'https://discord.gg/2aVq8qmcSr',
+                                '_blank'
+                            );
+                        },
+                    },
+                    {
+                        type: 'text',
+                        text: 'This game is free. However, any donations of any amount\n would help a ton with my development and are very much appreciated!',
+                        fontSize: 20,
+                    },
+                    {
+                        type: 'button',
+                        text: 'Donate',
+                        fontSize: 20,
+                        onClick: function () {
+                            window.open(
+                                'https://www.paypal.com/paypalme/DanMizu',
+                                '_blank'
+                            );
+                        },
+                    },
+                ],
+            },
+            {
+                cover: true,
+                onExit: function (scene) {
+                    //set menu as closed
+                    scene.menuClosed();
                 },
             }
         );
@@ -1022,108 +1065,86 @@ class Game extends Phaser.Scene {
         this.menuOpened();
     }
 
-    //show intro message
-    showIntroMessage() {
-        //create menu
-        let menu = ui.createMenu(this, {
-            title: 'Welcome!',
-            content: [
-                {
-                    type: 'text',
-                    text: 'Please turn Hardware Acceleration ON in your browser settings!',
-                    fontSize: 20,
-                },
-                {
-                    type: 'text',
-                    text: 'Find a bug or need support?',
-                    fontSize: 20,
-                },
-                { type: 'text', text: 'Join the Discord!', fontSize: 20 },
-            ],
-        });
-
-        //exit button function
-        menu.on(
-            'button.click',
-            function (button, groupName, index, pointer, event) {
-                //sfx
-                this.sfxButtonClick.play();
-                //close
-                menu.emit('modal.requestClose', {
-                    index: index,
-                    text: button.text,
-                });
-                //set menu as closed
-                this.menuClosed();
-            },
-            this
-        );
-
-        //set menu as opened
-        this.menuOpened();
-    }
-
     //show options menu
     showOptions() {
-        //show options menu
-        let menu = ui.createMenu(this, {
-            title: 'Options',
-            content: [
-                //music volume slider
-                { type: 'text', text: 'Music Volume', fontSize: 24 },
-                {
-                    type: 'slider',
-                    id: 'musicVolume',
-                    value: utility.getLocalStorage('gameOptions')[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'music'
-                        )
-                    ].volume,
-                },
-
-                //ambience volume slider
-                { type: 'text', text: 'Ambience Volume', fontSize: 24 },
-                {
-                    type: 'slider',
-                    id: 'ambienceVolume',
-                    value: utility.getLocalStorage('gameOptions')[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'ambience'
-                        )
-                    ].volume,
-                },
-
-                //sfx volume slider
-                { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
-                {
-                    type: 'slider',
-                    id: 'sfxVolume',
-                    value: utility.getLocalStorage('gameOptions')[
-                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                    ].volume,
-                },
-            ],
-        });
-
-        //exit button function
-        menu.on(
-            'button.click',
-            function (button, groupName, index, pointer, event) {
-                //sfx
-                this.sfxButtonClick.play();
-
-                //close
-                menu.emit('modal.requestClose', {
-                    index: index,
-                    text: button.text,
-                });
-
-                //set menu as closed
-                this.menuClosed();
+        //options content
+        let content = [
+            //music volume slider
+            { type: 'text', text: 'Music Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'musicVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
+                ].volume,
             },
-            this
+
+            //ambience volume slider
+            { type: 'text', text: 'Ambience Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'ambienceVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
+                ].volume,
+            },
+
+            //sfx volume slider
+            { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'sfxVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
+                ].volume,
+            },
+        ];
+
+        //theatre room options
+        if (this.room === 'theatre') {
+            //get local game options
+            var options = utility.getLocalStorage('gameValues');
+
+            //stream chat toggle
+            content.push(
+                { type: 'text', text: 'Enable Stream Chat', fontSize: 24 },
+                {
+                    type: 'checkbox',
+                    initialValue:
+                        options[
+                            utility.getLocalStorageArrayIndex(
+                                'gameValues',
+                                'show_stream_chat'
+                            )
+                        ].value,
+                    onClick: function (state) {
+                        //store new value
+                        options[
+                            utility.getLocalStorageArrayIndex(
+                                'gameValues',
+                                'show_stream_chat'
+                            )
+                        ].value = state;
+                        utility.storeLocalStorageArray('gameValues', options);
+                    },
+                }
+            );
+        }
+
+        //create options menu
+        ui.createMenu(
+            this,
+            {
+                title: 'Options',
+                content: content,
+            },
+            {
+                cover: true,
+                onExit: function (scene) {
+                    //set menu as closed
+                    scene.menuClosed();
+                },
+            }
         );
 
         //set menu as opened
@@ -1136,7 +1157,7 @@ class Game extends Phaser.Scene {
         const passage = news.join('\n__________________________\n\n');
 
         //show news menu
-        let newsMenu = ui.createMenu(
+        ui.createMenu(
             this,
             {
                 title: 'News',
@@ -1149,26 +1170,13 @@ class Game extends Phaser.Scene {
                     },
                 ],
             },
-            { height: 500 }
-        );
-
-        //exit button function
-        newsMenu.on(
-            'button.click',
-            function (button, groupName, index, pointer, event) {
-                //sfx
-                this.sfxButtonClick.play();
-
-                //close
-                newsMenu.emit('modal.requestClose', {
-                    index: index,
-                    text: button.text,
-                });
-
-                //set menu as closed
-                this.menuClosed();
-            },
-            this
+            {
+                height: 500,
+                onExit: function (scene) {
+                    //set menu as closed
+                    scene.menuClosed();
+                },
+            }
         );
 
         //set menu as opened

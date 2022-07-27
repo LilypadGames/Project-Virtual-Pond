@@ -18,9 +18,22 @@ setInterval(() => {
 }, 2000);
 
 // GLOBAL VARIABLES
-var kickReason = '';
+let kickReason = undefined;
 
 class Client {
+    //get initial load data from server
+    requestLoadData() {
+        //log
+        if (debugMode) {
+            console.log(util.timestampString('Requested Initial Load Data'));
+        }
+
+        //request data from server
+        socket.emit('requestLoadData', (data) => {
+            currentScene.parseLoadData(data);
+        });
+    }
+
     //get player data from server
     requestClientPlayerData() {
         //log
@@ -134,20 +147,8 @@ socket.on('payloadNewPlayerData', function (data) {
 
 //on this client disconnecting
 socket.on('disconnect', function () {
-    //reason default
-    if ((kickReason == '') | null) {
-        kickReason = 'Please refresh to log back in.';
-    }
-
     //show disconnect dialog
-    currentScene.showRefreshDialog({
-        title: 'Disconnected',
-        description: kickReason,
-        button: 'Refresh',
-    });
-
-    //reset kick reason
-    kickReason = '';
+    globalUI.showRefreshDialog(currentScene, kickReason);
 
     //disconnect player
     socket.disconnect();

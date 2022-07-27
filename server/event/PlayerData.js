@@ -9,6 +9,7 @@ const roomConfig = require(path.join(__dirname, '../config/room.json'));
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const database = require(path.join(__dirname, '../utility/Database.js'));
+const logs = require(path.join(__dirname, '../utility/Logs.js'));
 
 class PlayerData {
     constructor(io, socket) {
@@ -18,9 +19,6 @@ class PlayerData {
 
     //get player data
     async getPlayerData() {
-        //get room spawnpoint data
-        const roomSpawnpoint = roomConfig.forest.spawnpoint;
-
         //set up initial data
         var playerData = {
             //get ID
@@ -28,10 +26,6 @@ class PlayerData {
 
             //get name
             name: this.socket.request.user.data[0].display_name,
-
-            //generate starting location
-            x: utility.getRandomInt(roomSpawnpoint.minX, roomSpawnpoint.maxX),
-            y: utility.getRandomInt(roomSpawnpoint.minY, roomSpawnpoint.maxY),
 
             //generate direction
             direction: utility.randomFromArray(['right', 'left']),
@@ -111,20 +105,19 @@ class PlayerData {
     //triggers when client requests the players data
     requestClientPlayerData() {
         //log
-        console.log(
-            utility.timestampString(
-                'PLAYER ID: ' +
-                    this.socket.player.id +
-                    ' (' +
-                    this.socket.player.name +
-                    ')' +
-                    ' - Requested Player Data: ' +
-                    this.socket.player.id +
-                    ' (' +
-                    this.socket.player.name +
-                    ')'
-            )
+        let logMessage = utility.timestampString(
+            'PLAYER ID: ' +
+                this.socket.player.id +
+                ' (' +
+                this.socket.player.name +
+                ')' +
+                ' - Requested Player Data: ' +
+                this.socket.player.id +
+                ' (' +
+                this.socket.player.name +
+                ')'
         );
+        logs.logMessage('debug', logMessage);
 
         //send this client's player data to ONLY THIS client
         return this.socket.player;
@@ -133,17 +126,16 @@ class PlayerData {
     //triggers when player reloads their client and requests current player data
     async requestAllPlayersInRoom() {
         //log
-        console.log(
-            utility.timestampString(
-                'PLAYER ID: ' +
-                    this.socket.player.id +
-                    ' (' +
-                    this.socket.player.name +
-                    ')' +
-                    ' - Reloaded Room: ' +
-                    this.socket.roomID
-            )
+        let logMessage = utility.timestampString(
+            'PLAYER ID: ' +
+                this.socket.player.id +
+                ' (' +
+                this.socket.player.name +
+                ')' +
+                ' - Reloaded Room: ' +
+                this.socket.roomID
         );
+        logs.logMessage('debug', logMessage);
 
         //send current position of all connected players in this room to ONLY THIS client
         const currentPlayers = await this.getAllPlayers(this.socket.roomID);
@@ -153,16 +145,15 @@ class PlayerData {
     //triggers when client changes their player data and may want to go to next scene only AFTER the data has been updated
     updateClientPlayerData(data) {
         //log
-        console.log(
-            utility.timestampString(
-                'PLAYER ID: ' +
-                    this.socket.player.id +
-                    ' (' +
-                    this.socket.player.name +
-                    ')' +
-                    ' - Updated Player Data'
-            )
+        let logMessage = utility.timestampString(
+            'PLAYER ID: ' +
+                this.socket.player.id +
+                ' (' +
+                this.socket.player.name +
+                ')' +
+                ' - Updated Player Data'
         );
+        logs.logMessage('debug', logMessage);
 
         //update character
         if (!this.socket.player.character && data.character)
