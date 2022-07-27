@@ -93,8 +93,8 @@ class Menu extends Phaser.Scene {
 
     //get character information
     parseLoadData(data) {
-        // //emote data
-        // let emoteData = data['emotes'];
+        //emote data
+        let emoteData = data['emotes'];
 
         //player data
         let playerData = data['player'];
@@ -112,21 +112,4 @@ class Menu extends Phaser.Scene {
             this.scene.start('Game', 'forest');
         }
     }
-
-    // //get character information
-    // parsePlayerData(data) {
-
-    //     //save client ID
-    //     clientID = data.id;
-
-    //     //set as signal recieved
-    //     this.receivedSignal = true;
-
-    //     //send to character creator or game
-    //     if (!data.character) {
-    //         this.scene.start('CharacterCreator', 'forest');
-    //     } else {
-    //         this.scene.start('Game', 'forest');
-    //     };
-    // };
 }

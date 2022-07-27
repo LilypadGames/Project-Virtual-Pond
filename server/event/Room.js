@@ -11,15 +11,6 @@ var chatFilter = require('leo-profanity');
 chatFilter.add(badWords.badWords);
 const { Server } = require('http');
 
-// const emoteParser = require("tmi-emote-parse");
-// //get twitch emotes
-// emoteParser.loadAssets("pokelawls");
-// var emotes;
-// emoteParser.events.on("emotes", (event) => {
-//     // get all Twitch, BTTV, FFZ, and 7tv emotes
-//     emotes = emoteParser.getAllEmotes(event.channel);
-// });
-
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
