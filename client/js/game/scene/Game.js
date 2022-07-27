@@ -197,18 +197,17 @@ class Game extends Phaser.Scene {
         this.createToolbar();
 
         //welcome message
-        this.showWelcomeMessage();
-        // var options = utility.getLocalStorage('gameValues');
-        // if (
-        //     options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
-        //         .value !== 1
-        // ) {
-        //     this.showWelcomeMessage();
-        //     options[
-        //         utility.getLocalStorageArrayIndex('gameValues', 'welcome')
-        //     ].value = 1;
-        //     utility.storeLocalStorageArray('gameValues', options);
-        // }
+        var options = utility.getLocalStorage('gameValues');
+        if (
+            options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
+                .value !== welcomeMessageVersion
+        ) {
+            this.showWelcomeMessage();
+            options[
+                utility.getLocalStorageArrayIndex('gameValues', 'welcome')
+            ].value = welcomeMessageVersion;
+            utility.storeLocalStorageArray('gameValues', options);
+        }
     }
 
     update() {
