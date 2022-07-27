@@ -196,7 +196,7 @@ class CharacterCreator extends Phaser.Scene {
         ui.createButtons(this, {
             x: 800,
             y: 700,
-            buttonTextSize: 50,
+            fontSize: 50,
             buttons: [{ text: 'Save & Play', backgroundRadius: 16 }],
         })
             .on(

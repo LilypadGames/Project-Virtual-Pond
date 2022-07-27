@@ -919,10 +919,8 @@ class Game extends Phaser.Scene {
             x: 120,
             y: 765,
             align: 'left',
-            buttonTextSize: 18,
-            buttons: [
-                { text: 'Chat Log', backgroundRadius: 8, backgroundWidth: 230 },
-            ],
+            fontSize: 18,
+            buttons: [{ text: 'Chat Log', backgroundRadius: 8, width: 230 }],
         })
             .on(
                 'button.click',
@@ -952,7 +950,7 @@ class Game extends Phaser.Scene {
         ui.createButtons(this, {
             x: 1180,
             y: 765,
-            buttonTextSize: 22,
+            fontSize: 22,
             buttons: [{ text: '🎨', backgroundRadius: 8 }],
         })
             .on(
@@ -975,7 +973,7 @@ class Game extends Phaser.Scene {
         ui.createButtons(this, {
             x: 1240,
             y: 765,
-            buttonTextSize: 22,
+            fontSize: 22,
             buttons: [{ text: '⚙️', backgroundRadius: 8 }],
         })
             .on(
@@ -999,8 +997,8 @@ class Game extends Phaser.Scene {
 
     //show intro message
     showWelcomeMessage() {
-        //create menu
-        let menu = ui.createMenu(
+        //create welcome message prompt
+        ui.createMenu(
             this,
             {
                 title: 'Welcome!',
@@ -1057,24 +1055,11 @@ class Game extends Phaser.Scene {
             },
             {
                 cover: true,
+                onExit: function (scene) {
+                    //set menu as closed
+                    scene.menuClosed();
+                },
             }
-        );
-
-        //exit button function
-        menu.on(
-            'button.click',
-            function (button, groupName, index, pointer, event) {
-                //sfx
-                this.sfxButtonClick.play();
-                //close
-                menu.emit('modal.requestClose', {
-                    index: index,
-                    text: button.text,
-                });
-                //set menu as closed
-                this.menuClosed();
-            },
-            this
         );
 
         //set menu as opened
@@ -1147,29 +1132,20 @@ class Game extends Phaser.Scene {
             );
         }
 
-        //show options menu
-        let menu = ui.createMenu(this, {
-            title: 'Options',
-            content: content,
-        });
-
-        //exit button function
-        menu.on(
-            'button.click',
-            function (button, groupName, index, pointer, event) {
-                //sfx
-                this.sfxButtonClick.play();
-
-                //close
-                menu.emit('modal.requestClose', {
-                    index: index,
-                    text: button.text,
-                });
-
-                //set menu as closed
-                this.menuClosed();
+        //create options menu
+        ui.createMenu(
+            this,
+            {
+                title: 'Options',
+                content: content,
             },
-            this
+            {
+                cover: true,
+                onExit: function (scene) {
+                    //set menu as closed
+                    scene.menuClosed();
+                },
+            }
         );
 
         //set menu as opened
@@ -1182,7 +1158,7 @@ class Game extends Phaser.Scene {
         const passage = news.join('\n__________________________\n\n');
 
         //show news menu
-        let newsMenu = ui.createMenu(
+        ui.createMenu(
             this,
             {
                 title: 'News',
@@ -1195,26 +1171,13 @@ class Game extends Phaser.Scene {
                     },
                 ],
             },
-            { height: 500 }
-        );
-
-        //exit button function
-        newsMenu.on(
-            'button.click',
-            function (button, groupName, index, pointer, event) {
-                //sfx
-                this.sfxButtonClick.play();
-
-                //close
-                newsMenu.emit('modal.requestClose', {
-                    index: index,
-                    text: button.text,
-                });
-
-                //set menu as closed
-                this.menuClosed();
-            },
-            this
+            {
+                height: 500,
+                onExit: function (scene) {
+                    //set menu as closed
+                    scene.menuClosed();
+                },
+            }
         );
 
         //set menu as opened

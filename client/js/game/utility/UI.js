@@ -481,27 +481,26 @@ class UI {
             content.orientation = 'x';
         }
 
-        // if (!content.buttonTextSize) { content.buttonTextSize = 18; };
-        if (!content.buttonColor) {
-            content.buttonColor = ColorScheme.Blue;
+        if (!content.color) {
+            content.color = ColorScheme.Blue;
         }
-        if (!content.buttonColorOnHover) {
-            content.buttonColorOnHover = ColorScheme.LightBlue;
+        if (!content.colorOnHover) {
+            content.colorOnHover = ColorScheme.LightBlue;
         }
-        if (!content.buttonSpace) {
-            content.buttonSpace = {};
+        if (!content.space) {
+            content.space = {};
         }
-        if (!content.buttonSpace.left) {
-            content.buttonSpace.left = 0;
+        if (!content.space.left) {
+            content.space.left = 0;
         }
-        if (!content.buttonSpace.right) {
-            content.buttonSpace.right = 0;
+        if (!content.space.right) {
+            content.space.right = 0;
         }
-        if (!content.buttonSpace.top) {
-            content.buttonSpace.top = 0;
+        if (!content.space.top) {
+            content.space.top = 0;
         }
-        if (!content.buttonSpace.bottom) {
-            content.buttonSpace.bottom = 0;
+        if (!content.space.bottom) {
+            content.space.bottom = 0;
         }
 
         if (!content.space) {
@@ -532,11 +531,30 @@ class UI {
             if (!buttonsContent.align) {
                 buttonsContent.align = 'center';
             }
-            if (!buttonsContent.backgroundWidth) {
-                buttonsContent.backgroundWidth = 20;
+            if (!buttonsContent.width) {
+                buttonsContent.width = 20;
             }
-            if (!buttonsContent.backgroundHeight) {
-                buttonsContent.backgroundHeight = 20;
+            if (!buttonsContent.height) {
+                buttonsContent.height = 20;
+            }
+
+            if (!buttonsContent.space) {
+                buttonsContent.space = {};
+            }
+            if (!buttonsContent.space.left) {
+                buttonsContent.space.left = 0;
+            }
+            if (!buttonsContent.space.right) {
+                buttonsContent.space.right = 0;
+            }
+            if (!buttonsContent.space.top) {
+                buttonsContent.space.top = 0;
+            }
+            if (!buttonsContent.space.bottom) {
+                buttonsContent.space.bottom = 0;
+            }
+            if (!buttonsContent.space.item) {
+                buttonsContent.space.item = 0;
             }
 
             //add to buttons
@@ -546,17 +564,17 @@ class UI {
                     y: buttonsContent.y,
                     icon: buttonsContent.icon,
                     text: buttonsContent.text,
-                    fontSize: content.buttonTextSize,
+                    fontSize: content.fontSize,
                     align: buttonsContent.align,
-                    backgroundColor: content.buttonColor,
-                    width: buttonsContent.backgroundWidth,
-                    height: buttonsContent.backgroundHeight,
+                    backgroundColor: content.color,
+                    width: buttonsContent.width,
+                    height: buttonsContent.height,
                     backgroundRadius: buttonsContent.backgroundRadius,
                     space: {
-                        left: content.buttonSpace.left,
-                        right: content.buttonSpace.right,
-                        top: content.buttonSpace.top,
-                        bottom: content.buttonSpace.bottom,
+                        left: content.space.left,
+                        right: content.space.right,
+                        top: content.space.top,
+                        bottom: content.space.bottom,
                     },
                 })
             );
@@ -617,7 +635,7 @@ class UI {
                     function (button, groupName, index, pointer, event) {
                         button
                             .getElement('background')
-                            .setFillStyle(content.buttonColorOnHover);
+                            .setFillStyle(content.colorOnHover);
                     }
                 )
                 .on(
@@ -625,7 +643,7 @@ class UI {
                     function (button, groupName, index, pointer, event) {
                         button
                             .getElement('background')
-                            .setFillStyle(content.buttonColor);
+                            .setFillStyle(content.color);
                     }
                 )
         );
@@ -873,7 +891,7 @@ class UI {
                     sizer.add(
                         this.createButtons(scene, {
                             align: internalContent.align,
-                            buttonTextSize: internalContent.fontSize,
+                            fontSize: internalContent.fontSize,
                             buttons: [{ text: internalContent.text }],
                         }).on(
                             'button.click',
@@ -1423,11 +1441,15 @@ class UI {
             options.exitButton.colorOnHover = ColorScheme.LightBlue;
         }
 
-        if (!options.cover) {
+        if (options.cover === undefined) {
             options.cover = false;
         }
 
         //content
+        let cover = options.cover
+            ? scene.add.rexCover({ alpha: 0.8 }).setDepth(scene.depthUI)
+            : undefined;
+
         const background = scene.rexUI.add.roundRectangle(
             options.background.x,
             options.background.y,
@@ -1445,17 +1467,19 @@ class UI {
         });
 
         const exitButton = this.createButtons(scene, {
-            buttonTextSize: 22,
+            fontSize: 18,
             buttons: [
                 {
-                    x: 10,
-                    y: -10,
                     text: 'X',
+                    width: 40,
+                    height: 0,
                     backgroundRadius: 8,
-                    buttonColor: options.exitButton.color,
-                    buttonColorOnHover: options.exitButton.colorOnHover,
                 },
             ],
+            space: {
+                top: 5,
+                bottom: 5,
+            },
         });
 
         var sizer = this.createSizer(scene, content, {
@@ -1514,8 +1538,8 @@ class UI {
                 function (button, groupName, index, pointer, event) {
                     //exit button
                     if (groupName == 'toolbar' && index == 0) {
-                        console.log(menu.getToolbar(index));
-                        menu.getToolbar(index)
+                        menu.getToolbar(0)
+                            .getButton(0)
                             .getElement('background')
                             .setFillStyle(options.exitButton.colorOnHover);
                     }
@@ -1527,6 +1551,7 @@ class UI {
                     //exit button
                     if (groupName == 'toolbar' && index == 0) {
                         menu.getToolbar(index)
+                            .getButton(0)
                             .getElement('background')
                             .setFillStyle(options.exitButton.color);
                     }
@@ -1545,7 +1570,7 @@ class UI {
 
             //options
             {
-                cover: options.cover,
+                cover: false,
                 duration: {
                     in: 200,
                     out: 200,
@@ -1553,8 +1578,28 @@ class UI {
             }
         );
 
-        //set UI depth
-        // menu.setDepth(scene.depthUI);
+        menu.on(
+            'button.click',
+            function (button, groupName, index, pointer, event) {
+                //sfx
+                scene.sfxButtonClick.play();
+
+                //remove cover
+                if (options.cover) {
+                    cover.destroy();
+                }
+
+                //close
+                menu.emit('modal.requestClose', {
+                    index: index,
+                    text: button.text,
+                });
+
+                //exit callback
+                options.onExit(scene);
+            },
+            scene
+        );
 
         return menu;
     }
