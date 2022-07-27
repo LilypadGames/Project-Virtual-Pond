@@ -1382,7 +1382,7 @@ class Game extends Phaser.Scene {
         //format chat log
         for (const key in log) {
             var line =
-                utility.getObject(this.playerData, log[key].userID).name +
+                log[key].userName +
                 ': ' +
                 log[key].message;
             this.chatLog.push(line);

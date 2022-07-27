@@ -11,10 +11,11 @@ module.exports = {
         });
     },
 
-    logMessage: function (roomID, userID, date, message) {
+    logMessage: function (roomID, userID, userName, date, message) {
         //create entry
         let entry = {
             userID: userID,
+            userName: userName,
             date: date,
             message: message,
         };

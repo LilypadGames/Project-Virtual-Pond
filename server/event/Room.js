@@ -165,6 +165,7 @@ class Room {
             chatLogs.logMessage(
                 this.socket.roomID,
                 this.socket.player.id,
+                this.socket.player.name,
                 Date.now(),
                 message
             );
