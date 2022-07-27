@@ -18,6 +18,7 @@ const { Server } = require('http');
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
+const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -63,19 +64,18 @@ class Room {
     playerMoved(x, y, direction) {
         if (this.socket.player.x != x || this.socket.player.y != y) {
             //log
-            console.log(
-                utility.timestampString(
-                    'PLAYER ID: ' +
-                        this.socket.player.id +
-                        ' (' +
-                        this.socket.player.name +
-                        ')' +
-                        ' - Moving To> x:' +
-                        x +
-                        ', y:' +
-                        y
-                )
+            let logMessage = utility.timestampString(
+                'PLAYER ID: ' +
+                    this.socket.player.id +
+                    ' (' +
+                    this.socket.player.name +
+                    ')' +
+                    ' - Moving To> x:' +
+                    x +
+                    ', y:' +
+                    y
             );
+            logs.logMessage('debug', logMessage);
 
             //store player location and direction
             this.socket.player.x = x;
@@ -117,7 +117,8 @@ class Room {
         //kick if larger than allowed max length
         if (message.length > 80) {
             //kick
-            this.kickClient(
+            moderation.kickClient(
+                this.io,
                 this.socket.player,
                 'Abusing chat message maximum length.'
             );
@@ -165,23 +166,19 @@ class Room {
 
         //send the player message to ALL clients in this room
         if (message !== '' || null) {
-            this.io
-                .in(this.socket.roomID)
-                .emit('showPlayerMessage', {
-                    id: this.socket.player.id,
-                    messageData: messageData,
-                });
+            this.io.in(this.socket.roomID).emit('showPlayerMessage', {
+                id: this.socket.player.id,
+                messageData: messageData,
+            });
         }
 
         //queue message for removal
         setTimeout(() => {
             //remove message for all clients
-            this.io
-                .in(this.socket.roomID)
-                .emit('removePlayerMessage', {
-                    id: this.socket.player.id,
-                    messageID: messageData.id,
-                });
+            this.io.in(this.socket.roomID).emit('removePlayerMessage', {
+                id: this.socket.player.id,
+                messageID: messageData.id,
+            });
 
             //remove from server-side player data
             this.playerData.resetMessageData(messageData.id);
@@ -191,17 +188,16 @@ class Room {
     //triggers when player interacts with NPC
     playerInteractingWithNPC(npcID) {
         //log
-        console.log(
-            utility.timestampString(
-                'PLAYER ID: ' +
-                    this.socket.player.id +
-                    ' (' +
-                    this.socket.player.name +
-                    ')' +
-                    ' - Interacting With NPC: ' +
-                    npcID
-            )
+        let logMessage = utility.timestampString(
+            'PLAYER ID: ' +
+                this.socket.player.id +
+                ' (' +
+                this.socket.player.name +
+                ')' +
+                ' - Interacting With NPC: ' +
+                npcID
         );
+        logs.logMessage('debug', logMessage);
 
         //merge player ID and npc ID
         let playerInteractNPC = {

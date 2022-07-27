@@ -2,9 +2,11 @@
 
 //imports
 const ui = new UI();
+const globalUI = new GlobalUI();
 const utility = new Utility();
 const client = new Client();
 const loadingScreen = new LoadingScreen();
+const twitchEmotes = new Emotes();
 
 // GLOBAL VARIABLES
 //canvas
@@ -28,7 +30,10 @@ if (
     gameOptions = defaultOptions;
 }
 var gameValues = JSON.parse(localStorage.getItem('gameValues'));
-const defaultValues = [{ id: 'welcome', value: 0 }];
+const defaultValues = [
+    { id: 'welcome', value: 0 },
+    { id: 'show_stream_chat', value: 1 },
+];
 if (
     gameValues === null ||
     gameValues.length <= 0 ||

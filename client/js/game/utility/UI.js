@@ -42,6 +42,7 @@ class UI {
             text: scene.add.text(content.x, content.y, content.text, {
                 fontSize: content.fontSize,
                 fontFamily: content.fontFamily,
+                align: content.align,
             }),
 
             align: content.align,
@@ -480,27 +481,26 @@ class UI {
             content.orientation = 'x';
         }
 
-        // if (!content.buttonTextSize) { content.buttonTextSize = 18; };
-        if (!content.buttonColor) {
-            content.buttonColor = ColorScheme.Blue;
+        if (!content.color) {
+            content.color = ColorScheme.Blue;
         }
-        if (!content.buttonColorOnHover) {
-            content.buttonColorOnHover = ColorScheme.LightBlue;
+        if (!content.colorOnHover) {
+            content.colorOnHover = ColorScheme.LightBlue;
         }
-        if (!content.buttonSpace) {
-            content.buttonSpace = {};
+        if (!content.space) {
+            content.space = {};
         }
-        if (!content.buttonSpace.left) {
-            content.buttonSpace.left = 0;
+        if (!content.space.left) {
+            content.space.left = 0;
         }
-        if (!content.buttonSpace.right) {
-            content.buttonSpace.right = 0;
+        if (!content.space.right) {
+            content.space.right = 0;
         }
-        if (!content.buttonSpace.top) {
-            content.buttonSpace.top = 0;
+        if (!content.space.top) {
+            content.space.top = 0;
         }
-        if (!content.buttonSpace.bottom) {
-            content.buttonSpace.bottom = 0;
+        if (!content.space.bottom) {
+            content.space.bottom = 0;
         }
 
         if (!content.space) {
@@ -531,29 +531,50 @@ class UI {
             if (!buttonsContent.align) {
                 buttonsContent.align = 'center';
             }
-            if (!buttonsContent.backgroundWidth) {
-                buttonsContent.backgroundWidth = 20;
+            if (!buttonsContent.width) {
+                buttonsContent.width = 20;
             }
-            if (!buttonsContent.backgroundHeight) {
-                buttonsContent.backgroundHeight = 20;
+            if (!buttonsContent.height) {
+                buttonsContent.height = 20;
+            }
+
+            if (!buttonsContent.space) {
+                buttonsContent.space = {};
+            }
+            if (!buttonsContent.space.left) {
+                buttonsContent.space.left = 0;
+            }
+            if (!buttonsContent.space.right) {
+                buttonsContent.space.right = 0;
+            }
+            if (!buttonsContent.space.top) {
+                buttonsContent.space.top = 0;
+            }
+            if (!buttonsContent.space.bottom) {
+                buttonsContent.space.bottom = 0;
+            }
+            if (!buttonsContent.space.item) {
+                buttonsContent.space.item = 0;
             }
 
             //add to buttons
             buttons.push(
                 this.createLabel(scene, {
+                    x: buttonsContent.x,
+                    y: buttonsContent.y,
                     icon: buttonsContent.icon,
                     text: buttonsContent.text,
-                    fontSize: content.buttonTextSize,
+                    fontSize: content.fontSize,
                     align: buttonsContent.align,
-                    backgroundColor: content.buttonColor,
-                    width: buttonsContent.backgroundWidth,
-                    height: buttonsContent.backgroundHeight,
+                    backgroundColor: content.color,
+                    width: buttonsContent.width,
+                    height: buttonsContent.height,
                     backgroundRadius: buttonsContent.backgroundRadius,
                     space: {
-                        left: content.buttonSpace.left,
-                        right: content.buttonSpace.right,
-                        top: content.buttonSpace.top,
-                        bottom: content.buttonSpace.bottom,
+                        left: content.space.left,
+                        right: content.space.right,
+                        top: content.space.top,
+                        bottom: content.space.bottom,
                     },
                 })
             );
@@ -614,7 +635,7 @@ class UI {
                     function (button, groupName, index, pointer, event) {
                         button
                             .getElement('background')
-                            .setFillStyle(content.buttonColorOnHover);
+                            .setFillStyle(content.colorOnHover);
                     }
                 )
                 .on(
@@ -622,7 +643,7 @@ class UI {
                     function (button, groupName, index, pointer, event) {
                         button
                             .getElement('background')
-                            .setFillStyle(content.buttonColor);
+                            .setFillStyle(content.color);
                     }
                 )
         );
@@ -855,7 +876,7 @@ class UI {
                     internalContent.align = 'center';
                 }
 
-                //add to sizer
+                //add text
                 if (internalContent.type == 'text') {
                     sizer.add(
                         this.createText(scene, {
@@ -864,6 +885,107 @@ class UI {
                             align: internalContent.align,
                         })
                     );
+
+                    //add button
+                } else if (internalContent.type == 'button') {
+                    sizer.add(
+                        this.createButtons(scene, {
+                            align: internalContent.align,
+                            fontSize: internalContent.fontSize,
+                            buttons: [{ text: internalContent.text }],
+                        }).on(
+                            'button.click',
+                            () => {
+                                internalContent.onClick();
+                            },
+                            scene
+                        )
+                    );
+
+                    //add checkbox
+                } else if (internalContent.type == 'checkbox') {
+                    //create checkbox
+                    let checkbox = scene.rexUI.add.buttons({
+                        x: 0,
+                        y: 0,
+                        orientation: 'y',
+
+                        buttons: [
+                            scene.rexUI.add.label({
+                                width: 25,
+                                height: 25,
+                                icon: scene.rexUI.add
+                                    .roundRectangle(
+                                        0,
+                                        0,
+                                        25,
+                                        25,
+                                        5,
+                                        ColorScheme.Blue
+                                    )
+                                    .setStrokeStyle(1, ColorScheme.LightBlue),
+                                space: {
+                                    left: 0,
+                                    right: 0,
+                                    icon: 0,
+                                },
+                                name: 'checkbox',
+                            }),
+                        ],
+
+                        click: {
+                            mode: 'pointerup',
+                            clickInterval: 100,
+                        },
+
+                        type: 'checkboxes',
+
+                        setButtonStateCallback: function (
+                            button,
+                            value,
+                            previousValue
+                        ) {
+                            console.log(
+                                'Previous: ' +
+                                    previousValue +
+                                    ' Value: ' +
+                                    value
+                            );
+                            //init
+                            if (previousValue === undefined) {
+                                //initial look state
+                                button
+                                    .getElement('icon')
+                                    .setFillStyle(
+                                        internalContent.initialValue
+                                            ? ColorScheme.LightBlue
+                                            : undefined
+                                    );
+                            } else {
+                                //show look state of checkbox
+                                button
+                                    .getElement('icon')
+                                    .setFillStyle(
+                                        value
+                                            ? ColorScheme.LightBlue
+                                            : undefined
+                                    );
+
+                                //callback
+                                internalContent.onClick(value);
+                            }
+                        },
+                    });
+
+                    //set initial state
+                    checkbox.setButtonState(
+                        'checkbox',
+                        internalContent.initialValue
+                    );
+
+                    sizer.add(checkbox);
+
+                    //add slider
                 } else if (internalContent.type == 'slider') {
                     sizer.add(
                         this.createSlider(scene, {
@@ -871,6 +993,8 @@ class UI {
                             value: internalContent.value,
                         })
                     );
+
+                    //add scrollable panel
                 } else if (internalContent.type == 'scrollable') {
                     //default options
                     if (!internalContent.x) {
@@ -1317,7 +1441,15 @@ class UI {
             options.exitButton.colorOnHover = ColorScheme.LightBlue;
         }
 
+        if (options.cover === undefined) {
+            options.cover = false;
+        }
+
         //content
+        let cover = options.cover
+            ? scene.add.rexCover({ alpha: 0.8 }).setDepth(scene.depthUI)
+            : undefined;
+
         const background = scene.rexUI.add.roundRectangle(
             options.background.x,
             options.background.y,
@@ -1334,7 +1466,21 @@ class UI {
             align: 'center',
         });
 
-        const exitButton = this.createLabel(scene, { text: 'X' });
+        const exitButton = this.createButtons(scene, {
+            fontSize: 18,
+            buttons: [
+                {
+                    text: 'X',
+                    width: 40,
+                    height: 0,
+                    backgroundRadius: 8,
+                },
+            ],
+            space: {
+                top: 5,
+                bottom: 5,
+            },
+        });
 
         var sizer = this.createSizer(scene, content, {
             width: options.width,
@@ -1386,24 +1532,29 @@ class UI {
             })
             .layout()
 
-            //set menu depth
-            .setDepth(scene.depthUI)
-
             //exit button animation
             .on(
                 'button.over',
                 function (button, groupName, index, pointer, event) {
-                    button
-                        .getElement('background')
-                        .setFillStyle(options.exitButton.colorOnHover);
+                    //exit button
+                    if (groupName == 'toolbar' && index == 0) {
+                        menu.getToolbar(0)
+                            .getButton(0)
+                            .getElement('background')
+                            .setFillStyle(options.exitButton.colorOnHover);
+                    }
                 }
             )
             .on(
                 'button.out',
                 function (button, groupName, index, pointer, event) {
-                    button
-                        .getElement('background')
-                        .setFillStyle(options.exitButton.color);
+                    //exit button
+                    if (groupName == 'toolbar' && index == 0) {
+                        menu.getToolbar(index)
+                            .getButton(0)
+                            .getElement('background')
+                            .setFillStyle(options.exitButton.color);
+                    }
                 }
             );
 
@@ -1415,7 +1566,7 @@ class UI {
         //close promise + animation
         scene.rexUI.modalPromise(
             //assign menu to promise
-            menu,
+            menu.setDepth(scene.depthUI),
 
             //options
             {
@@ -1425,6 +1576,29 @@ class UI {
                     out: 200,
                 },
             }
+        );
+
+        menu.on(
+            'button.click',
+            function (button, groupName, index, pointer, event) {
+                //sfx
+                scene.sfxButtonClick.play();
+
+                //remove cover
+                if (options.cover) {
+                    cover.destroy();
+                }
+
+                //close
+                menu.emit('modal.requestClose', {
+                    index: index,
+                    text: button.text,
+                });
+
+                //exit callback
+                options.onExit(scene);
+            },
+            scene
         );
 
         return menu;

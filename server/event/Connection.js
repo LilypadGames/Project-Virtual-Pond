@@ -10,12 +10,12 @@ const roomConfig = require(path.join(__dirname, '../config/room.json'));
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
-const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 const serverMetrics = require(path.join(
     __dirname,
     '../utility/ServerMetrics.js'
 ));
+const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -65,7 +65,10 @@ class Connection {
             this.socket.emit('payloadGameVer', config.version);
 
             //kick other connection instances of this player
-            await this.kickClientsWithID(this.socket.request.user.data[0].id);
+            await moderation.kickClientsWithID(
+                this.io,
+                this.socket.request.user.data[0].id
+            );
 
             //set up player data
             this.socket.player = await this.playerData.getPlayerData();
@@ -101,6 +104,14 @@ class Connection {
 
         //triggers when client requests emotes
         // this.socket.on('requestEmotes', () => this.requestEmotes());
+
+        //triggers when client requests the players data
+        this.socket.on('requestLoadData', (cb) => {
+            var loadData = {};
+            loadData['player'] = this.playerData.requestClientPlayerData();
+
+            cb(loadData);
+        });
 
         //triggers when client requests the players data
         this.socket.on('requestClientPlayerData', (cb) => {
@@ -254,68 +265,6 @@ class Connection {
         delete this.socket.roomID;
     }
 
-    //kick client
-    async kickClient(player, reason, kickMessage = 'You have been kicked.') {
-        //log
-        message = utility.timestampString(
-            'PLAYER ID: ' +
-                player.id +
-                ' (' +
-                player.name +
-                ')' +
-                ' - KICKED> Reason: ' +
-                reason +
-                ', Message: ' +
-                kickMessage
-        );
-        logs.logMessage('moderation', message);
-
-        //get connected clients
-        const connectedClients = await this.io.fetchSockets();
-
-        //loop through connected clients
-        for (const client of connectedClients) {
-            //if this client has player information
-            if (client.player) {
-                //get player ID
-                var playerID = client.player.id;
-
-                //kick currently connected clients if they match the ID of the client attempting to connect
-                if (playerID == player.id) {
-                    //send kick message to this client
-                    client.emit('payloadKickReason', kickMessage);
-
-                    //kick this client
-                    client.disconnect();
-
-                    //end loop
-                    break;
-                }
-            }
-        }
-    }
-
-    //disconnect clients with the same ID
-    async kickClientsWithID(id) {
-        //get connected clients
-        const connectedClients = await this.io.fetchSockets();
-
-        //loop through connected clients
-        for (const client of connectedClients) {
-            //if this client has player information
-            if (client.player) {
-                //get player ID
-                var playerID = client.player.id;
-
-                //kick currently connected clients if they match the ID of the client attempting to connect
-                if (playerID == id) {
-                    //kick this client
-                    client.disconnect();
-                }
-            }
-        }
-    }
-
     //on disconnect
     onDisconnect() {
         //remove 1 from playercount
@@ -345,12 +294,11 @@ class Connection {
             .emit('removePlayer', this.socket.player.id);
     }
 
-    // //triggers when client requests emotes
-    // requestEmotes() {
-
-    //     //send emotes to this client
-    //     this.socket.emit('payloadEmotes', this.socket.player);
-    // };
+    //triggers when client requests emotes
+    requestEmotes() {
+        //send emotes to this client
+        this.socket.emit('payloadEmotes', this.socket.player);
+    }
 }
 
 module.exports = Connection;

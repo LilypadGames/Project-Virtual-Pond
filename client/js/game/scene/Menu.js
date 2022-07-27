@@ -1,7 +1,6 @@
 // Menu Scene
 
 class Menu extends Phaser.Scene {
-
     // LOCAL VARIABLE
     //UI
     disableInput = false;
@@ -18,28 +17,29 @@ class Menu extends Phaser.Scene {
     // INIT
     constructor() {
         super({ key: 'Menu' });
-    };
+    }
 
     init() {
         //set scene
         currentScene = this;
-    };
+    }
 
     // LOGIC
     preload() {
-
         //register canvas
         this.canvas = this.sys.game.canvas;
 
         //sfx
-        this.load.audio('button_click', "assets/audio/sfx/UI/button_click.mp3");
+        this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
 
         //ui
-        this.load.spritesheet('loadingIcon', 'assets/ui/loading.png', { frameWidth: 64, frameHeight: 64 });
-    };
+        this.load.spritesheet('loadingIcon', 'assets/ui/loading.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+        });
+    }
 
     create() {
-
         //sfx
         this.sfxButtonClick = this.sound.add('button_click');
 
@@ -48,97 +48,85 @@ class Menu extends Phaser.Scene {
             key: 'loadingIconAnim',
             frames: this.anims.generateFrameNumbers('loadingIcon', { end: 7 }),
             frameRate: 18,
-            repeat: -1
+            repeat: -1,
         });
 
         //create loading icon
-        let loadingIcon = this.add.sprite(this.canvas.width/2, this.canvas.height/2, 'loadingIcon');
+        let loadingIcon = this.add.sprite(
+            this.canvas.width / 2,
+            this.canvas.height / 2,
+            'loadingIcon'
+        );
         loadingIcon.play('loadingIconAnim');
 
         //attempt player data request from server
         this.attemptRequest();
-    };
+    }
 
     end() {
-
         //reset data
         this.registry.destroy();
         // this.events.removeAllListeners();
         this.game.events.removeAllListeners();
         this.input.keyboard.removeAllListeners();
         this.scene.stop();
-    };
-
-    // UI
-    //show refresh dialog
-    showRefreshDialog(content) {
-
-        //fade background
-        this.add.rexCover({ alpha: 0.8 }).setDepth(this.depthUI);
-
-        //create dialog with refresh button
-        const dialog = ui.createDialog(this, content)
-        .on('button.click', function () {
-
-            //sfx
-            this.sfxButtonClick.play();
-
-            //reload window
-            window.location.reload();
-
-            //enable input
-            this.disableInput = false;
-        }, this);
-
-        //dark background
-        this.rexUI.modalPromise(
-            dialog.setDepth(this.depthUI),
-
-            //config
-            {
-                cover: false,
-                duration: {
-                    in: 200,
-                    out: 200
-                }
-            }
-        );
-
-        this.disableInput = true;
-    };
+    }
 
     // FUNCTIONS
     //attempt player data request
     attemptRequest() {
-
         //signal not received yet
         if (!this.receivedSignal) {
             //get player data
-            client.requestClientPlayerData();
+            client.requestLoadData();
 
             //attempt again
             setTimeout(() => {
-
-                //attempt request again
-                this.attemptRequest();
+                //request again if still not received
+                if (!this.receivedSignal) {
+                    //attempt request again
+                    this.attemptRequest();
+                }
             }, 1000);
-        };
-    };
+        }
+    }
 
     //get character information
-    parsePlayerData(data) {
+    parseLoadData(data) {
+        // //emote data
+        // let emoteData = data['emotes'];
+
+        //player data
+        let playerData = data['player'];
 
         //save client ID
-        clientID = data.id;
+        clientID = playerData.id;
 
         //set as signal recieved
         this.receivedSignal = true;
 
         //send to character creator or game
-        if (!data.character) {
+        if (!playerData.character) {
             this.scene.start('CharacterCreator', 'forest');
         } else {
             this.scene.start('Game', 'forest');
-        };
-    };
-};
+        }
+    }
+
+    // //get character information
+    // parsePlayerData(data) {
+
+    //     //save client ID
+    //     clientID = data.id;
+
+    //     //set as signal recieved
+    //     this.receivedSignal = true;
+
+    //     //send to character creator or game
+    //     if (!data.character) {
+    //         this.scene.start('CharacterCreator', 'forest');
+    //     } else {
+    //         this.scene.start('Game', 'forest');
+    //     };
+    // };
+}
