@@ -64,19 +64,18 @@ class Room {
     playerMoved(x, y, direction) {
         if (this.socket.player.x != x || this.socket.player.y != y) {
             //log
-            console.log(
-                utility.timestampString(
-                    'PLAYER ID: ' +
-                        this.socket.player.id +
-                        ' (' +
-                        this.socket.player.name +
-                        ')' +
-                        ' - Moving To> x:' +
-                        x +
-                        ', y:' +
-                        y
-                )
+            let logMessage = utility.timestampString(
+                'PLAYER ID: ' +
+                    this.socket.player.id +
+                    ' (' +
+                    this.socket.player.name +
+                    ')' +
+                    ' - Moving To> x:' +
+                    x +
+                    ', y:' +
+                    y
             );
+            logs.logMessage('debug', logMessage);
 
             //store player location and direction
             this.socket.player.x = x;
@@ -189,17 +188,16 @@ class Room {
     //triggers when player interacts with NPC
     playerInteractingWithNPC(npcID) {
         //log
-        console.log(
-            utility.timestampString(
-                'PLAYER ID: ' +
-                    this.socket.player.id +
-                    ' (' +
-                    this.socket.player.name +
-                    ')' +
-                    ' - Interacting With NPC: ' +
-                    npcID
-            )
+        let logMessage = utility.timestampString(
+            'PLAYER ID: ' +
+                this.socket.player.id +
+                ' (' +
+                this.socket.player.name +
+                ')' +
+                ' - Interacting With NPC: ' +
+                npcID
         );
+        logs.logMessage('debug', logMessage);
 
         //merge player ID and npc ID
         let playerInteractNPC = {

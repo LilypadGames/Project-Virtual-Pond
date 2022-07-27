@@ -53,6 +53,7 @@ console.log = function () {
 
     //write to log
     logs.logMessage('server', message);
+    logs.logMessage('debug', message);
     process.stdout.write(message + '\n');
 };
 console.error = console.log;
