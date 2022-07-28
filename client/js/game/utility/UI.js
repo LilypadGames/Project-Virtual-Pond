@@ -663,7 +663,7 @@ class UI {
     }
 
     //create color picker
-    createColorPicker(scene, option, content) {
+    createColorPicker(scene, option) {
         //defaults
         if (!option.x) {
             option.x = 0;
