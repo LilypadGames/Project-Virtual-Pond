@@ -466,44 +466,24 @@ class UI {
         if (!content.y) {
             content.y = 0;
         }
-
         if (!content.width) {
             content.width = 20;
         }
         if (!content.height) {
             content.height = 20;
         }
-
         if (!content.align) {
             content.align = 'center';
         }
-
         if (!content.orientation) {
             content.orientation = 'x';
         }
-
         if (!content.color) {
             content.color = ColorScheme.Blue;
         }
         if (!content.colorOnHover) {
             content.colorOnHover = ColorScheme.LightBlue;
         }
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 0;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 0;
-        }
-
         if (!content.space) {
             content.space = {};
         }
@@ -579,26 +559,6 @@ class UI {
                     },
                 })
             );
-        }
-
-        if (!content.align) {
-            content.align = 'left';
-        }
-
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 0;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 0;
         }
 
         return (
@@ -902,20 +862,21 @@ class UI {
 
                     //add button
                 } else if (internalContent.type == 'button') {
+                    let onClick = internalContent.onClick
+                        ? internalContent.onClick
+                        : undefined;
                     sizer.add(
                         this.createButtons(scene, {
                             align: internalContent.align,
                             fontSize: internalContent.fontSize,
                             buttons: [{ text: internalContent.text }],
-                        }).on(
-                            'button.click',
-                            () => {
-                                if (internalContent.onClick)
-                                    internalContent.onClick();
-                            },
-                            scene
-                        )
+                            onClick: onClick,
+                        })
                     );
+
+                    //add buttons
+                } else if (internalContent.type == 'buttons') {
+                    sizer.add(this.createButtons(scene, internalContent));
 
                     //add checkbox
                 } else if (internalContent.type == 'checkbox') {
@@ -1087,12 +1048,12 @@ class UI {
                         },
 
                         space: {
-                            left: options.space.left,
-                            right: options.space.right,
-                            top: options.space.top,
-                            bottom: options.space.bottom,
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
 
-                            panel: options.space.panel,
+                            panel: 0,
                         },
                     });
 

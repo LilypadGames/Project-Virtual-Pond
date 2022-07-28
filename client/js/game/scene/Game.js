@@ -1189,7 +1189,7 @@ class Game extends Phaser.Scene {
                 cover: true,
                 onExit: function (scene) {
                     //set menu as closed
-                    scene.menuClosed();
+                    scene.menuClosed();ßß
                 },
             }
         );
@@ -1251,9 +1251,27 @@ class Game extends Phaser.Scene {
                             line: 0,
                         },
                     },
-                    {
-                        type: 'button'
-                    }
+                    // {
+                    //     type: 'buttons',
+                    //     align: 'center',
+                    //     fontSize: 14,
+                    //     buttons: [
+                    //         {
+                    //             text: 'Global',
+                    //             align: 'left',
+                    //             onClick: function (scene) {
+                    //                 console.log('global');
+                    //             },
+                    //         },
+                    //         {
+                    //             text: 'Local',
+                    //             align: 'left',
+                    //             onClick: function (scene) {
+                    //                 console.log('local');
+                    //             },
+                    //         },
+                    //     ],
+                    // },
                 ],
             },
             {
