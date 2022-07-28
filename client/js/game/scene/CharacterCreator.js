@@ -150,22 +150,14 @@ class CharacterCreator extends Phaser.Scene {
                 { icon: 'UI_frog_eyes_0', backgroundRadius: 8 },
                 { icon: 'UI_frog_eyes_1', backgroundRadius: 8 },
             ],
-        })
-            .on(
-                'button.click',
-                function (button, index, pointer, event) {
-                    //sfx
-                    this.sfxButtonClick.play();
+            onClick: function (scene, index) {
+                //set eye type
+                scene.characterData.eye_type = index;
 
-                    //set eye type
-                    this.characterData.eye_type = index;
-
-                    //update character display
-                    this.updateCharacter();
-                },
-                this
-            )
-            .setDepth(this.depthCharacterUI);
+                //update character display
+                scene.updateCharacter();
+            },
+        }).setDepth(this.depthCharacterUI);
 
         //color label
         this.rexUI.add
@@ -190,6 +182,13 @@ class CharacterCreator extends Phaser.Scene {
             width: 400,
             height: 60,
             sliderID: 'color',
+            onSliderChange: function (scene, value) {
+                //update color
+                scene.characterData.color = value;
+
+                //update character display
+                scene.updateCharacter();
+            },
         }).setDepth(this.depthCharacterUI);
 
         //save & play button
@@ -197,44 +196,32 @@ class CharacterCreator extends Phaser.Scene {
             x: 800,
             y: 700,
             fontSize: 50,
-            buttons: [{ text: 'Save & Play', backgroundRadius: 16 }],
-        })
-            .on(
-                'button.click',
-                function (button, index, pointer, event) {
-                    //sfx
-                    this.sfxButtonClick.play();
+            buttons: [
+                {
+                    text: 'Save & Play',
+                    backgroundRadius: 16,
+                    onClick: function (scene) {
+                        //parse player data
+                        const data = {
+                            name: scene.characterData.name,
+                            character: {
+                                color: scene.characterData.color,
+                                eye_type: scene.characterData.eye_type,
+                            },
+                        };
 
-                    //parse player data
-                    const data = {
-                        name: this.characterData.name,
-                        character: {
-                            color: this.characterData.color,
-                            eye_type: this.characterData.eye_type,
-                        },
-                    };
+                        //save character data to server
+                        client.updateClientPlayerData(data);
 
-                    //save character data
-                    client.updateClientPlayerData(data);
-
-                    //set character as created
-                    this.characterCreated = false;
+                        //set character as created
+                        scene.characterCreated = false;
+                    },
                 },
-                this
-            )
-            .setDepth(this.depthCharacterUI);
+            ],
+        }).setDepth(this.depthCharacterUI);
+
+        //when the server updates the players character data, quit this scene and return to previous scene
         this.events.on('updatedClientPlayerData', this.quit, this);
-    }
-
-    //on slider change
-    onSliderChange(value, sliderID) {
-        if (sliderID == 'color') {
-            //update color
-            this.characterData.color = value;
-
-            //update character display
-            this.updateCharacter();
-        }
     }
 
     // FUNCTIONS
