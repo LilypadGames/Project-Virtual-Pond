@@ -110,8 +110,7 @@ class Connection {
         this.socket.on('requestLoadData', (cb) => {
             var loadData = {};
             loadData['player'] = this.playerData.requestClientPlayerData();
-            loadData['emotes'] = emoteLib.getEmotes();
-            console.log(loadData['emotes']);
+            // loadData['emotes'] = emoteLib.getEmotes();
 
             cb(loadData);
         });

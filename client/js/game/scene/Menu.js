@@ -94,7 +94,7 @@ class Menu extends Phaser.Scene {
     //get character information
     parseLoadData(data) {
         //emote data
-        let emoteData = data['emotes'];
+        // let emoteData = data['emotes'];
 
         //player data
         let playerData = data['player'];
