@@ -87,6 +87,7 @@ class Game extends Phaser.Scene {
         this.messageLength = 80;
         this.disableInput = false;
         this.menuOpen = false;
+        this.formattedNews;
     }
 
     // LOGIC
@@ -1170,7 +1171,7 @@ class Game extends Phaser.Scene {
         //combine news lines into one string separated by new lines
         const passage = news.join('\n__________________________\n\n');
 
-        //show news menu
+        //create news menu
         ui.createMenu(
             this,
             {
@@ -1189,7 +1190,7 @@ class Game extends Phaser.Scene {
                 cover: true,
                 onExit: function (scene) {
                     //set menu as closed
-                    scene.menuClosed();ßß
+                    scene.menuClosed();
                 },
             }
         );

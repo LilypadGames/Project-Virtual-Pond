@@ -999,6 +999,7 @@ class UI {
                         internalContent.space.line = 8;
                     }
 
+                    //create scrollable panel
                     var panel = scene.rexUI.add.scrollablePanel({
                         x: internalContent.x,
                         y: internalContent.y,
@@ -1063,6 +1064,7 @@ class UI {
                         internalContent.text
                     );
 
+                    //add scrollable panel to sizer
                     sizer.add(panel);
                 }
             }
