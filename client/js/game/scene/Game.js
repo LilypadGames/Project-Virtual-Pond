@@ -249,7 +249,7 @@ class Game extends Phaser.Scene {
                     this.playerCharacter[clientID],
                     this.teleportList[i]['teleport'],
                     () => {
-                        //open new room scene
+                        //start new room scene
                         this.end();
                         this.scene.start('Game', this.teleportList[i]['room']);
                     }
@@ -614,28 +614,6 @@ class Game extends Phaser.Scene {
                 .setDepth(600)
                 .setOrigin(0.5, 1);
 
-            // //news sign
-            // let news_sign = this.add
-            //     .image(1020, 620, 'Sign_News')
-            //     .setDepth(630)
-            //     .setOrigin(0.5, 1)
-            //     .setInteractive();
-            // this.setInteractObject(news_sign);
-            // news_sign.on(
-            //     'pointerdown',
-            //     () => {
-            //         if (!this.menuOpen) {
-            //             //open news menu
-            //             this.openNews();
-            //         }
-            //     },
-            //     this
-            // );
-
-            // //banner
-            // let banner = this.add.image(797, 226, 'Banner')
-            // .setDepth(666);
-
             //radio
             let radio = this.add
                 .image(294, 625, 'Radio')
@@ -838,7 +816,7 @@ class Game extends Phaser.Scene {
             );
     }
 
-    //open menu
+    //show menu
     menuOpened() {
         //disable input
         this.disableInput = true;
@@ -925,10 +903,10 @@ class Game extends Phaser.Scene {
                     backgroundRadius: 8,
                     width: 230,
                     onClick: function (scene) {
-                        //chat log not open
+                        //chat log not showing
                         if (!scene.chatLogUI) {
-                            //open chat log
-                            scene.openChatLog();
+                            //show chat log
+                            scene.showChatLog();
                         } else {
                             //close chat log
                             scene.chatLogUI.emit('modal.requestClose');
@@ -954,8 +932,8 @@ class Game extends Phaser.Scene {
                     onClick: function (scene) {
                         //check if menu is open
                         if (!scene.menuOpen) {
-                            //open news menu
-                            scene.openNews();
+                            //show news menu
+                            scene.showNews();
                         }
                     },
                 },
@@ -964,7 +942,7 @@ class Game extends Phaser.Scene {
                     text: '🎨',
                     backgroundRadius: 8,
                     onClick: function (scene) {
-                        //open character creator scene
+                        //start character creator scene
                         scene.end();
                         scene.scene.start('CharacterCreator', scene.room);
                     },
@@ -976,7 +954,7 @@ class Game extends Phaser.Scene {
                     onClick: function (scene) {
                         //check if menu is open
                         if (!scene.menuOpen) {
-                            //open options menu
+                            //show options menu
                             scene.showOptions();
                         }
                     },
@@ -1188,7 +1166,7 @@ class Game extends Phaser.Scene {
     }
 
     //show news menu
-    openNews() {
+    showNews() {
         //combine news lines into one string separated by new lines
         const passage = news.join('\n__________________________\n\n');
 
@@ -1208,6 +1186,7 @@ class Game extends Phaser.Scene {
             },
             {
                 height: 500,
+                cover: true,
                 onExit: function (scene) {
                     //set menu as closed
                     scene.menuClosed();
@@ -1232,21 +1211,21 @@ class Game extends Phaser.Scene {
 
     //update chat log
     updateChatLog() {
-        //if chat log currently open
+        //if chat log currently showing
         if (this.chatLogUI) {
             //get current scroll position
             const scrollPosition = this.chatLogPanel.t;
 
-            //close
+            //delete old chat log
             this.chatLogUI.destroy();
 
-            //open
-            this.openChatLog(0, scrollPosition);
+            //show updated chat log
+            this.showChatLog(0, scrollPosition);
         }
     }
 
-    //open chat log
-    openChatLog(animationIn = 200, scrollPosition = 1) {
+    //show chat log
+    showChatLog(animationIn = 200, scrollPosition = 1) {
         //combine chat log into one string seperated by new line
         const log = this.chatLog.join('\n');
 
@@ -1272,6 +1251,9 @@ class Game extends Phaser.Scene {
                             line: 0,
                         },
                     },
+                    {
+                        type: 'button'
+                    }
                 ],
             },
             {
