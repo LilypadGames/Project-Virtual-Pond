@@ -22,8 +22,9 @@ class GlobalUI {
                 //reload window
                 window.location.reload();
 
-                //set menu as closed
-                scene.menuClosed();
+                if (scene.key === 'Game')
+                    //set menu as closed
+                    scene.menuClosed();
             },
             scene
         );
@@ -42,7 +43,8 @@ class GlobalUI {
             }
         );
 
-        //set menu as opened
-        scene.menuOpened();
+        if (scene.key === 'Game')
+            //set menu as opened
+            scene.menuOpened();
     }
 }

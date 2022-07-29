@@ -1,6 +1,6 @@
 // Connection Events
 
-//dependencies
+//dependencies: file parsing
 const path = require('path');
 const jsonPath = require('jsonpath');
 
@@ -16,6 +16,7 @@ const serverMetrics = require(path.join(
     '../utility/ServerMetrics.js'
 ));
 const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
+const emoteLib = require(path.join(__dirname, '../utility/Emotes.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -109,6 +110,7 @@ class Connection {
         this.socket.on('requestLoadData', (cb) => {
             var loadData = {};
             loadData['player'] = this.playerData.requestClientPlayerData();
+            // loadData['emotes'] = emoteLib.getEmotes();
 
             cb(loadData);
         });

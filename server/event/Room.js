@@ -1,18 +1,15 @@
 // Room Events
 
-//dependencies
+//dependency: file path
 const path = require('path');
-var chatFilter = require('leo-profanity');
-const { Server } = require('http');
-// const emoteParser = require("tmi-emote-parse");
 
-// //get twitch emotes
-// emoteParser.loadAssets("pokelawls");
-// var emotes;
-// emoteParser.events.on("emotes", (event) => {
-//     // get all Twitch, BTTV, FFZ, and 7tv emotes
-//     emotes = emoteParser.getAllEmotes(event.channel);
-// });
+// config
+const badWords = require(path.join(__dirname, '../config/bad_words.js'));
+
+//dependencies
+var chatFilter = require('leo-profanity');
+chatFilter.add(badWords.badWords);
+const { Server } = require('http');
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
@@ -136,9 +133,18 @@ class Room {
                 : '';
 
         //check if message contains blacklisted words
-        if (chatFilter.check(message)) {
+        if (chatFilter.check(message.toLowerCase())) {
             //log in moderation file
             logs.logMessage('moderation', logMessage);
+
+            //kick
+            moderation.kickClient(
+                this.io,
+                this.socket.player,
+                'Please no swear :)'
+            );
+
+            return;
 
             //filter message
             message = chatFilter.clean(message);
@@ -159,6 +165,7 @@ class Room {
             chatLogs.logMessage(
                 this.socket.roomID,
                 this.socket.player.id,
+                this.socket.player.name,
                 Date.now(),
                 message
             );

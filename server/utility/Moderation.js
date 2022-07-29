@@ -1,6 +1,6 @@
 // Moderation functions
 
-//dependency: file parsing
+//dependency: file path
 const path = require('path');
 
 //imports
@@ -27,7 +27,6 @@ module.exports = {
                 kickMessage
         );
         logs.logMessage('moderation', message);
-        console.log(message);
 
         //create kick message
         kickMessage =

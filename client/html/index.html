@@ -13,16 +13,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
 
-    <!-- Dependencies -->
+    <!-- Site Dependencies -->
     <script src="lib/js/jquery-3.6.0.min.js"></script>
     <link href="lib/css/bootstrap.min.css" rel="stylesheet" id="light">
     <link href="lib/css/bootstrap-dark.min.css" rel="stylesheet alternate" id="dark-stylesheet">
     <link href="lib/css/bootstrap-icons.css" rel="stylesheet">
     <script src="lib/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/js/socket.io.js"></script>
-    <script src="lib/js/phaser.min.js"></script>
-    <script src="lib/js/ntp.min.js"></script>
-    <script type="module" src="lib/js/twitch-stream.min.js"></script>
 
     <!-- Site Icon -->
     <link rel="apple-touch-icon" sizes="180x180" href="assets/site/icon/apple-touch-icon.png?v=1">
@@ -116,23 +112,34 @@
 
 </body>
 
-    <!-- Game Logic -->
+    <!-- Game Dependencies  -->
+    <script src="lib/js/socket.io.js"></script>
+    <script src="lib/js/phaser.min.js"></script>
+    <script type="module" src="lib/js/twitch-stream.min.js"></script>
+
+    <!-- Game Config -->
     <script src="config/config.js" type="text/javascript"></script>
-    <script src="config/news.js" type="text/javascript"></script>
-    <script src="js/game/utility/Utility.js" type="text/javascript"></script>
+
+    <!-- Game Plugins -->
     <script src="js/game/plugin/rexuiplugin.min.js" type="text/javascript"></script>
     <script src="js/game/plugin/rexcoverplugin.min.js" type="text/javascript"></script>
     <script src="js/game/plugin/rexoutlinepipelineplugin.min.js" type="text/javascript"></script>
     <script src="js/game/plugin/rexinputtextplugin.min.js" type="text/javascript"></script>
-    <script src="js/game/Client.js" type="text/javascript"></script>
+
+    <!-- Game Utilities -->
+    <script src="js/game/utility/Utility.js" type="text/javascript"></script>
     <script src="js/game/utility/Emotes.js" type="text/javascript"></script>
     <script src="js/game/utility/ColorScheme.js" type="text/javascript"></script>
     <script src="js/game/utility/UI.js" type="text/javascript"></script>
     <script src="js/game/utility/GlobalUI.js" type="text/javascript"></script>
     <script src="js/game/utility/LoadingScreen.js" type="text/javascript"></script>
+
+    <!-- Game Websocket Handler -->
+    <script src="js/game/Client.js" type="text/javascript"></script>
+
+    <!-- Game Logic -->
     <script src="js/game/scene/Game.js" type="text/javascript"></script>
     <script src="js/game/scene/CharacterCreator.js" type="text/javascript"></script>
-    <!-- <script src="js/scene/LilypadHopper.js" type="text/javascript"></script> -->
     <script src="js/game/scene/Menu.js" type="text/javascript"></script>
     <script src="js/game/Main.js" type="text/javascript"></script>
 

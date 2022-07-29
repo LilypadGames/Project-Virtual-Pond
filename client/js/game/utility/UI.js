@@ -335,7 +335,8 @@ class UI {
                 ),
 
                 valuechangeCallback: function (value) {
-                    scene.onSliderChange(value, content.id);
+                    if (content.onSliderChange)
+                        content.onSliderChange(scene, value);
                 },
 
                 space: {
@@ -465,44 +466,24 @@ class UI {
         if (!content.y) {
             content.y = 0;
         }
-
         if (!content.width) {
             content.width = 20;
         }
         if (!content.height) {
             content.height = 20;
         }
-
         if (!content.align) {
             content.align = 'center';
         }
-
         if (!content.orientation) {
             content.orientation = 'x';
         }
-
         if (!content.color) {
             content.color = ColorScheme.Blue;
         }
         if (!content.colorOnHover) {
             content.colorOnHover = ColorScheme.LightBlue;
         }
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 0;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 0;
-        }
-
         if (!content.space) {
             content.space = {};
         }
@@ -580,26 +561,6 @@ class UI {
             );
         }
 
-        if (!content.align) {
-            content.align = 'left';
-        }
-
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 0;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 0;
-        }
-
         return (
             scene.rexUI.add
                 .buttons({
@@ -646,32 +607,44 @@ class UI {
                             .setFillStyle(content.color);
                     }
                 )
+
+                //click event
+                .on('button.click', function (button, index, pointer, event) {
+                    //sfx
+                    scene.sfxButtonClick.play();
+
+                    //callback per button
+                    if (content.buttons[index].onClick)
+                        content.buttons[index].onClick(scene);
+                    //callback for all buttons
+                    if (content.onClick) content.onClick(scene, index);
+                })
         );
     }
 
     //create color picker
-    createColorPicker(scene, content) {
+    createColorPicker(scene, option) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
+        if (!option.x) {
+            option.x = 0;
         }
-        if (!content.y) {
-            content.y = 0;
+        if (!option.y) {
+            option.y = 0;
         }
 
-        if (!content.width) {
-            content.width = 400;
+        if (!option.width) {
+            option.width = 400;
         }
-        if (!content.height) {
-            content.height = 60;
+        if (!option.height) {
+            option.height = 60;
         }
 
         //create background
         var background = scene.rexUI.add.roundRectangle(
             0,
             0,
-            content.width,
-            content.height,
+            option.width,
+            option.height,
             8,
             ColorScheme.Blue,
             1
@@ -681,11 +654,11 @@ class UI {
         var colorStrip = scene.rexUI.add.canvas(
             0,
             0,
-            content.width,
-            content.height
+            option.width,
+            option.height
         );
         var ctx = colorStrip.context;
-        var grd = ctx.createLinearGradient(0, 0, content.width, 0);
+        var grd = ctx.createLinearGradient(0, 0, option.width, 0);
         grd.addColorStop(0, 'rgba(255, 0, 0, 1)');
         grd.addColorStop(0.15, 'rgba(255, 0, 255, 1)');
         grd.addColorStop(0.33, 'rgba(0, 0, 255, 1)');
@@ -694,7 +667,7 @@ class UI {
         grd.addColorStop(0.84, 'rgba(255, 255, 0, 1)');
         grd.addColorStop(1, 'rgba(255, 0, 0, 1)');
         ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, content.width, content.height);
+        ctx.fillRect(0, 0, option.width, option.height);
         colorStrip.updateTexture();
 
         //create thumb
@@ -712,7 +685,8 @@ class UI {
                 thumb.setFillStyle(color.color);
 
                 //send info to scene
-                scene.onSliderChange(color.color, content.sliderID);
+                if (option.onSliderChange)
+                    option.onSliderChange(scene, color.color);
             },
         });
 
@@ -726,14 +700,14 @@ class UI {
         //create sizer for entire color picker
         var colorPicker = scene.rexUI.add
             .sizer({
-                width: content.width,
-                height: content.height,
+                width: option.width,
+                height: option.height,
                 orientation: 'y',
             })
             .addBackground(background)
             .add(colorStrip)
             .add(slider, { expand: true })
-            .setPosition(content.x, content.y)
+            .setPosition(option.x, option.y)
             .layout();
 
         return colorPicker;
@@ -888,19 +862,21 @@ class UI {
 
                     //add button
                 } else if (internalContent.type == 'button') {
+                    let onClick = internalContent.onClick
+                        ? internalContent.onClick
+                        : undefined;
                     sizer.add(
                         this.createButtons(scene, {
                             align: internalContent.align,
                             fontSize: internalContent.fontSize,
                             buttons: [{ text: internalContent.text }],
-                        }).on(
-                            'button.click',
-                            () => {
-                                internalContent.onClick();
-                            },
-                            scene
-                        )
+                            onClick: onClick,
+                        })
                     );
+
+                    //add buttons
+                } else if (internalContent.type == 'buttons') {
+                    sizer.add(this.createButtons(scene, internalContent));
 
                     //add checkbox
                 } else if (internalContent.type == 'checkbox') {
@@ -945,12 +921,6 @@ class UI {
                             value,
                             previousValue
                         ) {
-                            console.log(
-                                'Previous: ' +
-                                    previousValue +
-                                    ' Value: ' +
-                                    value
-                            );
                             //init
                             if (previousValue === undefined) {
                                 //initial look state
@@ -987,12 +957,7 @@ class UI {
 
                     //add slider
                 } else if (internalContent.type == 'slider') {
-                    sizer.add(
-                        this.createSlider(scene, {
-                            id: internalContent.id,
-                            value: internalContent.value,
-                        })
-                    );
+                    sizer.add(this.createSlider(scene, internalContent));
 
                     //add scrollable panel
                 } else if (internalContent.type == 'scrollable') {
@@ -1034,6 +999,7 @@ class UI {
                         internalContent.space.line = 8;
                     }
 
+                    //create scrollable panel
                     var panel = scene.rexUI.add.scrollablePanel({
                         x: internalContent.x,
                         y: internalContent.y,
@@ -1083,12 +1049,12 @@ class UI {
                         },
 
                         space: {
-                            left: options.space.left,
-                            right: options.space.right,
-                            top: options.space.top,
-                            bottom: options.space.bottom,
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
 
-                            panel: options.space.panel,
+                            panel: 0,
                         },
                     });
 
@@ -1098,6 +1064,7 @@ class UI {
                         internalContent.text
                     );
 
+                    //add scrollable panel to sizer
                     sizer.add(panel);
                 }
             }
