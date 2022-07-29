@@ -7,14 +7,15 @@ module.exports = {
         //on room creation
         io.of('/').adapter.on('create-room', (room) => {
             //init chat log for room
-            this.chatLogs[room] = [];
+            if (this.chatLogs[room] === undefined) this.chatLogs[room] = [];
         });
     },
 
-    logMessage: function (roomID, userID, date, message) {
+    logMessage: function (roomID, userID, userName, date, message) {
         //create entry
         let entry = {
             userID: userID,
+            userName: userName,
             date: date,
             message: message,
         };

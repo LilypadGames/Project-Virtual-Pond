@@ -10,6 +10,7 @@ const utility = require(path.join(__dirname, '/utility/Utility.js'));
 const database = require(path.join(__dirname, '/utility/Database.js'));
 const logs = require(path.join(__dirname, '/utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
+const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
 
 //get config values
 const config = JSON.parse(
@@ -211,6 +212,9 @@ io.use((socket, next) => {
 
 //init chat log storage
 chatLogs.init(io);
+
+//init emotes
+emoteLib.init();
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));

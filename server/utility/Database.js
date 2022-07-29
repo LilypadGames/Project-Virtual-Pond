@@ -1,6 +1,6 @@
 // Database Functions
 
-//dependency: file parsing
+//dependency: file path
 const path = require('path');
 
 //get config values

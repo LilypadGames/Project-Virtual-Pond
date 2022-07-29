@@ -87,6 +87,7 @@ class Game extends Phaser.Scene {
         this.messageLength = 80;
         this.disableInput = false;
         this.menuOpen = false;
+        this.formattedNews;
     }
 
     // LOGIC
@@ -249,7 +250,7 @@ class Game extends Phaser.Scene {
                     this.playerCharacter[clientID],
                     this.teleportList[i]['teleport'],
                     () => {
-                        //open new room scene
+                        //start new room scene
                         this.end();
                         this.scene.start('Game', this.teleportList[i]['room']);
                     }
@@ -466,7 +467,7 @@ class Game extends Phaser.Scene {
                     'pointerdown',
                     () => {
                         if (this.navigationCheck()) {
-                            this.onClick(
+                            this.onMoveAttempt(
                                 this.input.mousePointer.worldX,
                                 this.input.mousePointer.worldY
                             );
@@ -543,7 +544,7 @@ class Game extends Phaser.Scene {
                     'pointerdown',
                     () => {
                         if (this.navigationCheck()) {
-                            this.onClick(
+                            this.onMoveAttempt(
                                 this.input.mousePointer.worldX,
                                 this.input.mousePointer.worldY
                             );
@@ -572,8 +573,8 @@ class Game extends Phaser.Scene {
     }
 
     //add room DOM elements
-    addRoomDOMElements(room) {
-        if (room == 'theatre') {
+    addRoomDOMElements() {
+        if (this.room == 'theatre') {
             //element variable
             const chatEnabled =
                 utility.getLocalStorage('gameValues')[
@@ -613,28 +614,6 @@ class Game extends Phaser.Scene {
                 .image(148, 600, 'Sign_Theatre')
                 .setDepth(600)
                 .setOrigin(0.5, 1);
-
-            //news sign
-            let news_sign = this.add
-                .image(1020, 620, 'Sign_News')
-                .setDepth(630)
-                .setOrigin(0.5, 1)
-                .setInteractive();
-            this.setInteractObject(news_sign);
-            news_sign.on(
-                'pointerdown',
-                () => {
-                    if (!this.menuOpen) {
-                        //open news menu
-                        this.openNews();
-                    }
-                },
-                this
-            );
-
-            // //banner
-            // let banner = this.add.image(797, 226, 'Banner')
-            // .setDepth(666);
 
             //radio
             let radio = this.add
@@ -727,7 +706,7 @@ class Game extends Phaser.Scene {
 
                         //re-enable DOM objects
                         if (!this.menuOpen) {
-                            this.addRoomDOMElements(room);
+                            this.addRoomDOMElements();
                         }
 
                         //re-enable interactions
@@ -838,7 +817,7 @@ class Game extends Phaser.Scene {
             );
     }
 
-    //open menu
+    //show menu
     menuOpened() {
         //disable input
         this.disableInput = true;
@@ -858,7 +837,7 @@ class Game extends Phaser.Scene {
         this.menuOpen = false;
 
         //place DOM elements back
-        this.addRoomDOMElements(this.room);
+        this.addRoomDOMElements();
     }
 
     //create chat box
@@ -919,76 +898,72 @@ class Game extends Phaser.Scene {
             y: 765,
             align: 'left',
             fontSize: 18,
-            buttons: [{ text: 'Chat Log', backgroundRadius: 8, width: 230 }],
-        })
-            .on(
-                'button.click',
-                () => {
-                    //chat log not open
-                    if (!this.chatLogUI) {
-                        //sfx
-                        this.sfxButtonClick.play();
-
-                        //open chat log
-                        this.openChatLog();
-
-                        //chat log is open
-                    } else {
-                        //sfx
-                        this.sfxButtonClick.play();
-
-                        //close chat log
-                        this.chatLogUI.emit('modal.requestClose');
-                    }
+            buttons: [
+                {
+                    text: 'Chat Log',
+                    backgroundRadius: 8,
+                    width: 230,
+                    onClick: function (scene) {
+                        //chat log not showing
+                        if (!scene.chatLogUI) {
+                            //show chat log
+                            scene.showChatLog();
+                        } else {
+                            //close chat log
+                            scene.chatLogUI.emit('modal.requestClose');
+                        }
+                    },
                 },
-                this
-            )
-            .setDepth(this.depthUI);
+            ],
+        }).setDepth(this.depthUI);
 
-        //character creator button
+        //mini buttons
         ui.createButtons(this, {
-            x: 1180,
+            x: 1185,
             y: 765,
             fontSize: 22,
-            buttons: [{ text: '🎨', backgroundRadius: 8 }],
-        })
-            .on(
-                'button.click',
-                () => {
-                    if (!this.menuOpen) {
-                        //sfx
-                        this.sfxButtonClick.play();
-
-                        //open character creator scene
-                        this.end();
-                        this.scene.start('CharacterCreator', this.room);
-                    }
+            space: {
+                item: 10,
+            },
+            buttons: [
+                //news
+                {
+                    text: '📰',
+                    backgroundRadius: 8,
+                    onClick: function (scene) {
+                        //check if menu is open
+                        if (!scene.menuOpen) {
+                            //show news menu
+                            scene.showNews();
+                        }
+                    },
                 },
-                this
-            )
-            .setDepth(this.depthUI);
-
-        //options menu button
-        ui.createButtons(this, {
-            x: 1240,
-            y: 765,
-            fontSize: 22,
-            buttons: [{ text: '⚙️', backgroundRadius: 8 }],
-        })
-            .on(
-                'button.click',
-                () => {
-                    if (!this.menuOpen) {
-                        //open options menu
-                        this.showOptions();
-
-                        //sfx
-                        this.sfxButtonClick.play();
-                    }
+                //character creator
+                {
+                    text: '🎨',
+                    backgroundRadius: 8,
+                    onClick: function (scene) {
+                        //start character creator scene
+                        scene.end();
+                        scene.scene.start('CharacterCreator', scene.room);
+                    },
                 },
-                this
-            )
-            .setDepth(this.depthUI);
+                //options menu
+                {
+                    text: '⚙️',
+                    backgroundRadius: 8,
+                    onClick: function (scene) {
+                        //check if menu is open
+                        if (!scene.menuOpen) {
+                            //show options menu
+                            scene.showOptions();
+                        }
+                    },
+                },
+            ],
+        })
+            .setDepth(this.depthUI)
+            .setOrigin(0, 0.5);
 
         //chat box
         this.chatBox = this.createChatBox();
@@ -1077,6 +1052,20 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'music')
                 ].volume,
+                onSliderChange: function (scene, value) {
+                    //store locally for the user to persist changes between sessions
+                    var options = utility.getLocalStorage('gameOptions');
+                    options[
+                        utility.getLocalStorageArrayIndex(
+                            'gameOptions',
+                            'music'
+                        )
+                    ].volume = value;
+                    utility.storeLocalStorageArray('gameOptions', options);
+
+                    //change volume
+                    scene.audioMusic.setVolume(value);
+                },
             },
 
             //ambience volume slider
@@ -1087,6 +1076,20 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
                 ].volume,
+                onSliderChange: function (scene, value) {
+                    //store locally for the user to persist changes between sessions
+                    var options = utility.getLocalStorage('gameOptions');
+                    options[
+                        utility.getLocalStorageArrayIndex(
+                            'gameOptions',
+                            'ambience'
+                        )
+                    ].volume = value;
+                    utility.storeLocalStorageArray('gameOptions', options);
+
+                    //change volume
+                    scene.audioAmbience.setVolume(value);
+                },
             },
 
             //sfx volume slider
@@ -1097,10 +1100,22 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
                 ].volume,
+                onSliderChange: function (scene, value) {
+                    //store locally for the user to persist changes between sessions
+                    var options = utility.getLocalStorage('gameOptions');
+                    options[
+                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
+                    ].volume = value;
+                    utility.storeLocalStorageArray('gameOptions', options);
+
+                    //change volume
+                    scene.sfxButtonClick.setVolume(value);
+                    scene.sfxRadioClick.setVolume(value);
+                },
             },
         ];
 
-        //theatre room options
+        //additional options per room
         if (this.room === 'theatre') {
             //get local game options
             var options = utility.getLocalStorage('gameValues');
@@ -1152,11 +1167,11 @@ class Game extends Phaser.Scene {
     }
 
     //show news menu
-    openNews() {
+    showNews() {
         //combine news lines into one string separated by new lines
         const passage = news.join('\n__________________________\n\n');
 
-        //show news menu
+        //create news menu
         ui.createMenu(
             this,
             {
@@ -1172,6 +1187,7 @@ class Game extends Phaser.Scene {
             },
             {
                 height: 500,
+                cover: true,
                 onExit: function (scene) {
                     //set menu as closed
                     scene.menuClosed();
@@ -1183,8 +1199,34 @@ class Game extends Phaser.Scene {
         this.menuOpened();
     }
 
-    //open chat log
-    openChatLog(animationIn = 200, scrollPosition = 1) {
+    //set room chat log from server
+    setChatLog(log) {
+        //format chat log
+        for (const key in log) {
+            var line = log[key].userName + ': ' + log[key].message;
+            this.chatLog.push(line);
+        }
+
+        this.updateChatLog();
+    }
+
+    //update chat log
+    updateChatLog() {
+        //if chat log currently showing
+        if (this.chatLogUI) {
+            //get current scroll position
+            const scrollPosition = this.chatLogPanel.t;
+
+            //delete old chat log
+            this.chatLogUI.destroy();
+
+            //show updated chat log
+            this.showChatLog(0, scrollPosition);
+        }
+    }
+
+    //show chat log
+    showChatLog(animationIn = 200, scrollPosition = 1) {
         //combine chat log into one string seperated by new line
         const log = this.chatLog.join('\n');
 
@@ -1210,6 +1252,27 @@ class Game extends Phaser.Scene {
                             line: 0,
                         },
                     },
+                    // {
+                    //     type: 'buttons',
+                    //     align: 'center',
+                    //     fontSize: 14,
+                    //     buttons: [
+                    //         {
+                    //             text: 'Global',
+                    //             align: 'left',
+                    //             onClick: function (scene) {
+                    //                 console.log('global');
+                    //             },
+                    //         },
+                    //         {
+                    //             text: 'Local',
+                    //             align: 'left',
+                    //             onClick: function (scene) {
+                    //                 console.log('local');
+                    //             },
+                    //         },
+                    //     ],
+                    // },
                 ],
             },
             {
@@ -1256,24 +1319,9 @@ class Game extends Phaser.Scene {
         );
     }
 
-    //update chat log
-    updateChatLog() {
-        //if chat log currently open
-        if (this.chatLogUI) {
-            //get current scroll position
-            const scrollPosition = this.chatLogPanel.t;
-
-            //close
-            this.chatLogUI.destroy();
-
-            //open
-            this.openChatLog(0, scrollPosition);
-        }
-    }
-
     // INPUT
     //on mouse down
-    onClick(x, y) {
+    onMoveAttempt(x, y) {
         //if clicking is not disabled
         if (!this.disableInput) {
             // un-focus chatbox
@@ -1284,49 +1332,6 @@ class Game extends Phaser.Scene {
 
             //tell the server that this player is moving
             client.onMove(x, y, this.getPlayerDirection(clientID));
-        }
-    }
-
-    //on slider change
-    onSliderChange(value, sliderID) {
-        //music
-        if (sliderID == 'musicVolume') {
-            //store locally for the user to persist changes between sessions
-            var options = utility.getLocalStorage('gameOptions');
-            options[
-                utility.getLocalStorageArrayIndex('gameOptions', 'music')
-            ].volume = value;
-            utility.storeLocalStorageArray('gameOptions', options);
-
-            //change volume
-            this.audioMusic.setVolume(value);
-        }
-
-        //ambience
-        else if (sliderID == 'ambienceVolume') {
-            //store locally for the user to persist changes between sessions
-            var options = utility.getLocalStorage('gameOptions');
-            options[
-                utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
-            ].volume = value;
-            utility.storeLocalStorageArray('gameOptions', options);
-
-            //change volume
-            this.audioAmbience.setVolume(value);
-        }
-
-        //sfx
-        else if (sliderID == 'sfxVolume') {
-            //store locally for the user to persist changes between sessions
-            var options = utility.getLocalStorage('gameOptions');
-            options[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume = value;
-            utility.storeLocalStorageArray('gameOptions', options);
-
-            //change volume
-            this.sfxButtonClick.setVolume(value);
-            this.sfxRadioClick.setVolume(value);
         }
     }
 
@@ -1380,21 +1385,7 @@ class Game extends Phaser.Scene {
         return false;
     }
 
-    // FUNCTIONS
-    //set room chat log from server
-    setChatLog(log) {
-        //format chat log
-        for (const key in log) {
-            var line =
-                utility.getObject(this.playerData, log[key].userID).name +
-                ': ' +
-                log[key].message;
-            this.chatLog.push(line);
-        }
-
-        this.updateChatLog();
-    }
-
+    // AUDIO
     //play music
     playMusic(song) {
         //stop currently playing music
@@ -1433,6 +1424,7 @@ class Game extends Phaser.Scene {
         this.sound.pauseOnBlur = false;
     }
 
+    // PLAYER/NPC
     //add player character to game at specific coordinates
     addNewPlayer(data) {
         //save player data
@@ -1767,7 +1759,7 @@ class Game extends Phaser.Scene {
                     //tell server that the player is interacting with an NPC
                     client.onInteractNPC(id);
 
-                    this.onClick(
+                    this.onMoveAttempt(
                         this.input.mousePointer.worldX,
                         this.input.mousePointer.worldY
                     );
@@ -1827,6 +1819,19 @@ class Game extends Phaser.Scene {
             );
     }
 
+    //remove player character from game
+    removePlayer(id) {
+        //remove player character
+        if (this.playerCharacter[id]) {
+            this.playerCharacter[id].destroy();
+            delete this.playerCharacter[id];
+        }
+
+        //remove player data
+        this.playerData = utility.removeObject(this.playerData, id);
+    }
+
+    // MESSAGES
     //store message in chat log
     logMessage(id, message) {
         //store message in chat log
@@ -1974,18 +1979,6 @@ class Game extends Phaser.Scene {
         } else {
             return;
         }
-    }
-
-    //remove player character from game
-    removePlayer(id) {
-        //remove player character
-        if (this.playerCharacter[id]) {
-            this.playerCharacter[id].destroy();
-            delete this.playerCharacter[id];
-        }
-
-        //remove player data
-        this.playerData = utility.removeObject(this.playerData, id);
     }
 
     // DEBUG
