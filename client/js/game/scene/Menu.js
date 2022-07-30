@@ -99,6 +99,12 @@ class Menu extends Phaser.Scene {
         //player data
         let playerData = data['player'];
 
+        //determine room to put player in
+        let room = 'forest';
+        if (playerData.stat && playerData.stat.lastRoom) {
+            room = playerData.stat.lastRoom;
+        }
+
         //save client ID
         clientID = playerData.id;
 
@@ -107,9 +113,9 @@ class Menu extends Phaser.Scene {
 
         //send to character creator or game
         if (!playerData.character) {
-            this.scene.start('CharacterCreator', 'forest');
+            this.scene.start('CharacterCreator', room);
         } else {
-            this.scene.start('Game', 'forest');
+            this.scene.start('Game', room);
         }
     }
 }

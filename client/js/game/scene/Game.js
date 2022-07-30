@@ -188,14 +188,14 @@ class Game extends Phaser.Scene {
         //add room teleports
         this.addRoomTeleports(this.room);
 
-        //add room DOM elements
-        this.addRoomDOMElements(this.room);
-
         //tell server that the client has joined this room and recieve information such as currently connected players to this room
         client.joinRoom(this.room);
 
         //add toolbar
         this.createToolbar();
+
+        //add room DOM elements
+        this.addRoomDOMElements(this.room);
 
         //welcome message
         var options = utility.getLocalStorage('gameValues');
@@ -275,10 +275,10 @@ class Game extends Phaser.Scene {
         this.npcData = [];
 
         //stop music
-        this.audioMusic.stop();
+        if (this.audioMusic) this.audioMusic.stop();
 
         //stop ambience
-        this.audioAmbience.stop();
+        if (this.audioAmbience) this.audioAmbience.stop();
 
         //reset data
         this.registry.destroy();

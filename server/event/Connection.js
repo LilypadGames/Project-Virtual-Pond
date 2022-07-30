@@ -248,9 +248,6 @@ class Connection {
 
     //add player to room
     joinSocketRoom(room) {
-        // //leave previous rooms
-        // this.leaveAllSocketRooms();
-
         //join new room
         this.socket.join(room);
 
@@ -286,6 +283,22 @@ class Connection {
                     ']'
             )
         );
+
+        //calculate player's play time
+        let totalPlayTimeInSeconds = this.socket.player.stat.playTime
+            ? this.socket.player.stat.playTime
+            : 0;
+        let sessionPlayTimeInSeconds = Math.floor(
+            (Date.now() - this.socket.player.stat.loginTime) / 1000
+        );
+        this.socket.player.stat.playTime =
+            totalPlayTimeInSeconds + sessionPlayTimeInSeconds;
+
+        //store last login date
+        this.socket.player.stat.lastLogin = Date.now();
+
+        //store players last room
+        this.socket.player.stat.lastRoom = this.socket.roomID;
 
         //store player data in database
         this.playerData.storePlayerData();

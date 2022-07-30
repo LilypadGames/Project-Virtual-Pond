@@ -14,8 +14,44 @@ class PlayerData {
         this.io = io;
     }
 
-    //get player data
+    //get player data from database
     async getPlayerData() {
+        //initialize player if this is their first time logging in
+        let playerData = await this.initPlayerData();
+
+        //get character data from database
+        if (
+            await database.pathExists('users/' + playerData.id + '/character')
+        ) {
+            playerData.character = utility.mergeObjects(
+                await database.getValue(
+                    'users/' + playerData.id + '/character'
+                ),
+                playerData.character
+            );
+        }
+
+        //get stat data from database
+        if (await database.pathExists('users/' + playerData.id + '/stat')) {
+            playerData.stat = utility.mergeObjects(
+                await database.getValue('users/' + playerData.id + '/stat'),
+                playerData.stat
+            );
+        }
+
+        //get currency data from database
+        if (await database.pathExists('users/' + playerData.id + '/currency')) {
+            playerData.currency = utility.mergeObjects(
+                await database.getValue('users/' + playerData.id + '/currency'),
+                playerData.currency
+            );
+        }
+
+        return playerData;
+    }
+
+    //initialize player data in database
+    async initPlayerData() {
         //set up initial data
         var playerData = {
             //get ID
@@ -26,43 +62,25 @@ class PlayerData {
 
             //generate direction
             direction: utility.randomFromArray(['right', 'left']),
+
+            //login time
+            stat: {
+                loginTime: Date.now(),
+            },
         };
 
-        //check if character data exists
-        var pathExists = await database.pathExists(
-            'users/' + this.socket.request.user.data[0].id + '/character'
-        );
+        //first login stat
+        if (
+            !(await database.getValue(
+                'users/' + playerData.id + '/stat' + '/firstLogin'
+            ))
+        ) {
+            //get first login data
+            playerData.stat.firstLogin = Date.now();
 
-        //get character data from database
-        if (pathExists) {
-            playerData.character = {
-                eye_type: await database.getValue(
-                    'users/' +
-                        this.socket.request.user.data[0].id +
-                        '/character/eye_type'
-                ),
-                color: await database.getValue(
-                    'users/' +
-                        this.socket.request.user.data[0].id +
-                        '/character/color'
-                ),
-            };
-        }
-
-        //check if currency data exists
-        pathExists = await database.pathExists(
-            'users/' + this.socket.request.user.data[0].id + '/currency'
-        );
-
-        //get currency data from database
-        if (pathExists) {
-            playerData.currency = {
-                clovers: await database.getValue(
-                    'users/' +
-                        this.socket.request.user.data[0].id +
-                        '/currency/clovers'
-                ),
-            };
+            //push current data to database
+            this.socket.player = playerData;
+            this.storePlayerData();
         }
 
         return playerData;
@@ -72,6 +90,13 @@ class PlayerData {
     storePlayerData() {
         //init path
         var path;
+
+        //name
+        if (this.socket.player.name) {
+            var path = 'users/' + this.socket.player.id;
+            if (this.socket.player.name != undefined)
+                database.setValue(path + '/name', this.socket.player.name);
+        }
 
         //character
         if (this.socket.player.character) {
@@ -85,6 +110,31 @@ class PlayerData {
                 database.setValue(
                     path + '/color',
                     this.socket.player.character.color
+                );
+        }
+
+        //stat
+        if (this.socket.player.stat) {
+            var path = 'users/' + this.socket.player.id + '/stat';
+            if (this.socket.player.stat.lastLogin != undefined)
+                database.setValue(
+                    path + '/lastLogin',
+                    this.socket.player.stat.lastLogin
+                );
+            if (this.socket.player.stat.firstLogin != undefined)
+                database.setValue(
+                    path + '/firstLogin',
+                    this.socket.player.stat.firstLogin
+                );
+            if (this.socket.player.stat.playTime != undefined)
+                database.setValue(
+                    path + '/playTime',
+                    this.socket.player.stat.playTime
+                );
+            if (this.socket.player.stat.lastRoom != undefined)
+                database.setValue(
+                    path + '/lastRoom',
+                    this.socket.player.stat.lastRoom
                 );
         }
 
@@ -116,8 +166,33 @@ class PlayerData {
         );
         logs.logMessage('debug', logMessage);
 
+        //give ONLY the data the client needs from the server
+        let playerData = {
+            //ID
+            id: this.socket.player.id,
+
+            //name
+            name: this.socket.player.name,
+
+            //direction
+            direction: this.socket.player.direction,
+
+            //location
+            x: this.socket.player.x,
+            y: this.socket.player.y,
+
+            //character data
+            character: this.socket.player.character,
+        };
+
+        //send last room if available
+        if (this.socket.player.stat.lastRoom !== undefined) {
+            if (playerData.stat === undefined) playerData.stat = {};
+            playerData.stat.lastRoom = this.socket.player.stat.lastRoom;
+        }
+
         //send this client's player data to ONLY THIS client
-        return this.socket.player;
+        return playerData;
     }
 
     //triggers when player reloads their client and requests current player data
@@ -160,6 +235,19 @@ class PlayerData {
                 this.socket.player.character.eye_type = data.character.eye_type;
             if (data.character.color != undefined)
                 this.socket.player.character.color = data.character.color;
+        }
+
+        //update stats
+        if (!this.socket.player.stat && data.stat) this.socket.player.stat = {};
+        if (data.stat) {
+            if (data.stat.lastLogin != undefined)
+                this.socket.player.stat.lastLogin = data.stat.lastLogin;
+            if (data.stat.firstLogin != undefined)
+                this.socket.player.stat.firstLogin = data.stat.firstLogin;
+            if (data.stat.playTime != undefined)
+                this.socket.player.stat.playTime = data.stat.playTime;
+            if (data.stat.lastRoom != undefined)
+                this.socket.player.stat.lastRoom = data.stat.lastRoom;
         }
 
         //update currency

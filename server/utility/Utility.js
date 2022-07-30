@@ -23,12 +23,13 @@ module.exports = {
     //get todays date
     getCurrentDay: function () {
         const today = new Date();
+        return this.getDate(today);
+    },
+
+    //get formatted date from unix timestamp
+    getDate: function (day) {
         return (
-            today.getFullYear() +
-            '-' +
-            (today.getMonth() + 1) +
-            '-' +
-            today.getDate()
+            day.getFullYear() + '-' + (day.getMonth() + 1) + '-' + day.getDate()
         );
     },
 
@@ -37,5 +38,17 @@ module.exports = {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir);
         }
+    },
+
+    //merge two objects, overwriting first one with second one
+    mergeObjects: function (a, b) {
+        var c = {};
+        for (var idx in a) {
+            c[idx] = a[idx];
+        }
+        for (var idx in b) {
+            c[idx] = b[idx];
+        }
+        return c;
     },
 };
