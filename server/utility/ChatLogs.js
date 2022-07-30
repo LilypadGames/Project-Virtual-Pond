@@ -8,9 +8,22 @@ module.exports = {
         io.of('/').adapter.on('create-room', (room) => {
             try {
                 //init chat log for room
-                if (this.chatLogs[room] === undefined) this.chatLogs[room] = [];
+                if (this.chatLogs[room] === undefined) {
+                    this.chatLogs[room] = [];
+
+                    //log
+                    console.log(
+                        utility.timestampString(
+                            'Room Chat Log Initialized: ' + room
+                        )
+                    );
+                }
             } catch {
-                console.log('ERROR: Issue pushing message to chat log of room: ' + room);
+                console.log(
+                    utility.timestampString(
+                        'Chat Log Initialization Error: ' + error
+                    )
+                );
             }
         });
     },

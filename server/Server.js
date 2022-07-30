@@ -17,6 +17,7 @@ const logs = require(path.join(__dirname, '/utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
 const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
 const seDonations = require(path.join(__dirname, '/utility/Donations.js'));
+const mediaSync = require(path.join(__dirname, '/utility/MediaSync.js'));
 
 //dependency: web server
 var express = require('express');
@@ -216,6 +217,9 @@ emoteLib.init();
 
 //init donations
 seDonations.updateDonations();
+
+//init media sync
+mediaSync.isStreamLive('pokelawls');
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));

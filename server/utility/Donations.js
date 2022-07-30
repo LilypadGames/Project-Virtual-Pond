@@ -46,11 +46,15 @@ module.exports = {
                         utility.timestampString('Fetched Donation Data')
                     );
                 } catch (error) {
-                    console.log('Donation Save Error: ' + error);
+                    console.log(
+                        utility.timestampString('Donation Save Error: ' + error)
+                    );
                 }
             })
             .catch((error) => {
-                console.log('Donation Fetch Error: ' + error);
+                console.log(
+                    utility.timestampString('Donation Fetch Error: ' + error)
+                );
             });
     },
 
@@ -95,7 +99,9 @@ module.exports = {
                     };
                 }
             } catch (error) {
-                console.log('Donation Parse Error: ' + error);
+                console.log(
+                    utility.timestampString('Donation Parse Error: ' + error)
+                );
             }
         }
 
