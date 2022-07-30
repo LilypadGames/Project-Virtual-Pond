@@ -3,9 +3,6 @@
 //dependency: file path
 const path = require('path');
 
-//get config values
-const roomConfig = require(path.join(__dirname, '../config/room.json'));
-
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const database = require(path.join(__dirname, '../utility/Database.js'));

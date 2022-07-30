@@ -1019,10 +1019,7 @@ class Game extends Phaser.Scene {
                         text: 'Donate',
                         fontSize: 20,
                         onClick: function () {
-                            window.open(
-                                'https://www.paypal.com/paypalme/DanMizu',
-                                '_blank'
-                            );
+                            window.open(donationSite, '_blank');
                         },
                     },
                 ],

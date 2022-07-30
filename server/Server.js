@@ -5,17 +5,18 @@ const fs = require('fs');
 const path = require('path');
 var util = require('util');
 
+//get config values
+const config = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '/config/config.json'))
+);
+
 //imports
 const utility = require(path.join(__dirname, '/utility/Utility.js'));
 const database = require(path.join(__dirname, '/utility/Database.js'));
 const logs = require(path.join(__dirname, '/utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
 const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
-
-//get config values
-const config = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '/config/config.json'))
-);
+const seDonations = require(path.join(__dirname, '/utility/Donations.js'));
 
 //dependency: web server
 var express = require('express');
@@ -46,7 +47,6 @@ app.set('trust proxy', config.server.proxy);
 app.use('/', express.static(__dirname + '/../client'));
 
 // OVERRIDES
-
 //send console logs to server log file
 console.log = function () {
     //format message
@@ -60,7 +60,6 @@ console.log = function () {
 console.error = console.log;
 
 // AUTHENTICATION
-
 //init authentication
 const sessionAuthentication = session({
     secret: crypto.randomBytes(64).toString('hex'),
@@ -159,7 +158,6 @@ app.get('/', function (req, res) {
 });
 
 // WEB SERVER
-
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {
     console.log(
@@ -170,10 +168,10 @@ server.listen(process.env.PORT || config.server.port, function () {
 });
 
 // WEBSOCKETS (Socket.io/Express)
-
 //dependency: websocket
 var io = require('socket.io')(server);
 const { instrument } = require('@socket.io/admin-ui');
+const Donations = require('./utility/Donations');
 instrument(io, {
     auth: {
         type: config.socketio_admin_dash.auth.type,
@@ -215,6 +213,9 @@ chatLogs.init(io);
 
 //init emotes
 emoteLib.init();
+
+//init donations
+seDonations.updateDonations();
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));

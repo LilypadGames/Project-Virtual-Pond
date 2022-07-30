@@ -16,6 +16,10 @@
         "clientSecret": "",
         "callbackURL": ""
     },
+    "streamelements": {
+        "JWTToken": "",
+        "accountId": ""
+    },
     "database": {
         "databaseURL": ""
     },
