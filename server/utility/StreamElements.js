@@ -1,4 +1,4 @@
-// Donation Updater
+// StreamElements Connection
 
 //dependency: file path
 const path = require('path');
@@ -9,15 +9,7 @@ const config = require(path.join(__dirname, '../config/config.json'));
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const database = require(path.join(__dirname, '../utility/Database.js'));
-
-//twitch api
-const twurpleAuth = require('@twurple/auth');
-const twurpleAPI = require('@twurple/api');
-const authProvider = new twurpleAuth.ClientCredentialsAuthProvider(
-    config.twitch.clientID,
-    config.twitch.clientSecret
-);
-const twitchAPI = new twurpleAPI.ApiClient({ authProvider });
+const twitch = require(path.join(__dirname, '../utility/Twitch.js'));
 
 //stream elements donation api
 const seAPI = require('node-streamelements');
@@ -27,6 +19,54 @@ const seInstance = new seAPI({
 });
 
 module.exports = {
+    //initialize websocket events from stream elements
+    init: function () {
+        // AccessToken is grabbed from OAuth2 authentication of the account.
+        const accessToken = '';
+        const socket = io('https://realtime.streamelements.com', {
+            transports: ['websocket'],
+        });
+        // Socket connected
+        socket.on('connect', onConnect);
+
+        // // Socket got disconnected
+        // socket.on('disconnect', onDisconnect);
+
+        // // Socket is authenticated
+        // socket.on('authenticated', onAuthenticated);
+
+        socket.on('unauthorized', console.error);
+
+        //register events
+        socket.on('event:test', (data) => {
+            console.log(utility.timestampString(data));
+            // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-event
+        });
+        socket.on('event', (data) => {
+            console.log(utility.timestampString(data));
+            // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-event
+        });
+        socket.on('event:update', (data) => {
+            console.log(utility.timestampString(data));
+            // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
+        });
+        socket.on('event:reset', (data) => {
+            console.log(utility.timestampString(data));
+            // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
+        });
+
+        function onConnect() {
+            console.log(
+                utility.timestampString('Connected to StreamElements Events')
+            );
+            socket.emit('authenticate', {
+                method: 'oauth2',
+                token: accessToken,
+            });
+            //socket.emit('authenticate', {method: 'jwt', token: config.streamelements.JWTToken});
+        }
+    },
+
     updateDonations: async function () {
         seInstance
             //get tips from stream elements api
@@ -72,8 +112,7 @@ module.exports = {
                 userName = donation.user.username.split('/')[0];
 
                 //get user id from username
-                user = await twitchAPI.users.getUserByName(userName);
-                userID = user.id;
+                userID = await twitch.getUserIDByName(userName);
 
                 //get amount
                 amount = donation.amount;

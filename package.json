@@ -23,6 +23,7 @@
     "@socket.io/admin-ui": "^0.4.0",
     "@twurple/api": "^5.1.8",
     "@twurple/auth": "^5.1.8",
+    "@twurple/eventsub": "^5.1.8",
     "cookie-parser": "^1.4.6",
     "crypto": "^1.0.1",
     "express": "^4.18.1",
@@ -40,5 +41,8 @@
     "socket-ntp": "^0.1.0",
     "socket.io": "^4.5.0",
     "tmi-emote-parse": "^1.2.2"
+  },
+  "devDependencies": {
+    "@twurple/eventsub-ngrok": "^5.1.8"
   }
 }

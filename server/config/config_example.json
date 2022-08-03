@@ -2,7 +2,8 @@
     "version": "",
     "server": {
         "port": "",
-        "proxy": false
+        "proxy": false,
+        "local": false
     },
     "socketio_admin_dash": {
         "auth": {

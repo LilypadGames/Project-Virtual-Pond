@@ -16,8 +16,8 @@ const database = require(path.join(__dirname, '/utility/Database.js'));
 const logs = require(path.join(__dirname, '/utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
 const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
-const seDonations = require(path.join(__dirname, '/utility/Donations.js'));
-const mediaSync = require(path.join(__dirname, '/utility/MediaSync.js'));
+const streamElements = require(path.join(__dirname, '/utility/StreamElements.js'));
+const twitch = require(path.join(__dirname, '/utility/Twitch.js'));
 
 //dependency: web server
 var express = require('express');
@@ -172,7 +172,7 @@ server.listen(process.env.PORT || config.server.port, function () {
 //dependency: websocket
 var io = require('socket.io')(server);
 const { instrument } = require('@socket.io/admin-ui');
-const Donations = require('./utility/Donations');
+const Donations = require('./utility/StreamElements');
 instrument(io, {
     auth: {
         type: config.socketio_admin_dash.auth.type,
@@ -216,10 +216,12 @@ chatLogs.init(io);
 emoteLib.init();
 
 //init donations
-seDonations.updateDonations();
+// streamElements.init();
+streamElements.updateDonations();
 
-//init media sync
-mediaSync.isStreamLive('pokelawls');
+//init twitch event subs
+twitch.init('pokelawls');
+twitch.isStreamLive('pokelawls');
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));
