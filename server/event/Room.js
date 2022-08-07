@@ -137,14 +137,14 @@ class Room {
             //log in moderation file
             logs.logMessage('moderation', logMessage);
 
-            //kick
-            moderation.kickClient(
-                this.io,
-                this.socket.player,
-                'Please no swear :)'
-            );
+            // //kick
+            // moderation.kickClient(
+            //     this.io,
+            //     this.socket.player,
+            //     'Please no swear :)'
+            // );
 
-            return;
+            // return;
 
             //filter message
             message = chatFilter.clean(message);
