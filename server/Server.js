@@ -220,7 +220,7 @@ emoteLib.init();
 streamElements.updateDonations();
 
 //init twitch event subs
-twitch.init('pokelawls');
+// twitch.init('pokelawls');
 twitch.isStreamLive('pokelawls');
 
 //import connection event

@@ -1,3 +1,9 @@
+//dependency: file path
+const path = require('path');
+
+//imports
+const utility = require(path.join(__dirname, 'Utility.js'));
+
 chatLogs = {};
 
 module.exports = {
