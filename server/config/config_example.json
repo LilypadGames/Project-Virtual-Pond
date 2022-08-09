@@ -1,6 +1,7 @@
 {
     "version": "",
     "server": {
+        "hostName": "",
         "port": "",
         "proxy": false,
         "local": false

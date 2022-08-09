@@ -16,7 +16,10 @@ const database = require(path.join(__dirname, '/utility/Database.js'));
 const logs = require(path.join(__dirname, '/utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
 const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
-const streamElements = require(path.join(__dirname, '/utility/StreamElements.js'));
+const streamElements = require(path.join(
+    __dirname,
+    '/utility/StreamElements.js'
+));
 const twitch = require(path.join(__dirname, '/utility/Twitch.js'));
 
 //dependency: web server
@@ -209,6 +212,9 @@ io.use((socket, next) => {
     passportSession(socket.client.request, socket.client.request.res, next);
 });
 
+// DEBUG
+process.on('warning', (e) => console.warn(e.stack));
+
 //init chat log storage
 chatLogs.init(io);
 
@@ -220,7 +226,7 @@ emoteLib.init();
 streamElements.updateDonations();
 
 //init twitch event subs
-// twitch.init('pokelawls');
+twitch.init('pokelawls', app);
 twitch.isStreamLive('pokelawls');
 
 //import connection event

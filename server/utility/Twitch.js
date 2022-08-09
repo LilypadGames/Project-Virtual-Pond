@@ -13,73 +13,138 @@ const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const twurpleAuth = require('@twurple/auth');
 const twurpleAPI = require('@twurple/api');
 const twurpleEvent = require('@twurple/eventsub');
-const e = require('express');
 const authProvider = new twurpleAuth.ClientCredentialsAuthProvider(
     config.twitch.clientID,
     config.twitch.clientSecret
 );
 const twitchAPI = new twurpleAPI.ApiClient({ authProvider });
+const { randomUUID } = require('crypto');
+const fixedSecret = new randomUUID().toString();
 
 module.exports = {
     //set up event subs
-    init: async function (userName) {
-        //get user ID from user name
-        let userID = await this.getUserIDByName(userName);
+    init: async function (streamerName, app) {
+        //remove past subscriptions
+        await twitchAPI.eventSub.deleteAllSubscriptions();
 
         //init listener
         let listener;
 
-        //development
+        //development environment
         if (config.server.local) {
+            //get twurple ngrok middleware
             const twurpleEventLocal = require('@twurple/eventsub-ngrok');
 
+            //use ngrok for local SSL encrypted eventsubbing
             listener = new twurpleEvent.EventSubListener({
-                twitchAPI,
+                apiClient: twitchAPI,
                 adapter: new twurpleEventLocal.NgrokAdapter(),
-                secret: config.streamelements.clientSecret,
-            })
+                secret: fixedSecret,
+                strictHostCheck: true,
+            });
+
+            //start listener
+            await listener.listen();
+
+            //register events
+            this.registerEvents(listener, streamerName);
         }
 
-        //production
+        //production environment
         else {
-            listener = new twurpleEvent.EventSubListener({
-                twitchAPI,
-                adapter: new twurpleEvent.DirectConnectionAdapter({
-                        hostName: 'example.com',
-                        sslCert: {
-                            key: 'aaaaaaaaaaaaaaa',
-                            cert: 'bbbbbbbbbbbbbbb'
-                        }
-                    }),
-                secret: config.streamelements.clientSecret,
-            })
+            //set up listener
+            const middleware = new twurpleEvent.EventSubMiddleware({
+                apiClient: twitchAPI,
+                hostName: config.server.hostName,
+                pathPrefix: '/twitch',
+                secret: config.twitch.clientSecret,
+                strictHostCheck: true,
+            });
+
+            //pass express app
+            await middleware.apply(app);
+
+            //listen to events
+            app.listen(3000, async () => {
+                //wait for the middleware to initialize
+                await middleware.markAsReady();
+
+                //register events
+                this.registerEvents(middleware, streamerName);
+            });
         }
-
-        //start listener
-        await listener.listen();
-
-        //online event
-        const onlineSubscription = await listener.subscribeToStreamOnlineEvents(userID, e => {
-            console.log(utility.timestampString(`${e.broadcasterDisplayName} just went live!`));
-        });
-        
-        //offline event
-        const offlineSubscription = await listener.subscribeToStreamOfflineEvents(userID, e => {
-            console.log(utility.timestampString(`${e.broadcasterDisplayName} just went offline`));
-        });
     },
 
-    isStreamLive: async function (stream) {
+    registerEvents: async function (listener, streamerName) {
+        //get steamer ID from user name
+        let streamerID = await this.getUserIDByName(streamerName);
+
+        //verify event subscriptions
+        listener.onVerify((success, subscription) =>
+            console.log(
+                utility.timestampString(
+                    'Stream Event: (' +
+                        streamerName +
+                        ') ' +
+                        subscription._cliName +
+                        ' | Verified: ' +
+                        success
+                )
+            )
+        );
+
+        //online event
+        const onLive = await listener.subscribeToStreamOnlineEvents(
+            streamerID,
+            (event) => {
+                console.log(
+                    utility.timestampString(
+                        `${event.broadcasterDisplayName} just went live!`
+                    )
+                );
+            }
+        );
+
+        //offline event
+        const onOffline = await listener.subscribeToStreamOfflineEvents(
+            streamerID,
+            (event) => {
+                console.log(
+                    utility.timestampString(
+                        `${event.broadcasterDisplayName} just went offline.`
+                    )
+                );
+            }
+        );
+
+        // await onLive.getCliTestCommand();
+
+        //DEBUG
+        // await listener.subscribeToChannelFollowEvents(streamerID, async (event) => {
+        //     let user = await (await event.getUser()).displayName;
+        //     console.log(
+        //         utility.timestampString(
+        //             `${event.broadcasterDisplayName} just got a follower: ${user}`
+        //         )
+        //     );
+        // });
+    },
+
+    isStreamLive: async function (streamerName) {
         try {
-            live = (await twitchAPI.streams.getStreamByUserName(stream))
+            live = (await twitchAPI.streams.getStreamByUserName(streamerName))
                 ? true
                 : false;
             console.log(
-                utility.timestampString('Is ' + stream + ' Live?: ' + live)
+                utility.timestampString(
+                    'Stream Live: (' + streamerName + ') ' + live
+                )
             );
         } catch (error) {
             console.log(
-                utility.timestampString('Stream Live Check Error: ' + error)
+                utility.timestampString(
+                    'Stream Live (' + streamerName + ') Check Error: ' + error
+                )
             );
         }
     },
@@ -91,5 +156,5 @@ module.exports = {
     getUserIDByName: async function (userName) {
         let user = await this.getUserByName(userName);
         return user.id;
-    }
+    },
 };
