@@ -8,6 +8,12 @@ const client = new Client();
 const loadingScreen = new LoadingScreen();
 const twitchEmotes = new Emotes();
 
+//set up config
+var globalConfig = {};
+$.getJSON("../config/rooms.json", function(json) {
+	globalConfig.rooms = json;
+});
+
 // GLOBAL VARIABLES
 //canvas
 var canvas = document.createElement('canvas');

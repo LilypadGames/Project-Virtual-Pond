@@ -1,0 +1,51 @@
+{
+    "forest": {
+        "npcData": [
+            {
+                "name": "Poke",
+                "x": 363,
+                "y": 629,
+                "direction": "right",
+                "lines": [
+                    "*cough* i'm sick",
+                    "yo",
+                    "i'll be on lacari later",
+                    "one sec gunna take a water break",
+                    "u ever have a hemorrhoid?"
+                ]
+            },
+            {
+                "name": "Gigi",
+                "x": 250,
+                "y": 540,
+                "direction": "right",
+                "lines": [
+                    "*thinking of something HUH to say*",
+                    "people call me a very accurate gamer",
+                    "GEORGIEEEEEE!"
+                ]
+            },
+            {
+                "name": "Jesse",
+                "x": 1032,
+                "y": 666,
+                "direction": "left",
+                "lines": [
+                    "have you heard about the hangry hippos NFT?",
+                    "fuck all the bitches I know I don't give a fuck about flow",
+                    "a ha ha...",
+                    "i could be playing among us rn"
+                ]
+            },
+            {
+                "name": "Snic",
+                "x": 1238,
+                "y": 554,
+                "direction": "left",
+                "lines": [
+                    "IDGAF"
+                ]
+            }
+        ]
+    }
+}

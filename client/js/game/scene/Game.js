@@ -317,55 +317,56 @@ class Game extends Phaser.Scene {
             this.load.image('Snic', 'character/npc/Snic.png');
 
             //npc data
-            this.npcList = [
-                {
-                    id: 0,
-                    name: 'Poke',
-                    x: 363,
-                    y: 629,
-                    direction: 'right',
-                    lines: [
-                        "*cough* i'm sick",
-                        'yo',
-                        "i'll be on lacari later",
-                        'one sec gunna take a water break',
-                        'u ever have a hemorrhoid?',
-                    ],
-                },
-                {
-                    id: 1,
-                    name: 'Gigi',
-                    x: 250,
-                    y: 540,
-                    direction: 'right',
-                    lines: [
-                        '*thinking of something HUH to say*',
-                        'people call me a very accurate gamer',
-                        'GEORGIEEEEEE!',
-                    ],
-                },
-                {
-                    id: 2,
-                    name: 'Jesse',
-                    x: 1032,
-                    y: 666,
-                    direction: 'left',
-                    lines: [
-                        'have you heard about the hangry hippos NFT?',
-                        "fuck all the bitches I know I don't give a fuck about flow",
-                        'a ha ha...',
-                        'i could be playing among us rn',
-                    ],
-                },
-                {
-                    id: 3,
-                    name: 'Snic',
-                    x: 1238,
-                    y: 554,
-                    direction: 'left',
-                    lines: ['IDGAF'],
-                },
-            ];
+            // this.npcList = [
+            //     {
+            //         id: 0,
+            //         name: 'Poke',
+            //         x: 363,
+            //         y: 629,
+            //         direction: 'right',
+            //         lines: [
+            //             "*cough* i'm sick",
+            //             'yo',
+            //             "i'll be on lacari later",
+            //             'one sec gunna take a water break',
+            //             'u ever have a hemorrhoid?',
+            //         ],
+            //     },
+            //     {
+            //         id: 1,
+            //         name: 'Gigi',
+            //         x: 250,
+            //         y: 540,
+            //         direction: 'right',
+            //         lines: [
+            //             '*thinking of something HUH to say*',
+            //             'people call me a very accurate gamer',
+            //             'GEORGIEEEEEE!',
+            //         ],
+            //     },
+            //     {
+            //         id: 2,
+            //         name: 'Jesse',
+            //         x: 1032,
+            //         y: 666,
+            //         direction: 'left',
+            //         lines: [
+            //             'have you heard about the hangry hippos NFT?',
+            //             "fuck all the bitches I know I don't give a fuck about flow",
+            //             'a ha ha...',
+            //             'i could be playing among us rn',
+            //         ],
+            //     },
+            //     {
+            //         id: 3,
+            //         name: 'Snic',
+            //         x: 1238,
+            //         y: 554,
+            //         direction: 'left',
+            //         lines: ['IDGAF'],
+            //     },
+            // ];
+            this.npcList = globalConfig.rooms.forest.npcData
 
             //objects
             this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
@@ -777,7 +778,6 @@ class Game extends Phaser.Scene {
         if (room == 'forest') {
             for (var i = 0; i < this.npcList.length; i++) {
                 this.addNewNPC(
-                    this.npcList[i].id,
                     this.npcList[i].name,
                     this.npcList[i].x,
                     this.npcList[i].y,
@@ -1710,7 +1710,10 @@ class Game extends Phaser.Scene {
     }
 
     //adds NPC character to the game
-    addNewNPC(id, name, x, y, direction = 'right') {
+    addNewNPC(name, x, y, direction = 'right') {
+        //get ID
+        let id = this.npcCharacter.length;
+
         //set npc sprite
         var npcSprite = this.add.sprite(0, 0, name).setOrigin(0.5, 1);
 
@@ -1756,6 +1759,7 @@ class Game extends Phaser.Scene {
                     //tell server that the player is interacting with an NPC
                     client.onInteractNPC(id);
 
+                    //player moving
                     this.onMoveAttempt(
                         this.input.mousePointer.worldX,
                         this.input.mousePointer.worldY
