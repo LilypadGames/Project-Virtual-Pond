@@ -58,7 +58,7 @@ class Game extends Phaser.Scene {
         this.playerData = [];
 
         //object variables
-        this.npcCharacter = {};
+        this.npcCharacter = [];
         this.npcData = [];
         this.npcList = [];
 
@@ -114,7 +114,7 @@ class Game extends Phaser.Scene {
         this.load.image('target', 'debug/target.png');
 
         //load room assets
-        this.preloadRoomAssets(this.room);
+        this.preloadRoomData(this.room);
     }
 
     create() {
@@ -213,7 +213,7 @@ class Game extends Phaser.Scene {
 
     update() {
         //handle collisions between player and npc characters
-        for (var i = 0; i < this.npcList.length; i++) {
+        for (var i = 0; i < this.npcCharacter.length; i++) {
             Object.keys(this.playerCharacter).forEach((key) => {
                 this.physics.world.collide(
                     this.playerCharacter[key],
@@ -264,6 +264,12 @@ class Game extends Phaser.Scene {
         });
     }
 
+    pause() {
+        //remove DOM elements
+        this.removeRoomDOMElements();
+        this.chatBox.destroy();
+    }
+
     end() {
         //remove DOM elements
         this.chatBox.destroy();
@@ -271,7 +277,7 @@ class Game extends Phaser.Scene {
         //delete data
         this.playerCharacter = {};
         this.playerData = [];
-        this.npcCharacter = {};
+        this.npcCharacter = [];
         this.npcData = [];
 
         //stop music
@@ -291,257 +297,64 @@ class Game extends Phaser.Scene {
 
     // WORLD
     //preload room assets
-    preloadRoomAssets(room) {
-        //forest
-        if (room === 'forest') {
-            //layers
-            this.load.image(
-                'Forest_Background',
-                'room/forest/layers/Background.png'
-            );
-            this.load.image('Forest_Ground', 'room/forest/layers/Ground.png');
-            this.load.image('Forest_Tree_3', 'room/forest/layers/Tree_3.png');
-            this.load.image('Forest_Tree_2', 'room/forest/layers/Tree_2.png');
-            this.load.image('Forest_Rock_1', 'room/forest/layers/Rock_1.png');
-            this.load.image('Forest_Stump_1', 'room/forest/layers/Stump_1.png');
-            this.load.image('Forest_Tree_1', 'room/forest/layers/Tree_1.png');
-            this.load.image(
-                'Forest_Foreground',
-                'room/forest/layers/Foreground.png'
-            );
+    preloadRoomData(room) {
+        //get room assets
+        let roomAssets = globalConfig.rooms[room].asset;
 
-            //npc
-            this.load.image('Poke', 'character/npc/Poke.png');
-            this.load.image('Gigi', 'character/npc/Gigi.png');
-            this.load.image('Jesse', 'character/npc/Jesse.png');
-            this.load.image('Snic', 'character/npc/Snic.png');
+        //options
+        if (roomAssets.option) {
+            if (roomAssets.option.chatLogUIHeight)
+                this.chatLogUIHeight = roomAssets.option.chatLogUIHeight;
+        }
 
-            //npc data
-            // this.npcList = [
-            //     {
-            //         id: 0,
-            //         name: 'Poke',
-            //         x: 363,
-            //         y: 629,
-            //         direction: 'right',
-            //         lines: [
-            //             "*cough* i'm sick",
-            //             'yo',
-            //             "i'll be on lacari later",
-            //             'one sec gunna take a water break',
-            //             'u ever have a hemorrhoid?',
-            //         ],
-            //     },
-            //     {
-            //         id: 1,
-            //         name: 'Gigi',
-            //         x: 250,
-            //         y: 540,
-            //         direction: 'right',
-            //         lines: [
-            //             '*thinking of something HUH to say*',
-            //             'people call me a very accurate gamer',
-            //             'GEORGIEEEEEE!',
-            //         ],
-            //     },
-            //     {
-            //         id: 2,
-            //         name: 'Jesse',
-            //         x: 1032,
-            //         y: 666,
-            //         direction: 'left',
-            //         lines: [
-            //             'have you heard about the hangry hippos NFT?',
-            //             "fuck all the bitches I know I don't give a fuck about flow",
-            //             'a ha ha...',
-            //             'i could be playing among us rn',
-            //         ],
-            //     },
-            //     {
-            //         id: 3,
-            //         name: 'Snic',
-            //         x: 1238,
-            //         y: 554,
-            //         direction: 'left',
-            //         lines: ['IDGAF'],
-            //     },
-            // ];
-            this.npcList = globalConfig.rooms.forest.npcData
+        //images
+        if (roomAssets.image) {
+            for (var i = 0; i < roomAssets.image.length; i++) {
+                this.load.image(
+                    roomAssets.image[i].name,
+                    roomAssets.image[i].path
+                );
+            }
+        }
 
-            //objects
-            this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
-            this.load.image(
-                'Sign_Theatre',
-                'room/forest/objects/Sign_Theatre.png'
-            );
-            this.load.image('Radio', 'room/forest/objects/Radio.png');
-            this.load.image(
-                'Lost_Recording',
-                'room/forest/objects/Lost_Recording.png'
-            );
-            // this.load.image('Banner', 'room/forest/objects/Banner.png');
-            // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
-
-            //object sfx
-            this.load.audio(
-                'radio_click',
-                'room/forest/audio/sfx/object/radio_click.mp3'
-            );
-            this.load.audio(
-                'lost_recording',
-                'room/forest/audio/sfx/object/lost_recording.mp3'
-            );
-
-            //music
-            this.load.audio(
-                'frog_caves_chill_kopie',
-                'room/forest/audio/music/frog_caves_chill_kopie.mp3'
-            );
-            this.load.audio('mask', 'room/forest/audio/music/mask.mp3');
-
-            //ambience
-            this.load.audio(
-                'forest_ambience',
-                'room/forest/audio/ambience/forest_ambience.mp3'
-            );
-        } else if (room === 'theatre') {
-            //variables
-            this.chatLogUIHeight = 195;
-
-            //layers
-            this.load.image(
-                'Theatre_Background',
-                'room/theatre/layers/Background.png'
-            );
-            this.load.image('Theatre_Stage', 'room/theatre/layers/Stage.png');
-            this.load.image(
-                'Theatre_Curtains',
-                'room/theatre/layers/Curtains.png'
-            );
-            this.load.image(
-                'Theatre_Foreground',
-                'room/theatre/layers/Foreground.png'
-            );
-
-            //objects
-            this.load.image(
-                'Sign_Forest',
-                'room/theatre/objects/Sign_Forest.png'
-            );
-            this.load.image(
-                'Sign_Free_Sub',
-                'room/theatre/objects/Sign_Free_Sub.png'
-            );
-            this.load.image(
-                'CrazySlickd',
-                'room/theatre/objects/CrazySlickd.png'
-            );
-
-            //audio
-            this.load.audio(
-                'crazyslickd',
-                'room/theatre/audio/crazyslickd.mp3'
-            );
+        //audio
+        if (roomAssets.audio) {
+            for (var i = 0; i < roomAssets.audio.length; i++) {
+                this.load.audio(
+                    roomAssets.audio[i].name,
+                    roomAssets.audio[i].path
+                );
+            }
         }
     }
 
     //add layers
     addRoomLayers(room) {
-        //forest
-        if (room == 'forest') {
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Background'
-                )
-                .setDepth(this.depthBackground);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Ground'
-                )
-                .setDepth(this.depthGround)
-                .setInteractive()
-                .on(
-                    'pointerdown',
-                    () => {
-                        if (this.navigationCheck()) {
-                            this.onMoveAttempt(
-                                this.input.mousePointer.worldX,
-                                this.input.mousePointer.worldY
-                            );
-                        }
-                    },
-                    this
-                );
-            this.walkableLayer = 'Forest_Ground';
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Tree_3'
-                )
-                .setDepth(610);
-            this.unWalkableLayer.push('Forest_Tree_3');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Tree_2'
-                )
-                .setDepth(628);
-            this.unWalkableLayer.push('Forest_Tree_2');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Rock_1'
-                )
-                .setDepth(629);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Stump_1'
-                )
-                .setDepth(649);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Tree_1'
-                )
-                .setDepth(665);
-            this.unWalkableLayer.push('Forest_Tree_1');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Foreground'
-                )
-                .setDepth(this.depthForeground);
-            this.unWalkableLayer.push('Forest_Foreground');
+        //get room layer data
+        let roomLayerData = globalConfig.rooms[room].layers;
 
-            //theatre
-        } else if (room == 'theatre') {
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Background'
-                )
-                .setDepth(this.depthBackground);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Stage'
-                )
-                .setDepth(this.depthGround)
-                .setInteractive()
-                .on(
+        //set up layers
+        for (var i = 0; i < roomLayerData.length; i++) {
+            //layer image
+            let layer = this.add.image(
+                this.canvas.width / 2,
+                this.canvas.height / 2,
+                roomLayerData[i].name
+            );
+
+            //background layer
+            if (roomLayerData[i].depth === 'background') {
+                //set depth
+                layer.setDepth(this.depthBackground);
+            }
+
+            //ground layer
+            else if (roomLayerData[i].depth === 'ground') {
+                //set depth
+                layer.setDepth(this.depthGround);
+
+                //set as walkable
+                layer.setInteractive().on(
                     'pointerdown',
                     () => {
                         if (this.navigationCheck()) {
@@ -553,23 +366,26 @@ class Game extends Phaser.Scene {
                     },
                     this
                 );
-            this.walkableLayer = 'Theatre_Stage';
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Curtains'
-                )
-                .setDepth(610);
-            this.unWalkableLayer.push('Theatre_Curtains');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Foreground'
-                )
-                .setDepth(this.depthForeground);
-            this.unWalkableLayer.push('Theatre_Foreground');
+                this.walkableLayer = roomLayerData[i].name;
+            }
+
+            //foreground layer
+            else if (roomLayerData[i].depth === 'foreground') {
+                //set depth
+                layer.setDepth(this.depthForeground);
+
+                //set as unwalkable
+                this.unWalkableLayer.push(roomLayerData[i].name);
+            }
+
+            //other layer
+            else if (Number.isFinite(roomLayerData[i].depth)) {
+                //set depth
+                layer.setDepth(roomLayerData[i].depth);
+
+                //set as unwalkable
+                this.unWalkableLayer.push(roomLayerData[i].name);
+            }
         }
     }
 
@@ -719,69 +535,72 @@ class Game extends Phaser.Scene {
         }
     }
 
+    //add room teleports
     addRoomTeleports(room) {
-        //forest
-        if (room == 'forest') {
-            //create collider
-            var theatreTeleport = this.add.sprite(142, 601);
-            theatreTeleport.width = 100;
-            theatreTeleport.height = 500;
-            this.physics.world.enable(theatreTeleport);
-            theatreTeleport.body.setCollideWorldBounds(true);
+        //get teleports data
+        let roomTeleportData = globalConfig.rooms[room].teleports;
 
-            //add teleport to list
-            const theatreTeleportObject = {
-                room: 'theatre',
-                teleport: theatreTeleport,
-                spawn: { x: 1042, y: 637, direction: 'left' },
-            };
-            this.teleportList.push(theatreTeleportObject);
+        //create teleport
+        if (roomTeleportData) {
+            for (var i = 0; i < roomTeleportData.length; i++) {
+                //create collider
+                var teleportCollider = this.add.sprite(
+                    roomTeleportData[i].x,
+                    roomTeleportData[i].y
+                );
+                teleportCollider.width = roomTeleportData[i].width;
+                teleportCollider.height = roomTeleportData[i].height;
+                this.physics.world.enable(teleportCollider);
+                teleportCollider.body.setCollideWorldBounds(true);
 
-            //theatre
-        } else if (room == 'theatre') {
-            //create collider
-            var forestTeleport = this.add.sprite(1502, 601);
-            forestTeleport.width = 100;
-            forestTeleport.height = 300;
-            this.physics.world.enable(forestTeleport);
-            forestTeleport.body.setCollideWorldBounds(true);
-
-            //add teleport to list
-            const forestTeleportObject = {
-                room: 'forest',
-                teleport: forestTeleport,
-                spawn: { x: 252, y: 632, direction: 'right' },
-            };
-            this.teleportList.push(forestTeleportObject);
+                //add teleport to list
+                const teleportObject = {
+                    room: roomTeleportData[i].room,
+                    teleport: teleportCollider,
+                };
+                this.teleportList.push(teleportObject);
+            }
         }
     }
 
     //add room music
     addRoomMusic(room) {
-        //forest
-        if (room == 'forest') {
-            this.playMusic('frog_caves_chill_kopie');
+        //get teleports data
+        let music = globalConfig.rooms[room].option.music;
+
+        //play music
+        if (music) {
+            this.playMusic(globalConfig.rooms[room].option.music);
         }
     }
 
     //add room music
     addRoomAmbience(room) {
-        //forest
-        if (room == 'forest') {
-            this.playAmbience('forest_ambience');
+        //get teleports data
+        let ambience = globalConfig.rooms[room].option.ambience;
+
+        //play ambience
+        if (ambience) {
+            this.playAmbience(globalConfig.rooms[room].option.ambience);
         }
     }
 
     //add room NPCs
     addRoomNPCs(room) {
-        //forest
-        if (room == 'forest') {
-            for (var i = 0; i < this.npcList.length; i++) {
+        //get room NPCs
+        let roomNPCs = globalConfig.rooms[room].npcs;
+
+        if (roomNPCs) {
+            //set NPC list
+            this.npcList = roomNPCs;
+
+            //add NPCs to game
+            for (var i = 0; i < roomNPCs.length; i++) {
                 this.addNewNPC(
-                    this.npcList[i].name,
-                    this.npcList[i].x,
-                    this.npcList[i].y,
-                    this.npcList[i].direction
+                    roomNPCs[i].name,
+                    roomNPCs[i].x,
+                    roomNPCs[i].y,
+                    roomNPCs[i].direction
                 );
             }
         }
@@ -1712,7 +1531,7 @@ class Game extends Phaser.Scene {
     //adds NPC character to the game
     addNewNPC(name, x, y, direction = 'right') {
         //get ID
-        let id = this.npcCharacter.length;
+        let id = 0 + this.npcCharacter.length;
 
         //set npc sprite
         var npcSprite = this.add.sprite(0, 0, name).setOrigin(0.5, 1);

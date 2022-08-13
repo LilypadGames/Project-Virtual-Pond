@@ -1,6 +1,135 @@
 {
     "forest": {
-        "npcData": [
+        "option": {
+            "chatLogUIHeight": 250,
+            "music": "frog_caves_chill_kopie",
+            "ambience": "forest_ambience"
+        },
+        "asset": {
+            "image": [
+                {
+                    "name": "Forest_Background",
+                    "path": "room/forest/layers/Background.png"
+                },
+                {
+                    "name": "Forest_Ground",
+                    "path": "room/forest/layers/Ground.png"
+                },
+                {
+                    "name": "Forest_Tree_3",
+                    "path": "room/forest/layers/Tree_3.png"
+                },
+                {
+                    "name": "Forest_Tree_2",
+                    "path": "room/forest/layers/Tree_2.png"
+                },
+                {
+                    "name": "Forest_Rock_1",
+                    "path": "room/forest/layers/Rock_1.png"
+                },
+                {
+                    "name": "Forest_Stump_1",
+                    "path": "room/forest/layers/Stump_1.png"
+                },
+                {
+                    "name": "Forest_Tree_1",
+                    "path": "room/forest/layers/Tree_1.png"
+                },
+                {
+                    "name": "Forest_Foreground",
+                    "path": "room/forest/layers/Foreground.png"
+                },
+                {
+                    "name": "Poke",
+                    "path": "character/npc/Poke.png"
+                },
+                {
+                    "name": "Gigi",
+                    "path": "character/npc/Gigi.png"
+                },
+                {
+                    "name": "Jesse",
+                    "path": "character/npc/Jesse.png"
+                },
+                {
+                    "name": "Snic",
+                    "path": "character/npc/Snic.png"
+                },
+                {
+                    "name": "Sign_News",
+                    "path": "room/forest/objects/Sign_News.png"
+                },
+                {
+                    "name": "Sign_Theatre",
+                    "path": "room/forest/objects/Sign_Theatre.png"
+                },
+                {
+                    "name": "Radio",
+                    "path": "room/forest/objects/Radio.png"
+                },
+                {
+                    "name": "Lost_Recording",
+                    "path": "room/forest/objects/Lost_Recording.png"
+                }
+            ],
+            "audio": [
+                {
+                    "name": "radio_click",
+                    "path": "room/forest/audio/sfx/object/radio_click.mp3"
+                },
+                {
+                    "name": "lost_recording",
+                    "path": "room/forest/audio/sfx/object/lost_recording.mp3"
+                },
+                {
+                    "name": "frog_caves_chill_kopie",
+                    "path": "room/forest/audio/music/frog_caves_chill_kopie.mp3"
+                },
+                {
+                    "name": "mask",
+                    "path": "room/forest/audio/music/mask.mp3"
+                },
+                {
+                    "name": "forest_ambience",
+                    "path": "room/forest/audio/ambience/forest_ambience.mp3"
+                }
+            ]
+        },
+        "layers": [
+            {
+                "name": "Forest_Background",
+                "depth": "background"
+            },
+            {
+                "name": "Forest_Ground",
+                "depth": "ground"
+            },
+            {
+                "name": "Forest_Tree_3",
+                "depth": 610
+            },
+            {
+                "name": "Forest_Tree_2",
+                "depth": 628
+            },
+            {
+                "name": "Forest_Rock_1",
+                "depth": 629
+            },
+            {
+                "name": "Forest_Stump_1",
+                "depth": 649
+            },
+            {
+                "name": "Forest_Tree_1",
+                "depth": 665
+            },
+            {
+                "name": "Forest_Foreground",
+                "depth": "foreground"
+            }
+        ],
+        "npcs": [
             {
                 "name": "Poke",
                 "x": 363,
@@ -45,6 +174,85 @@
                 "lines": [
                     "IDGAF"
                 ]
+            }
+        ],
+        "teleports": [
+            {
+                "x": 142,
+                "y": 601,
+                "width": 100,
+                "height": 500,
+                "room": "theatre"
+            }
+        ]
+    },
+    "theatre": {
+        "option": {
+            "chatLogUIHeight": 195
+        },
+        "asset": {
+            "image": [
+                {
+                    "name": "Theatre_Background",
+                    "path": "room/theatre/layers/Background.png"
+                },
+                {
+                    "name": "Theatre_Stage",
+                    "path": "room/theatre/layers/Stage.png"
+                },
+                {
+                    "name": "Theatre_Curtains",
+                    "path": "room/theatre/layers/Curtains.png"
+                },
+                {
+                    "name": "Theatre_Foreground",
+                    "path": "room/theatre/layers/Foreground.png"
+                },
+                {
+                    "name": "Sign_Forest",
+                    "path": "room/theatre/objects/Sign_Forest.png"
+                },
+                {
+                    "name": "Sign_Free_Sub",
+                    "path": "room/theatre/objects/Sign_Free_Sub.png"
+                },
+                {
+                    "name": "CrazySlickd",
+                    "path": "room/theatre/objects/CrazySlickd.png"
+                }
+            ],
+            "audio": [
+                {
+                    "name": "crazyslickd",
+                    "path": "room/theatre/audio/crazyslickd.mp3"
+                }
+            ]
+        },
+        "layers": [
+            {
+                "name": "Theatre_Background",
+                "depth": "background"
+            },
+            {
+                "name": "Theatre_Stage",
+                "depth": "ground"
+            },
+            {
+                "name": "Theatre_Curtains",
+                "depth": 610
+            },
+            {
+                "name": "Theatre_Foreground",
+                "depth": "foreground"
+            }
+        ],
+        "teleports": [
+            {
+                "x": 1502,
+                "y": 601,
+                "width": 100,
+                "height": 300,
+                "room": "forest"
             }
         ]
     }

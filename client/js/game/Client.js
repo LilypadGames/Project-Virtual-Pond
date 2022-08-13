@@ -147,6 +147,9 @@ socket.on('payloadNewPlayerData', function (data) {
 
 //on this client disconnecting
 socket.on('disconnect', function () {
+    //pause scene
+    if (currentScene.pause) currentScene.pause();
+
     //show disconnect dialog
     globalUI.showRefreshDialog(currentScene, kickReason);
 
