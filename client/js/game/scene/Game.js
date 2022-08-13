@@ -786,6 +786,35 @@ class Game extends Phaser.Scene {
 
         //chat box
         this.chatBox = this.createChatBox();
+
+        //theatre specific UI
+        if (this.room === 'theatre') {
+            //mini buttons
+            ui.createButtons(this, {
+                x: 1245,
+                y: 30,
+                fontSize: 22,
+                space: {
+                    item: 10,
+                },
+                buttons: [
+                    //media share queue
+                    {
+                        text: '🎞️',
+                        backgroundRadius: 8,
+                        onClick: function (scene) {
+                            //check if menu is open
+                            if (!scene.menuOpen) {
+                                //show media share menu
+                                scene.showMediaShareMenu();
+                            }
+                        },
+                    },
+                ],
+            })
+                .setDepth(this.depthUI)
+                .setOrigin(0, 0.5);
+        }
     }
 
     //show intro message
@@ -880,7 +909,7 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    scene.audioMusic.setVolume(value);
+                    if (scene.audioMusic) scene.audioMusic.setVolume(value);
                 },
             },
 
@@ -904,7 +933,8 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    scene.audioAmbience.setVolume(value);
+                    if (scene.audioAmbience)
+                        scene.audioAmbience.setVolume(value);
                 },
             },
 
@@ -925,8 +955,10 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    scene.sfxButtonClick.setVolume(value);
-                    scene.sfxRadioClick.setVolume(value);
+                    if (scene.sfxButtonClick)
+                        scene.sfxButtonClick.setVolume(value);
+                    if (scene.sfxRadioClick)
+                        scene.sfxRadioClick.setVolume(value);
                 },
             },
         ];
@@ -1003,6 +1035,40 @@ class Game extends Phaser.Scene {
             },
             {
                 height: 500,
+                cover: true,
+                onExit: function (scene) {
+                    //set menu as closed
+                    scene.menuClosed();
+                },
+            }
+        );
+
+        //set menu as opened
+        this.menuOpened();
+    }
+
+    //show media share menu
+    showMediaShareMenu() {
+        //create news menu
+        ui.createMenu(
+            this,
+            {
+                title: 'Media Share',
+                content: [
+                    {
+                        type: 'text',
+                        text: 'Submit Media URL',
+                        fontSize: 24,
+                    },
+                    {
+                        type: 'button',
+                        text: 'Vote Skip',
+                        fontSize: 20,
+                        onClick: function () {},
+                    },
+                ],
+            },
+            {
                 cover: true,
                 onExit: function (scene) {
                     //set menu as closed
