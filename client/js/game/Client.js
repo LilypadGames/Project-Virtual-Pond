@@ -120,13 +120,19 @@ class Client {
     }
 }
 
-//recieve game version
-socket.on('payloadGameVer', function (version) {
+//recieve global data
+socket.on('payloadGlobalData', function (data) {
+    globalData = data;
     console.log(
-        '%c %c Project Virtual Pond - ' + version,
+        '%c %c Project Virtual Pond - ' + globalData.gameVersion,
         'background: #64BEFF;',
         'background: #000000;'
     );
+});
+
+//recieve global data change
+socket.on('payloadGlobalDataChange', function (object, value) {
+    globalData[object] = value;
 });
 
 //recieve next scene

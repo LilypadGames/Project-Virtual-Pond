@@ -1,0 +1,41 @@
+// Global Data
+
+//dependency: file path
+const path = require('path');
+
+//config
+const config = require(path.join(__dirname, '../config/config.json'));
+
+//dependency: twitch API
+const twitch = require(path.join(__dirname, '../utility/Twitch.js'));
+
+//global data variable
+var globalData = {};
+
+module.exports = {
+    init: async function (io) {
+        //save socket.io instance
+        this.io = io;
+
+        //get game version
+        globalData.gameVersion = config.version;
+
+        //is stream live?
+        globalData.streamLive = await twitch.isStreamLive('pokelawls');
+    },
+
+    set: function (object, data) {
+        globalData[object] = data;
+
+        //update connected clients
+        this.io.emit('payloadGlobalDataChange', object, data);
+    },
+
+    get: function () {
+        return globalData;
+    },
+
+    getObject: function (object) {
+        return globalData[object];
+    },
+};

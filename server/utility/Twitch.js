@@ -23,7 +23,10 @@ const fixedSecret = new randomUUID().toString();
 
 module.exports = {
     //set up event subs
-    init: async function (streamerName, app) {
+    init: async function (streamerName, app, globalData) {
+        //save global data instance
+        this.globalData = globalData;
+
         //remove past subscriptions
         await twitchAPI.eventSub.deleteAllSubscriptions();
 
@@ -102,6 +105,9 @@ module.exports = {
                         `${event.broadcasterDisplayName} just went live!`
                     )
                 );
+
+                //set stream live to true
+                this.globalData.set('streamLive', true);
             }
         );
 
@@ -114,6 +120,9 @@ module.exports = {
                         `${event.broadcasterDisplayName} just went offline.`
                     )
                 );
+
+                //set stream live to false
+                this.globalData.set('streamLive', false);
             }
         );
 

@@ -15,12 +15,13 @@ const utility = require(path.join(__dirname, '/utility/Utility.js'));
 const database = require(path.join(__dirname, '/utility/Database.js'));
 const logs = require(path.join(__dirname, '/utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
-const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
+// const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
 const streamElements = require(path.join(
     __dirname,
     '/utility/StreamElements.js'
 ));
 const twitch = require(path.join(__dirname, '/utility/Twitch.js'));
+const globalData = require(path.join(__dirname, '/utility/GlobalData.js'));
 
 //dependency: web server
 var express = require('express');
@@ -221,19 +222,15 @@ chatLogs.init(io);
 //init emotes
 // emoteLib.init();
 
+//init global data
+globalData.init(io);
+
+//init twitch event subs
+twitch.init('pokelawls', app, globalData);
+
 //init donations
 // streamElements.init();
 streamElements.updateDonations();
-
-//init twitch event subs
-twitch.init('pokelawls', app);
-
-//init global data
-async function initGlobalData() {
-    let globalData = {}
-    globalData.streamLive = await twitch.isStreamLive('pokelawls');
-};
-initGlobalData();
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));

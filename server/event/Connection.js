@@ -5,7 +5,6 @@ const path = require('path');
 const jsonPath = require('jsonpath');
 
 //get config values
-const config = require(path.join(__dirname, '../config/config.json'));
 const roomConfig = require(path.join(__dirname, '../config/room.json'));
 
 //imports
@@ -16,7 +15,8 @@ const serverMetrics = require(path.join(
     '../utility/ServerMetrics.js'
 ));
 const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
-const emoteLib = require(path.join(__dirname, '../utility/Emotes.js'));
+// const emoteLib = require(path.join(__dirname, '../utility/Emotes.js'));
+const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -62,8 +62,8 @@ class Connection {
 
         //id exists
         else {
-            //send game version
-            this.socket.emit('payloadGameVer', config.version);
+            //send global data
+            this.socket.emit('payloadGlobalData', globalData.get());
 
             //kick other connection instances of this player
             await moderation.kickClientsWithID(

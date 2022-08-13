@@ -10,15 +10,18 @@ const twitchEmotes = new Emotes();
 
 //set up config
 var roomData = {};
-$.getJSON("../config/rooms.json", function(json) {
-	roomData.rooms = json;
+$.getJSON('../config/rooms.json', function (json) {
+    roomData.rooms = json;
 });
 
 // GLOBAL VARIABLES
 //canvas
 var canvas = document.createElement('canvas');
+//canvas size
 const gameWidth = 1280;
 const gameHeight = 800;
+//global data
+var globalData = {};
 
 //cookies
 var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));

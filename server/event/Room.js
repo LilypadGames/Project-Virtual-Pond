@@ -16,6 +16,7 @@ const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
+const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
