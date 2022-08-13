@@ -219,7 +219,7 @@ process.on('warning', (e) => console.warn(e.stack));
 chatLogs.init(io);
 
 //init emotes
-emoteLib.init();
+// emoteLib.init();
 
 //init donations
 // streamElements.init();
@@ -227,7 +227,13 @@ streamElements.updateDonations();
 
 //init twitch event subs
 twitch.init('pokelawls', app);
-twitch.isStreamLive('pokelawls');
+
+//init global data
+async function initGlobalData() {
+    let globalData = {}
+    globalData.streamLive = await twitch.isStreamLive('pokelawls');
+};
+initGlobalData();
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));

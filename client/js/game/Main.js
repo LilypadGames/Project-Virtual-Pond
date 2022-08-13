@@ -9,9 +9,9 @@ const loadingScreen = new LoadingScreen();
 const twitchEmotes = new Emotes();
 
 //set up config
-var globalConfig = {};
+var roomData = {};
 $.getJSON("../config/rooms.json", function(json) {
-	globalConfig.rooms = json;
+	roomData.rooms = json;
 });
 
 // GLOBAL VARIABLES

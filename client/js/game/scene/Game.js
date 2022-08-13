@@ -299,7 +299,7 @@ class Game extends Phaser.Scene {
     //preload room assets
     preloadRoomData(room) {
         //get room assets
-        let roomAssets = globalConfig.rooms[room].asset;
+        let roomAssets = roomData.rooms[room].asset;
 
         //options
         if (roomAssets.option) {
@@ -331,7 +331,7 @@ class Game extends Phaser.Scene {
     //add layers
     addRoomLayers(room) {
         //get room layer data
-        let roomLayerData = globalConfig.rooms[room].layers;
+        let roomLayerData = roomData.rooms[room].layers;
 
         //set up layers
         for (var i = 0; i < roomLayerData.length; i++) {
@@ -538,7 +538,7 @@ class Game extends Phaser.Scene {
     //add room teleports
     addRoomTeleports(room) {
         //get teleports data
-        let roomTeleportData = globalConfig.rooms[room].teleports;
+        let roomTeleportData = roomData.rooms[room].teleports;
 
         //create teleport
         if (roomTeleportData) {
@@ -566,29 +566,29 @@ class Game extends Phaser.Scene {
     //add room music
     addRoomMusic(room) {
         //get teleports data
-        let music = globalConfig.rooms[room].option.music;
+        let music = roomData.rooms[room].option.music;
 
         //play music
         if (music) {
-            this.playMusic(globalConfig.rooms[room].option.music);
+            this.playMusic(roomData.rooms[room].option.music);
         }
     }
 
     //add room music
     addRoomAmbience(room) {
         //get teleports data
-        let ambience = globalConfig.rooms[room].option.ambience;
+        let ambience = roomData.rooms[room].option.ambience;
 
         //play ambience
         if (ambience) {
-            this.playAmbience(globalConfig.rooms[room].option.ambience);
+            this.playAmbience(roomData.rooms[room].option.ambience);
         }
     }
 
     //add room NPCs
     addRoomNPCs(room) {
         //get room NPCs
-        let roomNPCs = globalConfig.rooms[room].npcs;
+        let roomNPCs = roomData.rooms[room].npcs;
 
         if (roomNPCs) {
             //set NPC list
@@ -637,7 +637,7 @@ class Game extends Phaser.Scene {
     }
 
     //show menu
-    menuOpened() {
+    menuOpened(removeRoomDOMElements = true) {
         //disable input
         this.disableInput = true;
         this.menuOpen = true;
@@ -646,17 +646,17 @@ class Game extends Phaser.Scene {
         this.chatBox.setBlur();
 
         //remove DOM elements temporarily
-        this.removeRoomDOMElements();
+        if (removeRoomDOMElements) this.removeRoomDOMElements();
     }
 
     //close menu
-    menuClosed() {
+    menuClosed(removeRoomDOMElements = true) {
         //enable input
         this.disableInput = false;
         this.menuOpen = false;
 
         //place DOM elements back
-        this.addRoomDOMElements();
+        if (removeRoomDOMElements) this.addRoomDOMElements();
     }
 
     //create chat box
@@ -1061,24 +1061,40 @@ class Game extends Phaser.Scene {
                         fontSize: 24,
                     },
                     {
-                        type: 'button',
-                        text: 'Vote Skip',
+                        type: 'buttons',
+                        align: 'center',
                         fontSize: 20,
-                        onClick: function () {},
+                        buttons: [
+                            {
+                                text: 'Vote Skip',
+                                align: 'left',
+                                onClick: function (scene) {
+                                    console.log('skip');
+                                },
+                            },
+                            {
+                                text: 'View Queue',
+                                align: 'left',
+                                onClick: function (scene) {
+                                    console.log('view queue');
+                                },
+                            },
+                        ],
                     },
                 ],
             },
             {
-                cover: true,
+                y: 600,
+                draggable: false,
                 onExit: function (scene) {
-                    //set menu as closed
-                    scene.menuClosed();
+                    //set menu as closed (do not add DOM elements)
+                    scene.menuClosed(false);
                 },
             }
         );
 
-        //set menu as opened
-        this.menuOpened();
+        //set menu as opened (do not remove DOM elements)
+        this.menuOpened(false);
     }
 
     //set room chat log from server

@@ -140,6 +140,7 @@ module.exports = {
                     'Stream Live: (' + streamerName + ') ' + live
                 )
             );
+            return live;
         } catch (error) {
             console.log(
                 utility.timestampString(
