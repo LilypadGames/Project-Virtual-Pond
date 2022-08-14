@@ -150,12 +150,12 @@ class CharacterCreator extends Phaser.Scene {
                 { icon: 'UI_frog_eyes_0', backgroundRadius: 8 },
                 { icon: 'UI_frog_eyes_1', backgroundRadius: 8 },
             ],
-            onClick: function (scene, index) {
+            onClick: (index) => {
                 //set eye type
-                scene.characterData.eye_type = index;
+                this.characterData.eye_type = index;
 
                 //update character display
-                scene.updateCharacter();
+                this.updateCharacter();
             },
         }).setDepth(this.depthCharacterUI);
 
@@ -178,16 +178,16 @@ class CharacterCreator extends Phaser.Scene {
         //color wheel
         ui.createColorPicker(this, {
             x: 770,
-            y: 500,
+            y: 540,
             width: 400,
-            height: 60,
+            height: 30,
             sliderID: 'color',
-            onSliderChange: function (scene, value) {
+            onSliderChange: (value) => {
                 //update color
-                scene.characterData.color = value;
+                this.characterData.color = value;
 
                 //update character display
-                scene.updateCharacter();
+                this.updateCharacter();
             },
         }).setDepth(this.depthCharacterUI);
 
@@ -200,7 +200,7 @@ class CharacterCreator extends Phaser.Scene {
                 {
                     text: 'Save & Play',
                     backgroundRadius: 16,
-                    onClick: function (scene) {
+                    onClick: (scene) => {
                         //parse player data
                         const data = {
                             name: scene.characterData.name,

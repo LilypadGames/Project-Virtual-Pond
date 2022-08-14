@@ -661,52 +661,45 @@ class Game extends Phaser.Scene {
 
     //create chat box
     createChatBox() {
-        return ui
-            .createInputBox(this, {
-                id: 'chat-box',
-                x: this.canvas.width / 2,
-                y: this.canvas.height - this.canvas.height / 23,
-                width: this.canvas.width * 0.6,
-                height: 30,
-                placeholder: 'Say Yo...',
-                backgroundColor: ColorScheme.White,
-                backgroundRadius: 15,
-                maxLength: this.messageLength,
-                depth: this.depthUI,
-            })
-            .on(
-                'focus',
-                function (inputBox, event) {
-                    if (this.menuOpen) inputBox.setBlur();
-                },
-                this
-            )
-            .on(
-                'keydown',
-                function (inputBox, event) {
-                    if (event.key == 'Enter') {
-                        //format message
-                        const chatMessage = inputBox.text
-                            .substr(0, this.messageLength)
-                            .trim()
-                            .replace(/\s+/g, ' ');
+        return ui.createInputBox(this, {
+            id: 'chat-box',
+            x: this.canvas.width / 2,
+            y: this.canvas.height - this.canvas.height / 23,
+            width: this.canvas.width * 0.6,
+            height: 30,
+            placeholder: 'Say Yo...',
+            background: {
+                color: ColorScheme.White,
+                radius: 15,
+            },
+            maxLength: this.messageLength,
+            depth: this.depthUI,
+            onFocus: (inputBox) => {
+                if (this.menuOpen) inputBox.setBlur();
+            },
+            onKeydown: (inputBox, event) => {
+                if (event.key == 'Enter') {
+                    //format message
+                    const chatMessage = inputBox.text
+                        .substr(0, this.messageLength)
+                        .trim()
+                        .replace(/\s+/g, ' ');
 
-                        //send the message to the server
-                        if (chatMessage !== '' || chatMessage !== null) {
-                            client.sendMessage(chatMessage);
-                        }
-
-                        //leave chat bar
-                        else {
-                            inputBox.setBlur();
-                        }
-
-                        //clear chat box
-                        inputBox.setText('');
+                    //send the message to the server
+                    if (chatMessage !== '' || chatMessage !== null) {
+                        client.sendMessage(chatMessage);
                     }
-                },
-                this
-            );
+
+                    //leave chat bar
+                    else {
+                        inputBox.setBlur();
+                    }
+
+                    //clear chat box
+                    inputBox.setText('');
+                }
+            },
+        });
     }
 
     //create toolbar
@@ -722,14 +715,14 @@ class Game extends Phaser.Scene {
                     text: 'Chat Log',
                     backgroundRadius: 8,
                     width: 230,
-                    onClick: function (scene) {
+                    onClick: () => {
                         //chat log not showing
-                        if (!scene.chatLogUI) {
+                        if (!this.chatLogUI) {
                             //show chat log
-                            scene.showChatLog();
+                            this.showChatLog();
                         } else {
                             //close chat log
-                            scene.chatLogUI.emit('modal.requestClose');
+                            this.chatLogUI.emit('modal.requestClose');
                         }
                     },
                 },
@@ -749,11 +742,11 @@ class Game extends Phaser.Scene {
                 {
                     text: '📰',
                     backgroundRadius: 8,
-                    onClick: function (scene) {
+                    onClick: () => {
                         //check if menu is open
-                        if (!scene.menuOpen) {
+                        if (!this.menuOpen) {
                             //show news menu
-                            scene.showNews();
+                            this.showNews();
                         }
                     },
                 },
@@ -761,21 +754,21 @@ class Game extends Phaser.Scene {
                 {
                     text: '🎨',
                     backgroundRadius: 8,
-                    onClick: function (scene) {
+                    onClick: () => {
                         //start character creator scene
-                        scene.end();
-                        scene.scene.start('CharacterCreator', scene.room);
+                        this.end();
+                        this.scene.start('CharacterCreator', this.room);
                     },
                 },
                 //options menu
                 {
                     text: '⚙️',
                     backgroundRadius: 8,
-                    onClick: function (scene) {
+                    onClick: () => {
                         //check if menu is open
-                        if (!scene.menuOpen) {
+                        if (!this.menuOpen) {
                             //show options menu
-                            scene.showOptions();
+                            this.showOptions();
                         }
                     },
                 },
@@ -802,11 +795,11 @@ class Game extends Phaser.Scene {
                     {
                         text: '🎞️',
                         backgroundRadius: 8,
-                        onClick: function (scene) {
+                        onClick: () => {
                             //check if menu is open
-                            if (!scene.menuOpen) {
+                            if (!this.menuOpen) {
                                 //show media share menu
-                                scene.showMediaShareMenu();
+                                this.showMediaShareMenu();
                             }
                         },
                     },
@@ -834,7 +827,7 @@ class Game extends Phaser.Scene {
                         type: 'button',
                         text: 'Turn on Hardware Acceleration',
                         fontSize: 20,
-                        onClick: function () {
+                        onClick: () => {
                             window.open(
                                 'https://www.webnots.com/what-is-hardware-acceleration-and-how-to-enable-in-browsers/',
                                 '_blank'
@@ -850,7 +843,7 @@ class Game extends Phaser.Scene {
                         type: 'button',
                         text: 'Join the Discord',
                         fontSize: 20,
-                        onClick: function () {
+                        onClick: () => {
                             window.open(
                                 'https://discord.gg/2aVq8qmcSr',
                                 '_blank'
@@ -866,7 +859,7 @@ class Game extends Phaser.Scene {
                         type: 'button',
                         text: 'Donate',
                         fontSize: 20,
-                        onClick: function () {
+                        onClick: () => {
                             window.open(donationSite, '_blank');
                         },
                     },
@@ -874,9 +867,9 @@ class Game extends Phaser.Scene {
             },
             {
                 cover: true,
-                onExit: function (scene) {
+                onExit: () => {
                     //set menu as closed
-                    scene.menuClosed();
+                    this.menuClosed();
                 },
             }
         );
@@ -897,7 +890,7 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'music')
                 ].volume,
-                onSliderChange: function (scene, value) {
+                onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
                     var options = utility.getLocalStorage('gameOptions');
                     options[
@@ -909,7 +902,7 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    if (scene.audioMusic) scene.audioMusic.setVolume(value);
+                    if (this.audioMusic) this.audioMusic.setVolume(value);
                 },
             },
 
@@ -921,7 +914,7 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
                 ].volume,
-                onSliderChange: function (scene, value) {
+                onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
                     var options = utility.getLocalStorage('gameOptions');
                     options[
@@ -933,8 +926,7 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    if (scene.audioAmbience)
-                        scene.audioAmbience.setVolume(value);
+                    if (this.audioAmbience) this.audioAmbience.setVolume(value);
                 },
             },
 
@@ -946,7 +938,7 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
                 ].volume,
-                onSliderChange: function (scene, value) {
+                onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
                     var options = utility.getLocalStorage('gameOptions');
                     options[
@@ -955,10 +947,9 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    if (scene.sfxButtonClick)
-                        scene.sfxButtonClick.setVolume(value);
-                    if (scene.sfxRadioClick)
-                        scene.sfxRadioClick.setVolume(value);
+                    if (this.sfxButtonClick)
+                        this.sfxButtonClick.setVolume(value);
+                    if (this.sfxRadioClick) this.sfxRadioClick.setVolume(value);
                 },
             },
         ];
@@ -980,7 +971,7 @@ class Game extends Phaser.Scene {
                                 'show_stream_chat'
                             )
                         ].value,
-                    onClick: function (state) {
+                    onClick: (state) => {
                         //store new value
                         options[
                             utility.getLocalStorageArrayIndex(
@@ -1003,9 +994,9 @@ class Game extends Phaser.Scene {
             },
             {
                 cover: true,
-                onExit: function (scene) {
+                onExit: () => {
                     //set menu as closed
-                    scene.menuClosed();
+                    this.menuClosed();
                 },
             }
         );
@@ -1036,9 +1027,9 @@ class Game extends Phaser.Scene {
             {
                 height: 500,
                 cover: true,
-                onExit: function (scene) {
+                onExit: () => {
                     //set menu as closed
-                    scene.menuClosed();
+                    this.menuClosed();
                 },
             }
         );
@@ -1068,14 +1059,14 @@ class Game extends Phaser.Scene {
                             {
                                 text: 'Vote Skip',
                                 align: 'left',
-                                onClick: function (scene) {
+                                onClick: () => {
                                     console.log('skip');
                                 },
                             },
                             {
                                 text: 'View Queue',
                                 align: 'left',
-                                onClick: function (scene) {
+                                onClick: () => {
                                     console.log('view queue');
                                 },
                             },
@@ -1086,9 +1077,9 @@ class Game extends Phaser.Scene {
             {
                 y: 600,
                 draggable: false,
-                onExit: function (scene) {
+                onExit: () => {
                     //set menu as closed (do not add DOM elements)
-                    scene.menuClosed(false);
+                    this.menuClosed(false);
                 },
             }
         );
@@ -1158,14 +1149,14 @@ class Game extends Phaser.Scene {
                     //         {
                     //             text: 'Global',
                     //             align: 'left',
-                    //             onClick: function (scene) {
+                    //             onClick: () => {
                     //                 console.log('global');
                     //             },
                     //         },
                     //         {
                     //             text: 'Local',
                     //             align: 'left',
-                    //             onClick: function (scene) {
+                    //             onClick: () => {
                     //                 console.log('local');
                     //             },
                     //         },

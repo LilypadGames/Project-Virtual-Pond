@@ -296,7 +296,7 @@ class UI {
             content.input = 'click';
         }
 
-        return scene.rexUI.add
+        let slider = scene.rexUI.add
             .slider({
                 x: content.x,
                 y: content.y,
@@ -334,11 +334,6 @@ class UI {
                     content.thumbTransparency
                 ),
 
-                valuechangeCallback: function (value) {
-                    if (content.onSliderChange)
-                        content.onSliderChange(scene, value);
-                },
-
                 space: {
                     left: content.space.left,
                     right: content.space.right,
@@ -346,113 +341,156 @@ class UI {
                     bottom: content.space.bottom,
                 },
 
+                easeValue: {
+                    duration: 100,
+                },
+
                 input: content.input, // 'drag'|'click'
             })
             .layout();
+
+        //events
+        slider.on(
+            'valuechange',
+            function (value, oldValue, slider) {
+                //callback
+                content.onSliderChange(value);
+            },
+            scene
+        );
+
+        return slider;
     }
 
     //create input box
-    createInputBox(scene, content) {
+    createInputBox(scene, option) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
+        if (!option.x) {
+            option.x = 0;
         }
-        if (!content.y) {
-            content.y = 0;
+        if (!option.y) {
+            option.y = 0;
         }
-        if (!content.width) {
-            content.width = 500;
+        if (!option.width) {
+            option.width = 500;
         }
-        if (!content.height) {
-            content.height = 40;
+        if (!option.height) {
+            option.height = 40;
         }
-        if (!content.type) {
-            content.type = 'text';
+        if (!option.type) {
+            option.type = 'text';
         }
-        if (!content.text) {
-            content.text = '';
+        if (!option.text) {
+            option.text = '';
         }
-        if (!content.placeholder) {
-            content.placeholder = '';
+        if (!option.placeholder) {
+            option.placeholder = '';
         }
-        if (!content.fontSize) {
-            content.fontSize = 24;
+        if (!option.fontSize) {
+            option.fontSize = 24;
         }
-        if (!content.color) {
-            content.color = ColorScheme.Black;
+        if (!option.color) {
+            option.color = ColorScheme.Black;
         }
-        if (!content.backgroundColor) {
-            content.backgroundColor = ColorScheme.White;
+
+        if (!option.background) {
+            option.background = {};
         }
-        if (!content.backgroundRadius) {
-            content.backgroundRadius = 0;
+        if (!option.background.color) {
+            option.background.color = ColorScheme.White;
         }
-        if (!content.backgroundSpace) {
-            content.backgroundSpace = {};
+        if (!option.background.radius) {
+            option.background.radius = 0;
         }
-        if (!content.backgroundSpace.left) {
-            content.backgroundSpace.left = 5;
+        if (!option.background.space) {
+            option.background.space = {};
         }
-        if (!content.backgroundSpace.right) {
-            content.backgroundSpace.right = 5;
+        if (!option.background.space.left) {
+            option.background.space.left = 5;
         }
-        if (!content.backgroundSpace.top) {
-            content.backgroundSpace.top = 0;
+        if (!option.background.space.right) {
+            option.background.space.right = 5;
         }
-        if (!content.backgroundSpace.bottom) {
-            content.backgroundSpace.bottom = 0;
+        if (!option.background.space.top) {
+            option.background.space.top = 0;
         }
-        if (!content.border) {
-            content.border = 0;
+        if (!option.background.space.bottom) {
+            option.background.space.bottom = 0;
         }
-        if (!content.borderColor) {
-            content.borderColor = ColorScheme.Black;
+
+        if (!option.border) {
+            option.border = 0;
         }
-        if (!content.spellCheck) {
-            content.spellCheck = false;
+        if (!option.borderColor) {
+            option.borderColor = ColorScheme.Black;
         }
-        if (!content.autoComplete) {
-            content.autoComplete = 'off';
+        if (!option.spellCheck) {
+            option.spellCheck = false;
         }
-        if (!content.maxLength) {
-            content.maxLength = 1000;
+        if (!option.autoComplete) {
+            option.autoComplete = 'off';
+        }
+        if (!option.maxLength) {
+            option.maxLength = 1000;
         }
 
         //create input box
         var inputBox = scene.add.rexInputText(
-            content.x,
-            content.y,
-            content.width,
-            content.height,
+            option.x,
+            option.y,
+            option.width,
+            option.height,
             {
-                id: content.id,
-                type: content.type,
-                text: content.text,
-                placeholder: content.placeholder,
-                fontSize: content.fontSize,
-                color: content.color,
-                spellCheck: content.spellCheck,
-                autoComplete: content.autoComplete,
-                maxLength: content.maxLength,
+                id: option.id,
+                type: option.type,
+                text: option.text,
+                placeholder: option.placeholder,
+                fontSize: option.fontSize,
+                color: option.color,
+                spellCheck: option.spellCheck,
+                autoComplete: option.autoComplete,
+                maxLength: option.maxLength,
             }
         );
 
         //create background
         scene.rexUI.add
             .roundRectangle(
-                content.x - content.backgroundSpace.left / 2,
-                content.y + content.backgroundSpace.bottom / 2,
-                content.width +
-                    (content.backgroundSpace.left +
-                        content.backgroundSpace.right),
-                content.height +
-                    (content.backgroundSpace.top +
-                        content.backgroundSpace.bottom),
-                content.backgroundRadius,
-                content.backgroundColor,
+                option.x - option.background.space.left / 2,
+                option.y + option.background.space.bottom / 2,
+                option.width +
+                    (option.background.space.left +
+                        option.background.space.right),
+                option.height +
+                    (option.background.space.top +
+                        option.background.space.bottom),
+                option.background.radius,
+                option.background.color,
                 1
             )
-            .setDepth(content.depth);
+            .setDepth(option.depth);
+
+        //events
+        if (option.onFocus) {
+            inputBox.on(
+                'focus',
+                function (inputBox, event) {
+                    //callback
+                    option.onFocus(inputBox, event);
+                },
+                scene
+            );
+        }
+        if (option.onKeydown) {
+            inputBox.on(
+                'keydown',
+                function (inputBox, event) {
+                    //callback
+                    option.onKeydown(inputBox, event);
+                },
+                scene
+            );
+        }
 
         return inputBox;
     }
@@ -503,7 +541,7 @@ class UI {
             content.space.item = 5;
         }
 
-        var buttons = [];
+        var buttonsData = [];
         for (let i = 0; i < content.buttons.length; i++) {
             //get action content
             const buttonsContent = content.buttons[i];
@@ -539,7 +577,7 @@ class UI {
             }
 
             //add to buttons
-            buttons.push(
+            buttonsData.push(
                 this.createLabel(scene, {
                     x: buttonsContent.x,
                     y: buttonsContent.y,
@@ -561,65 +599,70 @@ class UI {
             );
         }
 
-        return (
-            scene.rexUI.add
-                .buttons({
-                    x: content.x,
-                    y: content.y,
+        let buttons = scene.rexUI.add
+            .buttons({
+                x: content.x,
+                y: content.y,
 
-                    width: content.width,
-                    height: content.height,
+                width: content.width,
+                height: content.height,
 
-                    orientation: content.orientation,
+                orientation: content.orientation,
 
-                    buttons: buttons,
-                    expand: false,
-                    align: content.align,
-                    click: {
-                        mode: 'pointerup',
-                        clickInterval: 100,
-                    },
+                buttons: buttonsData,
+                expand: false,
+                align: content.align,
+                click: {
+                    mode: 'pointerup',
+                    clickInterval: 100,
+                },
 
-                    space: {
-                        left: content.space.left,
-                        right: content.space.right,
-                        top: content.space.top,
-                        bottom: content.space.bottom,
-                        item: content.space.item,
-                    },
-                })
-                .layout()
+                space: {
+                    left: content.space.left,
+                    right: content.space.right,
+                    top: content.space.top,
+                    bottom: content.space.bottom,
+                    item: content.space.item,
+                },
+            })
+            .layout();
 
-                //animation
-                .on(
-                    'button.over',
-                    function (button, groupName, index, pointer, event) {
-                        button
-                            .getElement('background')
-                            .setFillStyle(content.colorOnHover);
-                    }
-                )
-                .on(
-                    'button.out',
-                    function (button, groupName, index, pointer, event) {
-                        button
-                            .getElement('background')
-                            .setFillStyle(content.color);
-                    }
-                )
+        //animation
+        buttons
+            .on(
+                'button.over',
+                function (button, groupName, index, pointer, event) {
+                    button
+                        .getElement('background')
+                        .setFillStyle(content.colorOnHover);
+                },
+                scene
+            )
+            .on(
+                'button.out',
+                function (button, groupName, index, pointer, event) {
+                    button.getElement('background').setFillStyle(content.color);
+                },
+                scene
+            );
 
-                //click event
-                .on('button.click', function (button, index, pointer, event) {
-                    //sfx
-                    scene.sfxButtonClick.play();
+        //events
+        buttons.on(
+            'button.click',
+            function (button, index, pointer, event) {
+                //sfx
+                scene.sfxButtonClick.play();
 
-                    //callback per button
-                    if (content.buttons[index].onClick)
-                        content.buttons[index].onClick(scene);
-                    //callback for all buttons
-                    if (content.onClick) content.onClick(scene, index);
-                })
+                //callback per button
+                if (content.buttons[index].onClick)
+                    content.buttons[index].onClick(scene);
+                //callback for all buttons
+                if (content.onClick) content.onClick(index);
+            },
+            scene
         );
+
+        return buttons;
     }
 
     //create color picker
@@ -636,8 +679,11 @@ class UI {
             option.width = 400;
         }
         if (!option.height) {
-            option.height = 60;
+            option.height = 30;
         }
+
+        //random value
+        let sliderValue = Math.random();
 
         //create background
         var background = scene.rexUI.add.roundRectangle(
@@ -671,31 +717,45 @@ class UI {
         colorStrip.updateTexture();
 
         //create thumb
-        var thumb = scene.add.rectangle(0, 0, 20, 30);
+        var thumb = scene.add
+            .rectangle(0, 0, 20, 30, 0xffffff)
+            .setStrokeStyle(2, 0xffffff);
 
         //create slider
         var slider = scene.rexUI.add.slider({
             height: 30,
             thumb: thumb,
             input: 'click',
-            valuechangeCallback: function (value) {
-                //determine color from position
-                var x = (colorStrip.width - 1) * value;
-                var color = colorStrip.getPixel(x, 0);
-                thumb.setFillStyle(color.color);
-
-                //send info to scene
-                if (option.onSliderChange)
-                    option.onSliderChange(scene, color.color);
+            value: sliderValue,
+            easeValue: {
+                duration: 100,
             },
         });
 
         //make slider interactive
-        colorStrip
-            .setInteractive()
-            .on('pointerdown', function (pointer, localX, localY) {
+        colorStrip.setInteractive().on(
+            'pointerdown',
+            function (pointer, localX, localY) {
                 slider.setValue(localX / colorStrip.width);
-            });
+            },
+            scene
+        );
+
+        //events
+        slider.on(
+            'valuechange',
+            function (value, oldValue, slider) {
+                //get color
+                let color = convertToColor(value);
+
+                //update thumb
+                updateThumb(value);
+
+                //callback
+                if (option.onSliderChange) option.onSliderChange(color);
+            },
+            scene
+        );
 
         //create sizer for entire color picker
         var colorPicker = scene.rexUI.add
@@ -709,6 +769,25 @@ class UI {
             .add(slider, { expand: true })
             .setPosition(option.x, option.y)
             .layout();
+
+        //convert slider value to color
+        let convertToColor = function (value) {
+            var x = (colorStrip.width - 1) * value;
+            var color = colorStrip.getPixel(x, 0);
+            return color.color;
+        };
+
+        //set thumb color to selected color
+        let updateThumb = function (value) {
+            //convert slider value to color
+            let color = convertToColor(value);
+
+            //set thumb color
+            thumb.setFillStyle(color);
+        };
+
+        //slider init
+        // updateThumb();
 
         return colorPicker;
     }
@@ -945,6 +1024,7 @@ class UI {
                                 internalContent.onClick(value);
                             }
                         },
+                        setButtonStateCallbackScope: scene,
                     });
 
                     //set initial state
@@ -1287,7 +1367,8 @@ class UI {
                     button
                         .getElement('background')
                         .setFillStyle(options.button.colorOnHover);
-                }
+                },
+                scene
             )
             .on(
                 'button.out',
@@ -1295,7 +1376,8 @@ class UI {
                     button
                         .getElement('background')
                         .setFillStyle(options.button.color);
-                }
+                },
+                scene
             );
         scene.tweens.add({
             targets: dialog,
@@ -1510,7 +1592,8 @@ class UI {
                             .getElement('background')
                             .setFillStyle(options.exitButton.colorOnHover);
                     }
-                }
+                },
+                scene
             )
             .on(
                 'button.out',
@@ -1522,7 +1605,8 @@ class UI {
                             .getElement('background')
                             .setFillStyle(options.exitButton.color);
                     }
-                }
+                },
+                scene
             );
 
         //draggable
@@ -1545,6 +1629,7 @@ class UI {
             }
         );
 
+        //exit event
         menu.on(
             'button.click',
             function (button, groupName, index, pointer, event) {
