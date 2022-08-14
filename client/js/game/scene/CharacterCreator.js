@@ -50,29 +50,45 @@ class CharacterCreator extends Phaser.Scene {
         //character
         this.load.image(
             'CC_frog_body',
-            'assets/character/player/5x/Tintable.png'
+            'assets/character/player/body/2.5x/Tintable.png'
         );
         this.load.image(
             'CC_frog_belly',
-            'assets/character/player/5x/Non-Tintable.png'
+            'assets/character/player/body/2.5x/Non-Tintable.png'
         );
         this.load.image(
             'CC_frog_eyes_0',
-            'assets/character/player/5x/eyes/Eyes_0.png'
+            'assets/character/player/eyes/2.5x/Eyes_0.png'
         );
         this.load.image(
             'CC_frog_eyes_1',
-            'assets/character/player/5x/eyes/Eyes_1.png'
+            'assets/character/player/eyes/2.5x/Eyes_1.png'
+        );
+        this.load.image(
+            'CC_frog_eyes_2',
+            'assets/character/player/eyes/2.5x/Eyes_2.png'
+        );
+        this.load.image(
+            'CC_frog_eyes_3',
+            'assets/character/player/eyes/2.5x/Eyes_3.png'
         );
 
         //UI
         this.load.image(
             'UI_frog_eyes_0',
-            'assets/character/player/2x/UI/eyes/Eyes_0.png'
+            'assets/character/player/eyes/UI/Eyes_0.png'
         );
         this.load.image(
             'UI_frog_eyes_1',
-            'assets/character/player/2x/UI/eyes/Eyes_1.png'
+            'assets/character/player/eyes/UI/Eyes_1.png'
+        );
+        this.load.image(
+            'UI_frog_eyes_2',
+            'assets/character/player/eyes/UI/Eyes_2.png'
+        );
+        this.load.image(
+            'UI_frog_eyes_3',
+            'assets/character/player/eyes/UI/Eyes_3.png'
         );
 
         //sfx
@@ -90,9 +106,6 @@ class CharacterCreator extends Phaser.Scene {
 
         //get player data
         client.requestClientPlayerData();
-
-        //set up character creator menu
-        this.createCharacterCreatorMenu();
     }
 
     end() {
@@ -118,6 +131,10 @@ class CharacterCreator extends Phaser.Scene {
     // UI
     //create menu
     createCharacterCreatorMenu() {
+        //defaults
+        let labelIndent = 565;
+        let interactableIndent = 575;
+
         //set background color
         this.cameras.main.setBackgroundColor(ColorScheme.DarkBlue);
 
@@ -128,7 +145,7 @@ class CharacterCreator extends Phaser.Scene {
 
         //eye type label
         this.rexUI.add
-            .sizer({ x: 630, y: 140, width: 0, height: 0 })
+            .sizer({ x: labelIndent, y: 140, width: 0, height: 0 })
             .add(
                 ui.createLabel(this, {
                     text: 'Eyes',
@@ -138,30 +155,70 @@ class CharacterCreator extends Phaser.Scene {
                     space: { left: 10, right: 10, top: 0, bottom: 0 },
                 })
             )
-            .layout()
             .setDepth(this.depthCharacterUI)
-            .setOrigin(0, 0.5);
+            .setOrigin(0, 0.5)
+            .layout();
 
         //eye types
-        ui.createButtons(this, {
-            x: 650,
-            y: 230,
-            buttons: [
-                { icon: 'UI_frog_eyes_0', backgroundRadius: 8 },
-                { icon: 'UI_frog_eyes_1', backgroundRadius: 8 },
-            ],
-            onClick: (index) => {
-                //set eye type
-                this.characterData.eye_type = index;
+        let eye_buttons = ui
+            .createButtons(this, {
+                x: interactableIndent,
+                y: 230,
+                buttons: [
+                    {
+                        icon: 'UI_frog_eyes_0',
+                        backgroundRadius: 8,
+                    },
+                    {
+                        icon: 'UI_frog_eyes_1',
+                        backgroundRadius: 8,
+                    },
+                    {
+                        icon: 'UI_frog_eyes_2',
+                        backgroundRadius: 8,
+                    },
+                    {
+                        icon: 'UI_frog_eyes_3',
+                        backgroundRadius: 8,
+                    },
+                ],
+                onClick: (index) => {
+                    //highlight selected button on click
+                    eye_buttons.forEachButtton((button, thisIndex) => {
+                        if (thisIndex == index) {
+                            button
+                                .getElement('background')
+                                .setStrokeStyle(3, ColorScheme.White);
+                        } else {
+                            button.getElement('background').setStrokeStyle(0);
+                        }
+                    }, this);
 
-                //update character display
-                this.updateCharacter();
-            },
-        }).setDepth(this.depthCharacterUI);
+                    //set eye type
+                    this.characterData.eye_type = index;
+
+                    //update character display
+                    this.updateCharacter();
+                },
+            })
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5)
+            .layout();
+
+        //highlight initial button
+        eye_buttons.forEachButtton((button, thisIndex) => {
+            if (thisIndex == this.characterData.eye_type) {
+                button
+                    .getElement('background')
+                    .setStrokeStyle(3, ColorScheme.White);
+            } else {
+                button.getElement('background').setStrokeStyle(0);
+            }
+        }, this);
 
         //color label
         this.rexUI.add
-            .sizer({ x: 630, y: 400, width: 0, height: 0 })
+            .sizer({ x: labelIndent, y: 400, width: 0, height: 0 })
             .add(
                 ui.createLabel(this, {
                     text: 'Color',
@@ -171,14 +228,14 @@ class CharacterCreator extends Phaser.Scene {
                     space: { left: 10, right: 10, top: 0, bottom: 0 },
                 })
             )
-            .layout()
             .setDepth(this.depthCharacterUI)
-            .setOrigin(0, 0.5);
+            .setOrigin(0, 0.5)
+            .layout();
 
         //color wheel
         ui.createColorPicker(this, {
-            x: 770,
-            y: 540,
+            x: interactableIndent,
+            y: 485,
             width: 400,
             height: 30,
             sliderID: 'color',
@@ -189,24 +246,27 @@ class CharacterCreator extends Phaser.Scene {
                 //update character display
                 this.updateCharacter();
             },
-        }).setDepth(this.depthCharacterUI);
+        })
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5)
+            .layout();
 
         //save & play button
         ui.createButtons(this, {
-            x: 800,
-            y: 700,
+            x: 1275,
+            y: 790,
             fontSize: 50,
             buttons: [
                 {
                     text: 'Save & Play',
                     backgroundRadius: 16,
-                    onClick: (scene) => {
+                    onClick: () => {
                         //parse player data
                         const data = {
-                            name: scene.characterData.name,
+                            name: this.characterData.name,
                             character: {
-                                color: scene.characterData.color,
-                                eye_type: scene.characterData.eye_type,
+                                color: this.characterData.color,
+                                eye_type: this.characterData.eye_type,
                             },
                         };
 
@@ -214,11 +274,14 @@ class CharacterCreator extends Phaser.Scene {
                         client.updateClientPlayerData(data);
 
                         //set character as created
-                        scene.characterCreated = false;
+                        this.characterCreated = false;
                     },
                 },
             ],
-        }).setDepth(this.depthCharacterUI);
+        })
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(1, 1)
+            .layout();
 
         //when the server updates the players character data, quit this scene and return to previous scene
         this.events.on('updatedClientPlayerData', this.quit, this);
@@ -239,6 +302,9 @@ class CharacterCreator extends Phaser.Scene {
 
         //set character name
         this.characterData.name = data.name;
+
+        //set up character creator menu
+        this.createCharacterCreatorMenu();
 
         //create character
         this.createCharacter(this.characterData);

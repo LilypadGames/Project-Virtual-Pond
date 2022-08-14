@@ -105,10 +105,15 @@ class Game extends Phaser.Scene {
         this.load.audio('button_click', 'audio/sfx/UI/button_click.mp3');
 
         //character
-        this.load.image('frog_body', 'character/player/Tintable.png');
-        this.load.image('frog_belly', 'character/player/Non-Tintable.png');
-        this.load.image('frog_eyes_0', 'character/player/eyes/Eyes_0.png');
-        this.load.image('frog_eyes_1', 'character/player/eyes/Eyes_1.png');
+        this.load.image('frog_body', 'character/player/body/0.5x/Tintable.png');
+        this.load.image(
+            'frog_belly',
+            'character/player/body/0.5x/Non-Tintable.png'
+        );
+        this.load.image('frog_eyes_0', 'character/player/eyes/0.5x/Eyes_0.png');
+        this.load.image('frog_eyes_1', 'character/player/eyes/0.5x/Eyes_1.png');
+        this.load.image('frog_eyes_2', 'character/player/eyes/0.5x/Eyes_2.png');
+        this.load.image('frog_eyes_3', 'character/player/eyes/0.5x/Eyes_3.png');
 
         //debug
         this.load.image('target', 'debug/target.png');

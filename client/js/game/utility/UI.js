@@ -655,9 +655,14 @@ class UI {
 
                 //callback per button
                 if (content.buttons[index].onClick)
-                    content.buttons[index].onClick(scene);
+                    content.buttons[index].onClick(
+                        index,
+                        button,
+                        pointer,
+                        event
+                    );
                 //callback for all buttons
-                if (content.onClick) content.onClick(index);
+                if (content.onClick) content.onClick(index, button);
             },
             scene
         );
@@ -718,8 +723,8 @@ class UI {
 
         //create thumb
         var thumb = scene.add
-            .rectangle(0, 0, 20, 30, 0xffffff)
-            .setStrokeStyle(2, 0xffffff);
+            .rectangle(0, 0, 20, 30, ColorScheme.White)
+            .setStrokeStyle(2, ColorScheme.White);
 
         //create slider
         var slider = scene.rexUI.add.slider({
