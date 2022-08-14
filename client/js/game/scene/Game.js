@@ -692,7 +692,7 @@ class Game extends Phaser.Scene {
                         .replace(/\s+/g, ' ');
 
                     //send the message to the server
-                    if (chatMessage !== '' || chatMessage !== null) {
+                    if (chatMessage !== '' && chatMessage !== null) {
                         client.sendMessage(chatMessage);
                     }
 
@@ -1075,16 +1075,15 @@ class Game extends Phaser.Scene {
                         // },
                         onKeydown: (inputBox, event) => {
                             if (event.key == 'Enter') {
-                                //format submission
+                                //format media submission
                                 const mediaSubmission = inputBox.text
-                                    .trim()
-                                    .replace(/\s+/g, ' ');
+                                .substr(0, this.messageLength)
+                                .trim()
+                                .replace(/\s+/g, ' ');
 
-                                console.log(inputBox.text);
-
-                                // //send the submission to the server
-                                // if (mediaSubmission !== '' || mediaSubmission !== null) {
-                                //     client.sendMediaSubmission(mediaSubmission);
+                                // //send the message to the server
+                                // if (mediaSubmission !== '' && mediaSubmission !== null) {
+                                //     client.sendMessage(mediaSubmission);
                                 // }
 
                                 // //leave chat bar

@@ -89,6 +89,50 @@ class Room {
 
     //triggers when player sends a message
     playerSendingMessage(message) {
+        //sanitize message
+        message =
+            typeof message === 'string' && message.trim().length > 0
+                ? message.trim()
+                : '';
+
+        //kick if larger than allowed max length
+        if (message.length > 80) {
+            //kick
+            moderation.kickClient(
+                this.io,
+                this.socket.player,
+                'Abusing chat message maximum length.'
+            );
+
+            //add strike to user profile in database
+
+            //do not do the rest
+            return;
+        }
+
+        //make sure message contains text
+        if (message === '' || null) {
+            return;
+        }
+
+        //check if message contains blacklisted words
+        if (chatFilter.check(message.toLowerCase())) {
+            //log in moderation file
+            logs.logMessage('moderation', logMessage);
+
+            // //kick
+            // moderation.kickClient(
+            //     this.io,
+            //     this.socket.player,
+            //     'Please no swear :)'
+            // );
+
+            // return;
+
+            //filter message
+            message = chatFilter.clean(message);
+        }
+
         //log
         console.log(
             utility.timestampString(
@@ -112,45 +156,6 @@ class Room {
         );
         logs.logMessage('chat', logMessage);
 
-        //kick if larger than allowed max length
-        if (message.length > 80) {
-            //kick
-            moderation.kickClient(
-                this.io,
-                this.socket.player,
-                'Abusing chat message maximum length.'
-            );
-
-            //add flag to user profile in database
-
-            //do not do the rest
-            return;
-        }
-
-        //sanitize message
-        message =
-            typeof message === 'string' && message.trim().length > 0
-                ? message.trim()
-                : '';
-
-        //check if message contains blacklisted words
-        if (chatFilter.check(message.toLowerCase())) {
-            //log in moderation file
-            logs.logMessage('moderation', logMessage);
-
-            // //kick
-            // moderation.kickClient(
-            //     this.io,
-            //     this.socket.player,
-            //     'Please no swear :)'
-            // );
-
-            // return;
-
-            //filter message
-            message = chatFilter.clean(message);
-        }
-
         //create message data
         let messageData = {
             id: Date.now(),
@@ -162,23 +167,19 @@ class Room {
         this.socket.player.message = messageData;
 
         //add message to room's chat log object array
-        if (message !== '' || null) {
-            chatLogs.logMessage(
-                this.socket.roomID,
-                this.socket.player.id,
-                this.socket.player.name,
-                Date.now(),
-                message
-            );
-        }
+        chatLogs.logMessage(
+            this.socket.roomID,
+            this.socket.player.id,
+            this.socket.player.name,
+            Date.now(),
+            message
+        );
 
         //send the player message to ALL clients in this room
-        if (message !== '' || null) {
-            this.io.in(this.socket.roomID).emit('showPlayerMessage', {
-                id: this.socket.player.id,
-                messageData: messageData,
-            });
-        }
+        this.io.in(this.socket.roomID).emit('showPlayerMessage', {
+            id: this.socket.player.id,
+            messageData: messageData,
+        });
 
         //queue message for removal
         setTimeout(() => {
