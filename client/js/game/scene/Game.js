@@ -677,6 +677,7 @@ class Game extends Phaser.Scene {
                 color: ColorScheme.White,
                 radius: 15,
             },
+            color: utility.hexIntegerToString(ColorScheme.Black),
             maxLength: this.messageLength,
             depth: this.depthUI,
             onFocus: (inputBox) => {
@@ -1057,6 +1058,46 @@ class Game extends Phaser.Scene {
                         fontSize: 24,
                     },
                     {
+                        type: 'inputBox',
+                        id: 'media-share-box',
+                        width: 400,
+                        height: 30,
+                        placeholder: '...',
+                        background: {
+                            color: ColorScheme.White,
+                            radius: 15,
+                        },
+                        color: '#000000',
+                        maxLength: this.messageLength,
+                        depth: this.depthUI,
+                        // onFocus: (inputBox) => {
+                        //     if (this.menuOpen) inputBox.setBlur();
+                        // },
+                        onKeydown: (inputBox, event) => {
+                            if (event.key == 'Enter') {
+                                //format submission
+                                const mediaSubmission = inputBox.text
+                                    .trim()
+                                    .replace(/\s+/g, ' ');
+
+                                console.log(inputBox.text);
+
+                                // //send the submission to the server
+                                // if (mediaSubmission !== '' || mediaSubmission !== null) {
+                                //     client.sendMediaSubmission(mediaSubmission);
+                                // }
+
+                                // //leave chat bar
+                                // else {
+                                //     inputBox.setBlur();
+                                // }
+
+                                //clear chat box
+                                inputBox.setText('');
+                            }
+                        },
+                    },
+                    {
                         type: 'buttons',
                         align: 'center',
                         fontSize: 20,
@@ -1413,6 +1454,11 @@ class Game extends Phaser.Scene {
         //get player's character
         var player = this.playerCharacter[id];
 
+        //cancel if player not found
+        if (!player) {
+            return;
+        }
+
         //move player (and store it for alteration later)
         let playerMovement = utility.getObject(this.playerData, id).movement;
         try {
@@ -1455,6 +1501,11 @@ class Game extends Phaser.Scene {
     changePlayerMovement(id, newX, newY) {
         //get player's character
         var player = this.playerCharacter[id];
+
+        //cancel if player not found
+        if (!player) {
+            return;
+        }
 
         //get duration of movement
         var newDuration =
@@ -1548,6 +1599,11 @@ class Game extends Phaser.Scene {
     updatePlayerDirection(id, newX, newY) {
         //get player container
         var player = this.playerCharacter[id];
+
+        //cancel if player not found
+        if (!player) {
+            return;
+        }
 
         //get player sprite container
         var playerSprites = player.list[0];

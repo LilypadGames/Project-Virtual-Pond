@@ -363,7 +363,7 @@ class UI {
     }
 
     //create input box
-    createInputBox(scene, option) {
+    createInputBox(scene, option, useSizer = false) {
         //defaults
         if (!option.x) {
             option.x = 0;
@@ -435,40 +435,21 @@ class UI {
         }
 
         //create input box
-        var inputBox = scene.add.rexInputText(
-            option.x,
-            option.y,
-            option.width,
-            option.height,
-            {
-                id: option.id,
-                type: option.type,
-                text: option.text,
-                placeholder: option.placeholder,
-                fontSize: option.fontSize,
-                color: option.color,
-                spellCheck: option.spellCheck,
-                autoComplete: option.autoComplete,
-                maxLength: option.maxLength,
-            }
-        );
-
-        //create background
-        scene.rexUI.add
-            .roundRectangle(
-                option.x - option.background.space.left / 2,
-                option.y + option.background.space.bottom / 2,
-                option.width +
-                    (option.background.space.left +
-                        option.background.space.right),
-                option.height +
-                    (option.background.space.top +
-                        option.background.space.bottom),
-                option.background.radius,
-                option.background.color,
-                1
-            )
-            .setDepth(option.depth);
+        let inputBox = scene.add.rexInputText({
+            x: option.x,
+            y: option.y,
+            width: option.width,
+            height: option.height,
+            id: option.id,
+            type: option.type,
+            text: option.text,
+            placeholder: option.placeholder,
+            fontSize: option.fontSize,
+            color: option.color,
+            spellCheck: option.spellCheck,
+            autoComplete: option.autoComplete,
+            maxLength: option.maxLength,
+        });
 
         //events
         if (option.onFocus) {
@@ -492,7 +473,50 @@ class UI {
             );
         }
 
-        return inputBox;
+        //determine background method
+        if (useSizer) {
+            //create parent and background object
+            var sizer = scene.rexUI.add
+                .sizer({
+                    orientation: 0,
+                })
+                .addBackground(
+                    scene.rexUI.add.roundRectangle(
+                        option.x - option.background.space.left / 2,
+                        option.y + option.background.space.bottom / 2,
+                        option.width +
+                            (option.background.space.left +
+                                option.background.space.right),
+                        option.height +
+                            (option.background.space.top +
+                                option.background.space.bottom),
+                        option.background.radius,
+                        option.background.color,
+                        1
+                    )
+                );
+            //add input box to parent
+            sizer.add(inputBox);
+            return sizer;
+        } else {
+            //create background
+            scene.rexUI.add
+                .roundRectangle(
+                    option.x - option.background.space.left / 2,
+                    option.y + option.background.space.bottom / 2,
+                    option.width +
+                        (option.background.space.left +
+                            option.background.space.right),
+                    option.height +
+                        (option.background.space.top +
+                            option.background.space.bottom),
+                    option.background.radius,
+                    option.background.color,
+                    1
+                )
+                .setDepth(option.depth);
+            return inputBox;
+        }
     }
 
     //create button
@@ -961,6 +985,12 @@ class UI {
                     //add buttons
                 } else if (internalContent.type == 'buttons') {
                     sizer.add(this.createButtons(scene, internalContent));
+
+                    //add input box
+                } else if (internalContent.type == 'inputBox') {
+                    sizer.add(
+                        this.createInputBox(scene, internalContent, true)
+                    );
 
                     //add checkbox
                 } else if (internalContent.type == 'checkbox') {
