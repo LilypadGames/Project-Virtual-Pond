@@ -186,9 +186,11 @@ class PlayerData {
         };
 
         //send last room if available
-        if (this.socket.player.stat.lastRoom !== undefined) {
-            if (playerData.stat === undefined) playerData.stat = {};
-            playerData.stat.lastRoom = this.socket.player.stat.lastRoom;
+        if (this.socket.player.stat !== undefined) {
+            if (this.socket.player.stat.lastRoom !== undefined) {
+                if (playerData.stat === undefined) playerData.stat = {};
+                playerData.stat.lastRoom = this.socket.player.stat.lastRoom;
+            }
         }
 
         //send this client's player data to ONLY THIS client

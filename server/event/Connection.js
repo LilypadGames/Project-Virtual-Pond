@@ -5,6 +5,7 @@ const path = require('path');
 const jsonPath = require('jsonpath');
 
 //get config values
+const config = require(path.join(__dirname, '../config/config.json'));
 const roomConfig = require(path.join(__dirname, '../config/room.json'));
 
 //imports
@@ -44,38 +45,59 @@ class Connection {
     }
 
     async init() {
-        //user info not found
-        if (!this.socket.request.user) {
-            //kick instance
-            this.socket.disconnect();
+        //auth enabled
+        if (!config.server.bypassAuth) {
+            //user info not found
+            if (!this.socket.request.user) {
+                //kick instance
+                this.socket.disconnect();
 
-            return;
+                return;
+            }
+
+            //id not found
+            if (!this.socket.request.user.data[0].id) {
+                //kick instance
+                this.socket.disconnect();
+
+                return;
+            }
+
+            //id exists
+            else {
+                //send global data
+                this.socket.emit('payloadGlobalData', globalData.get());
+
+                //kick other connection instances of this player
+                await moderation.kickClientsWithID(
+                    this.io,
+                    this.socket.request.user.data[0].id
+                );
+
+                //set up player data
+                this.socket.player = await this.playerData.getPlayerData();
+
+                //register events
+                this.register();
+            }
         }
 
-        //id not found
-        if (!this.socket.request.user.data[0].id) {
-            //kick instance
-            this.socket.disconnect();
-
-            return;
-        }
-
-        //id exists
+        //auth disabled
         else {
             //send global data
             this.socket.emit('payloadGlobalData', globalData.get());
 
-            //kick other connection instances of this player
-            await moderation.kickClientsWithID(
-                this.io,
-                this.socket.request.user.data[0].id
-            );
-
             //set up player data
-            this.socket.player = await this.playerData.getPlayerData();
+            this.socket.player = {
+                id: this.io.guestID,
+                name: 'Guest',
+            };
 
             //register events
             this.register();
+
+            //increment ID
+            this.io.guestID = this.io.guestID + 1;
         }
     }
 
@@ -195,8 +217,11 @@ class Connection {
             )
         );
 
-        //store player data in database
-        this.playerData.storePlayerData();
+        //auth enabled
+        if (!config.server.bypassAuth) {
+            //store player data in database
+            this.playerData.storePlayerData();
+        }
 
         //add player to room
         this.joinSocketRoom(room);
@@ -284,24 +309,27 @@ class Connection {
             )
         );
 
-        //calculate player's play time
-        let totalPlayTimeInSeconds = this.socket.player.stat.playTime
-            ? this.socket.player.stat.playTime
-            : 0;
-        let sessionPlayTimeInSeconds = Math.floor(
-            (Date.now() - this.socket.player.stat.loginTime) / 1000
-        );
-        this.socket.player.stat.playTime =
-            totalPlayTimeInSeconds + sessionPlayTimeInSeconds;
+        //auth enabled
+        if (!config.server.bypassAuth) {
+            //calculate player's play time
+            let totalPlayTimeInSeconds = this.socket.player.stat.playTime
+                ? this.socket.player.stat.playTime
+                : 0;
+            let sessionPlayTimeInSeconds = Math.floor(
+                (Date.now() - this.socket.player.stat.loginTime) / 1000
+            );
+            this.socket.player.stat.playTime =
+                totalPlayTimeInSeconds + sessionPlayTimeInSeconds;
 
-        //store last login date
-        this.socket.player.stat.lastLogin = Date.now();
+            //store last login date
+            this.socket.player.stat.lastLogin = Date.now();
 
-        //store players last room
-        this.socket.player.stat.lastRoom = this.socket.roomID;
+            //store players last room
+            this.socket.player.stat.lastRoom = this.socket.roomID;
 
-        //store player data in database
-        this.playerData.storePlayerData();
+            //store player data in database
+            this.playerData.storePlayerData();
+        }
 
         //send the removal of the player for ALL clients in this room
         this.io

@@ -152,7 +152,10 @@ app.get(
 //detect authentication and serve game page
 app.get('/', function (req, res) {
     //successfully authenticated
-    if (req.session && req.session.passport && req.session.passport.user) {
+    if (
+        (req.session && req.session.passport && req.session.passport.user) ||
+        config.server.bypassAuth
+    ) {
         res.sendFile('index.html', { root: 'client/html' });
     }
 
@@ -231,6 +234,11 @@ twitch.init('pokelawls', app, globalData);
 //init donations
 // streamElements.init();
 streamElements.updateDonations();
+
+//bypass auth
+if (config.server.bypassAuth) {
+    io.guestID = 0;
+}
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));
