@@ -140,7 +140,7 @@ class CharacterCreator extends Phaser.Scene {
                     text: 'Eyes',
                     fontSize: 45,
                     align: 'center',
-                    backgroundColor: ColorScheme.Blue,
+                    background: { color: ColorScheme.Blue },
                     space: { left: 10, right: 10, top: 0, bottom: 0 },
                 })
             )
@@ -156,19 +156,19 @@ class CharacterCreator extends Phaser.Scene {
                 buttons: [
                     {
                         icon: 'UI_frog_eyes_0',
-                        backgroundRadius: 8,
+                        background: { radius: 8 },
                     },
                     {
                         icon: 'UI_frog_eyes_1',
-                        backgroundRadius: 8,
+                        background: { radius: 8 },
                     },
                     {
                         icon: 'UI_frog_eyes_2',
-                        backgroundRadius: 8,
+                        background: { radius: 8 },
                     },
                     {
                         icon: 'UI_frog_eyes_3',
-                        backgroundRadius: 8,
+                        background: { radius: 8 },
                     },
                 ],
                 onClick: (index) => {
@@ -213,7 +213,7 @@ class CharacterCreator extends Phaser.Scene {
                     text: 'Color',
                     fontSize: 45,
                     align: 'center',
-                    backgroundColor: ColorScheme.Blue,
+                    background: { color: ColorScheme.Blue },
                     space: { left: 10, right: 10, top: 0, bottom: 0 },
                 })
             )
@@ -248,7 +248,7 @@ class CharacterCreator extends Phaser.Scene {
             buttons: [
                 {
                     text: 'Save & Play',
-                    backgroundRadius: 16,
+                    background: { radius: 8 },
                     onClick: () => {
                         //parse player data
                         const data = {

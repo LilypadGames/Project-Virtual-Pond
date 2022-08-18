@@ -703,7 +703,7 @@ class Game extends Phaser.Scene {
             buttons: [
                 {
                     text: 'Chat Log',
-                    backgroundRadius: 8,
+                    background: { radius: 8 },
                     width: 230,
                     onClick: () => {
                         //chat log not showing
@@ -731,7 +731,7 @@ class Game extends Phaser.Scene {
                 //news
                 {
                     text: '📰',
-                    backgroundRadius: 8,
+                    background: { radius: 8 },
                     onClick: () => {
                         //check if menu is open
                         if (!this.menuOpen) {
@@ -743,7 +743,7 @@ class Game extends Phaser.Scene {
                 //character creator
                 {
                     text: '🎨',
-                    backgroundRadius: 8,
+                    background: { radius: 8 },
                     onClick: () => {
                         //start character creator scene
                         this.end();
@@ -753,7 +753,7 @@ class Game extends Phaser.Scene {
                 //options menu
                 {
                     text: '⚙️',
-                    backgroundRadius: 8,
+                    background: { radius: 8 },
                     onClick: () => {
                         //check if menu is open
                         if (!this.menuOpen) {
@@ -784,7 +784,7 @@ class Game extends Phaser.Scene {
                     //media share queue
                     {
                         text: '🎞️',
-                        backgroundRadius: 8,
+                        background: { radius: 8 },
                         onClick: () => {
                             //check if menu is open
                             if (!this.menuOpen) {

@@ -73,7 +73,7 @@ window.onload = function () {
             parent: 'game-container',
             fullscreenTarget: 'game-container',
             mode: Phaser.Scale.FIT,
-            autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
             resolution: window.devicePixelRatio,
             max: {
                 width: gameWidth,

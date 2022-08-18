@@ -73,14 +73,17 @@ class UI {
             content.height = 40;
         }
 
-        if (!content.backgroundRadius) {
-            content.backgroundRadius = 20;
+        if (!content.background) {
+            content.background = {};
         }
-        if (!content.backgroundColor) {
-            content.backgroundColor = ColorScheme.Blue;
+        if (!content.background.radius) {
+            content.background.radius = 20;
         }
-        if (!content.backgroundTransparency) {
-            content.backgroundTransparency = 1;
+        if (!content.background.color) {
+            content.background.color = ColorScheme.Blue;
+        }
+        if (!content.background.alpha) {
+            content.background.alpha = 1;
         }
 
         if (!content.fontSize) {
@@ -125,9 +128,9 @@ class UI {
                     0,
                     content.width,
                     content.height,
-                    content.backgroundRadius,
-                    content.backgroundColor,
-                    content.backgroundTransparency
+                    content.background.radius,
+                    content.background.color,
+                    content.background.alpha
                 ),
 
                 icon: scene.add.sprite(
@@ -165,9 +168,9 @@ class UI {
                     0,
                     content.width,
                     content.height,
-                    content.backgroundRadius,
-                    content.backgroundColor,
-                    content.backgroundTransparency
+                    content.background.radius,
+                    content.background.color,
+                    content.background.alpha
                 ),
 
                 text: scene.add.text(0, 0, content.text, {
@@ -690,6 +693,19 @@ class UI {
                 buttonsContent.height = 20;
             }
 
+            if (!buttonsContent.background) {
+                buttonsContent.background = {};
+            }
+            if (!buttonsContent.background.radius) {
+                buttonsContent.background.radius = 20;
+            }
+            if (!buttonsContent.background.color) {
+                buttonsContent.background.color = ColorScheme.Blue;
+            }
+            if (!buttonsContent.background.alpha) {
+                buttonsContent.background.alpha = 1;
+            }
+
             if (!buttonsContent.space) {
                 buttonsContent.space = {};
             }
@@ -718,10 +734,13 @@ class UI {
                     text: buttonsContent.text,
                     fontSize: content.fontSize,
                     align: buttonsContent.align,
-                    backgroundColor: content.color,
+                    background: {
+                        radius: buttonsContent.background.radius,
+                        color: buttonsContent.background.color,
+                        alpha: buttonsContent.background.alpha,
+                    },
                     width: buttonsContent.width,
                     height: buttonsContent.height,
-                    backgroundRadius: buttonsContent.backgroundRadius,
                     space: {
                         left: content.space.left,
                         right: content.space.right,
@@ -1435,7 +1454,7 @@ class UI {
             text: content.title,
             fontSize: options.title.fontSize,
             align: options.title.align,
-            backgroundColor: options.background.color,
+            background: { color: options.background.color },
         });
 
         const description = this.createText(scene, {
@@ -1449,7 +1468,7 @@ class UI {
                 text: content.button,
                 fontSize: options.button.fontSize,
                 align: options.button.align,
-                backgroundColor: options.button.color,
+                background: { color: options.background.color },
                 space: {
                     left: options.button.space.left,
                     right: options.button.space.right,
@@ -1666,7 +1685,7 @@ class UI {
                     text: 'X',
                     width: 40,
                     height: 0,
-                    backgroundRadius: 8,
+                    background: { radius: 8 },
                 },
             ],
             space: {

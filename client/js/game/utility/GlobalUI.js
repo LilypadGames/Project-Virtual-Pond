@@ -36,18 +36,56 @@ class GlobalUI {
             ].volume
         );
 
-        //if on mobile
-        if (!scene.sys.game.device.os.desktop) {
+        //desktop
+        if (scene.sys.game.device.os.desktop) {
+            //fullscreen button
+            ui.createButtons(scene, {
+                x: 30,
+                y: 30,
+                fontSize: 22,
+                space: {
+                    item: 15,
+                },
+                buttons: [
+                    //fullscreen
+                    {
+                        text: '⛶',
+                        background: { radius: 8 },
+                        width: 50,
+                        onClick: () => {
+                            if (scene.scale.isFullscreen) {
+                                scene.scale.stopFullscreen();
+                            } else {
+                                scene.scale.startFullscreen();
+                            }
+                        },
+                    },
+                ],
+            })
+                .setDepth(scene.depthUI)
+                .setOrigin(0.5, 0);
+        }
+        //mobile
+        else {
             //detect when window orientation is changed
             let orientationChanged = () => {
                 //horizontal
                 if (window.innerWidth > window.innerHeight) {
+                    //remove rotate icon
                     if (scene.cover) scene.cover.destroy();
                     if (scene.rotateIcon) scene.rotateIcon.destroy();
+
+                    //hide header/footer
+                    $('header, footer').addClass('hide');
                 }
+
                 //vertical
                 else {
+                    //show rotate icon
                     this.showRotateDialog(scene);
+
+                    //show header/footer
+                    $('header, footer').removeClass('hide');
                 }
             };
             window.onresize = orientationChanged;
