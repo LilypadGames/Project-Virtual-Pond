@@ -362,13 +362,8 @@ class Game extends Phaser.Scene {
                 layer.setInteractive().on(
                     'pointerdown',
                     (pointer) => {
-                        if (this.navigationCheck()) {
-                            this.onMoveAttempt(
-                                // this.input.mousePointer.worldX,
-                                // this.input.mousePointer.worldY
-                                pointer.x,
-                                pointer.y
-                            );
+                        if (this.navigationCheck(pointer.x, pointer.y)) {
+                            this.onMoveAttempt(pointer.x, pointer.y);
                         }
                     },
                     this
@@ -1272,18 +1267,12 @@ class Game extends Phaser.Scene {
     }
 
     //check if click location is allowed by navigational map (returns true if click location is allowed by navigation map and false otherwise)
-    navigationCheck(layer) {
+    navigationCheck(x, y, layer) {
         //if clicking is not disabled
         if (!this.disableInput) {
             //if layer is specified, ignore everything else and only check for this layers navigational map
             if (layer) {
-                if (
-                    this.textures.getPixelAlpha(
-                        this.input.mousePointer.worldX,
-                        this.input.mousePointer.worldY,
-                        layer
-                    ) == 255
-                ) {
+                if (this.textures.getPixelAlpha(x, y, layer) == 255) {
                     return true;
                 }
             }
@@ -1293,8 +1282,8 @@ class Game extends Phaser.Scene {
                 for (let i = 0; i < this.unWalkableLayer.length; i++) {
                     if (
                         this.textures.getPixelAlpha(
-                            this.input.mousePointer.worldX,
-                            this.input.mousePointer.worldY,
+                            x,
+                            y,
                             this.unWalkableLayer[i]
                         ) == 255
                     ) {
@@ -1306,11 +1295,7 @@ class Game extends Phaser.Scene {
             //if layer wasn't specified and click wasnt on an unwalkable layer, then check the walkable layer
             if (
                 layer !== this.walkableLayer &&
-                this.textures.getPixelAlpha(
-                    this.input.mousePointer.worldX,
-                    this.input.mousePointer.worldY,
-                    this.walkableLayer
-                ) == 255
+                this.textures.getPixelAlpha(x, y, this.walkableLayer) == 255
             ) {
                 return true;
             }
@@ -1704,7 +1689,7 @@ class Game extends Phaser.Scene {
         this.npcCharacter[id].list[0].setInteractive().on(
             'pointerup',
             (pointer) => {
-                if (this.navigationCheck()) {
+                if (this.navigationCheck(pointer.x, pointer.y)) {
                     //set player as interacting with this NPC
                     utility.getObject(this.playerData, clientID).interactNPC =
                         id;
