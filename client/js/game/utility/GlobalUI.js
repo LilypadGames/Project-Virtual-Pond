@@ -77,6 +77,11 @@ class GlobalUI {
 
                     //hide header/footer
                     $('header, footer').addClass('hide');
+
+                    //re-instate DOM elements if scene is game
+                    if (scene.scene.key == 'Game') {
+                        scene.addRoomDOMElements();
+                    }
                 }
 
                 //vertical
@@ -86,6 +91,11 @@ class GlobalUI {
 
                     //show header/footer
                     $('header, footer').removeClass('hide');
+
+                    //remove DOM elements if scene is game
+                    if (scene.scene.key == 'Game') {
+                        scene.removeRoomDOMElements();
+                    }
                 }
             };
             window.onresize = orientationChanged;
