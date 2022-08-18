@@ -48,7 +48,7 @@ class GlobalUI {
             scene.menuOpened();
     }
 
-    showToast(scene, message) {
+    showToast(scene, message, option) {
         //get scene name
         let sceneName = scene.scene.key;
 
@@ -65,22 +65,29 @@ class GlobalUI {
             }
         }
 
+        //create options
+        let options = {};
+        if (option !== undefined) options = option;
+        if (options.y === undefined) options.y = 40;
+        if (options.background === undefined) options.background = {};
+        if (options.background.color === undefined)
+            options.background.color = ColorScheme.Red;
+        if (options.text === undefined) options.text = message;
+        if (options.duration.hold === undefined)
+            options.duration.hold = duration;
+
         //init toast variable
         if (!this.toast) {
             this.toast = {};
         }
 
         //init toast for this scene
-        if (!this.toast[sceneName]) {
-            this.toast[sceneName] = ui.createToast(scene, {
-                y: 40,
-                background: { color: ColorScheme.Red },
-                duration: { hold: duration },
-                text: message,
-            });
+        if (!this.toast[sceneName] || option !== undefined) {
+            this.toast[sceneName] = ui.createToast(scene, options);
+        }
 
-            //show new message
-        } else {
+        //show new message
+        else {
             //update toast
             this.toast[sceneName].setDisplayTime(duration).showMessage(message);
         }

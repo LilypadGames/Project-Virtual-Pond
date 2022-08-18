@@ -1889,8 +1889,6 @@ class Game extends Phaser.Scene {
                 this
             );
         }
-
-        globalUI.showToast(this, messageData.text);
     }
 
     //remove player message
