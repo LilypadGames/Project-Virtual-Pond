@@ -132,14 +132,6 @@ class Game extends Phaser.Scene {
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
-        //detect when window orientation is changed
-        let orientationChanged = function () {
-            globalUI.showToast(this, 'Orientation Changed', {
-                duration: { hold: 500 },
-            });
-        };
-        this.scale.on('orientationchange', orientationChanged, this);
-
         //register keyboard inputs
         this.input.keyboard.on(
             'keydown-' + 'ENTER',

@@ -17,6 +17,12 @@ class GlobalUI {
             'assets/audio/sfx/UI/button_click.mp3'
         );
 
+        //UI
+        scene.load.image(
+            'rotate_device_to_horizontal',
+            'assets/ui/rotate_device_to_horizontal.png'
+        );
+
         //debug
         scene.load.image('target', 'assets/debug/target.png');
     }
@@ -29,6 +35,42 @@ class GlobalUI {
                 utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
             ].volume
         );
+
+        //if on mobile
+        if (!scene.sys.game.device.os.desktop) {
+            //detect when window orientation is changed
+            let orientationChanged = () => {
+                //horizontal
+                if (window.innerWidth > window.innerHeight) {
+                    if (scene.cover) scene.cover.destroy();
+                    if (scene.rotateIcon) scene.rotateIcon.destroy();
+                }
+                //vertical
+                else {
+                    this.showRotateDialog(scene);
+                }
+            };
+            window.onresize = orientationChanged;
+
+            //init orientation
+            orientationChanged();
+        }
+    }
+
+    showRotateDialog(scene) {
+        //fade background
+        scene.cover = scene.add
+            .rexCover({ alpha: 0.8 })
+            .setDepth(scene.depthUI);
+
+        //show rotate icon
+        scene.rotateIcon = scene.add
+            .image(
+                scene.sys.game.canvas.width / 2,
+                scene.sys.game.canvas.height / 2,
+                'rotate_device_to_horizontal'
+            )
+            .setDepth(scene.depthUI);
     }
 
     showRefreshDialog(scene, refreshReason = 'Please refresh to log back in.') {
