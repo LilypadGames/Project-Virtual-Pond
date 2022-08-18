@@ -191,10 +191,10 @@ class UI {
     createToast(scene, option) {
         //defaults
         if (!option.x) {
-            option.x = 400;
+            option.x = scene.sys.game.canvas.width / 2;
         }
         if (!option.y) {
-            option.y = 300;
+            option.y = scene.sys.game.canvas.height / 2;
         }
 
         if (!option.fontSize) {
@@ -204,10 +204,8 @@ class UI {
             option.fontFamily = 'Burbin';
         }
         if (!option.color) {
-            option.color = ColorScheme.White;
+            option.color = utility.hexIntegerToString(ColorScheme.White);
         }
-
-        console.log(option.color)
 
         if (!option.background) {
             option.background = {};
@@ -226,7 +224,16 @@ class UI {
             option.duration.in = 200;
         }
         if (!option.duration.hold) {
-            option.duration.hold = 1200;
+            let textLength = option.text.length;
+            if (textLength * 100 < 3000) {
+                option.duration.hold = 3000;
+            } else {
+                if (textLength * 100 < 8000) {
+                    option.duration.hold = textLength * 100;
+                } else {
+                    option.duration.hold = 8000;
+                }
+            }
         }
         if (!option.duration.out) {
             option.duration.out = 200;
@@ -236,52 +243,53 @@ class UI {
             option.space = {};
         }
         if (!option.space.left) {
-            option.space.left = 15;
+            option.space.left = 10;
         }
         if (!option.space.right) {
-            option.space.right = 15;
+            option.space.right = 10;
         }
         if (!option.space.top) {
-            option.space.top = 15;
+            option.space.top = 10;
         }
         if (!option.space.bottom) {
-            option.space.bottom = 15;
+            option.space.bottom = 10;
         }
 
-        var toast = scene.rexUI.add.toast({
-            x: option.x,
-            y: option.y,
+        var toast = scene.rexUI.add
+            .toast({
+                x: option.x,
+                y: option.y,
 
-            background: scene.rexUI.add.roundRectangle(
-                0,
-                0,
-                2,
-                2,
-                option.background.radius,
-                option.background.color
-            ),
+                background: scene.rexUI.add.roundRectangle(
+                    0,
+                    0,
+                    2,
+                    2,
+                    option.background.radius,
+                    option.background.color
+                ),
 
-            text: scene.add.text(0, 0, '', {
-                fontSize: option.fontSize,
-                fontFamily: option.fontFamily,
-                color: option.color
-            }),
+                text: scene.add.text(0, 0, '', {
+                    fontSize: option.fontSize,
+                    fontFamily: option.fontFamily,
+                    color: option.color,
+                }),
 
-            space: {
-                left: option.space.left,
-                right: option.space.right,
-                top: option.space.top,
-                bottom: option.space.bottom,
-            },
+                space: {
+                    left: option.space.left,
+                    right: option.space.right,
+                    top: option.space.top,
+                    bottom: option.space.bottom,
+                },
 
-            // duration: {
-            //     in: option.space.in,
-            //     hold: option.space.hold,
-            //     out: option.space.out,
-            // },
-        })
-        .showMessage(option.text)
-        .setDepth(scene.depthUI);
+                duration: {
+                    in: option.duration.in,
+                    hold: option.duration.hold,
+                    out: option.duration.out,
+                },
+            })
+            .showMessage(option.text)
+            .setDepth(scene.depthUI);
 
         return toast;
     }
@@ -598,8 +606,8 @@ class UI {
             //add input box to parent
             sizer.add(inputBox);
             return sizer;
-        
-        //normal background
+
+            //normal background
         } else {
             scene.rexUI.add
                 .roundRectangle(

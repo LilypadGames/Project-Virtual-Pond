@@ -52,6 +52,19 @@ class GlobalUI {
         //get scene name
         let sceneName = scene.scene.key;
 
+        //calculate toast duration
+        let duration = 3000;
+        let textLength = message.length;
+        if (textLength * 100 < 3000) {
+            duration = 3000;
+        } else {
+            if (textLength * 100 < 8000) {
+                duration = textLength * 100;
+            } else {
+                duration = 8000;
+            }
+        }
+
         //init toast variable
         if (!this.toast) {
             this.toast = {};
@@ -59,11 +72,17 @@ class GlobalUI {
 
         //init toast for this scene
         if (!this.toast[sceneName]) {
-            this.toast[sceneName] = ui.createToast(scene, { x: scene.sys.game.canvas.width / 2, y: 40, text: message });
+            this.toast[sceneName] = ui.createToast(scene, {
+                y: 40,
+                background: { color: ColorScheme.Red },
+                duration: { hold: duration },
+                text: message,
+            });
 
-        //show new message
+            //show new message
         } else {
-            this.toast[sceneName].showMessage(message);
+            //update toast
+            this.toast[sceneName].setDisplayTime(duration).showMessage(message);
         }
     }
 }
