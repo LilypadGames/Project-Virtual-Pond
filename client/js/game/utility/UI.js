@@ -187,6 +187,105 @@ class UI {
         }
     }
 
+    //create toast message
+    createToast(scene, option) {
+        //defaults
+        if (!option.x) {
+            option.x = 400;
+        }
+        if (!option.y) {
+            option.y = 300;
+        }
+
+        if (!option.fontSize) {
+            option.fontSize = '24px';
+        }
+        if (!option.fontFamily) {
+            option.fontFamily = 'Burbin';
+        }
+        if (!option.color) {
+            option.color = ColorScheme.White;
+        }
+
+        console.log(option.color)
+
+        if (!option.background) {
+            option.background = {};
+        }
+        if (!option.background.color) {
+            option.background.color = ColorScheme.Blue;
+        }
+        if (!option.background.radius) {
+            option.background.radius = 15;
+        }
+
+        if (!option.duration) {
+            option.duration = {};
+        }
+        if (!option.duration.in) {
+            option.duration.in = 200;
+        }
+        if (!option.duration.hold) {
+            option.duration.hold = 1200;
+        }
+        if (!option.duration.out) {
+            option.duration.out = 200;
+        }
+
+        if (!option.space) {
+            option.space = {};
+        }
+        if (!option.space.left) {
+            option.space.left = 15;
+        }
+        if (!option.space.right) {
+            option.space.right = 15;
+        }
+        if (!option.space.top) {
+            option.space.top = 15;
+        }
+        if (!option.space.bottom) {
+            option.space.bottom = 15;
+        }
+
+        var toast = scene.rexUI.add.toast({
+            x: option.x,
+            y: option.y,
+
+            background: scene.rexUI.add.roundRectangle(
+                0,
+                0,
+                2,
+                2,
+                option.background.radius,
+                option.background.color
+            ),
+
+            text: scene.add.text(0, 0, '', {
+                fontSize: option.fontSize,
+                fontFamily: option.fontFamily,
+                color: option.color
+            }),
+
+            space: {
+                left: option.space.left,
+                right: option.space.right,
+                top: option.space.top,
+                bottom: option.space.bottom,
+            },
+
+            // duration: {
+            //     in: option.space.in,
+            //     hold: option.space.hold,
+            //     out: option.space.out,
+            // },
+        })
+        .showMessage(option.text)
+        .setDepth(scene.depthUI);
+
+        return toast;
+    }
+
     //create slider
     createSlider(scene, content) {
         //defaults
@@ -473,7 +572,7 @@ class UI {
             );
         }
 
-        //determine background method
+        //sizer backgound
         if (useSizer) {
             //create parent and background object
             var sizer = scene.rexUI.add
@@ -495,11 +594,13 @@ class UI {
                         1
                     )
                 );
+
             //add input box to parent
             sizer.add(inputBox);
             return sizer;
+        
+        //normal background
         } else {
-            //create background
             scene.rexUI.add
                 .roundRectangle(
                     option.x - option.background.space.left / 2,

@@ -47,4 +47,23 @@ class GlobalUI {
             //set menu as opened
             scene.menuOpened();
     }
+
+    showToast(scene, message) {
+        //get scene name
+        let sceneName = scene.scene.key;
+
+        //init toast variable
+        if (!this.toast) {
+            this.toast = {};
+        }
+
+        //init toast for this scene
+        if (!this.toast[sceneName]) {
+            this.toast[sceneName] = ui.createToast(scene, { x: scene.sys.game.canvas.width / 2, y: 40, text: message });
+
+        //show new message
+        } else {
+            this.toast[sceneName].showMessage(message);
+        }
+    }
 }

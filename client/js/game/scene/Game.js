@@ -361,11 +361,13 @@ class Game extends Phaser.Scene {
                 //set as walkable
                 layer.setInteractive().on(
                     'pointerdown',
-                    () => {
+                    (pointer) => {
                         if (this.navigationCheck()) {
                             this.onMoveAttempt(
-                                this.input.mousePointer.worldX,
-                                this.input.mousePointer.worldY
+                                // this.input.mousePointer.worldX,
+                                // this.input.mousePointer.worldY
+                                pointer.x,
+                                pointer.y
                             );
                         }
                     },
@@ -1077,9 +1079,9 @@ class Game extends Phaser.Scene {
                             if (event.key == 'Enter') {
                                 //format media submission
                                 const mediaSubmission = inputBox.text
-                                .substr(0, this.messageLength)
-                                .trim()
-                                .replace(/\s+/g, ' ');
+                                    .substr(0, this.messageLength)
+                                    .trim()
+                                    .replace(/\s+/g, ' ');
 
                                 // //send the message to the server
                                 // if (mediaSubmission !== '' && mediaSubmission !== null) {
@@ -1478,14 +1480,13 @@ class Game extends Phaser.Scene {
     //stop a player's movement
     haltPlayer(id, newX, newY) {
         //stop movement
-        let playerMovement = utility.getObject(this.playerData, id).movement;
         try {
-            if (playerMovement)
+            if (utility.getObject(this.playerData, id).movement)
                 utility.getObject(this.playerData, id).movement.stop();
         } catch {
             console.log('ERROR: Issue stopping movement');
+            return;
         }
-        utility.getObject(this.playerData, id).movement.stop();
 
         //sync check
         if (
@@ -1702,7 +1703,7 @@ class Game extends Phaser.Scene {
         //detect clicks
         this.npcCharacter[id].list[0].setInteractive().on(
             'pointerup',
-            () => {
+            (pointer) => {
                 if (this.navigationCheck()) {
                     //set player as interacting with this NPC
                     utility.getObject(this.playerData, clientID).interactNPC =
@@ -1713,8 +1714,10 @@ class Game extends Phaser.Scene {
 
                     //player moving
                     this.onMoveAttempt(
-                        this.input.mousePointer.worldX,
-                        this.input.mousePointer.worldY
+                        // this.input.mousePointer.worldX,
+                        // this.input.mousePointer.worldY
+                        pointer.x,
+                        pointer.y
                     );
                 }
             },
@@ -1886,6 +1889,8 @@ class Game extends Phaser.Scene {
                 this
             );
         }
+
+        globalUI.showToast(this, messageData.text);
     }
 
     //remove player message
