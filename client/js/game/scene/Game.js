@@ -290,14 +290,17 @@ class Game extends Phaser.Scene {
     // WORLD
     //preload room assets
     preloadRoomData(room) {
-        //get room assets
-        let roomAssets = roomData.rooms[room].asset;
+        //get room options
+        let roomOptions = roomData.rooms[room].option;
 
         //options
-        if (roomAssets.option) {
-            if (roomAssets.option.chatLogUIHeight)
-                this.chatLogUIHeight = roomAssets.option.chatLogUIHeight;
+        if (roomOptions) {
+            if (roomOptions.chatLogUIHeight)
+                this.chatLogUIHeight = roomOptions.chatLogUIHeight;
         }
+        
+        //get room assets
+        let roomAssets = roomData.rooms[room].asset;
 
         //images
         if (roomAssets.image) {
