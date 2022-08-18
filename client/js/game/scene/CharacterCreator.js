@@ -7,13 +7,12 @@ class CharacterCreator extends Phaser.Scene {
     }
 
     init(previousRoom) {
-        //client file needs the game instance
-        currentScene = this;
+        //global variables
+        globalUI.init(this);
 
         //save previous room
         this.previousRoom = previousRoom;
 
-        // LOCAL VARIABLES
         //character
         this.characterData = {};
         this.character = {};
@@ -28,24 +27,19 @@ class CharacterCreator extends Phaser.Scene {
             stroke: utility.hexIntegerToString(ColorScheme.Black),
             strokeThickness: 6,
         };
-        this.disableInput = false;
-
-        //audio
-        this.sfxButtonClick = undefined;
 
         //depth
-        this.depthUI = 100002;
         this.depthCharacterUI = 100001;
         this.depthBackgroundUI = 1;
     }
 
     // LOGIC
     preload() {
-        //get canvas
-        this.canvas = this.sys.game.canvas;
-
         //loading screen
         loadingScreen.run(this);
+
+        //preload global UI
+        globalUI.preload(this);
 
         //character
         this.load.image(
@@ -96,13 +90,8 @@ class CharacterCreator extends Phaser.Scene {
     }
 
     create() {
-        //register sfx
-        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
-        this.sfxButtonClick.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume
-        );
+        //create global UI
+        globalUI.create(this);
 
         //get player data
         client.requestClientPlayerData();

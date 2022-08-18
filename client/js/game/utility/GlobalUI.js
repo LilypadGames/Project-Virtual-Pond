@@ -1,6 +1,36 @@
 // Global UI library
 
 class GlobalUI {
+    init(scene) {
+        //save current scene for the client class
+        currentScene = scene;
+
+        //depth
+        scene.depthUI = 100002;
+        scene.depthOverlay = 100001;
+    }
+
+    preload(scene) {
+        //sfx
+        scene.load.audio(
+            'button_click',
+            'assets/audio/sfx/UI/button_click.mp3'
+        );
+
+        //debug
+        scene.load.image('target', 'assets/debug/target.png');
+    }
+
+    create(scene) {
+        //register sfxs
+        scene.sfxButtonClick = scene.sound.add('button_click', { volume: 0 });
+        scene.sfxButtonClick.setVolume(
+            utility.getLocalStorage('gameOptions')[
+                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
+            ].volume
+        );
+    }
+
     showRefreshDialog(scene, refreshReason = 'Please refresh to log back in.') {
         //initialize content
         let content = {

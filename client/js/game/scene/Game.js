@@ -7,13 +7,12 @@ class Game extends Phaser.Scene {
     }
 
     init(room) {
-        //client file needs the current game instance
-        currentScene = this;
+        //global variables
+        globalUI.init(this);
 
         //save room
         this.room = room;
 
-        // LOCAL VARIABLES
         //world
         this.walkableLayer = undefined;
         this.unWalkableLayer = [];
@@ -21,8 +20,6 @@ class Game extends Phaser.Scene {
         this.DOMElements = [];
 
         //depth
-        this.depthUI = 100002;
-        this.depthOverlay = 100001;
         this.depthForeground = 100000;
         this.depthGround = 1;
         this.depthBackground = 0;
@@ -84,25 +81,21 @@ class Game extends Phaser.Scene {
             padding: { left: 8, right: 8, top: 6, bottom: 6 },
             wordWrap: { width: 250 },
         };
-        this.messageLength = 80;
+        this.messageMaxLength = 80;
         this.disableInput = false;
         this.menuOpen = false;
-        this.formattedNews;
     }
 
     // LOGIC
     preload() {
-        //register canvas
-        this.canvas = this.sys.game.canvas;
-
         //loading screen
         loadingScreen.run(this);
 
-        //asset path
-        this.load.setPath('assets/');
+        //preload global UI
+        globalUI.preload(this);
 
-        //sfx
-        this.load.audio('button_click', 'audio/sfx/UI/button_click.mp3');
+        //set to asset path
+        this.load.setPath('assets/');
 
         //character
         this.load.image('frog_body', 'character/player/body/0.5x/Tintable.png');
@@ -115,21 +108,15 @@ class Game extends Phaser.Scene {
         this.load.image('frog_eyes_2', 'character/player/eyes/0.5x/Eyes_2.png');
         this.load.image('frog_eyes_3', 'character/player/eyes/0.5x/Eyes_3.png');
 
-        //debug
-        this.load.image('target', 'debug/target.png');
-
         //load room assets
         this.preloadRoomData(this.room);
     }
 
     create() {
+        //create global UI
+        globalUI.create(this);
+
         //register sfxs
-        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
-        this.sfxButtonClick.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume
-        );
         if (this.room === 'forest') {
             this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
             this.sfxRadioClick.setVolume(
@@ -144,6 +131,14 @@ class Game extends Phaser.Scene {
 
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
+
+        //detect when window orientation is changed
+        let orientationChanged = function () {
+            globalUI.showToast(this, 'Orientation Changed', {
+                duration: { hold: 500 },
+            });
+        };
+        this.scale.on('orientationchange', orientationChanged, this);
 
         //register keyboard inputs
         this.input.keyboard.on(
@@ -342,8 +337,8 @@ class Game extends Phaser.Scene {
         for (var i = 0; i < roomLayerData.length; i++) {
             //layer image
             let layer = this.add.image(
-                this.canvas.width / 2,
-                this.canvas.height / 2,
+                this.sys.game.canvas.width / 2,
+                this.sys.game.canvas.height / 2,
                 roomLayerData[i].name
             );
 
@@ -665,9 +660,9 @@ class Game extends Phaser.Scene {
     createChatBox() {
         return ui.createInputBox(this, {
             id: 'chat-box',
-            x: this.canvas.width / 2,
-            y: this.canvas.height - this.canvas.height / 23,
-            width: this.canvas.width * 0.6,
+            x: this.sys.game.canvas.width / 2,
+            y: this.sys.game.canvas.height - this.sys.game.canvas.height / 23,
+            width: this.sys.game.canvas.width * 0.6,
             height: 30,
             placeholder: 'Say Yo...',
             background: {
@@ -675,7 +670,7 @@ class Game extends Phaser.Scene {
                 radius: 15,
             },
             color: utility.hexIntegerToString(ColorScheme.Black),
-            maxLength: this.messageLength,
+            maxLength: this.messageMaxLength,
             depth: this.depthUI,
             onFocus: (inputBox) => {
                 if (this.menuOpen) inputBox.setBlur();
@@ -684,7 +679,7 @@ class Game extends Phaser.Scene {
                 if (event.key == 'Enter') {
                     //format message
                     const chatMessage = inputBox.text
-                        .substr(0, this.messageLength)
+                        .substr(0, this.messageMaxLength)
                         .trim()
                         .replace(/\s+/g, ' ');
 
@@ -1065,7 +1060,7 @@ class Game extends Phaser.Scene {
                             radius: 15,
                         },
                         color: '#000000',
-                        maxLength: this.messageLength,
+                        maxLength: this.messageMaxLength,
                         depth: this.depthUI,
                         // onFocus: (inputBox) => {
                         //     if (this.menuOpen) inputBox.setBlur();
@@ -1074,7 +1069,7 @@ class Game extends Phaser.Scene {
                             if (event.key == 'Enter') {
                                 //format media submission
                                 const mediaSubmission = inputBox.text
-                                    .substr(0, this.messageLength)
+                                    .substr(0, this.messageMaxLength)
                                     .trim()
                                     .replace(/\s+/g, ' ');
 

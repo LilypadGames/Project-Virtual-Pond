@@ -20,17 +20,14 @@ class Menu extends Phaser.Scene {
     }
 
     init() {
-        //set scene
-        currentScene = this;
+        //global variables
+        globalUI.init(this);
     }
 
     // LOGIC
     preload() {
-        //register canvas
-        this.canvas = this.sys.game.canvas;
-
-        //sfx
-        this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
+        //preload global UI
+        globalUI.preload(this);
 
         //ui
         this.load.spritesheet('loadingIcon', 'assets/ui/loading.png', {
@@ -40,8 +37,8 @@ class Menu extends Phaser.Scene {
     }
 
     create() {
-        //sfx
-        this.sfxButtonClick = this.sound.add('button_click');
+        //create global UI
+        globalUI.create(this);
 
         //create loading icon animation
         this.anims.create({
@@ -53,8 +50,8 @@ class Menu extends Phaser.Scene {
 
         //create loading icon
         let loadingIcon = this.add.sprite(
-            this.canvas.width / 2,
-            this.canvas.height / 2,
+            this.sys.game.canvas.width / 2,
+            this.sys.game.canvas.height / 2,
             'loadingIcon'
         );
         loadingIcon.play('loadingIconAnim');
@@ -66,7 +63,6 @@ class Menu extends Phaser.Scene {
     end() {
         //reset data
         this.registry.destroy();
-        // this.events.removeAllListeners();
         this.game.events.removeAllListeners();
         this.input.keyboard.removeAllListeners();
         this.scene.stop();

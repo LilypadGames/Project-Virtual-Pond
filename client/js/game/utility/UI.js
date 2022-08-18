@@ -1314,10 +1314,10 @@ class UI {
     ) {
         //defaults
         if (!options.x) {
-            options.x = scene.canvas.width / 2;
+            options.x = scene.sys.game.canvas.width / 2;
         }
         if (!options.y) {
-            options.y = scene.canvas.height / 2;
+            options.y = scene.sys.game.canvas.height / 2;
         }
         if (!options.width) {
             options.width = 500;
@@ -1549,10 +1549,10 @@ class UI {
     ) {
         //default options
         if (!options.x) {
-            options.x = scene.canvas.width / 2;
+            options.x = scene.sys.game.canvas.width / 2;
         }
         if (!options.y) {
-            options.y = scene.canvas.height / 2;
+            options.y = scene.sys.game.canvas.height / 2;
         }
         if (!options.width) {
             options.width = 400;
