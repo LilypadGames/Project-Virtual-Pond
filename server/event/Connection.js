@@ -171,6 +171,24 @@ class Connection {
             );
         });
 
+        //logout
+        this.socket.on('logout', () => {
+            //log
+            console.log(
+                utility.timestampString(
+                    'PLAYER ID: ' +
+                        this.socket.player.id +
+                        ' (' +
+                        this.socket.player.name +
+                        ')' +
+                        ' - Logged Out'
+                )
+            );
+
+            //disconnect
+            this.socket.disconnect();
+        });
+
         //triggers when player disconnects their client
         this.socket.on('disconnect', () => this.onDisconnect());
     }

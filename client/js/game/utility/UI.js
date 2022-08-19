@@ -1095,33 +1095,40 @@ class UI {
                             align: internalContent.align,
                         })
                     );
+                }
 
-                    //add button
-                } else if (internalContent.type == 'button') {
-                    let onClick = internalContent.onClick
-                        ? internalContent.onClick
-                        : undefined;
+                //add button
+                else if (internalContent.type == 'button') {
                     sizer.add(
                         this.createButtons(scene, {
                             align: internalContent.align,
                             fontSize: internalContent.fontSize,
-                            buttons: [{ text: internalContent.text }],
-                            onClick: onClick,
+                            buttons: [
+                                {
+                                    text: internalContent.text,
+                                    background: internalContent.background,
+                                },
+                            ],
+                            colorOnHover: internalContent.colorOnHover,
+                            onClick: internalContent.onClick,
                         })
                     );
+                }
 
-                    //add buttons
-                } else if (internalContent.type == 'buttons') {
+                //add buttons
+                else if (internalContent.type == 'buttons') {
                     sizer.add(this.createButtons(scene, internalContent));
+                }
 
-                    //add input box
-                } else if (internalContent.type == 'inputBox') {
+                //add input box
+                else if (internalContent.type == 'inputBox') {
                     sizer.add(
                         this.createInputBox(scene, internalContent, true)
                     );
+                }
 
-                    //add checkbox
-                } else if (internalContent.type == 'checkbox') {
+                //add checkbox
+                else if (internalContent.type == 'checkbox') {
                     //create checkbox
                     let checkbox = scene.rexUI.add.buttons({
                         x: 0,
@@ -1197,13 +1204,15 @@ class UI {
                     );
 
                     sizer.add(checkbox);
+                }
 
-                    //add slider
-                } else if (internalContent.type == 'slider') {
+                //add slider
+                else if (internalContent.type == 'slider') {
                     sizer.add(this.createSlider(scene, internalContent));
+                }
 
-                    //add scrollable panel
-                } else if (internalContent.type == 'scrollable') {
+                //add scrollable panel
+                else if (internalContent.type == 'scrollable') {
                     //default options
                     if (!internalContent.x) {
                         internalContent.x = 0;

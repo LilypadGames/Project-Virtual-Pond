@@ -165,6 +165,16 @@ app.get('/', function (req, res) {
     }
 });
 
+//logout
+app.get('/logout', function (req, res) {
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
+    });
+});
+
 // WEB SERVER
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {

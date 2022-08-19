@@ -311,6 +311,15 @@ class Client {
         });
     }
 
+    //tell server player is logging out
+    onLogout() {
+        //disconnect
+        socket.emit('logout');
+
+        //log out
+        window.location.href = '/logout';
+    }
+
     //get all player data from the sockets current room
     onReload() {
         //log

@@ -966,6 +966,18 @@ class Game extends Phaser.Scene {
             );
         }
 
+        //logout button
+        content.push({
+            type: 'button',
+            text: 'Log Out',
+            align: 'center',
+            fontSize: 20,
+            colorOnHover: ColorScheme.Red,
+            onClick: () => {
+                client.onLogout();
+            },
+        });
+
         //create options menu
         ui.createMenu(
             this,
