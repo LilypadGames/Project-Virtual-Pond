@@ -79,6 +79,10 @@ class Client {
         socket.on('movePlayer', (data) => {
             this.onMovePlayerReceived(data);
         });
+        //received updated player direction
+        socket.on('updatePlayerDirection', (id, direction) => {
+            this.onPlayerDirectionUpdate(id, direction);
+        });
         //recieved player movement changed
         socket.on('changePlayerMovement', (data) => {
             this.onPlayerMovementUpdate(data);
@@ -221,13 +225,32 @@ class Client {
                 );
             }
 
-            //set player direction
-            if (!document.hidden)
+            if (!document.hidden) {
+                //set player direction
                 currentScene.setPlayerDirection(data.id, data.direction);
 
-            //move player
-            if (!document.hidden)
+                //move player
                 currentScene.movePlayer(data.id, data.x, data.y);
+            }
+        }
+    }
+    //received updated player direction
+    onPlayerDirectionUpdate(id, direction) {
+        //game scene only
+        if (currentScene.scene.key !== 'Game') return;
+
+        //log
+        if (debugMode) {
+            console.log(
+                util.timestampString(
+                    'PLAYER ID: ' + id + ' - Updated Direction: ' + direction
+                )
+            );
+        }
+
+        if (!document.hidden) {
+            //set player direction
+            currentScene.setPlayerDirection(id, direction);
         }
     }
     //recieved player movement changed
@@ -242,12 +265,20 @@ class Client {
                             ' - Changed Movement Location To> x:' +
                             data.x +
                             ', y:' +
-                            data.y
+                            data.y +
+                            (data.direction
+                                ? ' direction: ' + data.direction
+                                : '')
                     )
                 );
             }
 
-            currentScene.changePlayerMovement(data.id, data.x, data.y);
+            currentScene.changePlayerMovement(
+                data.id,
+                data.x,
+                data.y,
+                data.direction
+            );
         }
     }
     //recieved interactNPC data of player
@@ -375,6 +406,9 @@ class Client {
     //tell server that the client has clicked at a specific coordinate
     playerMoved(x, y, direction) {
         socket.emit('playerMoved', x, y, direction);
+    }
+    playerChangedDirection(direction, x, y) {
+        socket.emit('playerChangedDirection', direction, x, y);
     }
     //tell server that client is sending a message
     playerSendingMessage(message) {

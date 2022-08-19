@@ -149,6 +149,38 @@ class Game extends Phaser.Scene {
             },
             this
         );
+        this.input.keyboard.on(
+            'keydown-' + 'D',
+            () => {
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('right');
+            },
+            this
+        );
+        this.input.keyboard.on(
+            'keydown-' + 'RIGHT',
+            () => {
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('right');
+            },
+            this
+        );
+        this.input.keyboard.on(
+            'keydown-' + 'A',
+            () => {
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('left');
+            },˝
+            this
+        );
+        this.input.keyboard.on(
+            'keydown-' + 'LEFT',
+            () => {
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('left');
+            },
+            this
+        );
 
         //add room layers
         this.addRoomLayers(this.room);
@@ -1243,17 +1275,48 @@ class Game extends Phaser.Scene {
     // INPUT
     //on mouse down
     onMoveAttempt(x, y) {
-        //if clicking is not disabled
-        if (!this.disableInput) {
-            // un-focus chatbox
-            if (this.chatBox.isFocused) this.chatBox.setBlur();
+        //if clicking is disabled, cancel
+        if (this.disableInput) return;
 
-            //move client player
-            this.movePlayer(clientID, x, y);
+        // un-focus chatbox
+        if (this.chatBox.isFocused) this.chatBox.setBlur();
 
-            //tell the server that this player is moving
-            client.playerMoved(x, y, this.getPlayerDirection(clientID));
+        //move client player
+        this.movePlayer(clientID, x, y);
+
+        //tell the server that this player is moving
+        client.playerMoved(x, y, this.getPlayerDirection(clientID));
+    }
+
+    //on mouse down
+    onDirectionChangeAttempt(direction) {
+        //if clicking is disabled, cancel
+        if (this.disableInput) return;
+
+        //if direction didnt change, cancel
+        if (direction === this.getPlayerDirection(clientID)) return;
+
+        //if client player is moving, halt player
+        try {
+            if (utility.getObject(this.playerData, clientID).movement)
+                this.haltPlayer(clientID);
+        } catch (error) {
+            console.log(
+                '\x1b[31m%s\x1b[0m',
+                'Game.js onDirectionChangeAttempt - ' + error
+            );
+            return;
         }
+
+        //change client player direction
+        this.setPlayerDirection(clientID, direction);
+
+        //tell the server that this player is changing direction
+        client.playerChangedDirection(
+            direction,
+            this.playerCharacter[clientID].x,
+            this.playerCharacter[clientID].y
+        );
     }
 
     //check if click location is allowed by navigational map (returns true if click location is allowed by navigation map and false otherwise)
@@ -1455,7 +1518,11 @@ class Game extends Phaser.Scene {
     }
 
     //stop a player's movement
-    haltPlayer(id, newX, newY) {
+    haltPlayer(
+        id,
+        newX = this.playerCharacter[id].x,
+        newY = this.playerCharacter[id].y
+    ) {
         //stop movement
         try {
             if (utility.getObject(this.playerData, id).movement)
@@ -1475,7 +1542,7 @@ class Game extends Phaser.Scene {
     }
 
     //change a players movement location
-    changePlayerMovement(id, newX, newY) {
+    changePlayerMovement(id, newX, newY, newDirection) {
         //get player's character
         var player = this.playerCharacter[id];
 
@@ -1502,6 +1569,11 @@ class Game extends Phaser.Scene {
         utility
             .getObject(this.playerData, id)
             .movement.updateTo('duration', newDuration, true);
+
+        //change direction
+        if (newDirection) {
+            this.setPlayerDirection(id, newDirection);
+        }
     }
 
     //place a player at a specific coordinate
