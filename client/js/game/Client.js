@@ -95,6 +95,8 @@ class Client {
         });
     }
 
+    /// INCOMING
+
     //CONNECTION
     //on this client disconnecting
     onDisconnect() {
@@ -278,39 +280,9 @@ class Client {
         console.log('STREAM STATUS RECIEVED: ' + status);
     }
 
-    //get initial load data from server
-    requestLoadData() {
-        //log
-        if (debugMode) {
-            console.log(util.timestampString('Requested Initial Load Data'));
-        }
+    /// OUTGOING
 
-        //request data from server
-        socket.emit('requestLoadData', (data) => {
-            currentScene.parseLoadData(data);
-        });
-    }
-
-    //get player data from server
-    requestClientPlayerData() {
-        //log
-        if (debugMode) {
-            console.log(util.timestampString('Requested Clients Player Data'));
-        }
-
-        //request data from server
-        socket.emit('requestClientPlayerData', (data) => {
-            currentScene.parsePlayerData(data);
-        });
-    }
-
-    //tell server that the player updated their character data
-    updateClientPlayerData(data) {
-        socket.emit('updateClientPlayerData', data, () => {
-            currentScene.events.emit('updatedClientPlayerData');
-        });
-    }
-
+    //CONNECTION
     //tell server player is logging out
     onLogout() {
         //disconnect
@@ -320,29 +292,7 @@ class Client {
         window.location.href = '/logout';
     }
 
-    //get all player data from the sockets current room
-    onReload() {
-        //log
-        if (debugMode) {
-            console.log(util.timestampString('Reloaded the Pond'));
-        }
-
-        //request data from server
-        socket.emit('requestAllPlayersInRoom', (data) => {
-            if (currentScene.scene.key == 'Game') {
-                //update players in room
-                for (var i = 0; i < data.length; i++) {
-                    currentScene.updatePlayer(data[i]);
-                }
-            }
-        });
-    }
-
-    //tell server that the player left a room (to go to another room or a menu/minigame)
-    leaveRoom() {
-        socket.emit('leaveRoom');
-    }
-
+    //ROOM
     //tell server that this client just joined
     joinRoom(room) {
         socket.emit('joinRoom', room, (data) => {
@@ -369,19 +319,69 @@ class Client {
             currentScene.setChatLog(data['chatLog']);
         });
     }
+    //tell server that the player left a room (to go to another room or a menu/minigame)
+    leaveRoom() {
+        socket.emit('leaveRoom');
+    }
 
+    //PLAYER DATA
+    //get initial load data from server
+    requestLoadData() {
+        //log
+        if (debugMode) {
+            console.log(util.timestampString('Requested Initial Load Data'));
+        }
+
+        //request data from server
+        socket.emit('requestLoadData', (data) => {
+            currentScene.parseLoadData(data);
+        });
+    }
+    //get player data from server
+    requestClientPlayerData() {
+        //log
+        if (debugMode) {
+            console.log(util.timestampString('Requested Clients Player Data'));
+        }
+
+        //request data from server
+        socket.emit('requestClientPlayerData', (data) => {
+            currentScene.parsePlayerData(data);
+        });
+    }
+    //tell server that the player updated their character data
+    updateClientPlayerData(data) {
+        socket.emit('updateClientPlayerData', data, () => {
+            currentScene.events.emit('updatedClientPlayerData');
+        });
+    }
+    //get all player data from the sockets current room
+    requestAllPlayersInRoom() {
+        //log
+        if (debugMode) {
+            console.log(util.timestampString('Reloaded the Pond'));
+        }
+
+        //request data from server
+        socket.emit('requestAllPlayersInRoom', (data) => {
+            if (currentScene.scene.key == 'Game') {
+                //update players in room
+                for (var i = 0; i < data.length; i++) {
+                    currentScene.updatePlayer(data[i]);
+                }
+            }
+        });
+    }
     //tell server that the client has clicked at a specific coordinate
-    onMove(x, y, direction) {
+    playerMoved(x, y, direction) {
         socket.emit('playerMoved', x, y, direction);
     }
-
     //tell server that client is sending a message
-    sendMessage(message) {
+    playerSendingMessage(message) {
         socket.emit('playerSendingMessage', message);
     }
-
     //tell server that player is going to interact with an NPC
-    onInteractNPC(npcID) {
+    playerInteractingWithNPC(npcID) {
         socket.emit('playerInteractingWithNPC', npcID);
     }
 }

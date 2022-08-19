@@ -589,7 +589,7 @@ class Game extends Phaser.Scene {
     // UI
     //reload the world when window is re-focused
     onFocus() {
-        client.onReload();
+        client.requestAllPlayersInRoom();
     }
 
     //create outlines on hover
@@ -668,7 +668,7 @@ class Game extends Phaser.Scene {
 
                     //send the message to the server
                     if (chatMessage !== '' && chatMessage !== null) {
-                        client.sendMessage(chatMessage);
+                        client.playerSendingMessage(chatMessage);
                     }
 
                     //leave chat bar
@@ -1070,7 +1070,7 @@ class Game extends Phaser.Scene {
 
                                 // //send the message to the server
                                 // if (mediaSubmission !== '' && mediaSubmission !== null) {
-                                //     client.sendMessage(mediaSubmission);
+                                //     client.playerSendingMessage(mediaSubmission);
                                 // }
 
                                 // //leave chat bar
@@ -1252,7 +1252,7 @@ class Game extends Phaser.Scene {
             this.movePlayer(clientID, x, y);
 
             //tell the server that this player is moving
-            client.onMove(x, y, this.getPlayerDirection(clientID));
+            client.playerMoved(x, y, this.getPlayerDirection(clientID));
         }
     }
 
@@ -1685,7 +1685,7 @@ class Game extends Phaser.Scene {
                         id;
 
                     //tell server that the player is interacting with an NPC
-                    client.onInteractNPC(id);
+                    client.playerInteractingWithNPC(id);
 
                     //player moving
                     this.onMoveAttempt(
