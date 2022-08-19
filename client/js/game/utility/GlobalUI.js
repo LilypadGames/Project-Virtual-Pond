@@ -122,7 +122,7 @@ class GlobalUI {
                 //vertical
                 else {
                     //show rotate icon
-                    scene.showRotateDialog(scene);
+                    this.showRotateDialog(scene);
 
                     //show header/footer
                     $('header, footer').removeClass('hide');
