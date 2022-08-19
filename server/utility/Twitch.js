@@ -164,8 +164,9 @@ module.exports = {
             return live;
         } catch (error) {
             console.log(
+                '\x1b[31m%s\x1b[0m',
                 utility.timestampString(
-                    'Stream Live (' + streamerName + ') Check Error: ' + error
+                    'Fetch Stream Status (' + streamerName + ') - ' + error
                 )
             );
         }

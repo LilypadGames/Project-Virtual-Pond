@@ -87,13 +87,14 @@ module.exports = {
                     );
                 } catch (error) {
                     console.log(
-                        utility.timestampString('Donation Save Error: ' + error)
+                        '\x1b[31m%s\x1b[0m',
+                        utility.timestampString('Save Donation Data - ' + error)
                     );
                 }
             })
             .catch((error) => {
                 console.log(
-                    utility.timestampString('Donation Fetch Error: ' + error)
+                    utility.timestampString('Fetch Donation Data - ' + error)
                 );
             });
     },
@@ -139,7 +140,8 @@ module.exports = {
                 }
             } catch (error) {
                 console.log(
-                    utility.timestampString('Donation Parse Error: ' + error)
+                    '\x1b[31m%s\x1b[0m',
+                    utility.timestampString('Parse Donation Data - ' + error)
                 );
             }
         }

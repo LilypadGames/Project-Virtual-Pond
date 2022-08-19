@@ -1436,20 +1436,22 @@ class Game extends Phaser.Scene {
         }
 
         //move player (and store it for alteration later)
-        let playerMovement = utility.getObject(this.playerData, id).movement;
         try {
-            if (playerMovement)
+            //stop current movement
+            if (utility.getObject(this.playerData, id).movement)
                 utility.getObject(this.playerData, id).movement.stop();
-        } catch {
-            console.log('ERROR: Issue stopping movement');
+
+            //new movement
+            utility.getObject(this.playerData, id).movement = this.add.tween({
+                targets: player,
+                x: x,
+                y: y,
+                duration:
+                    Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
+            });
+        } catch (error) {
+            console.log('\x1b[31m%s\x1b[0m', 'Game.js movePlayer - ' + error);
         }
-        utility.getObject(this.playerData, id).movement = this.add.tween({
-            targets: player,
-            x: x,
-            y: y,
-            duration:
-                Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
-        });
     }
 
     //stop a player's movement
@@ -1458,8 +1460,8 @@ class Game extends Phaser.Scene {
         try {
             if (utility.getObject(this.playerData, id).movement)
                 utility.getObject(this.playerData, id).movement.stop();
-        } catch {
-            console.log('ERROR: Issue stopping movement');
+        } catch (error) {
+            console.log('\x1b[31m%s\x1b[0m', 'Game.js haltPlayer - ' + error);
             return;
         }
 

@@ -29,9 +29,8 @@ module.exports = {
                 }
             } catch (error) {
                 console.log(
-                    utility.timestampString(
-                        'Chat Log Initialization Error: ' + error
-                    )
+                    '\x1b[31m%s\x1b[0m',
+                    utility.timestampString('Chat Log Init - ' + error)
                 );
             }
         });
