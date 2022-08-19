@@ -149,18 +149,6 @@ class Game extends Phaser.Scene {
             },
             this
         );
-        this.input.keyboard.on(
-            'keydown-' + 'SHIFT',
-            () => {
-                if (!this.chatBox.isFocused) {
-                    this.toggleDebugMode();
-                }
-            },
-            this
-        );
-
-        //add debug info
-        this.createDebug();
 
         //add room layers
         this.addRoomLayers(this.room);
@@ -298,7 +286,7 @@ class Game extends Phaser.Scene {
             if (roomOptions.chatLogUIHeight)
                 this.chatLogUIHeight = roomOptions.chatLogUIHeight;
         }
-        
+
         //get room assets
         let roomAssets = roomData.rooms[room].asset;
 
@@ -1909,62 +1897,6 @@ class Game extends Phaser.Scene {
             overlayContainer.list[2].destroy();
         } else {
             return;
-        }
-    }
-
-    // DEBUG
-    //create debug visuals
-    createDebug() {
-        //cursor
-        this.debugCursor = this.add.image(8, 8, 'target').setDepth(depthDebug);
-        this.input.on(
-            'pointermove',
-            function (pointer) {
-                if (debugMode) {
-                    this.debugCursor.copyPosition(pointer);
-                }
-            },
-            this
-        );
-
-        //ping info
-        this.debugPing = this.add
-            .text(0, 0, 'Ping: Waiting...')
-            .setDepth(depthDebug);
-
-        //if debug mode is off, change visibility of debug info
-        if (!debugMode) {
-            this.debugCursor.setVisible(false);
-            this.debugPing.setVisible(false);
-        }
-    }
-
-    //toggle console logging
-    toggleDebugMode() {
-        //off
-        if (debugMode) {
-            console.log(utility.timestampString('[DEBUG MODE: OFF]'));
-            debugMode = false;
-
-            this.debugCursor.setVisible(false);
-            this.debugPing.setVisible(false);
-        }
-
-        //on
-        else if (!debugMode) {
-            console.log(utility.timestampString('[DEBUG MODE: ON]'));
-            debugMode = true;
-
-            this.debugCursor.setVisible(true);
-            this.debugPing.setVisible(true);
-        }
-    }
-
-    //update ping text
-    newPing(latency) {
-        if (debugMode) {
-            this.debugPing.text = 'Ping: ' + latency + 'ms';
-            console.log(utility.timestampString('Ping: ' + latency + 'ms'));
         }
     }
 }

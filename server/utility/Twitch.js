@@ -3,6 +3,9 @@
 //dependency: file path
 const path = require('path');
 
+//dependency: events
+const events = require('events');
+
 //get config values
 const config = require(path.join(__dirname, '../config/config.json'));
 
@@ -20,6 +23,9 @@ const authProvider = new twurpleAuth.ClientCredentialsAuthProvider(
 const twitchAPI = new twurpleAPI.ApiClient({ authProvider });
 const { randomUUID } = require('crypto');
 const fixedSecret = new randomUUID().toString();
+
+//init twitch events emitter
+const twitchEvent = new events.EventEmitter();
 
 module.exports = {
     //set up event subs
@@ -108,6 +114,9 @@ module.exports = {
 
                 //set stream live to true
                 this.globalData.set('streamLive', true);
+
+                //trigger live event
+                twitchEvent.emit('streamLive', true);
             }
         );
 
@@ -123,6 +132,9 @@ module.exports = {
 
                 //set stream live to false
                 this.globalData.set('streamLive', false);
+
+                //trigger live event
+                twitchEvent.emit('streamLive', false);
             }
         );
 
@@ -166,5 +178,9 @@ module.exports = {
     getUserIDByName: async function (userName) {
         let user = await this.getUserByName(userName);
         return user.id;
+    },
+
+    getListener() {
+        return twitchEvent;
     },
 };

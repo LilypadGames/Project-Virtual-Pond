@@ -57,7 +57,6 @@ var currentScene;
 
 //debug
 var debugMode = false;
-const depthDebug = 1000000;
 
 //player
 var clientID;

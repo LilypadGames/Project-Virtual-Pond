@@ -8,6 +8,7 @@ class GlobalUI {
         //depth
         scene.depthUI = 100002;
         scene.depthOverlay = 100001;
+        scene.depthDebug = 1000000;
     }
 
     preload(scene) {
@@ -28,12 +29,46 @@ class GlobalUI {
     }
 
     create(scene) {
-        //register sfxs
+        //sfxs
         scene.sfxButtonClick = scene.sound.add('button_click', { volume: 0 });
         scene.sfxButtonClick.setVolume(
             utility.getLocalStorage('gameOptions')[
                 utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
             ].volume
+        );
+
+        //debug
+        this.debugCursor = scene.add
+            .image(8, 8, 'target')
+            .setDepth(scene.depthDebug);
+        scene.input.on(
+            'pointermove',
+            function (pointer) {
+                if (debugMode) {
+                    this.debugCursor.copyPosition(pointer);
+                }
+            },
+            this
+        );
+        this.debugPing = scene.add
+            .text(0, 0, 'Ping: Waiting...')
+            .setDepth(scene.depthDebug);
+        if (!debugMode) {
+            this.debugCursor.setVisible(false);
+            this.debugPing.setVisible(false);
+        }
+        scene.input.keyboard.on(
+            'keydown-' + 'SHIFT',
+            () => {
+                if (scene.scene.key === 'Game') {
+                    if (!scene.chatBox.isFocused) {
+                        this.toggleDebugMode();
+                    }
+                } else {
+                    this.toggleDebugMode();
+                }
+            },
+            scene
         );
 
         //desktop
@@ -87,7 +122,7 @@ class GlobalUI {
                 //vertical
                 else {
                     //show rotate icon
-                    this.showRotateDialog(scene);
+                    scene.showRotateDialog(scene);
 
                     //show header/footer
                     $('header, footer').removeClass('hide');
@@ -193,6 +228,7 @@ class GlobalUI {
         if (options.background.color === undefined)
             options.background.color = ColorScheme.Red;
         if (options.text === undefined) options.text = message;
+        if (options.duration === undefined) options.duration = {};
         if (options.duration.hold === undefined)
             options.duration.hold = duration;
 
@@ -210,6 +246,35 @@ class GlobalUI {
         else {
             //update toast
             this.toast[sceneName].setDisplayTime(duration).showMessage(message);
+        }
+    }
+
+    //update ping text
+    newPing(latency) {
+        if (debugMode) {
+            this.debugPing.text = 'Ping: ' + latency + 'ms';
+            console.log(utility.timestampString('Ping: ' + latency + 'ms'));
+        }
+    }
+
+    //toggle console logging
+    toggleDebugMode(scene) {
+        //off
+        if (debugMode) {
+            console.log(utility.timestampString('[DEBUG MODE: OFF]'));
+            debugMode = false;
+
+            this.debugCursor.setVisible(false);
+            this.debugPing.setVisible(false);
+        }
+
+        //on
+        else if (!debugMode) {
+            console.log(utility.timestampString('[DEBUG MODE: ON]'));
+            debugMode = true;
+
+            this.debugCursor.setVisible(true);
+            this.debugPing.setVisible(true);
         }
     }
 }

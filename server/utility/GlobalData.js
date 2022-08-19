@@ -28,7 +28,7 @@ module.exports = {
         globalData[object] = data;
 
         //update connected clients
-        this.io.emit('payloadGlobalDataChange', object, data);
+        this.io.emit('payloadGlobalDataUpdate', object, data);
     },
 
     get: function () {

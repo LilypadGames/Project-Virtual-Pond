@@ -233,7 +233,7 @@ class Connection {
             await this.roomInstance.init();
         } else {
             //store room
-            this.roomInstance.room = room;
+            this.roomInstance.changeRoom(room);
         }
 
         //get room spawnpoint data

@@ -9,17 +9,18 @@ const badWords = require(path.join(__dirname, '../config/bad_words.js'));
 //dependencies
 var chatFilter = require('leo-profanity');
 chatFilter.add(badWords.badWords);
-const { Server } = require('http');
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
-const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
+
+//import room events
+const roomTheatre = require(path.join(__dirname, '../event/room/Theatre.js'));
 
 class Room {
     constructor(io, socket, room) {
@@ -34,6 +35,9 @@ class Room {
     async init() {
         //register events
         this.register();
+
+        //register room specific events
+        this.registerRoomEvents();
     }
 
     async register() {
@@ -218,6 +222,34 @@ class Room {
         this.socket
             .to(this.socket.roomID)
             .emit('setPlayerInteractNPC', playerInteractNPC);
+    }
+
+    //change room
+    changeRoom(newRoom) {
+        //unregister old events for the old room
+        this.unregisterRoomEvents();
+
+        //store new room
+        this.room = newRoom;
+
+        //register new events for new room
+        this.registerRoomEvents();
+    }
+
+    //register room specific events
+    registerRoomEvents() {
+        if (this.room === 'theatre') {
+            this.roomEvents = new roomTheatre(this.socket);
+            this.roomEvents.init();
+        }
+    }
+
+    //unregister room specific events
+    unregisterRoomEvents() {
+        if (this.roomEvents) {
+            this.roomEvents.end();
+            delete this.roomEvents;
+        }
     }
 }
 
