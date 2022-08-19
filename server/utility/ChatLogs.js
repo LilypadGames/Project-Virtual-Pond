@@ -1,30 +1,33 @@
-//dependency: file path
+//dependency: file parsing
 const path = require('path');
+const jsonPath = require('jsonpath');
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const roomConfig = require(path.join(__dirname, '../config/room.json'));
 
 chatLogs = {};
 
 module.exports = {
-    chatLogs: {},
-
     init: function (io) {
         //on room creation
         io.of('/').adapter.on('create-room', (room) => {
             try {
-                //init chat log for room
-                if (this.chatLogs[room] === undefined) {
-                    this.chatLogs[room] = [];
+                //check if room exists
+                if (jsonPath.query(roomConfig, '$..' + room)[0]) {
+                    //init chat log for room
+                    if (chatLogs[room] === undefined) {
+                        chatLogs[room] = [];
 
-                    //log
-                    console.log(
-                        utility.timestampString(
-                            'Room Chat Log Initialized: ' + room
-                        )
-                    );
+                        //log
+                        console.log(
+                            utility.timestampString(
+                                'Room Chat Log Initialized: ' + room
+                            )
+                        );
+                    }
                 }
-            } catch {
+            } catch (error) {
                 console.log(
                     utility.timestampString(
                         'Chat Log Initialization Error: ' + error
@@ -44,15 +47,15 @@ module.exports = {
         };
 
         //store entry
-        this.chatLogs[roomID].push(entry);
+        chatLogs[roomID].push(entry);
 
         //delete older entries if over max
-        if (this.chatLogs[roomID].length > 30) {
-            this.chatLogs[roomID].splice(0, 1);
+        if (chatLogs[roomID].length > 30) {
+            chatLogs[roomID].splice(0, 1);
         }
     },
 
     getRoomLogs: function (roomID) {
-        return this.chatLogs[roomID];
+        return chatLogs[roomID];
     },
 };
