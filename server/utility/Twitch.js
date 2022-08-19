@@ -11,6 +11,10 @@ const config = require(path.join(__dirname, '../config/config.json'));
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const ConsoleColor = require(path.join(
+    __dirname,
+    '../utility/ConsoleColor.js'
+));
 
 //twitch api
 const twurpleAuth = require('@twurple/auth');
@@ -91,6 +95,7 @@ module.exports = {
         //verify event subscriptions
         listener.onVerify((success, subscription) =>
             console.log(
+                ConsoleColor.Cyan,
                 utility.timestampString(
                     'Stream Event: (' +
                         streamerName +
@@ -107,6 +112,7 @@ module.exports = {
             streamerID,
             (event) => {
                 console.log(
+                    ConsoleColor.Cyan,
                     utility.timestampString(
                         `${event.broadcasterDisplayName} just went live!`
                     )
@@ -125,6 +131,7 @@ module.exports = {
             streamerID,
             (event) => {
                 console.log(
+                    ConsoleColor.Cyan,
                     utility.timestampString(
                         `${event.broadcasterDisplayName} just went offline.`
                     )
@@ -157,6 +164,7 @@ module.exports = {
                 ? true
                 : false;
             console.log(
+                ConsoleColor.Cyan,
                 utility.timestampString(
                     'Stream Live: (' + streamerName + ') ' + live
                 )
@@ -164,7 +172,7 @@ module.exports = {
             return live;
         } catch (error) {
             console.log(
-                '\x1b[31m%s\x1b[0m',
+                ConsoleColor.Red,
                 utility.timestampString(
                     'Fetch Stream Status (' + streamerName + ') - ' + error
                 )

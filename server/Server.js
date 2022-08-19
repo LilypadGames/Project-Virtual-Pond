@@ -12,6 +12,7 @@ const config = JSON.parse(
 
 //imports
 const utility = require(path.join(__dirname, '/utility/Utility.js'));
+const ConsoleColor = require(path.join(__dirname, '/utility/ConsoleColor.js'));
 const database = require(path.join(__dirname, '/utility/Database.js'));
 const logs = require(path.join(__dirname, '/utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
@@ -179,8 +180,9 @@ app.get('/logout', function (req, res) {
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {
     console.log(
+        ConsoleColor.Blue,
         utility.timestampString(
-            'WEB SERVER STARTED> Listening on port ' + server.address().port
+            'Web Server Initialized> Port: ' + server.address().port
         )
     );
 });
@@ -189,7 +191,14 @@ server.listen(process.env.PORT || config.server.port, function () {
 //dependency: websocket
 var io = require('socket.io')(server);
 const { instrument } = require('@socket.io/admin-ui');
-const Donations = require('./utility/StreamElements');
+console.log(
+    ConsoleColor.Blue,
+    utility.timestampString(
+        'Websockets Initialized> Authentication: ' +
+            (config.server.bypassAuth ? 'DISABLED' : 'ENABLED')
+    )
+);
+
 instrument(io, {
     auth: {
         type: config.socketio_admin_dash.auth.type,

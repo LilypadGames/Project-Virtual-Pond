@@ -4,6 +4,10 @@ const jsonPath = require('jsonpath');
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const ConsoleColor = require(path.join(
+    __dirname,
+    '../utility/ConsoleColor.js'
+));
 const roomConfig = require(path.join(__dirname, '../config/room.json'));
 
 chatLogs = {};
@@ -21,6 +25,7 @@ module.exports = {
 
                         //log
                         console.log(
+                            ConsoleColor.Cyan,
                             utility.timestampString(
                                 'Room Chat Log Initialized: ' + room
                             )
@@ -29,7 +34,7 @@ module.exports = {
                 }
             } catch (error) {
                 console.log(
-                    '\x1b[31m%s\x1b[0m',
+                    ConsoleColor.Red,
                     utility.timestampString('Chat Log Init - ' + error)
                 );
             }

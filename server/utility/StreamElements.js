@@ -8,6 +8,10 @@ const config = require(path.join(__dirname, '../config/config.json'));
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const ConsoleColor = require(path.join(
+    __dirname,
+    '../utility/ConsoleColor.js'
+));
 const database = require(path.join(__dirname, '../utility/Database.js'));
 const twitch = require(path.join(__dirname, '../utility/Twitch.js'));
 
@@ -83,17 +87,19 @@ module.exports = {
 
                     //log
                     console.log(
+                        ConsoleColor.Cyan,
                         utility.timestampString('Fetched Donation Data')
                     );
                 } catch (error) {
                     console.log(
-                        '\x1b[31m%s\x1b[0m',
+                        ConsoleColor.Red,
                         utility.timestampString('Save Donation Data - ' + error)
                     );
                 }
             })
             .catch((error) => {
                 console.log(
+                    ConsoleColor.Red,
                     utility.timestampString('Fetch Donation Data - ' + error)
                 );
             });
@@ -140,7 +146,7 @@ module.exports = {
                 }
             } catch (error) {
                 console.log(
-                    '\x1b[31m%s\x1b[0m',
+                    ConsoleColor.Red,
                     utility.timestampString('Parse Donation Data - ' + error)
                 );
             }
