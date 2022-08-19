@@ -33,6 +33,18 @@ module.exports = {
                     }
                 }
             } catch (error) {
+                //ignore certain errors
+                if (
+                    error
+                        .toString()
+                        .includes('Error: Parse error on line 1:') ||
+                    error
+                        .toString()
+                        .includes(
+                            'Error: Lexical error on line 1. Unrecognized text.'
+                        )
+                )
+                    return;
                 console.log(
                     ConsoleColor.Red,
                     utility.timestampString('Chat Log Init - ' + error)
