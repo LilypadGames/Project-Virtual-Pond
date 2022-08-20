@@ -132,7 +132,7 @@ class Game extends Phaser.Scene {
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
-        //register keyboard inputs
+        //chat box inputs
         this.input.keyboard.on(
             'keydown-' + 'ENTER',
             () => {
@@ -149,6 +149,8 @@ class Game extends Phaser.Scene {
             },
             this
         );
+
+        //player direction inputs
         this.input.keyboard.on(
             'keydown-' + 'D',
             () => {
@@ -170,7 +172,7 @@ class Game extends Phaser.Scene {
             () => {
                 if (!this.chatBox.isFocused)
                     this.onDirectionChangeAttempt('left');
-            },˝
+            },
             this
         );
         this.input.keyboard.on(
@@ -1073,15 +1075,15 @@ class Game extends Phaser.Scene {
                 content: [
                     {
                         type: 'text',
-                        text: 'Submit Media URL',
-                        fontSize: 24,
+                        text: 'Submit Media',
+                        fontSize: 22,
                     },
                     {
                         type: 'inputBox',
                         id: 'media-share-box',
                         width: 400,
                         height: 30,
-                        placeholder: '...',
+                        placeholder: 'URL...',
                         background: {
                             color: ColorScheme.White,
                             radius: 15,
@@ -1136,10 +1138,22 @@ class Game extends Phaser.Scene {
                             },
                         ],
                     },
+                    // {
+                    //     type: 'text',
+                    //     text: 'Dim the Lights',
+                    //     fontSize: 22,
+                    // },
+                    // {
+                    //     type: 'checkbox',
+                    //     initialValue: false,
+                    //     onClick: (state) => {
+                    //         console.log(state);
+                    //     },
+                    // }
                 ],
             },
             {
-                y: 600,
+                y: 635,
                 draggable: false,
                 onExit: () => {
                     //set menu as closed (do not add DOM elements)
