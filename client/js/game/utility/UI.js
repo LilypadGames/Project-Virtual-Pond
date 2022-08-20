@@ -4,39 +4,19 @@ class UI {
     //create text with background
     createText(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
-        if (!content.fontSize) {
-            content.fontSize = 12;
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
+        if (!content.fontSize) content.fontSize = 12;
 
-        if (!content.align) {
-            content.align = 'left';
-        }
+        if (!content.align) content.align = 'left';
 
-        if (!content.fontFamily) {
-            content.fontFamily = 'Burbin';
-        }
+        if (!content.fontFamily) content.fontFamily = 'Burbin';
 
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 5;
-        }
-        if (!content.space.right) {
-            content.space.right = 5;
-        }
-        if (!content.space.top) {
-            content.space.top = 5;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 5;
-        }
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 5;
+        if (!content.space.right) content.space.right = 5;
+        if (!content.space.top) content.space.top = 5;
+        if (!content.space.bottom) content.space.bottom = 5;
 
         return scene.rexUI.add.label({
             text: scene.add.text(content.x, content.y, content.text, {
@@ -59,60 +39,29 @@ class UI {
     //create text with background
     createLabel(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
 
-        if (!content.width) {
-            content.width = 40;
-        }
-        if (!content.height) {
-            content.height = 40;
-        }
+        if (!content.width) content.width = 40;
+        if (!content.height) content.height = 40;
 
-        if (!content.background) {
-            content.background = {};
-        }
-        if (!content.background.radius) {
-            content.background.radius = 20;
-        }
-        if (!content.background.color) {
+        if (!content.background) content.background = {};
+        if (!content.background.radius) content.background.radius = 20;
+        if (!content.background.color)
             content.background.color = ColorScheme.Blue;
-        }
-        if (!content.background.alpha) {
-            content.background.alpha = 1;
-        }
+        if (!content.background.alpha) content.background.alpha = 1;
 
-        if (!content.fontSize) {
-            content.fontSize = 12;
-        }
+        if (!content.fontSize) content.fontSize = 12;
 
-        if (!content.align) {
-            content.align = 'center';
-        }
+        if (!content.align) content.align = 'center';
 
-        if (!content.fontFamily) {
-            content.fontFamily = 'Burbin';
-        }
+        if (!content.fontFamily) content.fontFamily = 'Burbin';
 
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 10;
-        }
-        if (!content.space.right) {
-            content.space.right = 10;
-        }
-        if (!content.space.top) {
-            content.space.top = 10;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 10;
-        }
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 10;
+        if (!content.space.right) content.space.right = 10;
+        if (!content.space.top) content.space.top = 10;
+        if (!content.space.bottom) content.space.bottom = 10;
 
         //has icon
         if (content.icon) {
@@ -193,39 +142,21 @@ class UI {
     //create toast message
     createToast(scene, option) {
         //defaults
-        if (!option.x) {
-            option.x = scene.sys.game.canvas.width / 2;
-        }
-        if (!option.y) {
-            option.y = scene.sys.game.canvas.height / 2;
-        }
+        if (!option.x) option.x = scene.sys.game.canvas.width / 2;
+        if (!option.y) option.y = scene.sys.game.canvas.height / 2;
 
-        if (!option.fontSize) {
-            option.fontSize = '24px';
-        }
-        if (!option.fontFamily) {
-            option.fontFamily = 'Burbin';
-        }
-        if (!option.color) {
+        if (!option.fontSize) option.fontSize = '24px';
+        if (!option.fontFamily) option.fontFamily = 'Burbin';
+        if (!option.color)
             option.color = utility.hexIntegerToString(ColorScheme.White);
-        }
 
-        if (!option.background) {
-            option.background = {};
-        }
-        if (!option.background.color) {
+        if (!option.background) option.background = {};
+        if (!option.background.color)
             option.background.color = ColorScheme.Blue;
-        }
-        if (!option.background.radius) {
-            option.background.radius = 15;
-        }
+        if (!option.background.radius) option.background.radius = 15;
 
-        if (!option.duration) {
-            option.duration = {};
-        }
-        if (!option.duration.in) {
-            option.duration.in = 200;
-        }
+        if (!option.duration) option.duration = {};
+        if (!option.duration.in) option.duration.in = 200;
         if (!option.duration.hold) {
             let textLength = option.text.length;
             if (textLength * 100 < 3000) {
@@ -238,25 +169,13 @@ class UI {
                 }
             }
         }
-        if (!option.duration.out) {
-            option.duration.out = 200;
-        }
+        if (!option.duration.out) option.duration.out = 200;
 
-        if (!option.space) {
-            option.space = {};
-        }
-        if (!option.space.left) {
-            option.space.left = 10;
-        }
-        if (!option.space.right) {
-            option.space.right = 10;
-        }
-        if (!option.space.top) {
-            option.space.top = 10;
-        }
-        if (!option.space.bottom) {
-            option.space.bottom = 10;
-        }
+        if (!option.space) option.space = {};
+        if (!option.space.left) option.space.left = 10;
+        if (!option.space.right) option.space.right = 10;
+        if (!option.space.top) option.space.top = 10;
+        if (!option.space.bottom) option.space.bottom = 10;
 
         var toast = scene.rexUI.add
             .toast({
@@ -300,111 +219,46 @@ class UI {
     //create slider
     createSlider(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
-        if (!content.width) {
-            content.width = 300;
-        }
-        if (!content.height) {
-            content.height = 30;
-        }
-        if (!content.orientation) {
-            content.orientation = 'x';
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
+        if (!content.width) content.width = 300;
+        if (!content.height) content.height = 30;
+        if (!content.orientation) content.orientation = 'x';
 
-        if (!content.value) {
-            content.value = 0;
-        }
+        if (!content.value) content.value = 0;
 
-        if (!content.trackX) {
-            content.trackX = 0;
-        }
-        if (!content.trackY) {
-            content.trackY = 0;
-        }
-        if (!content.trackWidth) {
-            content.trackWidth = 0;
-        }
-        if (!content.trackHeight) {
-            content.trackHeight = 0;
-        }
-        if (!content.trackRadius) {
-            content.trackRadius = 10;
-        }
-        if (!content.trackColor) {
-            content.trackColor = ColorScheme.Blue;
-        }
-        if (!content.trackTransparency) {
-            content.trackTransparency = 1;
-        }
+        if (!content.trackX) content.trackX = 0;
+        if (!content.trackY) content.trackY = 0;
+        if (!content.trackWidth) content.trackWidth = 0;
+        if (!content.trackHeight) content.trackHeight = 0;
+        if (!content.trackRadius) content.trackRadius = 10;
+        if (!content.trackColor) content.trackColor = ColorScheme.Blue;
+        if (!content.trackTransparency) content.trackTransparency = 1;
 
-        if (!content.indicatorX) {
-            content.indicatorX = 0;
-        }
-        if (!content.indicatorY) {
-            content.indicatorY = 0;
-        }
-        if (!content.indicatorWidth) {
-            content.indicatorWidth = 0;
-        }
-        if (!content.indicatorHeight) {
-            content.indicatorHeight = 0;
-        }
-        if (!content.indicatorRadius) {
-            content.indicatorRadius = 10;
-        }
-        if (!content.indicatorColor) {
+        if (!content.indicatorX) content.indicatorX = 0;
+        if (!content.indicatorY) content.indicatorY = 0;
+        if (!content.indicatorWidth) content.indicatorWidth = 0;
+        if (!content.indicatorHeight) content.indicatorHeight = 0;
+        if (!content.indicatorRadius) content.indicatorRadius = 10;
+        if (!content.indicatorColor)
             content.indicatorColor = ColorScheme.LightBlue;
-        }
-        if (!content.indicatorTransparency) {
-            content.indicatorTransparency = 1;
-        }
+        if (!content.indicatorTransparency) content.indicatorTransparency = 1;
 
-        if (!content.thumbX) {
-            content.thumbX = 0;
-        }
-        if (!content.thumbY) {
-            content.thumbY = 0;
-        }
-        if (!content.thumbWidth) {
-            content.thumbWidth = 0;
-        }
-        if (!content.thumbHeight) {
-            content.thumbHeight = 0;
-        }
-        if (!content.thumbRadius) {
-            content.thumbRadius = 12;
-        }
-        if (!content.thumbColor) {
-            content.thumbColor = ColorScheme.White;
-        }
-        if (!content.thumbTransparency) {
-            content.thumbTransparency = 1;
-        }
+        if (!content.thumbX) content.thumbX = 0;
+        if (!content.thumbY) content.thumbY = 0;
+        if (!content.thumbWidth) content.thumbWidth = 0;
+        if (!content.thumbHeight) content.thumbHeight = 0;
+        if (!content.thumbRadius) content.thumbRadius = 12;
+        if (!content.thumbColor) content.thumbColor = ColorScheme.White;
+        if (!content.thumbTransparency) content.thumbTransparency = 1;
 
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 5;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 5;
-        }
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 0;
+        if (!content.space.right) content.space.right = 0;
+        if (!content.space.top) content.space.top = 5;
+        if (!content.space.bottom) content.space.bottom = 5;
 
-        if (!content.input) {
-            content.input = 'click';
-        }
+        if (!content.input) content.input = 'click';
 
         let slider = scene.rexUI.add
             .slider({
@@ -475,74 +329,31 @@ class UI {
     //create input box
     createInputBox(scene, option, useSizer = false) {
         //defaults
-        if (!option.x) {
-            option.x = 0;
-        }
-        if (!option.y) {
-            option.y = 0;
-        }
-        if (!option.width) {
-            option.width = 500;
-        }
-        if (!option.height) {
-            option.height = 40;
-        }
-        if (!option.type) {
-            option.type = 'text';
-        }
-        if (!option.text) {
-            option.text = '';
-        }
-        if (!option.placeholder) {
-            option.placeholder = '';
-        }
-        if (!option.fontSize) {
-            option.fontSize = 24;
-        }
-        if (!option.color) {
-            option.color = ColorScheme.Black;
-        }
+        if (!option.x) option.x = 0;
+        if (!option.y) option.y = 0;
+        if (!option.width) option.width = 500;
+        if (!option.height) option.height = 40;
+        if (!option.type) option.type = 'text';
+        if (!option.text) option.text = '';
+        if (!option.placeholder) option.placeholder = '';
+        if (!option.fontSize) option.fontSize = 24;
+        if (!option.color) option.color = ColorScheme.Black;
 
-        if (!option.background) {
-            option.background = {};
-        }
-        if (!option.background.color) {
+        if (!option.background) option.background = {};
+        if (!option.background.color)
             option.background.color = ColorScheme.White;
-        }
-        if (!option.background.radius) {
-            option.background.radius = 0;
-        }
-        if (!option.background.space) {
-            option.background.space = {};
-        }
-        if (!option.background.space.left) {
-            option.background.space.left = 5;
-        }
-        if (!option.background.space.right) {
-            option.background.space.right = 5;
-        }
-        if (!option.background.space.top) {
-            option.background.space.top = 0;
-        }
-        if (!option.background.space.bottom) {
-            option.background.space.bottom = 0;
-        }
+        if (!option.background.radius) option.background.radius = 0;
+        if (!option.background.space) option.background.space = {};
+        if (!option.background.space.left) option.background.space.left = 5;
+        if (!option.background.space.right) option.background.space.right = 5;
+        if (!option.background.space.top) option.background.space.top = 0;
+        if (!option.background.space.bottom) option.background.space.bottom = 0;
 
-        if (!option.border) {
-            option.border = 0;
-        }
-        if (!option.borderColor) {
-            option.borderColor = ColorScheme.Black;
-        }
-        if (!option.spellCheck) {
-            option.spellCheck = false;
-        }
-        if (!option.autoComplete) {
-            option.autoComplete = 'off';
-        }
-        if (!option.maxLength) {
-            option.maxLength = 1000;
-        }
+        if (!option.border) option.border = 0;
+        if (!option.borderColor) option.borderColor = ColorScheme.Black;
+        if (!option.spellCheck) option.spellCheck = false;
+        if (!option.autoComplete) option.autoComplete = 'off';
+        if (!option.maxLength) option.maxLength = 1000;
 
         //create input box
         let inputBox = scene.add.rexInputText({
@@ -609,9 +420,10 @@ class UI {
             //add input box to parent
             sizer.add(inputBox);
             return sizer;
+        }
 
-            //normal background
-        } else {
+        //normal background
+        else {
             scene.rexUI.add
                 .roundRectangle(
                     option.x - option.background.space.left / 2,
@@ -634,48 +446,20 @@ class UI {
     //create button
     createButtons(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
-        if (!content.width) {
-            content.width = 20;
-        }
-        if (!content.height) {
-            content.height = 20;
-        }
-        if (!content.align) {
-            content.align = 'center';
-        }
-        if (!content.orientation) {
-            content.orientation = 'x';
-        }
-        if (!content.color) {
-            content.color = ColorScheme.Blue;
-        }
-        if (!content.colorOnHover) {
-            content.colorOnHover = ColorScheme.LightBlue;
-        }
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 0;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 0;
-        }
-        if (!content.space.item) {
-            content.space.item = 5;
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
+        if (!content.width) content.width = 20;
+        if (!content.height) content.height = 20;
+        if (!content.align) content.align = 'center';
+        if (!content.orientation) content.orientation = 'x';
+        if (!content.color) content.color = ColorScheme.Blue;
+        if (!content.colorOnHover) content.colorOnHover = ColorScheme.LightBlue;
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 0;
+        if (!content.space.right) content.space.right = 0;
+        if (!content.space.top) content.space.top = 0;
+        if (!content.space.bottom) content.space.bottom = 0;
+        if (!content.space.item) content.space.item = 5;
 
         var buttonsData = [];
         for (let i = 0; i < content.buttons.length; i++) {
@@ -683,47 +467,23 @@ class UI {
             const buttonsContent = content.buttons[i];
 
             //defaults
-            if (!buttonsContent.align) {
-                buttonsContent.align = 'center';
-            }
-            if (!buttonsContent.width) {
-                buttonsContent.width = 20;
-            }
-            if (!buttonsContent.height) {
-                buttonsContent.height = 20;
-            }
+            if (!buttonsContent.align) buttonsContent.align = 'center';
+            if (!buttonsContent.width) buttonsContent.width = 20;
+            if (!buttonsContent.height) buttonsContent.height = 20;
 
-            if (!buttonsContent.background) {
-                buttonsContent.background = {};
-            }
-            if (!buttonsContent.background.radius) {
+            if (!buttonsContent.background) buttonsContent.background = {};
+            if (!buttonsContent.background.radius)
                 buttonsContent.background.radius = 20;
-            }
-            if (!buttonsContent.background.color) {
+            if (!buttonsContent.background.color)
                 buttonsContent.background.color = ColorScheme.Blue;
-            }
-            if (!buttonsContent.background.alpha) {
+            if (!buttonsContent.background.alpha)
                 buttonsContent.background.alpha = 1;
-            }
-
-            if (!buttonsContent.space) {
-                buttonsContent.space = {};
-            }
-            if (!buttonsContent.space.left) {
-                buttonsContent.space.left = 0;
-            }
-            if (!buttonsContent.space.right) {
-                buttonsContent.space.right = 0;
-            }
-            if (!buttonsContent.space.top) {
-                buttonsContent.space.top = 0;
-            }
-            if (!buttonsContent.space.bottom) {
-                buttonsContent.space.bottom = 0;
-            }
-            if (!buttonsContent.space.item) {
-                buttonsContent.space.item = 0;
-            }
+            if (!buttonsContent.space) buttonsContent.space = {};
+            if (!buttonsContent.space.left) buttonsContent.space.left = 0;
+            if (!buttonsContent.space.right) buttonsContent.space.right = 0;
+            if (!buttonsContent.space.top) buttonsContent.space.top = 0;
+            if (!buttonsContent.space.bottom) buttonsContent.space.bottom = 0;
+            if (!buttonsContent.space.item) buttonsContent.space.item = 0;
 
             //add to buttons
             buttonsData.push(
@@ -825,19 +585,11 @@ class UI {
     //create color picker
     createColorPicker(scene, option) {
         //defaults
-        if (!option.x) {
-            option.x = 0;
-        }
-        if (!option.y) {
-            option.y = 0;
-        }
+        if (!option.x) option.x = 0;
+        if (!option.y) option.y = 0;
 
-        if (!option.width) {
-            option.width = 400;
-        }
-        if (!option.height) {
-            option.height = 30;
-        }
+        if (!option.width) option.width = 400;
+        if (!option.height) option.height = 30;
 
         //random value
         let sliderValue = Math.random();
@@ -952,12 +704,8 @@ class UI {
     //format passage
     formatPassage(scene, element, passage, options = {}) {
         //defaults
-        if (!options.fontSize) {
-            options.fontSize = 18;
-        }
-        if (!options.fontFamily) {
-            options.fontFamily = 'Burbin';
-        }
+        if (!options.fontSize) options.fontSize = 18;
+        if (!options.fontFamily) options.fontFamily = 'Burbin';
 
         //clear text in element
         element.clear(true);
@@ -992,40 +740,18 @@ class UI {
     //create sizer
     createSizer(scene, content = {}, options = {}) {
         //default options
-        if (!options.x) {
-            options.x = 0;
-        }
-        if (!options.y) {
-            options.y = 0;
-        }
-        if (!options.width) {
-            options.width = 400;
-        }
-        if (!options.height) {
-            options.height = 80;
-        }
-        if (!options.orientation) {
-            options.orientation = 'y';
-        }
+        if (!options.x) options.x = 0;
+        if (!options.y) options.y = 0;
+        if (!options.width) options.width = 400;
+        if (!options.height) options.height = 80;
+        if (!options.orientation) options.orientation = 'y';
 
-        if (!options.space) {
-            options.space = {};
-        }
-        if (!options.space.left) {
-            options.space.left = 20;
-        }
-        if (!options.space.right) {
-            options.space.right = 20;
-        }
-        if (!options.space.top) {
-            options.space.top = 20;
-        }
-        if (!options.space.bottom) {
-            options.space.bottom = 20;
-        }
-        if (!options.space.item) {
-            options.space.item = 5;
-        }
+        if (!options.space) options.space = {};
+        if (!options.space.left) options.space.left = 20;
+        if (!options.space.right) options.space.right = 20;
+        if (!options.space.top) options.space.top = 20;
+        if (!options.space.bottom) options.space.bottom = 20;
+        if (!options.space.item) options.space.item = 5;
 
         //init sizer
         var sizer = scene.rexUI.add.sizer({
@@ -1046,21 +772,13 @@ class UI {
         //add background
         if (options.background) {
             //default options
-            if (!options.background.x) {
-                options.background.x = 0;
-            }
-            if (!options.background.y) {
-                options.background.y = 0;
-            }
-            if (!options.background.radius) {
-                options.background.radius = 20;
-            }
-            if (!options.background.color) {
+            if (!options.background.x) options.background.x = 0;
+            if (!options.background.y) options.background.y = 0;
+            if (!options.background.radius) options.background.radius = 20;
+            if (!options.background.color)
                 options.background.color = ColorScheme.DarkBlue;
-            }
-            if (!options.background.transparency) {
+            if (!options.background.transparency)
                 options.background.transparency = 1;
-            }
 
             sizer.addBackground(
                 scene.rexUI.add.roundRectangle(
@@ -1214,42 +932,26 @@ class UI {
                 //add scrollable panel
                 else if (internalContent.type == 'scrollable') {
                     //default options
-                    if (!internalContent.x) {
-                        internalContent.x = 0;
-                    }
-                    if (!internalContent.y) {
-                        internalContent.y = 0;
-                    }
-                    if (!internalContent.width) {
+                    if (!internalContent.x) internalContent.x = 0;
+                    if (!internalContent.y) internalContent.y = 0;
+                    if (!internalContent.width)
                         internalContent.width = options.width;
-                    }
-                    if (!internalContent.height) {
+                    if (!internalContent.height)
                         internalContent.height = options.height;
-                    }
-                    if (!internalContent.position) {
-                        internalContent.position = 1;
-                    }
-                    if (!internalContent.space) {
-                        internalContent.space = {};
-                    }
-                    if (!internalContent.space.left) {
+                    if (!internalContent.position) internalContent.position = 1;
+                    if (!internalContent.space) internalContent.space = {};
+                    if (!internalContent.space.left)
                         internalContent.space.left = 3;
-                    }
-                    if (!internalContent.space.right) {
+                    if (!internalContent.space.right)
                         internalContent.space.right = 3;
-                    }
-                    if (!internalContent.space.top) {
+                    if (!internalContent.space.top)
                         internalContent.space.top = 3;
-                    }
-                    if (!internalContent.space.bottom) {
+                    if (!internalContent.space.bottom)
                         internalContent.space.bottom = 3;
-                    }
-                    if (!internalContent.space.item) {
+                    if (!internalContent.space.item)
                         internalContent.space.item = 8;
-                    }
-                    if (!internalContent.space.line) {
+                    if (!internalContent.space.line)
                         internalContent.space.line = 8;
-                    }
 
                     //create scrollable panel
                     var panel = scene.rexUI.add.scrollablePanel({
@@ -1326,127 +1028,58 @@ class UI {
     }
 
     //create dialog box
-    createDialog(
-        scene,
-        content,
-        options = {
-            background: {},
-            title: {},
-            description: {},
-            button: { space: {} },
-            space: {},
-            expand: {},
-            align: {},
-            animation: {},
-        }
-    ) {
+    createDialog(scene, content, options = {}) {
         //defaults
-        if (!options.x) {
-            options.x = scene.sys.game.canvas.width / 2;
-        }
-        if (!options.y) {
-            options.y = scene.sys.game.canvas.height / 2;
-        }
-        if (!options.width) {
-            options.width = 500;
-        }
-        if (!options.height) {
-            options.height = 80;
-        }
-        if (options.draggable == undefined) {
-            options.draggable = true;
-        }
+        if (!options.x) options.x = scene.sys.game.canvas.width / 2;
+        if (!options.y) options.y = scene.sys.game.canvas.height / 2;
+        if (!options.width) options.width = 500;
+        if (!options.height) options.height = 80;
+        if (options.draggable == undefined) options.draggable = true;
 
-        if (!options.background.width) {
-            options.background.width = 100;
-        }
-        if (!options.background.height) {
-            options.background.width = 100;
-        }
-        if (!options.background.radius) {
-            options.background.radius = 20;
-        }
-        if (!options.background.color) {
+        if (!options.background) options.background = {};
+        if (!options.background.width) options.background.width = 100;
+        if (!options.background.height) options.background.width = 100;
+        if (!options.background.radius) options.background.radius = 20;
+        if (!options.background.color)
             options.background.color = ColorScheme.DarkBlue;
-        }
 
-        if (!options.title.fontSize) {
-            options.title.fontSize = 48;
-        }
-        if (!options.title.align) {
-            options.title.align = 'center';
-        }
+        if (!options.title) options.title = {};
+        if (!options.title.fontSize) options.title.fontSize = 48;
+        if (!options.title.align) options.title.align = 'center';
 
-        if (!options.description.fontSize) {
-            options.description.fontSize = 28;
-        }
-        if (!options.description.align) {
-            options.description.align = 'center';
-        }
+        if (!options.description) options.description = {};
+        if (!options.description.fontSize) options.description.fontSize = 28;
+        if (!options.description.align) options.description.align = 'center';
 
-        if (!options.button.fontSize) {
-            options.button.fontSize = 28;
-        }
-        if (!options.button.align) {
-            options.button.align = 'center';
-        }
-        if (!options.button.color) {
-            options.button.color = ColorScheme.Blue;
-        }
-        if (!options.button.colorOnHover) {
+        if (!options.button) options.button = {};
+        if (!options.button.fontSize) options.button.fontSize = 28;
+        if (!options.button.align) options.button.align = 'center';
+        if (!options.button.color) options.button.color = ColorScheme.Blue;
+        if (!options.button.colorOnHover)
             options.button.colorOnHover = ColorScheme.LightBlue;
-        }
-        if (!options.button.space.left) {
-            options.button.space.left = 10;
-        }
-        if (!options.button.space.right) {
-            options.button.space.right = 10;
-        }
-        if (!options.button.space.top) {
-            options.button.space.top = 8;
-        }
-        if (!options.button.space.bottom) {
-            options.button.space.bottom = 8;
-        }
+        if (!options.button.space) options.button.space = {};
+        if (!options.button.space.left) options.button.space.left = 10;
+        if (!options.button.space.right) options.button.space.right = 10;
+        if (!options.button.space.top) options.button.space.top = 8;
+        if (!options.button.space.bottom) options.button.space.bottom = 8;
 
-        if (!options.space.left) {
-            options.space.left = 20;
-        }
-        if (!options.space.right) {
-            options.space.right = 20;
-        }
-        if (!options.space.top) {
-            options.space.top = -20;
-        }
-        if (!options.space.bottom) {
-            options.space.bottom = -20;
-        }
-        if (!options.space.title) {
-            options.space.title = 10;
-        }
-        if (!options.space.content) {
-            options.space.content = 15;
-        }
-        if (!options.space.action) {
-            options.space.action = 0;
-        }
+        if (!options.space) options.space = {};
+        if (!options.space.left) options.space.left = 20;
+        if (!options.space.right) options.space.right = 20;
+        if (!options.space.top) options.space.top = -20;
+        if (!options.space.bottom) options.space.bottom = -20;
+        if (!options.space.title) options.space.title = 10;
+        if (!options.space.content) options.space.content = 15;
+        if (!options.space.action) options.space.action = 0;
 
-        if (!options.align.title) {
-            options.align.title = 'center';
-        }
-        if (!options.align.options) {
-            options.align.options = 'center';
-        }
-        if (!options.align.actions) {
-            options.align.actions = 'center';
-        }
+        if (!options.align) options.align = {};
+        if (!options.align.title) options.align.title = 'center';
+        if (!options.align.options) options.align.options = 'center';
+        if (!options.align.actions) options.align.actions = 'center';
 
-        if (!options.animation.ease) {
-            options.animation.ease = 'Bounce';
-        }
-        if (!options.animation.duration) {
-            options.animation.duration = 100;
-        }
+        if (!options.animation) options.animation = {};
+        if (!options.animation.ease) options.animation.ease = 'Bounce';
+        if (!options.animation.duration) options.animation.duration = 100;
 
         //create elements
         const background = scene.rexUI.add.roundRectangle(
@@ -1477,7 +1110,7 @@ class UI {
                 text: content.button,
                 fontSize: options.button.fontSize,
                 align: options.button.align,
-                background: { color: options.background.color },
+                background: { color: options.button.color },
                 space: {
                     left: options.button.space.left,
                     right: options.button.space.right,
@@ -1570,101 +1203,46 @@ class UI {
     }
 
     //create menu (exit button top right, draggable, and filled with sizer and extra content added by the executor)
-    createMenu(
-        scene,
-        content,
-        options = { title: {}, background: {}, space: {} }
-    ) {
+    createMenu(scene, content, options = {}) {
         //default options
-        if (!options.x) {
-            options.x = scene.sys.game.canvas.width / 2;
-        }
-        if (!options.y) {
-            options.y = scene.sys.game.canvas.height / 2;
-        }
-        if (!options.width) {
-            options.width = 400;
-        }
-        if (!options.height) {
-            options.height = 200;
-        }
-        if (options.draggable == undefined) {
-            options.draggable = true;
-        }
+        if (!options.x) options.x = scene.sys.game.canvas.width / 2;
+        if (!options.y) options.y = scene.sys.game.canvas.height / 2;
+        if (!options.width) options.width = 400;
+        if (!options.height) options.height = 200;
+        if (options.draggable == undefined) options.draggable = true;
 
-        if (!options.title) {
-            options.title = {};
-        }
-        if (!options.title.fontSize) {
-            options.title.fontSize = 30;
-        }
+        if (!options.title) options.title = {};
+        if (!options.title.fontSize) options.title.fontSize = 30;
 
-        if (!options.background) {
-            options.background = {};
-        }
-        if (!options.background.x) {
-            options.background.x = 0;
-        }
-        if (!options.background.y) {
-            options.background.y = 0;
-        }
-        if (!options.background.width) {
-            options.background.width = options.width;
-        }
-        if (!options.background.height) {
+        if (!options.background) options.background = {};
+        if (!options.background.x) options.background.x = 0;
+        if (!options.background.y) options.background.y = 0;
+        if (!options.background.width) options.background.width = options.width;
+        if (!options.background.height)
             options.background.height = options.height;
-        }
-        if (!options.background.radius) {
-            options.background.radius = 20;
-        }
-        if (!options.background.color) {
+        if (!options.background.radius) options.background.radius = 20;
+        if (!options.background.color)
             options.background.color = ColorScheme.DarkBlue;
-        }
-        if (!options.background.transparency) {
+        if (!options.background.transparency)
             options.background.transparency = 1;
-        }
 
-        if (!options.space) {
-            options.space = {};
-        }
-        if (!options.space.left) {
-            options.space.left = 10;
-        }
-        if (!options.space.right) {
-            options.space.right = 10;
-        }
-        if (!options.space.top) {
-            options.space.top = 0;
-        }
-        if (!options.space.bottom) {
-            options.space.bottom = 0;
-        }
-        if (!options.space.panel) {
-            options.space.panel = 10;
-        }
-        if (!options.space.item) {
-            options.space.item = 0;
-        }
-        if (!options.space.title) {
-            options.space.title = 5;
-        }
-        if (!options.space.titleLeft) {
-            options.space.titleLeft = 30;
-        }
+        if (!options.space) options.space = {};
+        if (!options.space.left) options.space.left = 10;
+        if (!options.space.right) options.space.right = 10;
+        if (!options.space.top) options.space.top = 0;
+        if (!options.space.bottom) options.space.bottom = 0;
+        if (!options.space.panel) options.space.panel = 10;
+        if (!options.space.item) options.space.item = 0;
+        if (!options.space.title) options.space.title = 5;
+        if (!options.space.titleLeft) options.space.titleLeft = 30;
 
-        if (!options.exitButton) {
-            options.exitButton = {};
-        }
-        if (!options.exitButton.color) {
+        if (!options.exitButton) options.exitButton = {};
+        if (!options.exitButton.color)
             options.exitButton.color = ColorScheme.Blue;
-        }
-        if (!options.exitButton.colorOnHover) {
+        if (!options.exitButton.colorOnHover)
             options.exitButton.colorOnHover = ColorScheme.LightBlue;
-        }
 
-        if (options.cover === undefined) {
-            options.cover = false;
-        }
+        if (options.cover === undefined) options.cover = false;
 
         //content
         let cover = options.cover
