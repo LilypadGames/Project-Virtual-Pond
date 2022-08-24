@@ -348,6 +348,9 @@ class Client {
 
             //set chat log of this room
             currentScene.setChatLog(data['chatLog']);
+
+            //end wait screen
+            loadingScreen.endWaitScreen(currentScene);
         });
     }
     //tell server that the player left a room (to go to another room or a menu/minigame)
@@ -388,10 +391,8 @@ class Client {
     }
     //get all player data from the sockets current room
     requestAllPlayersInRoom() {
-        //log
-        if (debugMode) {
-            console.log(util.timestampString('Reloaded the Pond'));
-        }
+        //run wait screen
+        loadingScreen.runWaitScreen(currentScene);
 
         //request data from server
         socket.emit('requestAllPlayersInRoom', (data) => {
@@ -400,8 +401,16 @@ class Client {
                 for (var i = 0; i < data.length; i++) {
                     currentScene.updatePlayer(data[i]);
                 }
+
+                //end wait screen
+                loadingScreen.endWaitScreen(currentScene);
             }
         });
+
+        //log
+        if (debugMode) {
+            console.log(util.timestampString('Reloaded the Pond'));
+        }
     }
     //tell server that the client has clicked at a specific coordinate
     playerMoved(x, y, direction) {

@@ -36,7 +36,7 @@ class CharacterCreator extends Phaser.Scene {
     // LOGIC
     preload() {
         //loading screen
-        loadingScreen.run(this);
+        loadingScreen.runLoadingScreen(this);
 
         //preload global UI
         globalUI.preload(this);

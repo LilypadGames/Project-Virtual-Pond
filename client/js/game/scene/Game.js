@@ -89,7 +89,7 @@ class Game extends Phaser.Scene {
     // LOGIC
     preload() {
         //loading screen
-        loadingScreen.run(this);
+        loadingScreen.runLoadingScreen(this);
 
         //preload global UI
         globalUI.preload(this);
@@ -115,6 +115,9 @@ class Game extends Phaser.Scene {
     create() {
         //create global UI
         globalUI.create(this);
+
+        //wait screen
+        loadingScreen.runWaitScreen(this);
 
         //register sfxs
         if (this.room === 'forest') {

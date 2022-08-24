@@ -1,7 +1,7 @@
 // Create Loading Screen
 
 class LoadingScreen {
-    run(scene, destroyLoadingIcon = false) {
+    runLoadingScreen(scene, destroyLoadingIcon = false) {
         //set background color
         scene.cameras.main.setBackgroundColor(ColorScheme.Blue);
 
@@ -39,5 +39,43 @@ class LoadingScreen {
             //remove progress bar
             progressBar.destroy();
         });
+    }
+
+    runWaitScreen(scene) {
+        //create loading icon animation
+        scene.anims.create({
+            key: 'loadingIconAnim',
+            frames: scene.anims.generateFrameNumbers('loadingIcon', { end: 7 }),
+            frameRate: 18,
+            repeat: -1,
+        });
+
+        //create background overlay
+        this.loadingBackground = scene.add
+            .rectangle(
+                scene.sys.game.canvas.width / 2,
+                scene.sys.game.canvas.height / 2,
+                gameWidth,
+                gameHeight,
+                ColorScheme.Blue
+            )
+            .setDepth(scene.depthLoadingScreen);
+
+        //create loading icon
+        this.loadingIcon = scene.add
+            .sprite(
+                scene.sys.game.canvas.width / 2,
+                scene.sys.game.canvas.height / 2,
+                'loadingIcon'
+            )
+            .setDepth(scene.depthLoadingScreen);
+
+        //play loading icon animation
+        this.loadingIcon.play('loadingIconAnim');
+    }
+
+    endWaitScreen() {
+        this.loadingBackground.destroy();
+        this.loadingIcon.destroy();
     }
 }

@@ -8,6 +8,7 @@ class GlobalUI {
         //depth
         scene.depthUI = 100002;
         scene.depthOverlay = 100001;
+        scene.depthLoadingScreen = 999999;
         scene.depthDebug = 1000000;
     }
 
@@ -19,6 +20,10 @@ class GlobalUI {
         );
 
         //UI
+        scene.load.spritesheet('loadingIcon', 'assets/ui/loading.png', {
+            frameWidth: 64,
+            frameHeight: 64,
+        });
         scene.load.image(
             'rotate_device_to_horizontal',
             'assets/ui/rotate_device_to_horizontal.png'
