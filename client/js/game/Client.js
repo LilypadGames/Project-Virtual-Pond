@@ -309,6 +309,11 @@ class Client {
     onStreamStatusReceived(status) {
         globalUI.showToast(currentScene, 'Stream Status: ' + status);
         console.log('STREAM STATUS RECIEVED: ' + status);
+
+        //theatre room
+        if (currentScene.room == 'theatre') {
+            console.log('UPDATE LIVE/MEDIA STREAM');
+        }
     }
 
     /// OUTGOING
