@@ -281,6 +281,9 @@ class Room {
         //unregister old events for the old room
         this.unregisterRoomEvents();
 
+        //reset message data
+        delete this.socket.player.message;
+
         //store new room
         this.room = newRoom;
 
