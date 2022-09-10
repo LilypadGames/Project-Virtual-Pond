@@ -8,7 +8,7 @@ const ConsoleColor = require(path.join(
     __dirname,
     '../utility/ConsoleColor.js'
 ));
-const roomConfig = require(path.join(__dirname, '../config/room.json'));
+const roomData = require(path.join(__dirname, '../config/roomData.json'));
 
 chatLogs = {};
 
@@ -18,7 +18,7 @@ module.exports = {
         io.of('/').adapter.on('create-room', (room) => {
             try {
                 //check if room exists
-                if (jsonPath.query(roomConfig, '$..' + room)[0]) {
+                if (jsonPath.query(roomData, '$..' + room)[0]) {
                     //init chat log for room
                     if (chatLogs[room] === undefined) {
                         chatLogs[room] = [];

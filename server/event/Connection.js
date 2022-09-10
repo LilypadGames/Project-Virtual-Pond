@@ -6,7 +6,7 @@ const jsonPath = require('jsonpath');
 
 //get config values
 const config = require(path.join(__dirname, '../config/config.json'));
-const roomConfig = require(path.join(__dirname, '../config/room.json'));
+const roomData = require(path.join(__dirname, '../config/roomData.json'));
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
@@ -256,7 +256,7 @@ class Connection {
 
         //get room spawnpoint data
         const roomSpawnpoint = jsonPath.query(
-            roomConfig,
+            roomData,
             '$..' + room + '.spawnpoint'
         )[0];
 

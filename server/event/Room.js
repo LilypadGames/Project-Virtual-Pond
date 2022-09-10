@@ -1,9 +1,11 @@
 // Room Events
 
 //dependency: file path
+const fs = require('fs');
 const path = require('path');
 
-// config
+//config
+const config = require(path.join(__dirname, '../config/config.json'));
 const badWords = require(path.join(__dirname, '../config/bad_words.js'));
 
 //dependencies
@@ -15,6 +17,7 @@ const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
+const commands = require(path.join(__dirname, '../utility/Commands.js'));
 
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
@@ -150,6 +153,47 @@ class Room {
             typeof message === 'string' && message.trim().length > 0
                 ? message.trim()
                 : '';
+
+        //check if message is actually a command
+        if (message.startsWith('/')) {
+            //check if player is an admin/mod OR no auth mode is on
+            if (
+                this.socket.player.isAdmin ||
+                this.socket.player.isMod ||
+                config.server.bypassAuth
+            ) {
+                //parse command
+                let command = message.replace('/', '');
+                command = command.split(' ');
+
+                //attempt to run command
+                let logMessage = commands.runCommand(this.socket, command)
+                    ? 'Used Command'
+                    : 'Tried to use Command';
+
+                //log command
+                console.log(
+                    utility.timestampString(
+                        'PLAYER ID: ' +
+                            this.socket.player.id +
+                            ' (' +
+                            this.socket.player.name +
+                            ')' +
+                            ' - ' +
+                            logMessage +
+                            '> ' +
+                            message
+                    )
+                );
+            } else {
+                //server message
+                this.socket.emit(
+                    'payloadServerMessage',
+                    'You Cannot Use Commands'
+                );
+            }
+            return;
+        }
 
         //kick if larger than allowed max length
         if (message.length > 80) {

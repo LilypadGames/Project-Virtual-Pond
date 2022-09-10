@@ -93,6 +93,10 @@ class Client {
         });
 
         //MISC
+        //recieve server message
+        socket.on('payloadServerMessage', (message) => {
+            this.onServerMessageReceived(message);
+        });
         //recieve stream status
         socket.on('payloadStreamStatus', (status) => {
             this.onStreamStatusReceived(status);
@@ -305,7 +309,12 @@ class Client {
     }
 
     //MISC
-    //recieve stream status
+    //receive server message
+    onServerMessageReceived(message) {
+        globalUI.showToast(currentScene, message);
+    }
+
+    //receive stream status
     onStreamStatusReceived(status) {
         globalUI.showToast(currentScene, 'Stream Status: ' + status);
         console.log('STREAM STATUS RECIEVED: ' + status);
