@@ -8,6 +8,7 @@ const sceneData = require(path.join(__dirname, '../config/sceneData.json'));
 
 module.exports = {
     runCommand: function (socket, command) {
+        //start scene command
         if (command[0] === 'startscene') {
             //invalid parameters (no first para)
             if (
@@ -17,18 +18,27 @@ module.exports = {
             ) {
                 //server message
                 socket.emit('payloadServerMessage', 'Invalid Parameters');
-            } else {
+                return false;
+            }
+
+            //successful command
+            else {
                 //run command
                 this.startScene(socket, command[1]);
+                return true;
             }
-        } else {
+        }
+
+        //not a command
+        else {
             //server message
             socket.emit('payloadServerMessage', 'Invalid Command');
+            return false;
         }
     },
 
     startScene: function (socket, scene) {
         //server message
-        socket.emit('payloadServerMessage', 'Starting Scene: ' + scene);
+        socket.emit('payloadNewScene', scene);
     },
 };

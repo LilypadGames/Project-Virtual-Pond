@@ -6,12 +6,9 @@ class CharacterCreator extends Phaser.Scene {
         super({ key: 'CharacterCreator' });
     }
 
-    init(previousRoom) {
+    init() {
         //global variables
         globalUI.init(this);
-
-        //save previous room
-        this.previousRoom = previousRoom;
 
         //character
         this.characterData = {};
@@ -89,12 +86,12 @@ class CharacterCreator extends Phaser.Scene {
         this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
     }
 
-    create() {
+    async create() {
         //create global UI
         globalUI.create(this);
 
         //get player data
-        client.requestClientPlayerData();
+        this.parseClientPlayerData(await client.requestClientPlayerData());
     }
 
     end() {
@@ -114,7 +111,7 @@ class CharacterCreator extends Phaser.Scene {
         this.end();
 
         //join game world
-        this.scene.start('Game', this.previousRoom);
+        client.requestRoom();
     }
 
     // UI
@@ -278,7 +275,7 @@ class CharacterCreator extends Phaser.Scene {
 
     // FUNCTIONS
     //get character information
-    parsePlayerData(data) {
+    parseClientPlayerData(data) {
         //set character data
         if (data.character) {
             this.characterData = data.character;

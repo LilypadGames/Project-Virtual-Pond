@@ -6,12 +6,9 @@ class BongBuckets extends Phaser.Scene {
         super({ key: 'BongBuckets' });
     }
 
-    init(previousRoom) {
+    init() {
         //set scene
         currentScene = this;
-
-        //set previous room
-        this.previousRoom = previousRoom;
     }
 
     // LOGIC

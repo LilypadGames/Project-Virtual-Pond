@@ -5,7 +5,10 @@
             "maxX": 975,
             "minY": 560,
             "maxY": 731
-        }
+        },
+        "adjacentRooms": [
+            "theatre"
+        ]
     },
     "theatre": {
         "spawnpoint": {
@@ -13,6 +16,9 @@
             "maxX": 1078,
             "minY": 566,
             "maxY": 649
-        }
+        },
+        "adjacentRooms": [
+            "forest"
+        ]
     }
 }

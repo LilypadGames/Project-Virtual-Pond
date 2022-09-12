@@ -338,6 +338,13 @@ class Client {
     }
 
     //ROOM
+    //attempt to join a room
+    requestRoom(requestedRoom) {
+        //if requestedRoom is left empty, the server will just send the last room the player was in, or the default room for new players. Otherwise, it determines whether the player is allowed to join the new room.
+        socket.emit('requestRoom', requestedRoom, (room) => {
+            currentScene.scene.start('Game', room);
+        });
+    }
     //tell server that this client just joined
     joinRoom(room) {
         socket.emit('joinRoom', room, (data) => {
@@ -392,11 +399,14 @@ class Client {
             console.log(util.timestampString('Requested Clients Player Data'));
         }
 
-        //request data from server
-        socket.emit('requestClientPlayerData', (data) => {
-            currentScene.parsePlayerData(data);
+        //wait for client player data to return
+        return new Promise((resolve) => {
+            socket.emit('requestClientPlayerData', (clientPlayerData) => {
+                resolve(clientPlayerData);
+            });
         });
     }
+
     //tell server that the player updated their character data
     updateClientPlayerData(data) {
         socket.emit('updateClientPlayerData', data, () => {

@@ -10,6 +10,7 @@ const roomData = require(path.join(__dirname, '../config/roomData.json'));
 
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 const serverMetrics = require(path.join(
     __dirname,
@@ -148,6 +149,11 @@ class Connection {
             cb();
         });
 
+        //triggers when client is attempting to join a room
+        this.socket.on('requestRoom', async (room, cb) => {
+            cb(await this.requestRoom(room));
+        });
+
         //triggers when client leaves a room
         this.socket.on('leaveRoom', () => this.leaveRoom());
 
@@ -193,6 +199,37 @@ class Connection {
         this.socket.on('disconnect', () => this.onDisconnect());
     }
 
+    //triggers when client is attempting to join a room
+    requestRoom(room) {
+        //no room provided
+        if (!room) {
+            //check for last room
+            if (this.socket.player.stat && this.socket.player.stat.lastRoom) {
+                room = this.socket.player.stat.lastRoom;
+            }
+            //otherwise provide default room
+            else {
+                room = 'forest';
+            }
+        }
+
+        //log
+        let logMessage = utility.timestampString(
+            'PLAYER ID: ' +
+                this.socket.player.id +
+                ' (' +
+                this.socket.player.name +
+                ')' +
+                ' - Attempting to Join Room: ' +
+                room
+        );
+        logs.logMessage('debug', logMessage);
+
+        //determine whether player can join this room
+
+        return room;
+    }
+
     //triggers when client leaves a room
     leaveRoom() {
         //log
@@ -207,6 +244,11 @@ class Connection {
                     this.socket.roomID
             )
         );
+
+        //store old room in player data
+        this.playerData.updateClientPlayerData({
+            stat: { lastRoom: this.socket.roomID },
+        });
 
         //send the removal of the player for ALL clients in this room
         this.io

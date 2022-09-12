@@ -10,7 +10,7 @@ const twitchEmotes = new Emotes();
 
 //set up config
 var roomData = {};
-$.getJSON('../config/rooms.json', function (json) {
+$.getJSON('../config/roomData.json', function (json) {
     roomData.rooms = json;
 });
 
@@ -111,6 +111,12 @@ window.onload = function () {
                     mapping: 'rexCover',
                 },
                 {
+                    key: 'rexSoundFade',
+                    plugin: rexsoundfadeplugin,
+                    start: true,
+                    mapping: 'rexSoundFade',
+                },
+                {
                     key: 'rexOutlineFX',
                     plugin: rexoutlinepipelineplugin,
                     start: true,
@@ -127,7 +133,7 @@ window.onload = function () {
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
-        scene: [Menu, Game, CharacterCreator],
+        scene: [Menu, Game, CharacterCreator, FF22DailySpin],
     };
 
     //init game

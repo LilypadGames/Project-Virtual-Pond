@@ -38,6 +38,7 @@ class LoadingScreen {
         scene.load.on('complete', function () {
             //remove progress bar
             progressBar.destroy();
+            progressBox.destroy();
         });
     }
 

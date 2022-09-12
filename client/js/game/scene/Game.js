@@ -10,7 +10,7 @@ class Game extends Phaser.Scene {
         //global variables
         globalUI.init(this);
 
-        //save room
+        //set room
         this.room = room;
 
         //world
@@ -269,7 +269,7 @@ class Game extends Phaser.Scene {
                     () => {
                         //start new room scene
                         this.end();
-                        this.scene.start('Game', this.teleportList[i]['room']);
+                        client.requestRoom(this.teleportList[i]['room']);
                     }
                 );
             }

@@ -186,6 +186,19 @@ class Room {
                     )
                 );
             } else {
+                //log command
+                let logMessage = utility.timestampString(
+                    'PLAYER ID: ' +
+                        this.socket.player.id +
+                        ' (' +
+                        this.socket.player.name +
+                        ')' +
+                        ' - ' +
+                        'Tried to Use Command Without Permission> ' +
+                        message
+                );
+                logs.logMessage('moderation', logMessage);
+
                 //server message
                 this.socket.emit(
                     'payloadServerMessage',

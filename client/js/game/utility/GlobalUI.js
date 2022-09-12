@@ -10,6 +10,13 @@ class GlobalUI {
         scene.depthOverlay = 100001;
         scene.depthLoadingScreen = 999999;
         scene.depthDebug = 1000000;
+
+        //reset
+        delete this.toast;
+        // delete this.debugCursor;
+        // delete this.debugPing;
+        // delete this.debugModeListener;
+        // delete this.debugCursorListener;
     }
 
     preload(scene) {
@@ -211,6 +218,7 @@ class GlobalUI {
     showToast(scene, message, option) {
         //get scene name
         let sceneName = scene.scene.key;
+        console.log(sceneName);
 
         //calculate toast duration
         let duration = 3000;
@@ -263,7 +271,7 @@ class GlobalUI {
     }
 
     //toggle console logging
-    toggleDebugMode(scene) {
+    toggleDebugMode() {
         //off
         if (debugMode) {
             console.log(utility.timestampString('[DEBUG MODE: OFF]'));
