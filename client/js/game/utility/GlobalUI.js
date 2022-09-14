@@ -74,10 +74,10 @@ class GlobalUI {
             () => {
                 if (scene.scene.key === 'Game') {
                     if (!scene.chatBox.isFocused) {
-                        this.toggleDebugMode();
+                        // this.toggleDebugMode();
                     }
                 } else {
-                    this.toggleDebugMode();
+                    // this.toggleDebugMode();
                 }
             },
             scene
@@ -168,6 +168,57 @@ class GlobalUI {
             .setDepth(scene.depthUI);
     }
 
+    showDialog(scene, title, description, button) {
+        //initialize content
+        let content = {
+            title: title,
+            description: description,
+            button: button,
+        };
+
+        //fade background
+        // scene.add.rexCover({ alpha: 0.8 }).setDepth(scene.depthUI);
+
+        //create dialog with acknowledgement button
+        const dialog = ui
+            .createDialog(scene, content)
+            .on(
+                'button.click',
+                function () {
+                    //sfx
+                    scene.sfxButtonClick.play();
+
+                    //close
+                    dialog.emit('modal.requestClose');
+
+                    //set menu as closed
+                    if (scene.menuClosed)
+                        //set menu as closed
+                        scene.menuClosed();
+                },
+                scene
+            )
+            .setDepth(scene.depthUI);
+
+        //dark background
+        scene.rexUI.modalPromise(
+            dialog,
+
+            //config
+            {
+                cover: true,
+                duration: {
+                    in: 200,
+                    out: 200,
+                },
+            }
+        );
+
+        if (scene.menuOpened)
+            //set menu as opened
+            scene.menuOpened();
+    }
+
     showRefreshDialog(scene, refreshReason = 'Please refresh to log back in.') {
         //initialize content
         let content = {
@@ -218,7 +269,6 @@ class GlobalUI {
     showToast(scene, message, option) {
         //get scene name
         let sceneName = scene.scene.key;
-        console.log(sceneName);
 
         //calculate toast duration
         let duration = 3000;
