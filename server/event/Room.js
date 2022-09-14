@@ -32,7 +32,7 @@ class Room {
         this.room = room;
 
         //init PlayerData instance
-        this.playerData = new PlayerData(io, socket);
+        this.PlayerData = new PlayerData(io, socket);
     }
 
     async init() {
@@ -46,7 +46,7 @@ class Room {
     async register() {
         //triggers when player reloads their client and requests current player data
         this.socket.on('requestAllPlayersInRoom', async (cb) => {
-            cb(await this.playerData.requestAllPlayersInRoom());
+            cb(await this.PlayerData.requestAllPlayersInRoom());
         });
 
         //triggers when player moves
@@ -303,7 +303,7 @@ class Room {
             });
 
             //remove from server-side player data
-            this.playerData.resetMessageData(messageData.id);
+            this.PlayerData.resetMessageData(messageData.id);
         }, 5000);
     }
 

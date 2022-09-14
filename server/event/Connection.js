@@ -23,12 +23,9 @@ const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
 //import events
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
 const Room = require(path.join(__dirname, 'Room.js'));
+const Events = require(path.join(__dirname, 'Events.js'));
 
 class Connection {
-    //LOCAL VARIABLES
-    roomInstance;
-    playerData;
-
     constructor(io, socket) {
         //save socket and socket.io instance
         this.socket = socket;
@@ -42,7 +39,10 @@ class Connection {
         };
 
         //init PlayerData instance
-        this.playerData = new PlayerData(io, socket);
+        this.PlayerData = new PlayerData(this.io, this.socket);
+
+        //init Events instance
+        this.Events = new Events(this.io, this.socket, this.PlayerData);
     }
 
     async init() {
@@ -76,7 +76,7 @@ class Connection {
                 );
 
                 //set up player data
-                this.socket.player = await this.playerData.getPlayerData();
+                this.socket.player = await this.PlayerData.getPlayerData();
 
                 //register events
                 this.register();
@@ -100,6 +100,9 @@ class Connection {
             //increment ID
             this.io.guestID = this.io.guestID + 1;
         }
+
+        //init party events
+        await this.Events.init();
     }
 
     async register() {
@@ -132,7 +135,7 @@ class Connection {
         //triggers when client requests the players data
         this.socket.on('requestLoadData', (cb) => {
             var loadData = {};
-            loadData['player'] = this.playerData.requestClientPlayerData();
+            loadData['player'] = this.PlayerData.requestClientPlayerData();
             // loadData['emotes'] = emoteLib.getEmotes();
 
             cb(loadData);
@@ -140,12 +143,12 @@ class Connection {
 
         //triggers when client requests the players data
         this.socket.on('requestClientPlayerData', (cb) => {
-            cb(this.playerData.requestClientPlayerData());
+            cb(this.PlayerData.requestClientPlayerData());
         });
 
         //triggers when client changes their player data and may want to go to next scene only AFTER the data has been updated
         this.socket.on('updateClientPlayerData', (data, cb) => {
-            this.playerData.updateClientPlayerData(data);
+            this.PlayerData.updateClientPlayerData(data);
             cb();
         });
 
@@ -246,7 +249,7 @@ class Connection {
         );
 
         //store old room in player data
-        this.playerData.updateClientPlayerData({
+        this.PlayerData.updateClientPlayerData({
             stat: { lastRoom: this.socket.roomID },
         });
 
@@ -280,7 +283,7 @@ class Connection {
         //auth enabled
         if (!config.server.bypassAuth) {
             //store player data in database
-            this.playerData.storePlayerData();
+            this.PlayerData.storePlayerData();
         }
 
         //add player to room
@@ -321,7 +324,7 @@ class Connection {
         var roomInfo = {};
 
         //send all currently connected players in this room to ONLY THIS client
-        roomInfo['players'] = await this.playerData.getAllPlayers(
+        roomInfo['players'] = await this.PlayerData.getAllPlayers(
             this.socket.roomID
         );
 
@@ -388,7 +391,7 @@ class Connection {
             this.socket.player.stat.lastRoom = this.socket.roomID;
 
             //store player data in database
-            this.playerData.storePlayerData();
+            this.PlayerData.storePlayerData();
         }
 
         //send the removal of the player for ALL clients in this room

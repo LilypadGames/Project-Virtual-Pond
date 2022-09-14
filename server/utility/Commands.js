@@ -25,8 +25,9 @@ module.exports = {
             else {
                 //run command
                 this.startScene(socket, command[1]);
-                return true;
             }
+        } else if (command[0] === 'yo') {
+            socket.emit('payloadServerMessage', 'yo');
         }
 
         //not a command
@@ -35,6 +36,8 @@ module.exports = {
             socket.emit('payloadServerMessage', 'Invalid Command');
             return false;
         }
+
+        return true;
     },
 
     startScene: function (socket, scene) {

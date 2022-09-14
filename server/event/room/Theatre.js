@@ -24,7 +24,7 @@ class Theatre {
     //initialize
     init() {
         //register events
-        this.registerEvents(this.socket);
+        this.registerEvents();
 
         //update stream status on client
         this.streamStatusUpdate(globalData.getObject('streamLive'));

@@ -73,6 +73,9 @@ class FF22DailySpin extends Phaser.Scene {
             'assets/audio/sfx/minigame/success_long.mp3'
         );
         this.load.audio('failure', 'assets/audio/sfx/minigame/failure.mp3');
+
+        //get updated ticket count
+        client.FF22getTicketCount();
     }
 
     create() {

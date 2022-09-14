@@ -67,6 +67,22 @@ class PlayerData {
             stat: {
                 loginTime: Date.now(),
             },
+
+            //permissions
+            isAdmin: (await database.getValue(
+                'permissions/admin/' + this.socket.request.user.data[0].id
+            ))
+                ? await database.getValue(
+                      'permissions/admin/' + this.socket.request.user.data[0].id
+                  )
+                : 0,
+            isMod: (await database.getValue(
+                'permissions/mod/' + this.socket.request.user.data[0].id
+            ))
+                ? await database.getValue(
+                      'permissions/mod/' + this.socket.request.user.data[0].id
+                  )
+                : 0,
         };
 
         //first login stat
@@ -147,6 +163,25 @@ class PlayerData {
                     this.socket.player.currency.clovers
                 );
         }
+    }
+
+    //gets specific client player data from specified path
+    async getSpecificClientPlayerData(path) {
+        if (
+            !(await database.getValue('users/' + this.socket.player.id + path))
+        ) {
+            return undefined;
+        } else {
+            let value = await database.getValue(
+                'users/' + this.socket.player.id + path
+            );
+            return value;
+        }
+    }
+
+    //sets specific client player data from specified path
+    async setSpecificClientPlayerData(path, value) {
+        database.setValue('users/' + this.socket.player.id + path, value);
     }
 
     //triggers when client requests the players data

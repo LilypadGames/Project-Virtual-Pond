@@ -92,7 +92,7 @@ class Client {
             this.onPlayerInteractingWithNPC(playerInteractNPC);
         });
 
-        //MISC
+        // MISC
         //recieve server message
         socket.on('payloadServerMessage', (message) => {
             this.onServerMessageReceived(message);
@@ -101,6 +101,9 @@ class Client {
         socket.on('payloadStreamStatus', (status) => {
             this.onStreamStatusReceived(status);
         });
+
+        // EVENTS
+        //FF22
     }
 
     /// INCOMING
@@ -450,5 +453,12 @@ class Client {
     //tell server that player is going to interact with an NPC
     playerInteractingWithNPC(npcID) {
         socket.emit('playerInteractingWithNPC', npcID);
+    }
+
+    // EVENTS
+    //FF22
+    //get ticket count
+    FF22getTicketCount() {
+        socket.emit('FF22requestTicketCount', (ticketCount) => {});
     }
 }
