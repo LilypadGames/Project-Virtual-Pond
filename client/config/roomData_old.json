@@ -2,7 +2,7 @@
     "forest": {
         "option": {
             "chatLogUIHeight": 250,
-            "music": "frog_caves_fair",
+            "music": "frog_caves_chill_kopie",
             "ambience": "forest_ambience"
         },
         "asset": {
@@ -66,6 +66,10 @@
                 {
                     "name": "Radio",
                     "path": "room/forest/objects/Radio.png"
+                },
+                {
+                    "name": "Lost_Recording",
+                    "path": "room/forest/objects/Lost_Recording.png"
                 }
             ],
             "audio": [
@@ -74,8 +78,12 @@
                     "path": "room/forest/audio/sfx/object/radio_click.mp3"
                 },
                 {
-                    "name": "frog_caves_fair",
-                    "path": "event/ff22/audio/music/frog_caves_fair.mp3"
+                    "name": "lost_recording",
+                    "path": "room/forest/audio/sfx/object/lost_recording.mp3"
+                },
+                {
+                    "name": "frog_caves_chill_kopie",
+                    "path": "room/forest/audio/music/frog_caves_chill_kopie.mp3"
                 },
                 {
                     "name": "mask",
@@ -122,6 +130,51 @@
             }
         ],
         "npcs": [
+            {
+                "name": "Poke",
+                "x": 363,
+                "y": 629,
+                "direction": "right",
+                "lines": [
+                    "*cough* i'm sick",
+                    "yo",
+                    "i'll be on lacari later",
+                    "one sec gunna take a water break",
+                    "u ever have a hemorrhoid?"
+                ]
+            },
+            {
+                "name": "Gigi",
+                "x": 250,
+                "y": 540,
+                "direction": "right",
+                "lines": [
+                    "*thinking of something HUH to say*",
+                    "people call me a very accurate gamer",
+                    "GEORGIEEEEEE!"
+                ]
+            },
+            {
+                "name": "Jesse",
+                "x": 1032,
+                "y": 666,
+                "direction": "left",
+                "lines": [
+                    "have you heard about the hangry hippos NFT?",
+                    "fuck all the bitches I know I don't give a fuck about flow",
+                    "a ha ha...",
+                    "i could be playing among us rn"
+                ]
+            },
+            {
+                "name": "Snic",
+                "x": 1238,
+                "y": 554,
+                "direction": "left",
+                "lines": [
+                    "IDGAF"
+                ]
+            }
         ],
         "teleports": [
             {

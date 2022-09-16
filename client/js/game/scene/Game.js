@@ -110,6 +110,9 @@ class Game extends Phaser.Scene {
 
         //load room assets
         this.preloadRoomData(this.room);
+
+        //event data
+        this.load.image('ticket_icon', 'event/ff22/ui/ticket_icon.png');
     }
 
     create() {
@@ -127,9 +130,9 @@ class Game extends Phaser.Scene {
                     utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
                 ].volume
             );
-            this.audioLostRecording = this.sound.add('lost_recording', {
-                volume: 1,
-            });
+            // this.audioLostRecording = this.sound.add('lost_recording', {
+            //     volume: 1,
+            // });
         }
 
         //detect when window is re-focused
@@ -229,36 +232,36 @@ class Game extends Phaser.Scene {
     }
 
     update() {
-        //handle collisions between player and npc characters
-        for (var i = 0; i < this.npcCharacter.length; i++) {
-            Object.keys(this.playerCharacter).forEach((key) => {
-                this.physics.world.collide(
-                    this.playerCharacter[key],
-                    this.npcCharacter[i],
-                    () => {
-                        //get player interact NPC data
-                        let interactNPC = utility.getObject(
-                            this.playerData,
-                            key
-                        ).interactNPC;
+        // //handle collisions between player and npc characters
+        // for (var i = 0; i < this.npcCharacter.length; i++) {
+        //     Object.keys(this.playerCharacter).forEach((key) => {
+        //         this.physics.world.collide(
+        //             this.playerCharacter[key],
+        //             this.npcCharacter[i],
+        //             () => {
+        //                 //get player interact NPC data
+        //                 let interactNPC = utility.getObject(
+        //                     this.playerData,
+        //                     key
+        //                 ).interactNPC;
 
-                        //if player is trying to interact with this NPC
-                        if (interactNPC == i) {
-                            //interact with NPC
-                            this.interactNPC(key, i);
+        //                 //if player is trying to interact with this NPC
+        //                 if (interactNPC == i) {
+        //                     //interact with NPC
+        //                     this.interactNPC(key, i);
 
-                            //log
-                            if (debugMode)
-                                console.log(
-                                    utility.timestampString(
-                                        'Interacted With NPC: ' + i
-                                    )
-                                );
-                        }
-                    }
-                );
-            });
-        }
+        //                     //log
+        //                     if (debugMode)
+        //                         console.log(
+        //                             utility.timestampString(
+        //                                 'Interacted With NPC: ' + i
+        //                             )
+        //                         );
+        //                 }
+        //             }
+        //         );
+        //     });
+        // }
 
         //check if player attempts to teleport
         if (this.playerCharacter[clientID]) {
@@ -469,23 +472,23 @@ class Game extends Phaser.Scene {
                 this
             );
 
-            //lost recording
-            let lost_recording = this.add
-                .image(1209, 621.2, 'Lost_Recording')
-                .setDepth(655)
-                .setInteractive();
-            this.setInteractObject(lost_recording);
-            lost_recording.on(
-                'pointerdown',
-                () => {
-                    //play lost recording
-                    this.audioLostRecording.play();
+            // //lost recording
+            // let lost_recording = this.add
+            //     .image(1209, 621.2, 'Lost_Recording')
+            //     .setDepth(655)
+            //     .setInteractive();
+            // this.setInteractObject(lost_recording);
+            // lost_recording.on(
+            //     'pointerdown',
+            //     () => {
+            //         //play lost recording
+            //         this.audioLostRecording.play();
 
-                    //click sfx
-                    this.sfxRadioClick.play();
-                },
-                this
-            );
+            //         //click sfx
+            //         this.sfxRadioClick.play();
+            //     },
+            //     this
+            // );
 
             //find four table
             // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
@@ -495,9 +498,10 @@ class Game extends Phaser.Scene {
             // this.setInteractObject(tableFindFour);
             // tableFindFour.on('pointerdown', () => {
             // }, this);
+        }
 
-            //theatre
-        } else if (room == 'theatre') {
+        //theatre
+        else if (room == 'theatre') {
             //forest sign
             let forest_sign = this.add
                 .image(1236, 692, 'Sign_Forest')
@@ -800,31 +804,41 @@ class Game extends Phaser.Scene {
 
         //theatre specific UI
         if (this.room === 'theatre') {
-            //mini buttons
-            ui.createButtons(this, {
-                x: 1245,
-                y: 30,
-                fontSize: 22,
-                space: {
-                    item: 10,
-                },
-                buttons: [
-                    //media share queue
-                    {
-                        text: '🎞️',
-                        background: { radius: 8 },
-                        onClick: () => {
-                            //check if menu is open
-                            if (!this.menuOpen) {
-                                //show media share menu
-                                this.showMediaShareMenu();
-                            }
-                        },
-                    },
-                ],
-            })
+            // //mini buttons
+            // ui.createButtons(this, {
+            //     x: 1245,
+            //     y: 30,
+            //     fontSize: 22,
+            //     space: {
+            //         item: 10,
+            //     },
+            //     buttons: [
+            //         //media share queue
+            //         {
+            //             text: '🎞️',
+            //             background: { radius: 8 },
+            //             onClick: () => {
+            //                 //check if menu is open
+            //                 if (!this.menuOpen) {
+            //                     //show media share menu
+            //                     this.showMediaShareMenu();
+            //                 }
+            //             },
+            //         },
+            //     ],
+            // })
+            //     .setDepth(this.depthUI)
+            //     .setOrigin(0, 0.5);
+        }
+
+        //event specific UI
+        if (globalData.currentEvents.includes('FF22')) {
+            var ticketIcon = this.add
+                .sprite(1220, 40, 'ticket_icon')
                 .setDepth(this.depthUI)
-                .setOrigin(0, 0.5);
+                .setOrigin(0.5, 0.5)
+                .setInteractive();
+            this.setInteractObject(ticketIcon);
         }
     }
 
@@ -1068,106 +1082,106 @@ class Game extends Phaser.Scene {
         this.menuOpened();
     }
 
-    //show media share menu
-    showMediaShareMenu() {
-        //create news menu
-        ui.createMenu(
-            this,
-            {
-                title: 'Media Share',
-                content: [
-                    {
-                        type: 'text',
-                        text: 'Submit Media',
-                        fontSize: 22,
-                    },
-                    {
-                        type: 'inputBox',
-                        id: 'media-share-box',
-                        width: 400,
-                        height: 30,
-                        placeholder: 'URL...',
-                        background: {
-                            color: ColorScheme.White,
-                            radius: 15,
-                        },
-                        color: '#000000',
-                        maxLength: this.messageMaxLength,
-                        depth: this.depthUI,
-                        // onFocus: (inputBox) => {
-                        //     if (this.menuOpen) inputBox.setBlur();
-                        // },
-                        onKeydown: (inputBox, event) => {
-                            if (event.key == 'Enter') {
-                                //format media submission
-                                const mediaSubmission = inputBox.text
-                                    .substr(0, this.messageMaxLength)
-                                    .trim()
-                                    .replace(/\s+/g, ' ');
+    // //show media share menu
+    // showMediaShareMenu() {
+    //     //create news menu
+    //     ui.createMenu(
+    //         this,
+    //         {
+    //             title: 'Media Share',
+    //             content: [
+    //                 {
+    //                     type: 'text',
+    //                     text: 'Submit Media',
+    //                     fontSize: 22,
+    //                 },
+    //                 {
+    //                     type: 'inputBox',
+    //                     id: 'media-share-box',
+    //                     width: 400,
+    //                     height: 30,
+    //                     placeholder: 'URL...',
+    //                     background: {
+    //                         color: ColorScheme.White,
+    //                         radius: 15,
+    //                     },
+    //                     color: '#000000',
+    //                     maxLength: this.messageMaxLength,
+    //                     depth: this.depthUI,
+    //                     // onFocus: (inputBox) => {
+    //                     //     if (this.menuOpen) inputBox.setBlur();
+    //                     // },
+    //                     onKeydown: (inputBox, event) => {
+    //                         if (event.key == 'Enter') {
+    //                             //format media submission
+    //                             const mediaSubmission = inputBox.text
+    //                                 .substr(0, this.messageMaxLength)
+    //                                 .trim()
+    //                                 .replace(/\s+/g, ' ');
 
-                                // //send the message to the server
-                                // if (mediaSubmission !== '' && mediaSubmission !== null) {
-                                //     client.playerSendingMessage(mediaSubmission);
-                                // }
+    //                             // //send the message to the server
+    //                             // if (mediaSubmission !== '' && mediaSubmission !== null) {
+    //                             //     client.playerSendingMessage(mediaSubmission);
+    //                             // }
 
-                                // //leave chat bar
-                                // else {
-                                //     inputBox.setBlur();
-                                // }
+    //                             // //leave chat bar
+    //                             // else {
+    //                             //     inputBox.setBlur();
+    //                             // }
 
-                                //clear chat box
-                                inputBox.setText('');
-                            }
-                        },
-                    },
-                    {
-                        type: 'buttons',
-                        align: 'center',
-                        fontSize: 20,
-                        buttons: [
-                            {
-                                text: 'Vote Skip',
-                                align: 'left',
-                                onClick: () => {
-                                    console.log('skip');
-                                },
-                            },
-                            {
-                                text: 'View Queue',
-                                align: 'left',
-                                onClick: () => {
-                                    console.log('view queue');
-                                },
-                            },
-                        ],
-                    },
-                    // {
-                    //     type: 'text',
-                    //     text: 'Dim the Lights',
-                    //     fontSize: 22,
-                    // },
-                    // {
-                    //     type: 'checkbox',
-                    //     initialValue: false,
-                    //     onClick: (state) => {
-                    //         console.log(state);
-                    //     },
-                    // }
-                ],
-            },
-            {
-                y: 635,
-                draggable: false,
-                onExit: () => {
-                    //set menu as closed (do not add DOM elements)
-                    this.menuClosed(false);
-                },
-            }
-        );
+    //                             //clear chat box
+    //                             inputBox.setText('');
+    //                         }
+    //                     },
+    //                 },
+    //                 {
+    //                     type: 'buttons',
+    //                     align: 'center',
+    //                     fontSize: 20,
+    //                     buttons: [
+    //                         {
+    //                             text: 'Vote Skip',
+    //                             align: 'left',
+    //                             onClick: () => {
+    //                                 console.log('skip');
+    //                             },
+    //                         },
+    //                         {
+    //                             text: 'View Queue',
+    //                             align: 'left',
+    //                             onClick: () => {
+    //                                 console.log('view queue');
+    //                             },
+    //                         },
+    //                     ],
+    //                 },
+    //                 // {
+    //                 //     type: 'text',
+    //                 //     text: 'Dim the Lights',
+    //                 //     fontSize: 22,
+    //                 // },
+    //                 // {
+    //                 //     type: 'checkbox',
+    //                 //     initialValue: false,
+    //                 //     onClick: (state) => {
+    //                 //         console.log(state);
+    //                 //     },
+    //                 // }
+    //             ],
+    //         },
+    //         {
+    //             y: 635,
+    //             draggable: false,
+    //             onExit: () => {
+    //                 //set menu as closed (do not add DOM elements)
+    //                 this.menuClosed(false);
+    //             },
+    //         }
+    //     );
 
-        //set menu as opened (do not remove DOM elements)
-        this.menuOpened(false);
-    }
+    //     //set menu as opened (do not remove DOM elements)
+    //     this.menuOpened(false);
+    // }
 
     //set room chat log from server
     setChatLog(log) {

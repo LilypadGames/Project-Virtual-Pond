@@ -67,7 +67,7 @@ class FF22DailySpin extends Phaser.Scene {
         //sfx
         this.load.audio(
             'wheel_spin',
-            'assets/event/ff22/minigame/dailyspin/audio/wheel_spin.mp3'
+            'assets/event/ff22/minigame/dailyspin/audio/sfx/wheel_spin.mp3'
         );
         this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
         this.load.audio(
