@@ -94,6 +94,9 @@ class Game extends Phaser.Scene {
         //preload global UI
         globalUI.preload(this);
 
+        //preload events data
+        events.preload(this);
+
         //set to asset path
         this.load.setPath('assets/');
 
@@ -110,14 +113,14 @@ class Game extends Phaser.Scene {
 
         //load room assets
         this.preloadRoomData(this.room);
-
-        //event data
-        this.load.image('ticket_icon', 'event/ff22/ui/ticket_icon.png');
     }
 
     create() {
         //create global UI
         globalUI.create(this);
+
+        //create events data
+        events.create(this);
 
         //wait screen
         loadingScreen.runWaitScreen(this);
@@ -457,7 +460,7 @@ class Game extends Phaser.Scene {
                 .image(294, 625, 'Radio')
                 .setDepth(649)
                 .setInteractive();
-            this.setInteractObject(radio);
+            globalUI.setOutlineOnHover(this, radio);
             radio.on(
                 'pointerdown',
                 () => {
@@ -477,7 +480,7 @@ class Game extends Phaser.Scene {
             //     .image(1209, 621.2, 'Lost_Recording')
             //     .setDepth(655)
             //     .setInteractive();
-            // this.setInteractObject(lost_recording);
+            // globalUI.setOutlineOnHover(this, lost_recording);
             // lost_recording.on(
             //     'pointerdown',
             //     () => {
@@ -495,7 +498,7 @@ class Game extends Phaser.Scene {
             // .setDepth(600)
             // .setOrigin(0.5, 1)
             // .setInteractive();
-            // this.setInteractObject(tableFindFour);
+            // globalUI.setOutlineOnHover(this, tableFindFour);
             // tableFindFour.on('pointerdown', () => {
             // }, this);
         }
@@ -514,7 +517,7 @@ class Game extends Phaser.Scene {
                 .setDepth(528)
                 .setOrigin(0.5, 1)
                 .setInteractive();
-            this.setInteractObject(free_sub_sign);
+            globalUI.setOutlineOnHover(this, free_sub_sign);
             free_sub_sign.on(
                 'pointerdown',
                 () => {
@@ -631,30 +634,6 @@ class Game extends Phaser.Scene {
     //reload the world when window is re-focused
     onFocus() {
         client.requestAllPlayersInRoom();
-    }
-
-    //create outlines on hover
-    setInteractObject(sprite) {
-        sprite
-            .on(
-                'pointerover',
-                function () {
-                    //show outline
-                    this.rexOutlineFX.add(sprite, {
-                        thickness: 3,
-                        outlineColor: ColorScheme.White,
-                    });
-                },
-                this
-            )
-            .on(
-                'pointerout',
-                function () {
-                    //remove outline
-                    this.rexOutlineFX.remove(sprite);
-                },
-                this
-            );
     }
 
     //show menu
@@ -829,16 +808,6 @@ class Game extends Phaser.Scene {
             // })
             //     .setDepth(this.depthUI)
             //     .setOrigin(0, 0.5);
-        }
-
-        //event specific UI
-        if (globalData.currentEvents.includes('FF22')) {
-            var ticketIcon = this.add
-                .sprite(1220, 40, 'ticket_icon')
-                .setDepth(this.depthUI)
-                .setOrigin(0.5, 0.5)
-                .setInteractive();
-            this.setInteractObject(ticketIcon);
         }
     }
 
@@ -1805,7 +1774,7 @@ class Game extends Phaser.Scene {
         );
 
         //add hover outline to npc sprite
-        this.setInteractObject(this.npcCharacter[id].list[0]);
+        globalUI.setOutlineOnHover(this, this.npcCharacter[id].list[0]);
 
         //create npc overlay container
         this.npcCharacter[id].add(

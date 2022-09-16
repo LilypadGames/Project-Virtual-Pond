@@ -1,11 +1,17 @@
 // Initializes Game
 
 //imports
+const utility = new Utility();
+
+const client = new Client();
+
 const ui = new UI();
 const globalUI = new GlobalUI();
-const utility = new Utility();
-const client = new Client();
 const loadingScreen = new LoadingScreen();
+
+const events = new Events();
+const ff22 = new FF22();
+
 const twitchEmotes = new Emotes();
 
 //set up config
