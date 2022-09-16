@@ -42,6 +42,9 @@ class FF22DailySpin extends Phaser.Scene {
         //preload global UI
         globalUI.preload(this);
 
+        //preload events data
+        events.preload(this);
+
         //layers
         this.load.image(
             'background',
@@ -84,15 +87,15 @@ class FF22DailySpin extends Phaser.Scene {
         //create global UI
         globalUI.create(this);
 
+        //create events data
+        await events.create(this);
+
         //create background
         this.add.sprite(
             game.config.width / 2,
             game.config.height / 2,
             'background'
         );
-
-        //get ticket count
-        this.ticketCount = await client.FF22getTicketCount();
 
         //get daily spins count
         this.dailySpinCount = await client.FF22getDailySpinCount();
@@ -339,10 +342,11 @@ class FF22DailySpin extends Phaser.Scene {
                         );
                     }
 
-                    //update ticket display
-                    this.ticketCount =
-                        this.ticketCount + this.gameOptions.prizeAmounts[prize];
-                    console.log(this.ticketCount);
+                    //update ticket amount
+                    ff22.changeTickets(
+                        this,
+                        this.gameOptions.prizeAmounts[prize]
+                    );
 
                     //if player can still spin
                     if (this.dailySpinCount >= 1) this.canSpin = true;

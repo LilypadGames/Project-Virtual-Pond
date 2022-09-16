@@ -321,7 +321,6 @@ class Client {
     onStreamStatusReceived(status) {
         // globalUI.showToast(currentScene, 'Stream Status: ' + status);
         // console.log('STREAM STATUS RECIEVED: ' + status);
-
         // //theatre room
         // if (currentScene.room == 'theatre') {
         //     console.log('UPDATE LIVE/MEDIA STREAM');
@@ -349,32 +348,12 @@ class Client {
         });
     }
     //tell server that this client just joined
-    joinRoom(room) {
-        socket.emit('joinRoom', room, (data) => {
-            //get players in this room
-            for (var i = 0; i < data['players'].length; i++) {
-                if (currentScene.scene.key == 'Game') {
-                    //log
-                    if (debugMode) {
-                        console.log(
-                            util.timestampString(
-                                'PLAYER ID: ' +
-                                    data['players'][i].id +
-                                    ' - In the Pond'
-                            )
-                        );
-                    }
-
-                    //add players
-                    currentScene.addNewPlayer(data['players'][i]);
-                }
-            }
-
-            //set chat log of this room
-            currentScene.setChatLog(data['chatLog']);
-
-            //end wait screen
-            loadingScreen.endWaitScreen(currentScene);
+    async joinRoom(room) {
+        //wait for currently connected player data to return
+        return new Promise((resolve) => {
+            socket.emit('joinRoom', room, (roomData) => {
+                resolve(roomData);
+            });
         });
     }
     //tell server that the player left a room (to go to another room or a menu/minigame)

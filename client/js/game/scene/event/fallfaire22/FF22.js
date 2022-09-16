@@ -1,18 +1,46 @@
 // Fall Faire 2022 Event Handler
 
 class FF22 {
+    init() {
+        delete this.ticketIcon;
+    }
+
     preload(scene) {
+        //init
+        this.init();
+
         //UI
         scene.load.image('ticket_icon', 'assets/event/ff22/ui/ticket_icon.png');
     }
 
-    create(scene) {
+    async create(scene) {
+        //get current ticket count
+        scene.ticketCount = await client.FF22getTicketCount();
+
         //ticket icon
-        var ticketIcon = scene.add
+        this.ticketIcon = scene.add
             .sprite(1220, 40, 'ticket_icon')
             .setDepth(scene.depthUI)
             .setOrigin(0.5, 0.5)
             .setInteractive();
         globalUI.setOutlineOnHover(scene, ticketIcon);
     }
+
+    changeTickets(scene, delta) {
+        //update amount
+        scene.ticketCount = scene.ticketCount + delta;
+
+        //update ticket display
+        this.updateTicketDisplay(scene);
+    }
+
+    async updateTickets() {
+        //get current ticket count
+        scene.ticketCount = await client.FF22getTicketCount();
+
+        //update ticket display
+        this.updateTicketDisplay(scene);
+    }
+
+    updateTicketDisplay(scene) {}
 }

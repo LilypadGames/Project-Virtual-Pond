@@ -115,15 +115,15 @@ class Game extends Phaser.Scene {
         this.preloadRoomData(this.room);
     }
 
-    create() {
+    async create() {
+        //wait screen
+        loadingScreen.runWaitScreen(this);
+
         //create global UI
         globalUI.create(this);
 
         //create events data
-        events.create(this);
-
-        //wait screen
-        loadingScreen.runWaitScreen(this);
+        await events.create(this);
 
         //register sfxs
         if (this.room === 'forest') {
@@ -211,14 +211,8 @@ class Game extends Phaser.Scene {
         //add room teleports
         this.addRoomTeleports(this.room);
 
-        //tell server that the client has joined this room and recieve information such as currently connected players to this room
-        client.joinRoom(this.room);
-
         //add toolbar
         this.createToolbar();
-
-        //add room DOM elements
-        this.addRoomDOMElements(this.room);
 
         //welcome message
         var options = utility.getLocalStorage('gameValues');
@@ -232,6 +226,23 @@ class Game extends Phaser.Scene {
             ].value = welcomeMessageVersion;
             utility.storeLocalStorageArray('gameValues', options);
         }
+
+        //tell server that the client has joined this room and recieve information such as currently connected players to this room
+        let roomData = await client.joinRoom(this.room);
+
+        //add connected players into room
+        for (var i = 0; i < roomData['players'].length; i++) {
+            currentScene.addNewPlayer(roomData['players'][i]);
+        }
+
+        //set chat log of this room
+        currentScene.setChatLog(roomData['chatLog']);
+
+        //end wait screen
+        loadingScreen.endWaitScreen(currentScene);
+
+        //add room DOM elements
+        this.addRoomDOMElements(this.room);
     }
 
     update() {
