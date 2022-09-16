@@ -16,7 +16,7 @@ class FF22DailySpin extends Phaser.Scene {
             slices: 8,
 
             // prize names, starting from 12 o'clock going clockwise
-            slicePrizes: [
+            prizesText: [
                 'You won 50 Tickets.',
                 'You won 5 Tickets.',
                 'You won 25 Tickets.',
@@ -26,6 +26,8 @@ class FF22DailySpin extends Phaser.Scene {
                 'You won 25 Tickets.',
                 'No Win.',
             ],
+
+            prizeAmounts: [50, 5, 25, 0, 50, 5, 25, 0],
 
             // wheel rotation duration, in milliseconds
             rotationTime: 3000,
@@ -43,21 +45,21 @@ class FF22DailySpin extends Phaser.Scene {
         //layers
         this.load.image(
             'background',
-            'assets/minigame/ff22/dailyspin/layers/Background.png'
+            'assets/event/ff22/minigame/dailyspin/layers/Background.png'
         );
 
         //objects
         this.load.image(
             'wheel',
-            'assets/minigame/ff22/dailyspin/objects/wheel.png'
+            'assets/event/ff22/minigame/dailyspin/objects/wheel.png'
         );
         this.load.image(
             'wheel_shadow',
-            'assets/minigame/ff22/dailyspin/objects/wheel_shadow.png'
+            'assets/event/ff22/minigame/dailyspin/objects/wheel_shadow.png'
         );
         this.load.image(
             'pin',
-            'assets/minigame/ff22/dailyspin/objects/pin.png'
+            'assets/event/ff22/minigame/dailyspin/objects/pin.png'
         );
 
         //music
@@ -65,7 +67,7 @@ class FF22DailySpin extends Phaser.Scene {
         //sfx
         this.load.audio(
             'wheel_spin',
-            'assets/minigame/ff22/dailyspin/audio/wheel_spin.mp3'
+            'assets/event/ff22/minigame/dailyspin/audio/wheel_spin.mp3'
         );
         this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
         this.load.audio(
@@ -73,12 +75,12 @@ class FF22DailySpin extends Phaser.Scene {
             'assets/audio/sfx/minigame/success_long.mp3'
         );
         this.load.audio('failure', 'assets/audio/sfx/minigame/failure.mp3');
-
-        //get updated ticket count
-        client.FF22getTicketCount();
     }
 
-    create() {
+    async create() {
+        //run wait screen
+        loadingScreen.runWaitScreen(this);
+
         //create global UI
         globalUI.create(this);
 
@@ -89,11 +91,20 @@ class FF22DailySpin extends Phaser.Scene {
             'background'
         );
 
+        //get ticket count
+        this.ticketCount = await client.FF22getTicketCount();
+
+        //get daily spins count
+        this.dailySpinCount = await client.FF22getDailySpinCount();
+
         //create wheel
         this.createWheel();
 
         //create toolbar
         this.createToolbar();
+
+        //end wait screen
+        loadingScreen.endWaitScreen(this);
     }
 
     end() {
@@ -201,7 +212,9 @@ class FF22DailySpin extends Phaser.Scene {
             .text(
                 game.config.width / 2 - 200,
                 game.config.height - 40,
-                'Spin The Wheel!',
+                this.dailySpinCount >= 1
+                    ? 'Spin The Wheel!'
+                    : 'Come Back Tomorrow!',
                 {
                     fontFamily: 'Burbin',
                     fontSize: '40px',
@@ -211,8 +224,8 @@ class FF22DailySpin extends Phaser.Scene {
             )
             .setOrigin(0.5);
 
-        //the game has just started = we can spin the wheel
-        this.canSpin = true;
+        //check if player has daily spins left
+        if (this.dailySpinCount >= 1) this.canSpin = true;
 
         //sound
         let sfxVolume =
@@ -236,23 +249,31 @@ class FF22DailySpin extends Phaser.Scene {
     }
 
     //spin the wheel
-    spinWheel() {
+    async spinWheel() {
         //can we spin the wheel?
         if (this.canSpin) {
+            //get confirmation and status from server
+            let spinData = await client.FF22attemptDailySpin();
+
+            //no more spins
+            if (!spinData['status']) return;
+
+            //reduce spins
+            this.dailySpinCount--;
+
             //resetting text field
             this.prizeText.setText('');
 
             //the wheel will spin between these amount of times. This is just visual.
             var rounds = Phaser.Math.Between(3, 5);
 
-            //then will rotate by a random number from 0 to 360 degrees. This is the actual spin.
-            var degrees = Phaser.Math.Between(0, 360);
-
             //before the wheel ends spinning, we already know the prize according to "degrees" rotation and the number of slices
             var prize =
                 this.gameOptions.slices -
                 1 -
-                Math.floor(degrees / (360 / this.gameOptions.slices));
+                Math.floor(
+                    spinData['degrees'] / (360 / this.gameOptions.slices)
+                );
 
             //now the wheel cannot spin because it's already spinning
             this.canSpin = false;
@@ -264,7 +285,7 @@ class FF22DailySpin extends Phaser.Scene {
                 targets: [this.wheel],
 
                 //angle destination
-                angle: 360 * rounds + degrees,
+                angle: 360 * rounds + spinData['degrees'],
 
                 //tween duration
                 duration: this.gameOptions.rotationTime,
@@ -278,7 +299,11 @@ class FF22DailySpin extends Phaser.Scene {
                 //function to be executed once the tween has been completed
                 onComplete: function (tween) {
                     //redisplay prize text
-                    this.prizeText.setText('Spin The Wheel!');
+                    this.prizeText.setText(
+                        this.dailySpinCount >= 1
+                            ? 'Spin The Wheel!'
+                            : 'Come Back Tomorrow!'
+                    );
 
                     //lost
                     if (prize === 3 || prize === 7) {
@@ -287,7 +312,7 @@ class FF22DailySpin extends Phaser.Scene {
                         globalUI.showDialog(
                             this,
                             'Maybe Next Time!',
-                            this.gameOptions.slicePrizes[prize],
+                            this.gameOptions.prizesText[prize],
                             'Continue'
                         );
                     }
@@ -298,7 +323,7 @@ class FF22DailySpin extends Phaser.Scene {
                         globalUI.showDialog(
                             this,
                             'Big Win!',
-                            this.gameOptions.slicePrizes[prize],
+                            this.gameOptions.prizesText[prize],
                             'Continue'
                         );
                     }
@@ -309,12 +334,18 @@ class FF22DailySpin extends Phaser.Scene {
                         globalUI.showDialog(
                             this,
                             'Congrats!',
-                            this.gameOptions.slicePrizes[prize],
+                            this.gameOptions.prizesText[prize],
                             'Continue'
                         );
                     }
-                    //player can spin again
-                    this.canSpin = true;
+
+                    //update ticket display
+                    this.ticketCount =
+                        this.ticketCount + this.gameOptions.prizeAmounts[prize];
+                    console.log(this.ticketCount);
+
+                    //if player can still spin
+                    if (this.dailySpinCount >= 1) this.canSpin = true;
                 },
             });
 

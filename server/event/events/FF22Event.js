@@ -1,17 +1,19 @@
-// Connection Events
+// FF22Event Events
 
-// //dependencies: file parsing
-// const path = require('path');
+//dependency: file path
+const path = require('path');
 
-// //get config values
-// const config = require(path.join(__dirname, '../config/config.json'));
+//imports
+const utility = require(path.join(__dirname, '../../utility/Utility.js'));
 
-// //imports
-// const utility = require(path.join(__dirname, '../utility/Utility.js'));
-// const logs = require(path.join(__dirname, '../utility/Logs.js'));
+//DailySpinOptions
+let DailySpinOptions = {
+    // slices (prizes) placed in the wheel
+    slices: 8,
 
-// //import events
-// const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
+    // prize amounts, starting from 12 o'clock going clockwise
+    prizeAmounts: [50, 5, 25, 0, 50, 5, 25, 0],
+};
 
 class FF22Event {
     constructor(io, socket, playerData) {
@@ -26,12 +28,25 @@ class FF22Event {
     async init() {
         //register events
         this.register();
+
+        //init spins
+        this.dailySpinCheck();
     }
 
     async register() {
         //triggers when client requests the players ticket count
         this.socket.on('FF22requestTicketCount', async (cb) => {
             cb(await this.getTicketCount());
+        });
+
+        //triggers when client requests the players daily spin count
+        this.socket.on('FF22requestDailySpinCount', async (cb) => {
+            cb(await this.getDailySpinCount());
+        });
+
+        //triggers when client requests the players daily spin count
+        this.socket.on('FF22requestDailySpin', async (cb) => {
+            cb(await this.attemptDailySpin());
         });
     }
 
@@ -53,6 +68,110 @@ class FF22Event {
 
         //return ticket count
         return ticketCount;
+    }
+
+    //triggers when client requests the daily spin count
+    async getDailySpinCount() {
+        //init
+        await this.dailySpinCheck();
+
+        //get daily spin count
+        let dailySpinCount = await this.PlayerData.getSpecificClientPlayerData(
+            '/event/ff22/dailySpins'
+        );
+        dailySpinCount = dailySpinCount === undefined ? 0 : dailySpinCount;
+
+        //return ticket count
+        return dailySpinCount;
+    }
+
+    //check for daily spins
+    async dailySpinCheck() {
+        //init last daily spin
+        if (
+            (await this.PlayerData.getSpecificClientPlayerData(
+                '/event/ff22/lastDailySpin'
+            )) === undefined
+        ) {
+            //last daily spin
+            this.PlayerData.setSpecificClientPlayerData(
+                '/event/ff22/lastDailySpin',
+                Date.now()
+            );
+
+            //daily spins
+            this.PlayerData.setSpecificClientPlayerData(
+                '/event/ff22/dailySpins',
+                3
+            );
+        }
+
+        //reset last daily spin
+        else {
+            //get last spin time
+            let lastDailySpin =
+                await this.PlayerData.getSpecificClientPlayerData(
+                    '/event/ff22/lastDailySpin'
+                );
+
+            //get difference between now and the last spin
+            let hourDifference =
+                Math.abs(Date.now() - lastDailySpin) / (60 * 60 * 1000);
+
+            //check if theres been 12 hours since last spin
+            if (hourDifference >= 12) {
+                //reset last daily spin
+                this.PlayerData.setSpecificClientPlayerData(
+                    '/event/ff22/lastDailySpin',
+                    Date.now()
+                );
+
+                //daily spins
+                this.PlayerData.setSpecificClientPlayerData(
+                    '/event/ff22/dailySpins',
+                    3
+                );
+            }
+        }
+    }
+
+    //triggers when player attempts to spin the wheel
+    async attemptDailySpin() {
+        //check if player has daily spins left
+        let dailySpinCount = await this.PlayerData.getSpecificClientPlayerData(
+            '/event/ff22/dailySpins'
+        );
+
+        //if daily spins left
+        if (dailySpinCount >= 1) {
+            //remove 1 from daily spin count
+            await this.PlayerData.setSpecificClientPlayerData(
+                '/event/ff22/dailySpins',
+                dailySpinCount - 1
+            );
+
+            //then will rotate by a random number from 0 to 360 degrees. This is the actual spin.
+            var degrees = utility.getRandomInt(0, 360);
+
+            //before the wheel ends spinning, we already know the prize according to "degrees" rotation and the number of slices
+            var prizeAmount =
+                DailySpinOptions.prizeAmounts[
+                    DailySpinOptions.slices -
+                        1 -
+                        Math.floor(degrees / (360 / DailySpinOptions.slices))
+                ];
+
+            //award the players win
+            await this.PlayerData.changeSpecificClientPlayerData(
+                '/event/ff22/tickets',
+                prizeAmount
+            );
+
+            return { status: true, degrees: degrees };
+        } else {
+            //no spins left
+            return { status: false };
+        }
     }
 }
 

@@ -5,12 +5,12 @@ const fs = require('fs');
 
 module.exports = {
     //get a random integer
-    getRandomInt: function (low, high) {
-        return Math.floor(Math.random() * (high - low) + low);
+    getRandomInt: function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
     //get random from array
-    randomFromArray(array) {
+    randomFromArray: function (array) {
         return array[Math.floor(Math.random() * array.length)];
     },
 

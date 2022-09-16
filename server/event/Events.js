@@ -3,15 +3,7 @@
 //dependencies: file parsing
 const path = require('path');
 
-// //get config values
-// const config = require(path.join(__dirname, '../config/config.json'));
-
-// //imports
-// const utility = require(path.join(__dirname, '../utility/Utility.js'));
-// const logs = require(path.join(__dirname, '../utility/Logs.js'));
-
-// //import events
-// const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
+//import events
 const FF22Event = require(path.join(__dirname, 'events/FF22Event.js'));
 
 class Events {

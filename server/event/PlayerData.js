@@ -167,21 +167,34 @@ class PlayerData {
 
     //gets specific client player data from specified path
     async getSpecificClientPlayerData(path) {
-        if (
-            !(await database.getValue('users/' + this.socket.player.id + path))
-        ) {
-            return undefined;
-        } else {
-            let value = await database.getValue(
-                'users/' + this.socket.player.id + path
-            );
-            return value;
-        }
+        // if (
+        //     (await database.getValue('users/' + this.socket.player.id + path)) === undefined
+        // ) {
+        //     return undefined;
+        // } else {
+        //     let value = await database.getValue(
+        //         'users/' + this.socket.player.id + path
+        //     );
+        //     return value;
+        // }
+        let value = await database.getValue(
+            'users/' + this.socket.player.id + path
+        );
+        return value;
     }
 
     //sets specific client player data from specified path
     async setSpecificClientPlayerData(path, value) {
         database.setValue('users/' + this.socket.player.id + path, value);
+    }
+
+    //changes specific client player data from specified path
+    async changeSpecificClientPlayerData(path, delta) {
+        let currentData = await this.getSpecificClientPlayerData(path);
+        database.setValue(
+            'users/' + this.socket.player.id + path,
+            currentData + delta
+        );
     }
 
     //triggers when client requests the players data

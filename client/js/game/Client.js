@@ -459,6 +459,26 @@ class Client {
     //FF22
     //get ticket count
     FF22getTicketCount() {
-        socket.emit('FF22requestTicketCount', (ticketCount) => {});
+        return new Promise((resolve) => {
+            socket.emit('FF22requestTicketCount', (ticketCount) => {
+                resolve(ticketCount);
+            });
+        });
+    }
+    //get daily spin count
+    FF22getDailySpinCount() {
+        return new Promise((resolve) => {
+            socket.emit('FF22requestDailySpinCount', (dailySpinCount) => {
+                resolve(dailySpinCount);
+            });
+        });
+    }
+    //get status and degree spin amount
+    FF22attemptDailySpin() {
+        return new Promise((resolve) => {
+            socket.emit('FF22requestDailySpin', (data) => {
+                resolve(data);
+            });
+        });
     }
 }
