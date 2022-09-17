@@ -250,7 +250,7 @@ class FF22DailySpin extends Phaser.Scene {
 
         //refresh scene
         if (timeLeft <= 0) {
-            this.end();
+            // this.end();
             this.scene.start('FF22DailySpin');
         }
 
