@@ -460,4 +460,12 @@ class Client {
             });
         });
     }
+    //get last daily spin time
+    FF22getLastDailySpinTime() {
+        return new Promise((resolve) => {
+            socket.emit('FF22requestLastDailySpinTime', (lastDailySpin) => {
+                resolve(lastDailySpin);
+            });
+        });
+    }
 }

@@ -64,6 +64,11 @@ class Menu extends Phaser.Scene {
                     //attempt request again
                     this.attemptRequest();
                 }
+                //wait for globalData to be received
+                else if (!globalData) {
+                    //attempt request again
+                    this.attemptRequest();
+                }
             }, 1000);
         }
     }

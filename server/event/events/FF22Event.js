@@ -48,6 +48,11 @@ class FF22Event {
         this.socket.on('FF22requestDailySpin', async (cb) => {
             cb(await this.attemptDailySpin());
         });
+
+        //triggers when client requests the players last daily spin time
+        this.socket.on('FF22requestLastDailySpinTime', async (cb) => {
+            cb(await this.getLastDailySpinTime());
+        });
     }
 
     //triggers when client requests the players ticket count
@@ -81,8 +86,22 @@ class FF22Event {
         );
         dailySpinCount = dailySpinCount === undefined ? 0 : dailySpinCount;
 
-        //return ticket count
+        //return daily spin count
         return dailySpinCount;
+    }
+
+    //triggers when client requests the daily spin count
+    async getLastDailySpinTime() {
+        //init
+        await this.dailySpinCheck();
+
+        //get last daily spin
+        let lastDailySpin = await this.PlayerData.getSpecificClientPlayerData(
+            '/event/ff22/lastDailySpin'
+        );
+
+        //return last daily spin
+        return lastDailySpin;
     }
 
     //check for daily spins

@@ -32,6 +32,10 @@ class FF22DailySpin extends Phaser.Scene {
             // wheel rotation duration, in milliseconds
             rotationTime: 3000,
         };
+
+        //reset data
+        delete this.spinInfoTitle;
+        delete this.spinInfoDesc;
     }
 
     // LOGIC
@@ -90,15 +94,26 @@ class FF22DailySpin extends Phaser.Scene {
         //create events data
         await events.create(this);
 
-        //create background
-        this.add.sprite(
-            game.config.width / 2,
-            game.config.height / 2,
-            'background'
-        );
-
         //get daily spins count
         this.dailySpinCount = await client.FF22getDailySpinCount();
+
+        //create background
+        this.add
+            .sprite(game.config.width / 2, game.config.height / 2, 'background')
+            .setDepth(this.depthBackgroundUI);
+
+        //create background for spin info
+        this.rexUI.add.roundRectangle(
+            game.config.width / 2 + 330,
+            game.config.height / 2,
+            300,
+            150,
+            30,
+            ColorScheme.Blue
+        );
+
+        //update spin info
+        await this.updateSpinInfo();
 
         //create wheel
         this.createWheel();
@@ -159,6 +174,93 @@ class FF22DailySpin extends Phaser.Scene {
         })
             .setDepth(this.depthUI)
             .setOrigin(0, 0.5);
+    }
+
+    //update spin info
+    async updateSpinInfo() {
+        //init
+        if (!this.spinInfoTitle) {
+            this.spinInfoTitle = this.add
+                .text(
+                    game.config.width / 2 + 330,
+                    game.config.height / 2 - 25,
+                    '',
+                    {
+                        fontFamily: 'Burbin',
+                        fontSize: '26px',
+                        align: 'center',
+                        color: utility.hexIntegerToString(ColorScheme.White),
+                    }
+                )
+                .setOrigin(0.5, 0.5);
+        }
+        if (!this.spinInfoDesc) {
+            this.spinInfoDesc = this.add
+                .text(
+                    game.config.width / 2 + 330,
+                    game.config.height / 2 + 25,
+                    '',
+                    {
+                        fontFamily: 'Burbin',
+                        fontSize: '32px',
+                        align: 'center',
+                        color: utility.hexIntegerToString(ColorScheme.White),
+                    }
+                )
+                .setOrigin(0.5, 0.5);
+        }
+
+        //still have daily spins left
+        if (this.dailySpinCount >= 1) {
+            //info desc
+            this.spinInfoDesc.setText(this.dailySpinCount);
+
+            //title
+            this.spinInfoTitle.setText('Spins Left:');
+        }
+        //no more daily spins, get time until next spins
+        else {
+            //get last spin time
+            this.lastDailySpinTime = await client.FF22getLastDailySpinTime();
+
+            //update next spin time
+            this.updateNextSpinTime();
+
+            //title
+            this.spinInfoTitle.setText('Time Until Next Spin:');
+        }
+    }
+
+    //update spin time
+    updateNextSpinTime() {
+        //get time left
+        let timeLeft = 43200000 + this.lastDailySpinTime - Date.now();
+
+        //format
+        var seconds = parseInt((timeLeft / 1000) % 60),
+            minutes = parseInt((timeLeft / (1000 * 60)) % 60),
+            hours = parseInt((timeLeft / (1000 * 60 * 60)) % 24);
+        hours = hours < 10 ? '0' + hours : hours;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        let timeFormatted = hours + ':' + minutes + ':' + seconds;
+
+        //info desc
+        this.spinInfoDesc.setText(timeFormatted);
+
+        //refresh scene
+        if (timeLeft <= 0) {
+            this.end();
+            this.scene.start('FF22DailySpin');
+        }
+
+        //update again in 1 second
+        else {
+            setTimeout(() => {
+                if (currentScene.scene.key == 'FF22DailySpin')
+                    this.updateNextSpinTime();
+            }, 1000);
+        }
     }
 
     //create the wheel
@@ -350,6 +452,9 @@ class FF22DailySpin extends Phaser.Scene {
 
                     //if player can still spin
                     if (this.dailySpinCount >= 1) this.canSpin = true;
+
+                    //update spin info
+                    this.updateSpinInfo();
                 },
             });
 
