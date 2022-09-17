@@ -139,7 +139,7 @@ window.onload = function () {
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
-        scene: [Menu, Game, CharacterCreator, FF22DailySpin],
+        scene: [Menu, Game, CharacterCreator, FF22DailySpin, FF22FrogShuffle],
     };
 
     //init game
