@@ -118,9 +118,6 @@ class FF22DailySpin extends Phaser.Scene {
         //create wheel
         this.createWheel();
 
-        //create toolbar
-        this.createToolbar();
-
         //end wait screen
         loadingScreen.endWaitScreen(this);
     }
@@ -139,41 +136,13 @@ class FF22DailySpin extends Phaser.Scene {
         client.requestRoom();
     }
 
-    //create toolbar
-    createToolbar() {
-        //options menu
-        ui.createButtons(this, {
-            x: 1215,
-            y: 765,
-            fontSize: 22,
-            space: {
-                item: 10,
-            },
-            buttons: [
-                //go back arrow
-                {
-                    text: '⬅️',
-                    background: { radius: 8 },
-                    onClick: () => {
-                        this.quit();
-                    },
-                },
-                //options menu
-                {
-                    text: '⚙️',
-                    background: { radius: 8 },
-                    onClick: () => {
-                        //check if menu is open
-                        if (!this.menuOpen) {
-                            //show options menu
-                            this.showOptions();
-                        }
-                    },
-                },
-            ],
-        })
-            .setDepth(this.depthUI)
-            .setOrigin(0, 0.5);
+    changeVolume(type, value) {
+        if (type === 'sfx') {
+            this.audio_wheel_spin.setVolume(value);
+            this.audio_success.setVolume(value);
+            this.audio_success_long.setVolume(value);
+            this.audio_failure.setVolume(value);
+        }
     }
 
     //update spin info
@@ -474,105 +443,5 @@ class FF22DailySpin extends Phaser.Scene {
                 [this, this.audio_wheel_spin, 500, false]
             );
         }
-    }
-
-    //show options menu
-    showOptions() {
-        //options content
-        let content = [
-            //music volume slider
-            { type: 'text', text: 'Music Volume', fontSize: 24 },
-            {
-                type: 'slider',
-                id: 'musicVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
-                ].volume,
-                onSliderChange: (value) => {
-                    //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'music'
-                        )
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
-
-                    //change volume
-                    if (this.audioMusic) this.audioMusic.setVolume(value);
-                },
-            },
-
-            //sfx volume slider
-            { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
-            {
-                type: 'slider',
-                id: 'sfxVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                ].volume,
-                onSliderChange: (value) => {
-                    //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
-
-                    //change volume
-                    this.sfxButtonClick.setVolume(value);
-                    this.audio_wheel_spin.setVolume(value);
-                    this.audio_success.setVolume(value);
-                    this.audio_success_long.setVolume(value);
-                    this.audio_failure.setVolume(value);
-                },
-            },
-        ];
-
-        //logout button
-        content.push({
-            type: 'button',
-            text: 'Log Out',
-            align: 'center',
-            fontSize: 20,
-            colorOnHover: ColorScheme.Red,
-            onClick: () => {
-                client.onLogout();
-            },
-        });
-
-        //create options menu
-        ui.createMenu(
-            this,
-            {
-                title: 'Options',
-                content: content,
-            },
-            {
-                cover: true,
-                onExit: () => {
-                    //set menu as closed
-                    this.menuClosed();
-                },
-            }
-        );
-
-        //set menu as opened
-        this.menuOpened();
-    }
-
-    //show menu
-    menuOpened() {
-        //disable input
-        this.disableInput = true;
-        this.menuOpen = true;
-    }
-
-    //close menu
-    menuClosed() {
-        //enable input
-        this.disableInput = false;
-        this.menuOpen = false;
     }
 }

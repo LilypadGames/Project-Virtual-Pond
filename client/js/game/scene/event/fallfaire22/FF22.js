@@ -2,6 +2,7 @@
 
 class FF22 {
     init() {
+        //reset UI
         delete this.ticketIcon;
         delete this.ticketText;
     }
@@ -40,6 +41,17 @@ class FF22 {
 
         //update ticket display
         this.updateTicketDisplay(scene);
+
+        //minigame scenes
+        if (scene.scene.key.includes('FF22')) {
+            //create toolbar
+            this.createToolbar(scene);
+
+            //set up functions
+            scene.menuOpened = this.menuOpened;
+            scene.menuClosed = this.menuClosed;
+            scene.showOptions = this.showOptions;
+        }
     }
 
     changeTickets(scene, delta) {
@@ -60,5 +72,139 @@ class FF22 {
 
     updateTicketDisplay(scene) {
         this.ticketText.setText(scene.ticketCount);
+    }
+
+    //create toolbar for minigame scenes
+    createToolbar(scene) {
+        //options menu
+        ui.createButtons(scene, {
+            x: 1215,
+            y: 765,
+            fontSize: 22,
+            space: {
+                item: 10,
+            },
+            buttons: [
+                //go back arrow
+                {
+                    text: '⬅️',
+                    background: { radius: 8 },
+                    onClick: () => {
+                        scene.quit();
+                    },
+                },
+                //options menu
+                {
+                    text: '⚙️',
+                    background: { radius: 8 },
+                    onClick: () => {
+                        //check if menu is open
+                        if (!scene.menuOpen) {
+                            //show options menu
+                            scene.showOptions(scene);
+                        }
+                    },
+                },
+            ],
+        })
+            .setDepth(scene.depthUI)
+            .setOrigin(0, 0.5);
+    }
+
+    //show options menu
+    showOptions(scene) {
+        //options content
+        let content = [
+            //music volume slider
+            { type: 'text', text: 'Music Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'musicVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
+                ].volume,
+                onSliderChange: (value) => {
+                    //store locally for the user to persist changes between sessions
+                    var options = utility.getLocalStorage('gameOptions');
+                    options[
+                        utility.getLocalStorageArrayIndex(
+                            'gameOptions',
+                            'music'
+                        )
+                    ].volume = value;
+                    utility.storeLocalStorageArray('gameOptions', options);
+
+                    //change volume
+                    scene.changeVolume('music', value);
+                },
+            },
+
+            //sfx volume slider
+            { type: 'text', text: 'Sound Effects Volume', fontSize: 24 },
+            {
+                type: 'slider',
+                id: 'sfxVolume',
+                value: utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
+                ].volume,
+                onSliderChange: (value) => {
+                    //store locally for the user to persist changes between sessions
+                    var options = utility.getLocalStorage('gameOptions');
+                    options[
+                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
+                    ].volume = value;
+                    utility.storeLocalStorageArray('gameOptions', options);
+
+                    //change volume
+                    scene.sfxButtonClick.setVolume(value);
+                    scene.changeVolume('sfx', value);
+                },
+            },
+        ];
+
+        //logout button
+        content.push({
+            type: 'button',
+            text: 'Log Out',
+            align: 'center',
+            fontSize: 20,
+            colorOnHover: ColorScheme.Red,
+            onClick: () => {
+                client.onLogout();
+            },
+        });
+
+        //create options menu
+        ui.createMenu(
+            scene,
+            {
+                title: 'Options',
+                content: content,
+            },
+            {
+                cover: true,
+                onExit: () => {
+                    //set menu as closed
+                    scene.menuClosed();
+                },
+            }
+        );
+
+        //set menu as opened
+        scene.menuOpened();
+    }
+
+    //show menu
+    menuOpened() {
+        //disable input
+        this.disableInput = true;
+        this.menuOpen = true;
+    }
+
+    //close menu
+    menuClosed() {
+        //enable input
+        this.disableInput = false;
+        this.menuOpen = false;
     }
 }
