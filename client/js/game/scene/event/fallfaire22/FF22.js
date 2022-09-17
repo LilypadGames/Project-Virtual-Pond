@@ -3,6 +3,7 @@
 class FF22 {
     init() {
         delete this.ticketIcon;
+        delete this.ticketText;
     }
 
     preload(scene) {
@@ -23,7 +24,22 @@ class FF22 {
             .setDepth(scene.depthUI)
             .setOrigin(0.5, 0.5)
             .setInteractive();
-        globalUI.setOutlineOnHover(scene, ticketIcon);
+        globalUI.setOutlineOnHover(scene, this.ticketIcon);
+
+        //ticket amount
+        this.ticketText = scene.add
+            .text(1220, 40, '', {
+                fontFamily: 'Burbin',
+                fontSize: '16px',
+                align: 'center',
+                color: utility.hexIntegerToString(ColorScheme.Black),
+            })
+            .setDepth(scene.depthUI)
+            .setOrigin(0.5, 0.5)
+            .setFixedSize(60, 20);
+
+        //update ticket display
+        this.updateTicketDisplay(scene);
     }
 
     changeTickets(scene, delta) {
@@ -34,7 +50,7 @@ class FF22 {
         this.updateTicketDisplay(scene);
     }
 
-    async updateTickets() {
+    async updateTickets(scene) {
         //get current ticket count
         scene.ticketCount = await client.FF22getTicketCount();
 
@@ -42,5 +58,7 @@ class FF22 {
         this.updateTicketDisplay(scene);
     }
 
-    updateTicketDisplay(scene) {}
+    updateTicketDisplay(scene) {
+        this.ticketText.setText(scene.ticketCount);
+    }
 }

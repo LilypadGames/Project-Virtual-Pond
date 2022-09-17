@@ -222,7 +222,7 @@ class FF22DailySpin extends Phaser.Scene {
                     fontFamily: 'Burbin',
                     fontSize: '40px',
                     align: 'center',
-                    color: 'white',
+                    color: utility.hexIntegerToString(ColorScheme.White),
                 }
             )
             .setOrigin(0.5);

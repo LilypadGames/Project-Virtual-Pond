@@ -58,7 +58,7 @@ class FF22Event {
         );
 
         //init if unset
-        if (ticketCount === undefined) {
+        if (ticketCount === undefined || ticketCount === null) {
             ticketCount = 0;
             this.PlayerData.setSpecificClientPlayerData(
                 '/event/ff22/tickets',
