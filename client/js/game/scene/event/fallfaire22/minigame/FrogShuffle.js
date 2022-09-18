@@ -23,38 +23,38 @@ class FF22FrogShuffle extends Phaser.Scene {
         events.preload(this);
 
         //layers
-        this.load.image(
-            'background',
-            'assets/event/ff22/minigame/dailyspin/layers/Background.png'
-        );
+        // this.load.image(
+        //     'background',
+        //     'assets/event/ff22/minigame/dailyspin/layers/Background.png'
+        // );
 
         //objects
-        this.load.image(
-            'wheel',
-            'assets/event/ff22/minigame/dailyspin/objects/wheel.png'
-        );
-        this.load.image(
-            'wheel_shadow',
-            'assets/event/ff22/minigame/dailyspin/objects/wheel_shadow.png'
-        );
-        this.load.image(
-            'pin',
-            'assets/event/ff22/minigame/dailyspin/objects/pin.png'
-        );
+        // this.load.image(
+        //     'wheel',
+        //     'assets/event/ff22/minigame/dailyspin/objects/wheel.png'
+        // );
+        // this.load.image(
+        //     'wheel_shadow',
+        //     'assets/event/ff22/minigame/dailyspin/objects/wheel_shadow.png'
+        // );
+        // this.load.image(
+        //     'pin',
+        //     'assets/event/ff22/minigame/dailyspin/objects/pin.png'
+        // );
 
         //music
 
         //sfx
-        this.load.audio(
-            'wheel_spin',
-            'assets/event/ff22/minigame/dailyspin/audio/sfx/wheel_spin.mp3'
-        );
-        this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
-        this.load.audio(
-            'success_long',
-            'assets/audio/sfx/minigame/success_long.mp3'
-        );
-        this.load.audio('failure', 'assets/audio/sfx/minigame/failure.mp3');
+        // this.load.audio(
+        //     'wheel_spin',
+        //     'assets/event/ff22/minigame/dailyspin/audio/sfx/wheel_spin.mp3'
+        // );
+        // this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
+        // this.load.audio(
+        //     'success_long',
+        //     'assets/audio/sfx/minigame/success_long.mp3'
+        // );
+        // this.load.audio('failure', 'assets/audio/sfx/minigame/failure.mp3');
     }
 
     async create() {
@@ -72,6 +72,9 @@ class FF22FrogShuffle extends Phaser.Scene {
     }
 
     end() {
+        //end event data
+        events.end(this);
+        
         //reset data
         this.registry.destroy();
         this.scene.stop();

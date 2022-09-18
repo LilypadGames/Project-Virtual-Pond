@@ -69,8 +69,6 @@ class FF22DailySpin extends Phaser.Scene {
             'assets/event/ff22/minigame/dailyspin/objects/pin.png'
         );
 
-        //music
-
         //sfx
         this.load.audio(
             'wheel_spin',
@@ -123,6 +121,9 @@ class FF22DailySpin extends Phaser.Scene {
     }
 
     end() {
+        //end event data
+        events.end(this);
+
         //reset data
         this.registry.destroy();
         this.scene.stop();

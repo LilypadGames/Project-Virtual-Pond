@@ -121,8 +121,7 @@
                 "depth": "foreground"
             }
         ],
-        "npcs": [
-        ],
+        "npcs": [],
         "teleports": [
             {
                 "x": 142,

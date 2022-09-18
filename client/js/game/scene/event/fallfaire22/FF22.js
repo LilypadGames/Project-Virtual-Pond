@@ -13,6 +13,15 @@ class FF22 {
 
         //UI
         scene.load.image('ticket_icon', 'assets/event/ff22/ui/ticket_icon.png');
+
+        //minigame scenes
+        if (scene.scene.key.includes('FF22')) {
+            //music
+            scene.load.audio(
+                'frog_caves_fair',
+                'assets/event/ff22/audio/music/frog_caves_fair.mp3'
+            );
+        }
     }
 
     async create(scene) {
@@ -51,6 +60,33 @@ class FF22 {
             scene.menuOpened = this.menuOpened;
             scene.menuClosed = this.menuClosed;
             scene.showOptions = this.showOptions;
+
+            //play music
+            scene.audioMusic = scene.sound.add('frog_caves_fair', {
+                mute: false,
+                volume: 0,
+                rate: 1,
+                detune: 0,
+                seek: 0,
+                loop: true,
+                delay: 0,
+            });
+
+            //start music and set volume from localStorage settings
+            scene.audioMusic.setVolume(
+                utility.getLocalStorage('gameOptions')[
+                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
+                ].volume
+            );
+            scene.audioMusic.play();
+        }
+    }
+
+    end(scene) {
+        //minigame scenes
+        if (scene.scene.key.includes('FF22')) {
+            //stop music
+            if (scene.audioMusic) scene.audioMusic.stop();
         }
     }
 
@@ -135,7 +171,8 @@ class FF22 {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    scene.changeVolume('music', value);
+                    scene.audioMusic.setVolume(value);
+                    // scene.changeVolume('music', value);
                 },
             },
 

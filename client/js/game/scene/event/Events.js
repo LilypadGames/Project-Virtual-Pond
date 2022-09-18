@@ -14,4 +14,11 @@ class Events {
             await ff22.create(scene);
         }
     }
+
+    end(scene) {
+        //Fall Faire 2022
+        if (globalData.currentEvents.includes('FF22')) {
+            ff22.end(scene);
+        }
+    }
 }
