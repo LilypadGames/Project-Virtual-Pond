@@ -44,10 +44,11 @@ class FF22EmoteMatch extends Phaser.Scene {
         };
 
         //reset data
-        delete this.cardGrid;
+        // delete this.cardGrid;
         delete this.cardObjects;
         delete this.emoteObjects;
         delete this.flippedCards;
+        delete this.flippedEmotes;
         delete this.matchedCards;
     }
 
@@ -113,7 +114,8 @@ class FF22EmoteMatch extends Phaser.Scene {
         await events.create(this);
 
         //determine spots for each card
-        this.determineCardPositions();
+        await client.FF22generateEmoteCards();
+        // this.determineCardPositions();
 
         //sfx
         let sfxVolume =
@@ -165,30 +167,30 @@ class FF22EmoteMatch extends Phaser.Scene {
         }
     }
 
-    //determine where the cards go on the grid
-    determineCardPositions() {
-        //make list of all the cards
-        let cards = [];
-        for (var i = 0; i < this.gameData.cards.length; i++) {
-            //push the card to the list twice
-            cards.push(this.gameData.cards[i]);
-            cards.push(this.gameData.cards[i]);
-        }
+    // //determine where the cards go on the grid
+    // determineCardPositions() {
+    //     //make list of all the cards
+    //     let cards = [];
+    //     for (var i = 0; i < this.gameData.cards.length; i++) {
+    //         //push the card to the list twice
+    //         cards.push(this.gameData.cards[i]);
+    //         cards.push(this.gameData.cards[i]);
+    //     }
 
-        //tie each spot to a random card on the list
-        this.cardGrid = [];
-        for (var i = 0; i < 24; i++) {
-            //choose random card in list
-            let index = utility.getRandomInt(0, cards.length - 1);
-            let card = cards[index];
+    //     //tie each spot to a random card on the list
+    //     this.cardGrid = [];
+    //     for (var i = 0; i < 24; i++) {
+    //         //choose random card in list
+    //         let index = utility.getRandomInt(0, cards.length - 1);
+    //         let card = cards[index];
 
-            //remove card from list
-            cards.splice(index, 1);
+    //         //remove card from list
+    //         cards.splice(index, 1);
 
-            //push card to card grid in correct order
-            this.cardGrid.push(card);
-        }
-    }
+    //         //push card to card grid in correct order
+    //         this.cardGrid.push(card);
+    //     }
+    // }
 
     //animate cards going into their positions
     animateCardPositions() {
@@ -211,7 +213,8 @@ class FF22EmoteMatch extends Phaser.Scene {
                     .setOrigin(0.5, 0.5);
 
                 let emote = this.add
-                    .sprite(x, y, this.cardGrid[index])
+                    // .sprite(x, y, this.cardGrid[index])
+                    .sprite(x, y, '')
                     .setDepth(this.gameData.depthEmote)
                     .setOrigin(0.5, 0.5)
                     .setVisible(false);
@@ -237,7 +240,7 @@ class FF22EmoteMatch extends Phaser.Scene {
     }
 
     //player clicked on a card
-    clickedCard(index) {
+    async clickedCard(index) {
         //init matched cards
         if (this.matchedCards === undefined) {
             this.matchedCards = [];
@@ -253,19 +256,24 @@ class FF22EmoteMatch extends Phaser.Scene {
         //init flipped cards
         if (this.flippedCards === undefined) this.flippedCards = [];
 
-        //card already flipped
-        if (this.matchedCards[index]) {
+        //init flipped emotes
+        if (this.flippedEmotes === undefined) this.flippedEmotes = [];
+
+        //init variable that stores the action to take
+        let action;
+
+        //card already matched/flipped
+        if (
+            this.matchedCards[index] ||
+            index === this.flippedCards[0] ||
+            index === this.flippedCards[1]
+        ) {
             return;
         }
 
         //first card flipped
         else if (this.flippedCards[0] === undefined) {
-            this.flippedCards[0] = index;
-        }
-
-        //clicked on same card
-        else if (index === this.flippedCards[0]) {
-            return;
+            action = 'first_card';
         }
 
         //second card flipped
@@ -273,13 +281,53 @@ class FF22EmoteMatch extends Phaser.Scene {
             this.flippedCards[0] !== undefined &&
             this.flippedCards[1] === undefined
         ) {
+            action = 'second_card';
+        }
+
+        //not a valid action
+        else {
+            return;
+        }
+
+        //get emote from server
+        let emote = await client.FF22getEmoteCard(index);
+
+        //store emote
+        this.flippedEmotes[index] = emote;
+
+        //apply texture to emote portion of the card
+        this.emoteObjects[index].setTexture(emote);
+
+        //flip card
+        this.cardObjects[index].setTexture('card_front');
+        this.audio_card_flip[utility.getRandomInt(0, 2)].play();
+
+        // //calculate row and column from its index
+        // let row = Math.floor(index / this.gameData.columnCount) + 1;
+        // let column =
+        //     index -
+        //     row * this.gameData.columnCount +
+        //     this.gameData.columnCount +
+        //     1;
+
+        //remove interactivity from card
+        this.cardObjects[index].disableInteractive();
+
+        //show emote
+        this.emoteObjects[index].setVisible(true);
+
+        //take action
+        if (action === 'first_card') {
+            //store first cards index
+            this.flippedCards[0] = index;
+        } else if (action === 'second_card') {
+            //store second cards index
             this.flippedCards[1] = index;
 
-            //cards match
-            //if they match, keep them flipped and allow the player to keep flipping
+            //cards match (keep them flipped and allow the player to keep flipping)
             if (
-                this.cardGrid[this.flippedCards[0]] ===
-                this.cardGrid[this.flippedCards[1]]
+                this.flippedEmotes[this.flippedCards[0]] ===
+                this.flippedEmotes[this.flippedCards[1]]
             ) {
                 setTimeout(() => {
                     //success sound
@@ -306,7 +354,7 @@ class FF22EmoteMatch extends Phaser.Scene {
                 }, 500);
             }
 
-            //cards dont match- flip both cards back after a while
+            //cards dont match (flip both cards back after a while)
             else {
                 setTimeout(() => {
                     //flip cards
@@ -334,28 +382,5 @@ class FF22EmoteMatch extends Phaser.Scene {
                 }, 1500);
             }
         }
-
-        //both cards are currently flipped- wait for both to be flipped back down
-        else {
-            return;
-        }
-
-        //flip card
-        this.cardObjects[index].setTexture('card_front');
-        this.audio_card_flip[utility.getRandomInt(0, 2)].play();
-
-        // //calculate row and column from its index
-        // let row = Math.floor(index / this.gameData.columnCount) + 1;
-        // let column =
-        //     index -
-        //     row * this.gameData.columnCount +
-        //     this.gameData.columnCount +
-        //     1;
-
-        //remove interactivity from card
-        this.cardObjects[index].disableInteractive();
-
-        //show emote
-        this.emoteObjects[index].setVisible(true);
     }
 }

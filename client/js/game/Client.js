@@ -468,4 +468,20 @@ class Client {
             });
         });
     }
+    //generate emote cards
+    FF22generateEmoteCards() {
+        return new Promise((resolve) => {
+            socket.emit('FF22generateEmoteCards', (status) => {
+                resolve(status);
+            });
+        });
+    }
+    //get emote card
+    FF22getEmoteCard(index) {
+        return new Promise((resolve) => {
+            socket.emit('FF22requestEmoteCard', index, (emote) => {
+                resolve(emote);
+            });
+        });
+    }
 }

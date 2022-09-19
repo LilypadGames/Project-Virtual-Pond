@@ -6,13 +6,46 @@ const path = require('path');
 //imports
 const utility = require(path.join(__dirname, '../../utility/Utility.js'));
 
-//DailySpinOptions
-let DailySpinOptions = {
+//DailySpinData
+let DailySpinData = {
     // slices (prizes) placed in the wheel
     slices: 8,
 
     // prize amounts, starting from 12 o'clock going clockwise
     prizeAmounts: [50, 5, 25, 0, 50, 5, 25, 0],
+};
+
+//set up game data
+let EmoteMatchData = {
+    cards: [
+        'pokeAYAYA',
+        'pokeCOZY',
+        'pokeCRY',
+        'pokeEZ',
+        'pokeFAT',
+        'pokeG',
+        'pokeHD',
+        'pokeL',
+        'pokePoggers',
+        'pokeSMOKE',
+        'pokeSUBS',
+        'pokeWICKED',
+    ],
+
+    emotePaddingColumn: 40,
+    emotePaddingRow: 40,
+
+    columnCount: 8,
+    rowCount: 3,
+
+    columnPos: 110,
+    rowPos: 190,
+
+    columnSpace: 150,
+    rowSpace: 220,
+
+    depthCard: 1,
+    depthEmote: 2,
 };
 
 class FF22Event {
@@ -52,6 +85,16 @@ class FF22Event {
         //triggers when client requests the players last daily spin time
         this.socket.on('FF22requestLastDailySpinTime', async (cb) => {
             cb(await this.getLastDailySpinTime());
+        });
+
+        //triggers when client begins to play the emote match minigame and needs the emote card slots to be generated
+        this.socket.on('FF22generateEmoteCards', async (cb) => {
+            cb(this.generateEmoteCards());
+        });
+
+        //triggers when client requests the emote for a card using its index on the grid
+        this.socket.on('FF22requestEmoteCard', (index, cb) => {
+            cb(this.getEmoteCard(index));
         });
     }
 
@@ -174,10 +217,10 @@ class FF22Event {
 
             //before the wheel ends spinning, we already know the prize according to "degrees" rotation and the number of slices
             var prizeAmount =
-                DailySpinOptions.prizeAmounts[
-                    DailySpinOptions.slices -
+                DailySpinData.prizeAmounts[
+                    DailySpinData.slices -
                         1 -
-                        Math.floor(degrees / (360 / DailySpinOptions.slices))
+                        Math.floor(degrees / (360 / DailySpinData.slices))
                 ];
 
             //award the players win
@@ -191,6 +234,37 @@ class FF22Event {
             //no spins left
             return { status: false };
         }
+    }
+
+    //determine where the cards go on the grid
+    generateEmoteCards() {
+        //make list of all the cards
+        let cards = [];
+        for (var i = 0; i < EmoteMatchData.cards.length; i++) {
+            //push the card to the list twice
+            cards.push(EmoteMatchData.cards[i]);
+            cards.push(EmoteMatchData.cards[i]);
+        }
+
+        //tie each spot to a random card on the list
+        this.cardGrid = [];
+        for (var i = 0; i < 24; i++) {
+            //choose random card in list
+            let index = utility.getRandomInt(0, cards.length - 1);
+            let card = cards[index];
+
+            //remove card from list
+            cards.splice(index, 1);
+
+            //push card to card grid in correct order
+            this.cardGrid.push(card);
+        }
+
+        return true;
+    }
+
+    getEmoteCard(index) {
+        return this.cardGrid[index];
     }
 }
 
