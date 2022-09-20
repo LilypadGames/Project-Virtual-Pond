@@ -289,7 +289,7 @@ class FF22DailySpin extends Phaser.Scene {
                 game.config.height - 40,
                 this.dailySpinCount >= 1
                     ? 'Spin The Wheel!'
-                    : 'Come Back Tomorrow!',
+                    : 'Check Back Later!',
                 {
                     fontFamily: 'Burbin',
                     fontSize: '40px',
@@ -377,7 +377,7 @@ class FF22DailySpin extends Phaser.Scene {
                     this.wheelText.setText(
                         this.dailySpinCount >= 1
                             ? 'Spin The Wheel!'
-                            : 'Come Back Tomorrow!'
+                            : 'Check Back Later!'
                     );
 
                     //lost
