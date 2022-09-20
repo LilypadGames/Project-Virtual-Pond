@@ -51,7 +51,7 @@ class FF22DailySpin extends Phaser.Scene {
 
         //layers
         this.load.image(
-            'background',
+            'dailyspin_background',
             'assets/event/ff22/minigame/dailyspin/layers/Background.png'
         );
 
@@ -97,7 +97,7 @@ class FF22DailySpin extends Phaser.Scene {
 
         //create background
         this.add
-            .sprite(game.config.width / 2, game.config.height / 2, 'background')
+            .sprite(game.config.width / 2, game.config.height / 2, 'dailyspin_background')
             .setDepth(this.depthBackgroundUI);
 
         //create background for spin info

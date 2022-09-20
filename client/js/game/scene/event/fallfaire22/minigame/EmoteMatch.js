@@ -27,8 +27,8 @@ class FF22EmoteMatch extends Phaser.Scene {
                 'pokeWICKED',
             ],
 
-            emotePaddingColumn: 40,
-            emotePaddingRow: 40,
+            emotePaddingColumn: 39,
+            emotePaddingRow: 39,
 
             columnCount: 8,
             rowCount: 3,
@@ -56,10 +56,10 @@ class FF22EmoteMatch extends Phaser.Scene {
         events.preload(this);
 
         //layers
-        // this.load.image(
-        //     'background',
-        //     'assets/event/ff22/minigame/dailyspin/layers/Background.png'
-        // );
+        this.load.image(
+            'emotematch_background',
+            'assets/event/ff22/minigame/emotematch/layers/Background.png'
+        );
 
         //cards
         for (var i = 0; i < this.gameData.cards.length; i++) {
@@ -120,6 +120,11 @@ class FF22EmoteMatch extends Phaser.Scene {
         this.audio_success_long = this.sound
             .add('success_long')
             .setVolume(sfxVolume);
+
+        //create background
+        this.add
+            .sprite(game.config.width / 2, game.config.height / 2, 'emotematch_background')
+            .setDepth(this.depthBackgroundUI);
 
         //start game
         await this.startGame();
