@@ -83,6 +83,13 @@ class PlayerData {
                       'permissions/mod/' + this.socket.request.user.data[0].id
                   )
                 : 0,
+            isVIP: (await database.getValue(
+                'permissions/vip/' + this.socket.request.user.data[0].id
+            ))
+                ? await database.getValue(
+                        'permissions/vip/' + this.socket.request.user.data[0].id
+                    )
+                : 0,
         };
 
         //first login stat
