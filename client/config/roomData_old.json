@@ -211,20 +211,6 @@
                 {
                     "name": "Sign_Forest",
                     "path": "room/theatre/objects/Sign_Forest.png"
-                },
-                {
-                    "name": "Sign_Free_Sub",
-                    "path": "room/theatre/objects/Sign_Free_Sub.png"
-                },
-                {
-                    "name": "CrazySlickd",
-                    "path": "room/theatre/objects/CrazySlickd.png"
-                }
-            ],
-            "audio": [
-                {
-                    "name": "crazyslickd",
-                    "path": "room/theatre/audio/crazyslickd.mp3"
                 }
             ]
         },

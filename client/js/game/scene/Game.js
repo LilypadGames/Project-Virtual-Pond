@@ -522,51 +522,51 @@ class Game extends Phaser.Scene {
                 .setDepth(700)
                 .setOrigin(0.5, 1);
 
-            //free sub sign
-            let free_sub_sign = this.add
-                .image(204, 580, 'Sign_Free_Sub')
-                .setDepth(528)
-                .setOrigin(0.5, 1)
-                .setInteractive();
-            globalUI.setOutlineOnHover(this, free_sub_sign);
-            free_sub_sign.on(
-                'pointerdown',
-                () => {
-                    //stop interactions temporarily
-                    free_sub_sign.disableInteractive();
+            // //free sub sign
+            // let free_sub_sign = this.add
+            //     .image(204, 580, 'Sign_Free_Sub')
+            //     .setDepth(528)
+            //     .setOrigin(0.5, 1)
+            //     .setInteractive();
+            // globalUI.setOutlineOnHover(this, free_sub_sign);
+            // free_sub_sign.on(
+            //     'pointerdown',
+            //     () => {
+            //         //stop interactions temporarily
+            //         free_sub_sign.disableInteractive();
 
-                    //remove DOM objects
-                    this.removeRoomDOMElements();
+            //         //remove DOM objects
+            //         this.removeRoomDOMElements();
 
-                    //play music
-                    this.playMusic('crazyslickd');
+            //         //play music
+            //         this.playMusic('crazyslickd');
 
-                    //show sprite
-                    const crazySlickdSprite = this.add
-                        .image(630, 20, 'CrazySlickd')
-                        .setDepth(this.depthForeground)
-                        .setOrigin(0.5, 0)
-                        .setScale(2);
+            //         //show sprite
+            //         const crazySlickdSprite = this.add
+            //             .image(630, 20, 'CrazySlickd')
+            //             .setDepth(this.depthForeground)
+            //             .setOrigin(0.5, 0)
+            //             .setScale(2);
 
-                    //wait
-                    setTimeout(() => {
-                        //stop music
-                        this.audioMusic.stop();
+            //         //wait
+            //         setTimeout(() => {
+            //             //stop music
+            //             this.audioMusic.stop();
 
-                        //remove sprite
-                        crazySlickdSprite.destroy();
+            //             //remove sprite
+            //             crazySlickdSprite.destroy();
 
-                        //re-enable DOM objects
-                        if (!this.menuOpen) {
-                            this.addRoomDOMElements();
-                        }
+            //             //re-enable DOM objects
+            //             if (!this.menuOpen) {
+            //                 this.addRoomDOMElements();
+            //             }
 
-                        //re-enable interactions
-                        free_sub_sign.setInteractive();
-                    }, 8000);
-                },
-                this
-            );
+            //             //re-enable interactions
+            //             free_sub_sign.setInteractive();
+            //         }, 8000);
+            //     },
+            //     this
+            // );
         }
     }
 
