@@ -271,6 +271,9 @@ class FF22EmoteMatch extends Phaser.Scene {
             //cards match (keep them flipped and allow the player to keep flipping)
             if (status['matched']) {
                 setTimeout(() => {
+                    //make sure player is still in the right scene
+                    if (currentScene.scene.key !== 'FF22EmoteMatch') return;
+                    
                     //success sound
                     this.audio_success.play();
 
@@ -280,6 +283,9 @@ class FF22EmoteMatch extends Phaser.Scene {
                     //if all cards have been matched
                     if (status['completed']) {
                         setTimeout(() => {
+                            //make sure player is still in the right scene
+                            if (currentScene.scene.key !== 'FF22EmoteMatch') return;
+
                             //sfx
                             this.audio_success_long.play();
 
@@ -307,6 +313,9 @@ class FF22EmoteMatch extends Phaser.Scene {
             //cards dont match (flip both cards back after a while)
             else {
                 setTimeout(() => {
+                    //make sure player is still in the right scene
+                    if (currentScene.scene.key !== 'FF22EmoteMatch') return;
+
                     //flip cards
                     this.cardObjects[this.flippedCards[0]].setTexture(
                         'card_back'

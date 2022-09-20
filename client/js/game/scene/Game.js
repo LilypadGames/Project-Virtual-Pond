@@ -535,6 +535,34 @@ class Game extends Phaser.Scene {
                 }
             );
 
+            //emote match table
+            this.addNewInteractableObject(
+                //set up object
+                (id) => {
+                    //create sprite
+                    this.interactableObjects[id] = this.add
+                        .image(899.6, 720.8, 'Emote_Match_Table')
+                        .setDepth(745);
+                },
+
+                //set physics object
+                (id) => {
+                    return this.interactableObjects[id];
+                },
+
+                //set interactable sprite
+                (id) => {
+                    return this.interactableObjects[id];
+                },
+
+                //final interaction callback
+                () => {
+                    //start daily spin scene
+                    this.end();
+                    this.scene.start('FF22EmoteMatch');
+                }
+            );
+
             // //lost recording
             // let lost_recording = this.add
             //     .image(1209, 621.2, 'Lost_Recording')

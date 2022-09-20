@@ -78,6 +78,22 @@
                 {
                     "name": "Daily_Spin_Wheel",
                     "path": "event/ff22/room/forest/objects/Daily_Spin_Wheel.png"
+                },
+                {
+                    "name": "Emote_Match_Sign",
+                    "path": "event/ff22/room/forest/layers/Emote_Match_Sign.png"
+                },
+                {
+                    "name": "Emote_Match_Table",
+                    "path": "event/ff22/room/forest/objects/Emote_Match_Table.png"
+                },
+                {
+                    "name": "Frog_Shuffle_Tent",
+                    "path": "event/ff22/room/forest/layers/Frog_Shuffle_Tent.png"
+                },
+                {
+                    "name": "Frog_Shuffle_Tent_Background",
+                    "path": "event/ff22/room/forest/layers/Frog_Shuffle_Tent_Background.png"
                 }
             ],
             "audio": [
@@ -129,8 +145,16 @@
                 "depth": 649
             },
             {
-                "name": "Forest_Tree_1",
-                "depth": 665
+                "name": "Frog_Shuffle_Tent_Background",
+                "depth": 555
+            },
+            {
+                "name": "Frog_Shuffle_Tent",
+                "depth": 605
+            },
+            {
+                "name": "Emote_Match_Sign",
+                "depth": 735
             },
             {
                 "name": "Forest_Foreground",
