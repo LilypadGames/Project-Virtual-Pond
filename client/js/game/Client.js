@@ -29,6 +29,13 @@ class Client {
     //register websocket events
     registerEvents() {
         //CONNECTION
+        //on this client connected (also updates when disconnected with the value of socket.connected representing connection status)
+        socket.on('connect', function () {
+            //log
+            if (debugMode && socket.connected) {
+                console.log(util.timestampString('Connected to Server'));
+            }
+        });
         //on this client disconnecting
         socket.on('disconnect', () => {
             this.onDisconnect();
@@ -39,10 +46,10 @@ class Client {
         });
 
         //GLOBAL DATA
-        //recieve global data
-        socket.on('payloadGlobalData', (data) => {
-            this.onGlobalDataReceived(data);
-        });
+        // //recieve global data
+        // socket.on('payloadGlobalData', (data) => {
+        //     this.onGlobalDataReceived(data);
+        // });
         //recieve global data change
         socket.on('payloadGlobalDataUpdate', (object, value) => {
             this.onGlobalDataUpdate(object, value);
@@ -125,16 +132,7 @@ class Client {
         kickReason = reason;
     }
 
-    //GLOBAL DATA
-    //recieve global data
-    onGlobalDataReceived(data) {
-        globalData = data;
-        console.log(
-            '%c %c Project Virtual Pond - ' + globalData.gameVersion,
-            'background: #64BEFF;',
-            'background: #000000;'
-        );
-    }
+    //GENERAL DATA
     //recieve global data change
     onGlobalDataUpdate(object, value) {
         globalData[object] = value;
@@ -339,6 +337,66 @@ class Client {
         window.location.href = '/logout';
     }
 
+    //GENERAL DATA
+    //get initial load data from server
+    async requestLoadData() {
+        //log
+        if (debugMode) {
+            console.log(util.timestampString('Requested Initial Load Data'));
+        }
+
+        //request initial load data from server
+        return new Promise((resolve) => {
+            socket.emit('requestLoadData', (data) => {
+                resolve(data);
+            });
+        });
+    }
+    //get global data from server
+    async requestGlobalData() {
+        //log
+        if (debugMode) {
+            console.log(util.timestampString('Requested Global Data'));
+        }
+
+        //request global data from server
+        return new Promise((resolve) => {
+            let requestAcknowledged = false;
+            function attemptRequest(requestAcknowledged) {
+                //if request wasn't acknowledged yet, request the data
+                if (requestAcknowledged === false) {
+                    socket.volatile.emit('requestGlobalData', (data) => {
+                        //request acknowleged
+                        requestAcknowledged = true;
+
+                        //save global data
+                        globalData = data;
+
+                        //log
+                        console.log(
+                            '%c %c Project Virtual Pond - ' +
+                                globalData.gameVersion,
+                            'background: #64BEFF;',
+                            'background: #000000;'
+                        );
+
+                        //callback to initial request
+                        resolve();
+                    });
+                }
+
+                //try again in 1 second
+                setTimeout(() => {
+                    if (requestAcknowledged === false) {
+                        attemptRequest(requestAcknowledged);
+                    }
+                }, 1000);
+            }
+
+            attemptRequest(requestAcknowledged);
+        });
+    }
+
     //ROOM
     //attempt to join a room
     requestRoom(requestedRoom) {
@@ -362,18 +420,6 @@ class Client {
     }
 
     //PLAYER DATA
-    //get initial load data from server
-    requestLoadData() {
-        //log
-        if (debugMode) {
-            console.log(util.timestampString('Requested Initial Load Data'));
-        }
-
-        //request data from server
-        socket.emit('requestLoadData', (data) => {
-            currentScene.parseLoadData(data);
-        });
-    }
     //get player data from server
     requestClientPlayerData() {
         //log
@@ -477,10 +523,10 @@ class Client {
         });
     }
     //get emote card
-    FF22getEmoteCard(index) {
+    FF22flipCard(index) {
         return new Promise((resolve) => {
-            socket.emit('FF22requestEmoteCard', index, (emote) => {
-                resolve(emote);
+            socket.emit('FF22requestCardFlip', index, (status) => {
+                resolve(status);
             });
         });
     }

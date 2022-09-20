@@ -32,20 +32,10 @@ let EmoteMatchData = {
         'pokeWICKED',
     ],
 
-    emotePaddingColumn: 40,
-    emotePaddingRow: 40,
-
     columnCount: 8,
     rowCount: 3,
 
-    columnPos: 110,
-    rowPos: 190,
-
-    columnSpace: 150,
-    rowSpace: 220,
-
-    depthCard: 1,
-    depthEmote: 2,
+    prizeAmount: 30,
 };
 
 class FF22Event {
@@ -88,13 +78,13 @@ class FF22Event {
         });
 
         //triggers when client begins to play the emote match minigame and needs the emote card slots to be generated
-        this.socket.on('FF22generateEmoteCards', async (cb) => {
+        this.socket.on('FF22generateEmoteCards', (cb) => {
             cb(this.generateEmoteCards());
         });
 
         //triggers when client requests the emote for a card using its index on the grid
-        this.socket.on('FF22requestEmoteCard', (index, cb) => {
-            cb(this.getEmoteCard(index));
+        this.socket.on('FF22requestCardFlip', async (index, cb) => {
+            cb(await this.flippedCard(index));
         });
     }
 
@@ -238,6 +228,11 @@ class FF22Event {
 
     //determine where the cards go on the grid
     generateEmoteCards() {
+        //reset
+        delete this.cardGrid;
+        delete this.flippedCards;
+        delete this.matchedCards;
+
         //make list of all the cards
         let cards = [];
         for (var i = 0; i < EmoteMatchData.cards.length; i++) {
@@ -260,11 +255,120 @@ class FF22Event {
             this.cardGrid.push(card);
         }
 
+        //init matched cards
+        if (this.matchedCards === undefined) {
+            this.matchedCards = [];
+            for (
+                var i = 0;
+                i < EmoteMatchData.columnCount * EmoteMatchData.rowCount;
+                i++
+            ) {
+                this.matchedCards[i] = false;
+            }
+        }
+
+        //init flipped cards
+        if (this.flippedCards === undefined) this.flippedCards = [];
+
         return true;
     }
 
-    getEmoteCard(index) {
-        return this.cardGrid[index];
+    async flippedCard(index) {
+        //init game status
+        let status = {};
+
+        //card already matched/flipped
+        if (
+            this.matchedCards[index] ||
+            index === this.flippedCards[0] ||
+            index === this.flippedCards[1] ||
+            this.flippedCards[1] !== undefined
+        ) {
+            //set action
+            status['action'] = 'return';
+        }
+
+        //first card flipped
+        else if (this.flippedCards[0] === undefined) {
+            //set action
+            status['action'] = 'first_card';
+
+            //store first cards index
+            this.flippedCards[0] = index;
+        }
+
+        //second card flipped
+        else if (
+            this.flippedCards[0] !== undefined &&
+            this.flippedCards[1] === undefined
+        ) {
+            //set action
+            status['action'] = 'second_card';
+
+            //store second cards index
+            this.flippedCards[1] = index;
+
+            //cards match (keep them flipped and allow the player to keep flipping)
+            if (
+                this.cardGrid[this.flippedCards[0]] ===
+                this.cardGrid[this.flippedCards[1]]
+            ) {
+                //set status to matched
+                status['matched'] = true;
+
+                //add cards to flipped list
+                this.matchedCards[this.flippedCards[0]] = true;
+                this.matchedCards[this.flippedCards[1]] = true;
+
+                setTimeout(() => {
+                    //reset flipped card list
+                    this.flippedCards = [];
+                }, 500);
+
+                //if all cards have been matched
+                if (
+                    this.matchedCards.every((element) => {
+                        return element === true;
+                    })
+                ) {
+                    //set status to matched
+                    status['completed'] = true;
+
+                    //set prize amount
+                    status['prize_amount'] = EmoteMatchData.prizeAmount;
+
+                    //give tickets
+                    await this.PlayerData.changeSpecificClientPlayerData(
+                        '/event/ff22/tickets',
+                        EmoteMatchData.prizeAmount
+                    );
+                }
+            }
+
+            //cards dont match (flip both cards back after a while)
+            else {
+                //set status to matched
+                status['matched'] = false;
+
+                setTimeout(() => {
+                    //reset flipped card list
+                    this.flippedCards = [];
+                }, 1500);
+            }
+        }
+
+        //not a valid action
+        else {
+            //set action
+            status['action'] = 'return';
+        }
+
+        //get emote
+        if (status['action'] !== 'return')
+            status['emote'] = this.cardGrid[index];
+
+        //return status of the game
+        return status;
     }
 }
 

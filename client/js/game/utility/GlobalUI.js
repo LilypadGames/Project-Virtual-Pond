@@ -168,7 +168,7 @@ class GlobalUI {
             .setDepth(scene.depthUI);
     }
 
-    showDialog(scene, title, description, button) {
+    showDialog(scene, title, description, button, callback) {
         //initialize content
         let content = {
             title: title,
@@ -195,6 +195,9 @@ class GlobalUI {
                     if (scene.menuClosed)
                         //set menu as closed
                         scene.menuClosed();
+
+                    //callback
+                    if (callback) callback();
                 },
                 scene
             )

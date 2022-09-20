@@ -283,7 +283,7 @@ class FF22DailySpin extends Phaser.Scene {
             );
 
         //adding the text field
-        this.prizeText = this.add
+        this.wheelText = this.add
             .text(
                 game.config.width / 2 - 200,
                 game.config.height - 40,
@@ -337,7 +337,7 @@ class FF22DailySpin extends Phaser.Scene {
             this.dailySpinCount--;
 
             //resetting text field
-            this.prizeText.setText('');
+            this.wheelText.setText('');
 
             //the wheel will spin between these amount of times. This is just visual.
             var rounds = Phaser.Math.Between(3, 5);
@@ -374,7 +374,7 @@ class FF22DailySpin extends Phaser.Scene {
                 //function to be executed once the tween has been completed
                 onComplete: function (tween) {
                     //redisplay prize text
-                    this.prizeText.setText(
+                    this.wheelText.setText(
                         this.dailySpinCount >= 1
                             ? 'Spin The Wheel!'
                             : 'Come Back Tomorrow!'

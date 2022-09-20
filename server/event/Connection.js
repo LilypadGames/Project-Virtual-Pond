@@ -66,8 +66,8 @@ class Connection {
 
             //id exists
             else {
-                //send global data
-                this.socket.emit('payloadGlobalData', globalData.get());
+                // //send global data
+                // this.socket.emit('payloadGlobalData', globalData.get());
 
                 //kick other connection instances of this player
                 await moderation.kickClientsWithID(
@@ -85,8 +85,8 @@ class Connection {
 
         //auth disabled
         else {
-            //send global data
-            this.socket.emit('payloadGlobalData', globalData.get());
+            // //send global data
+            // this.socket.emit('payloadGlobalData', globalData.get());
 
             //set up player data
             this.socket.player = {
@@ -139,6 +139,11 @@ class Connection {
             // loadData['emotes'] = emoteLib.getEmotes();
 
             cb(loadData);
+        });
+
+        //triggers when client requests global data
+        this.socket.on('requestGlobalData', (cb) => {
+            cb(globalData.get());
         });
 
         //triggers when client requests the players data
