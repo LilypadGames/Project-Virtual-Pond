@@ -64,9 +64,9 @@ class Room {
             this.playerSendingMessage(message)
         );
 
-        //triggers when player interacts with NPC
-        this.socket.on('playerInteractingWithNPC', (npcID) =>
-            this.playerInteractingWithNPC(npcID)
+        //triggers when player is attempting to interact with an interactable object
+        this.socket.on('playerInteractingWithObject', (objectID) =>
+            this.playerInteractingWithObject(objectID)
         );
     }
 
@@ -308,7 +308,7 @@ class Room {
     }
 
     //triggers when player interacts with NPC
-    playerInteractingWithNPC(npcID) {
+    playerInteractingWithObject(objectID) {
         //log
         let logMessage = utility.timestampString(
             'PLAYER ID: ' +
@@ -317,20 +317,20 @@ class Room {
                 this.socket.player.name +
                 ')' +
                 ' - Interacting With NPC: ' +
-                npcID
+                objectID
         );
         logs.logMessage('debug', logMessage);
 
         //merge player ID and npc ID
-        let playerInteractNPC = {
+        let data = {
             playerID: this.socket.player.id,
-            npcID: npcID,
+            objectID: objectID,
         };
 
         //send interacting NPCs ID to ONLY OTHER clients
         this.socket
             .to(this.socket.roomID)
-            .emit('setPlayerInteractNPC', playerInteractNPC);
+            .emit('setPlayerAttemptingObjectInteraction', data);
     }
 
     //change room

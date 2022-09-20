@@ -95,8 +95,8 @@ class Client {
             this.onPlayerMovementUpdate(data);
         });
         //recieved interactNPC data of player
-        socket.on('setPlayerInteractNPC', (playerInteractNPC) => {
-            this.onPlayerInteractingWithNPC(playerInteractNPC);
+        socket.on('setPlayerAttemptingObjectInteraction', (data) => {
+            this.onplayerInteractingWithObject(data);
         });
 
         // MISC
@@ -287,16 +287,16 @@ class Client {
         }
     }
     //recieved interactNPC data of player
-    onPlayerInteractingWithNPC(playerInteractNPC) {
+    onplayerInteractingWithObject(data) {
         if (currentScene.scene.key == 'Game') {
             //log
             if (debugMode) {
                 console.log(
                     util.timestampString(
                         'PLAYER ID: ' +
-                            playerInteractNPC.playerID +
+                            data.playerID +
                             ' - Trying to Interact With NPC: ' +
-                            playerInteractNPC.npcID
+                            data.objectID
                     )
                 );
             }
@@ -304,8 +304,8 @@ class Client {
             //set data
             utility.getObject(
                 currentScene.playerData,
-                playerInteractNPC.playerID
-            ).interactNPC = playerInteractNPC.npcID;
+                data.playerID
+            ).interactNPC = data.objectID;
         }
     }
 
@@ -476,8 +476,8 @@ class Client {
         socket.emit('playerSendingMessage', message);
     }
     //tell server that player is going to interact with an NPC
-    playerInteractingWithNPC(npcID) {
-        socket.emit('playerInteractingWithNPC', npcID);
+    playerInteractingWithObject(npcID) {
+        socket.emit('playerInteractingWithObject', npcID);
     }
 
     // EVENTS

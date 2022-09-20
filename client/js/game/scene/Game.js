@@ -55,7 +55,8 @@ class Game extends Phaser.Scene {
         this.playerData = [];
 
         //object variables
-        this.npcCharacter = [];
+        this.interactableObjects = [];
+        this.interactableObjectFunction = [];
         this.npcData = [];
         this.npcList = [];
 
@@ -246,36 +247,54 @@ class Game extends Phaser.Scene {
     }
 
     update() {
-        // //handle collisions between player and npc characters
-        // for (var i = 0; i < this.npcCharacter.length; i++) {
-        //     Object.keys(this.playerCharacter).forEach((key) => {
-        //         this.physics.world.collide(
-        //             this.playerCharacter[key],
-        //             this.npcCharacter[i],
-        //             () => {
-        //                 //get player interact NPC data
-        //                 let interactNPC = utility.getObject(
-        //                     this.playerData,
-        //                     key
-        //                 ).interactNPC;
+        //handle collisions between player and interactable objects
+        for (
+            var objectID = 0;
+            objectID < this.interactableObjects.length;
+            objectID++
+        ) {
+            Object.keys(this.playerCharacter).forEach((playerID) => {
+                this.physics.world.collide(
+                    this.playerCharacter[playerID],
+                    this.interactableObjects[objectID],
+                    () => {
+                        //get object player last clicked
+                        let attemptedObjectInteract = utility.getObject(
+                            this.playerData,
+                            playerID
+                        ).attemptedObjectInteract;
 
-        //                 //if player is trying to interact with this NPC
-        //                 if (interactNPC == i) {
-        //                     //interact with NPC
-        //                     this.interactNPC(key, i);
+                        //if player is trying to interact with this object
+                        if (attemptedObjectInteract === objectID) {
+                            //reset attemptedObjectInteract player data
+                            delete utility.getObject(this.playerData, playerID)
+                                .attemptedObjectInteract;
 
-        //                     //log
-        //                     if (debugMode)
-        //                         console.log(
-        //                             utility.timestampString(
-        //                                 'Interacted With NPC: ' + i
-        //                             )
-        //                         );
-        //                 }
-        //             }
-        //         );
-        //     });
-        // }
+                            //stop player when colliding with interactable object
+                            this.haltPlayer(
+                                playerID,
+                                this.playerCharacter[playerID].x,
+                                this.playerCharacter[playerID].y
+                            );
+
+                            //run interactable objects function
+                            this.interactableObjectFunction[objectID](
+                                objectID,
+                                playerID
+                            );
+
+                            //log
+                            if (debugMode)
+                                console.log(
+                                    utility.timestampString(
+                                        'Interacted With Object: ' + objectID
+                                    )
+                                );
+                        }
+                    }
+                );
+            });
+        }
 
         //check if player attempts to teleport
         if (this.playerCharacter[clientID]) {
@@ -311,7 +330,7 @@ class Game extends Phaser.Scene {
         //delete data
         this.playerCharacter = {};
         this.playerData = [];
-        this.npcCharacter = [];
+        this.interactableObjects = [];
         this.npcData = [];
 
         //stop music
@@ -476,14 +495,44 @@ class Game extends Phaser.Scene {
                 'pointerdown',
                 () => {
                     //play music
-                    if (this.audioMusic.key === 'mask')
+                    if (this.audioMusic.key === 'mask') {
                         this.addRoomMusic(this.room);
-                    else this.playMusic('mask');
+                    } else {
+                        this.playMusic('mask');
+                    }
 
                     //click sfx
                     this.sfxRadioClick.play();
                 },
                 this
+            );
+
+            //daily spin wheel
+            this.addNewInteractableObject(
+                //set up object
+                (id) => {
+                    //create sprite
+                    this.interactableObjects[id] = this.add
+                        .image(318, 532.3, 'Daily_Spin_Wheel')
+                        .setDepth(570);
+                },
+
+                //set physics object
+                (id) => {
+                    return this.interactableObjects[id];
+                },
+
+                //set interactable sprite
+                (id) => {
+                    return this.interactableObjects[id];
+                },
+
+                //final interaction callback
+                () => {
+                    //start daily spin scene
+                    this.end();
+                    this.scene.start('FF22DailySpin');
+                }
             );
 
             // //lost recording
@@ -769,7 +818,7 @@ class Game extends Phaser.Scene {
                     onClick: () => {
                         //start character creator scene
                         this.end();
-                        this.scene.start('CharacterCreator', this.room);
+                        this.scene.start('CharacterCreator');
                     },
                 },
                 //options menu
@@ -1722,11 +1771,61 @@ class Game extends Phaser.Scene {
         }
     }
 
+    //adds new interactable object that must be moved to and reach to interact with
+    addNewInteractableObject(
+        objectSetup,
+        physicsObject,
+        interactableSprite,
+        finalInteractionCallback,
+        firstInteractionCallback
+    ) {
+        //get ID
+        let id = 0 + this.interactableObjects.length;
+
+        //set up object
+        objectSetup(id);
+
+        //add physics to object
+        let object = physicsObject(id);
+        this.physics.world.enable(object);
+        object.body.setCollideWorldBounds(true);
+
+        //set up hover outline effect
+        globalUI.setOutlineOnHover(this, interactableSprite(id));
+
+        //set up interaction
+        let sprite = interactableSprite(id);
+        sprite.setInteractive().on(
+            'pointerup',
+            (pointer) => {
+                // //check if player can move to object
+                // if (this.navigationCheck(pointer.x, pointer.y)) {
+                // }
+
+                //set player as attempting to interact with this object
+                utility.getObject(
+                    this.playerData,
+                    clientID
+                ).attemptedObjectInteract = id;
+
+                //tell server that the player is attempting to interact with an object
+                client.playerInteractingWithObject(id);
+
+                //attempt to move player
+                this.onMoveAttempt(pointer.x, pointer.y);
+
+                //first interaction callback
+                if (firstInteractionCallback) firstInteractionCallback(id);
+            },
+            this
+        );
+
+        //set final interaction callback
+        this.interactableObjectFunction[id] = finalInteractionCallback;
+    }
+
     //adds NPC character to the game
     addNewNPC(name, x, y, direction = 'right') {
-        //get ID
-        let id = 0 + this.npcCharacter.length;
-
         //set npc sprite
         var npcSprite = this.add.sprite(0, 0, name).setOrigin(0.5, 1);
 
@@ -1745,94 +1844,71 @@ class Game extends Phaser.Scene {
             .setFontSize(this.nametagFontSize)
             .setOrigin(0.5, 1);
 
-        //create npc container
-        this.npcCharacter[id] = this.add
-            .container(x, y)
-            .setSize(spriteContainer.width, spriteContainer.height);
+        //set up interactable object
+        this.addNewInteractableObject(
+            //object set up
+            (id) => {
+                //create npc container
+                this.interactableObjects[id] = this.add
+                    .container(x, y)
+                    .setSize(spriteContainer.width, spriteContainer.height);
 
-        //create npc sprite container
-        this.npcCharacter[id].add(
-            this.add
-                .container(0, 0)
-                .setSize(spriteContainer.width, spriteContainer.height)
-        );
+                //create npc sprite container
+                this.interactableObjects[id].add(
+                    this.add
+                        .container(0, 0)
+                        .setSize(spriteContainer.width, spriteContainer.height)
+                );
 
-        //add npc sprites to npc sprite container
-        this.npcCharacter[id].list[0].add([npcSprite]);
+                //add npc sprites to npc sprite container
+                this.interactableObjects[id].list[0].add([npcSprite]);
 
-        //detect clicks
-        this.npcCharacter[id].list[0].setInteractive().on(
-            'pointerup',
-            (pointer) => {
-                if (this.navigationCheck(pointer.x, pointer.y)) {
-                    //set player as interacting with this NPC
-                    utility.getObject(this.playerData, clientID).interactNPC =
-                        id;
+                //create npc overlay container
+                this.interactableObjects[id].add(
+                    this.add
+                        .container(0, 0)
+                        .setSize(spriteContainer.width, spriteContainer.height)
+                );
 
-                    //tell server that the player is interacting with an NPC
-                    client.playerInteractingWithNPC(id);
+                //add npc name to npc overlay container
+                this.interactableObjects[id].list[1].add([npcName]);
 
-                    //player moving
-                    this.onMoveAttempt(
-                        // this.input.mousePointer.worldX,
-                        // this.input.mousePointer.worldY
-                        pointer.x,
-                        pointer.y
-                    );
+                //set direction of NPC
+                if (direction === 'left') {
+                    this.interactableObjects[id].list[0].list[0].scaleX *= -1;
                 }
+
+                //set depth
+                this.interactableObjects[id].setDepth(y);
             },
-            this
+
+            //set physics object
+            (id) => {
+                return this.interactableObjects[id];
+            },
+
+            //set interactable sprite
+            (id) => {
+                return this.interactableObjects[id].list[0];
+            },
+
+            //final interaction callback
+            (objectID, playerID) => {
+                //show message if client interacted with NPC
+                if (playerID == clientID)
+                    this.showMessage(
+                        objectID,
+                        {
+                            id: Date.now(),
+                            text: utility.randomFromArray(
+                                this.npcList[objectID].lines
+                            ),
+                            endTime: Date.now() + 5000,
+                        },
+                        'npc'
+                    );
+            }
         );
-
-        //add hover outline to npc sprite
-        globalUI.setOutlineOnHover(this, this.npcCharacter[id].list[0]);
-
-        //create npc overlay container
-        this.npcCharacter[id].add(
-            this.add
-                .container(0, 0)
-                .setSize(spriteContainer.width, spriteContainer.height)
-        );
-
-        //add npc name to npc overlay container
-        this.npcCharacter[id].list[1].add([npcName]);
-
-        //set direction of NPC
-        if (direction === 'left') {
-            this.npcCharacter[id].list[0].list[0].scaleX *= -1;
-        }
-
-        //enable physics on npc character
-        this.physics.world.enable(this.npcCharacter[id]);
-        this.npcCharacter[id].body.setCollideWorldBounds(true);
-
-        //set depth
-        this.npcCharacter[id].setDepth(y);
-    }
-
-    //player interacts/collides with NPC
-    interactNPC(playerID, npcID) {
-        //reset interactNPC player data
-        delete utility.getObject(this.playerData, playerID).interactNPC;
-
-        //stop player when colliding with npc
-        this.haltPlayer(
-            playerID,
-            this.playerCharacter[playerID].x,
-            this.playerCharacter[playerID].y
-        );
-
-        //show message if client interacted with NPC
-        if (playerID == clientID)
-            this.showMessage(
-                npcID,
-                {
-                    id: Date.now(),
-                    text: utility.randomFromArray(this.npcList[npcID].lines),
-                    endTime: Date.now() + 5000,
-                },
-                'npc'
-            );
     }
 
     //remove player character from game
@@ -1881,10 +1957,10 @@ class Game extends Phaser.Scene {
         //npc message
         else if (characterType === 'npc') {
             //get npc overlay container
-            var overlayContainer = this.npcCharacter[id].list[1];
+            var overlayContainer = this.interactableObjects[id].list[1];
 
             //get player sprite container
-            var spriteContainer = this.npcCharacter[id].list[0];
+            var spriteContainer = this.interactableObjects[id].list[0];
 
             //store message data
             utility.getObject(this.npcData, id).message = messageData;
@@ -1974,7 +2050,7 @@ class Game extends Phaser.Scene {
         //npc message
         else if (characterType === 'npc') {
             //get npc overlay container
-            var overlayContainer = this.npcCharacter[id].list[1];
+            var overlayContainer = this.interactableObjects[id].list[1];
 
             //get message id
             currentID = utility.getObject(this.npcData, id).message.id;

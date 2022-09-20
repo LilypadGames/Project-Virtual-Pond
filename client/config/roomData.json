@@ -66,6 +66,18 @@
                 {
                     "name": "Radio",
                     "path": "room/forest/objects/Radio.png"
+                },
+                {
+                    "name": "Daily_Spin_Tent",
+                    "path": "event/ff22/room/forest/layers/Daily_Spin_Tent.png"
+                },
+                {
+                    "name": "Daily_Spin_Tent_Background",
+                    "path": "event/ff22/room/forest/layers/Daily_Spin_Tent_Background.png"
+                },
+                {
+                    "name": "Daily_Spin_Wheel",
+                    "path": "event/ff22/room/forest/objects/Daily_Spin_Wheel.png"
                 }
             ],
             "audio": [
@@ -101,8 +113,12 @@
                 "depth": 610
             },
             {
-                "name": "Forest_Tree_2",
-                "depth": 628
+                "name": "Daily_Spin_Tent_Background",
+                "depth": 560
+            },
+            {
+                "name": "Daily_Spin_Tent",
+                "depth": 610
             },
             {
                 "name": "Forest_Rock_1",
