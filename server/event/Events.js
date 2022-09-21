@@ -23,6 +23,11 @@ class Events {
     }
 
     async register() {}
+
+    async onDisconnect() {
+        //pass player disconnect event
+        await this.FF22Event.onDisconnect();
+    }
 }
 
 module.exports = Events;

@@ -3,6 +3,9 @@
 //dependency: file path
 const path = require('path');
 
+//get config values
+const config = require(path.join(__dirname, '../../config/config.json'));
+
 //imports
 const utility = require(path.join(__dirname, '../../utility/Utility.js'));
 
@@ -52,14 +55,17 @@ class FF22Event {
         //register events
         this.register();
 
+        //get players ticket count
+        this.ticketCount = await this.retreiveTicketCount();
+
         //init spins
         this.dailySpinCheck();
     }
 
     async register() {
         //triggers when client requests the players ticket count
-        this.socket.on('FF22requestTicketCount', async (cb) => {
-            cb(await this.getTicketCount());
+        this.socket.on('FF22requestTicketCount', (cb) => {
+            cb(this.getTicketCount());
         });
 
         //triggers when client requests the players daily spin count
@@ -88,8 +94,19 @@ class FF22Event {
         });
     }
 
-    //triggers when client requests the players ticket count
-    async getTicketCount() {
+    async onDisconnect() {
+        //check if bypass auth mode is on
+        if (!config.server.bypassAuth) {
+            //save players ticket count
+            await this.PlayerData.changeSpecificClientPlayerData(
+                '/event/ff22/tickets',
+                this.ticketCount
+            );
+        }
+    }
+
+    //triggers when the players ticket count should be retreived
+    async retreiveTicketCount() {
         //get ticket count
         let ticketCount = await this.PlayerData.getSpecificClientPlayerData(
             '/event/ff22/tickets'
@@ -106,6 +123,11 @@ class FF22Event {
 
         //return ticket count
         return ticketCount;
+    }
+
+    //triggers when client requests the players ticket count
+    getTicketCount() {
+        return this.ticketCount;
     }
 
     //triggers when client requests the daily spin count
@@ -214,10 +236,7 @@ class FF22Event {
                 ];
 
             //award the players win
-            await this.PlayerData.changeSpecificClientPlayerData(
-                '/event/ff22/tickets',
-                prizeAmount
-            );
+            this.ticketCount = this.ticketCount + prizeAmount;
 
             return { status: true, degrees: degrees };
         } else {
@@ -338,10 +357,7 @@ class FF22Event {
                     status['prize_amount'] = EmoteMatchData.prizeAmount;
 
                     //give tickets
-                    await this.PlayerData.changeSpecificClientPlayerData(
-                        '/event/ff22/tickets',
-                        EmoteMatchData.prizeAmount
-                    );
+                    this.ticketCount = this.ticketCount + EmoteMatchData.prizeAmount;
                 }
             }
 

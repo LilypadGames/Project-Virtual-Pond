@@ -377,6 +377,9 @@ class Connection {
             )
         );
 
+        //pass disconnect to other classes
+        this.Events.onDisconnect();
+
         //auth enabled
         if (!config.server.bypassAuth) {
             //calculate player's play time
