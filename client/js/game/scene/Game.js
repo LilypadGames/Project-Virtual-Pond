@@ -247,13 +247,15 @@ class Game extends Phaser.Scene {
     }
 
     update() {
-        //handle collisions between player and interactable objects
-        for (
-            var objectID = 0;
-            objectID < this.interactableObjects.length;
-            objectID++
-        ) {
-            Object.keys(this.playerCharacter).forEach((playerID) => {
+        //handle all players
+        Object.keys(this.playerCharacter).forEach((playerID) => {
+            //handle collisions between this player and all interactable objects
+            for (
+                var objectID = 0;
+                objectID < this.interactableObjects.length;
+                objectID++
+            ) {
+                //check this interactable object and the player for a collision
                 this.physics.world.collide(
                     this.playerCharacter[playerID],
                     this.interactableObjects[objectID],
@@ -293,27 +295,41 @@ class Game extends Phaser.Scene {
                         }
                     }
                 );
-            });
-        }
-
-        //check if player attempts to teleport
-        if (this.playerCharacter[clientID]) {
-            for (var i = 0; i < this.teleportList.length; i++) {
-                this.physics.world.collide(
-                    this.playerCharacter[clientID],
-                    this.teleportList[i]['teleport'],
-                    () => {
-                        //start new room scene
-                        this.end();
-                        client.requestRoom(this.teleportList[i]['room']);
-                    }
-                );
             }
-        }
 
-        //handle player character depth
-        Object.keys(this.playerCharacter).forEach((key) => {
-            this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
+            //existence check
+            if (!this.playerCharacter[playerID]) return;
+
+            //handle player character depth
+            this.playerCharacter[playerID].setDepth(
+                this.playerCharacter[playerID].y
+            );
+
+            //existence check
+            if (!this.playerCharacter[playerID]) return;
+
+            //handle client player only
+            if (playerID === clientID) {
+                //handle collision between this client player and all teleporters in room
+                for (
+                    var teleporterID = 0;
+                    teleporterID < this.teleportList.length;
+                    teleporterID++
+                ) {
+                    //check for collision between the teleporter and the client player
+                    this.physics.world.collide(
+                        this.playerCharacter[playerID],
+                        this.teleportList[teleporterID]['teleport'],
+                        () => {
+                            //start new room scene
+                            this.end();
+                            client.requestRoom(
+                                this.teleportList[teleporterID]['room']
+                            );
+                        }
+                    );
+                }
+            }
         });
     }
 
