@@ -3,6 +3,9 @@
 //dependency: file path
 const path = require('path');
 
+//get config values
+const config = require(path.join(__dirname, '../config/config.json'));
+
 //imports
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const database = require(path.join(__dirname, '../utility/Database.js'));
@@ -12,6 +15,16 @@ class PlayerData {
     constructor(io, socket) {
         this.socket = socket;
         this.io = io;
+
+        //get user data path
+        if (config.server.bypassAuth) {
+            //auth mode disabled
+            this.userDataPath = 'users_temp/'
+        }
+        else {
+            //auth mode enabled
+            this.userDataPath = 'users/'
+        }
     }
 
     //get player data from database
@@ -21,28 +34,28 @@ class PlayerData {
 
         //get character data from database
         if (
-            await database.pathExists('users/' + playerData.id + '/character')
+            await database.pathExists(this.userDataPath + playerData.id + '/character')
         ) {
             playerData.character = utility.mergeObjects(
                 await database.getValue(
-                    'users/' + playerData.id + '/character'
+                    this.userDataPath + playerData.id + '/character'
                 ),
                 playerData.character
             );
         }
 
         //get stat data from database
-        if (await database.pathExists('users/' + playerData.id + '/stat')) {
+        if (await database.pathExists(this.userDataPath + playerData.id + '/stat')) {
             playerData.stat = utility.mergeObjects(
-                await database.getValue('users/' + playerData.id + '/stat'),
+                await database.getValue(this.userDataPath + playerData.id + '/stat'),
                 playerData.stat
             );
         }
 
         //get currency data from database
-        if (await database.pathExists('users/' + playerData.id + '/currency')) {
+        if (await database.pathExists(this.userDataPath + playerData.id + '/currency')) {
             playerData.currency = utility.mergeObjects(
-                await database.getValue('users/' + playerData.id + '/currency'),
+                await database.getValue(this.userDataPath + playerData.id + '/currency'),
                 playerData.currency
             );
         }
@@ -95,7 +108,7 @@ class PlayerData {
         //first login stat
         if (
             !(await database.getValue(
-                'users/' + playerData.id + '/stat' + '/firstLogin'
+                this.userDataPath + playerData.id + '/stat' + '/firstLogin'
             ))
         ) {
             //get first login data
@@ -116,14 +129,14 @@ class PlayerData {
 
         //name
         if (this.socket.player.name) {
-            var path = 'users/' + this.socket.player.id;
+            var path = this.userDataPath + this.socket.player.id;
             if (this.socket.player.name != undefined)
                 database.setValue(path + '/name', this.socket.player.name);
         }
 
         //character
         if (this.socket.player.character) {
-            var path = 'users/' + this.socket.player.id + '/character';
+            var path = this.userDataPath + this.socket.player.id + '/character';
             if (this.socket.player.character.eye_type != undefined)
                 database.setValue(
                     path + '/eye_type',
@@ -138,7 +151,7 @@ class PlayerData {
 
         //stat
         if (this.socket.player.stat) {
-            var path = 'users/' + this.socket.player.id + '/stat';
+            var path = this.userDataPath + this.socket.player.id + '/stat';
             if (this.socket.player.stat.lastLogin != undefined)
                 database.setValue(
                     path + '/lastLogin',
@@ -163,7 +176,7 @@ class PlayerData {
 
         //currency
         if (this.socket.player.currency) {
-            path = 'users/' + this.socket.player.id + '/currency';
+            path = this.userDataPath + this.socket.player.id + '/currency';
             if (this.socket.player.currency.clovers != undefined)
                 database.setValue(
                     path + '/clovers',
@@ -174,32 +187,22 @@ class PlayerData {
 
     //gets specific client player data from specified path
     async getSpecificClientPlayerData(path) {
-        // if (
-        //     (await database.getValue('users/' + this.socket.player.id + path)) === undefined
-        // ) {
-        //     return undefined;
-        // } else {
-        //     let value = await database.getValue(
-        //         'users/' + this.socket.player.id + path
-        //     );
-        //     return value;
-        // }
         let value = await database.getValue(
-            'users/' + this.socket.player.id + path
+            this.userDataPath + this.socket.player.id + path
         );
         return value;
     }
 
     //sets specific client player data from specified path
     async setSpecificClientPlayerData(path, value) {
-        database.setValue('users/' + this.socket.player.id + path, value);
+        database.setValue(this.userDataPath + this.socket.player.id + path, value);
     }
 
     //changes specific client player data from specified path
     async changeSpecificClientPlayerData(path, delta) {
         let currentData = await this.getSpecificClientPlayerData(path);
         database.setValue(
-            'users/' + this.socket.player.id + path,
+            this.userDataPath + this.socket.player.id + path,
             currentData + delta
         );
     }
