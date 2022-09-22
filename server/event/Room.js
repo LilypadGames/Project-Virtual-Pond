@@ -229,7 +229,7 @@ class Room {
         //check if message contains blacklisted words
         if (chatFilter.check(message.toLowerCase())) {
             //log in moderation file
-            logs.logMessage('moderation', logMessage);
+            logs.logMessage('moderation', message);
 
             // //kick
             // moderation.kickClient(

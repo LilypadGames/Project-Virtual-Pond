@@ -400,7 +400,8 @@ class Connection {
             this.socket.player.stat.lastLogin = Date.now();
 
             //store players last room
-            this.socket.player.stat.lastRoom = this.socket.roomID;
+            if (this.socket.roomID !== undefined)
+                this.socket.player.stat.lastRoom = this.socket.roomID;
 
             //store player data in database
             this.PlayerData.storePlayerData();

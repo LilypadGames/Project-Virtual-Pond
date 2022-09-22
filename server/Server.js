@@ -248,7 +248,7 @@ chatLogs.init(io);
 globalData.init(io);
 
 //init twitch event subs
-twitch.init('pokelawls', app, globalData);
+// twitch.init('pokelawls', app, globalData);
 
 //init donations
 // streamElements.init();
