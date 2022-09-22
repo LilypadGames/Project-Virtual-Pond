@@ -22,6 +22,11 @@ module.exports = {
         database.ref(path).set(value);
     },
 
+    //update value in database (merges instead of overwriting object for example)
+    updateValue: function (path, value) {
+        database.ref(path).update(value);
+    },
+
     //get value in database
     getValue: async function (path) {
         //init value

@@ -1,0 +1,26 @@
+{
+    "eyes": [
+        {
+            "id": "normal"
+        },
+        {
+            "id": "sassy"
+        },
+        {
+            "id": "sad"
+        },
+        {
+            "id": "happy"
+        }
+    ],
+    "accessories": [
+        {
+            "id": "white_round_sunglasses",
+            "name": "White Round Sunglasses"
+        },
+        {
+            "id": "birthday_hat",
+            "name": "Birthday Hat"
+        }
+    ]
+}

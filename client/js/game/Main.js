@@ -19,6 +19,10 @@ var roomData = {};
 $.getJSON('../config/roomData.json', function (json) {
     roomData.rooms = json;
 });
+var itemData = {};
+$.getJSON('../config/itemData.json', function (json) {
+    itemData = json;
+});
 
 // GLOBAL VARIABLES
 //canvas
@@ -139,14 +143,21 @@ window.onload = function () {
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
-        scene: [Menu, Game, CharacterCreator, FF22DailySpin, FF22FrogShuffle, FF22EmoteMatch],
+        scene: [
+            Menu,
+            Game,
+            CharacterCreator,
+            FF22DailySpin,
+            FF22FrogShuffle,
+            FF22EmoteMatch,
+        ],
     };
 
     //init game
     game = new Phaser.Game(config);
 
     // pure javascript to give focus to the page/frame and scale the game
-    window.focus()
+    window.focus();
     // resize();
     // window.addEventListener("resize", resize, false);
 };

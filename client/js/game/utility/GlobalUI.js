@@ -209,7 +209,7 @@ class GlobalUI {
 
             //config
             {
-                cover: true,
+                cover: false,
                 duration: {
                     in: 200,
                     out: 200,

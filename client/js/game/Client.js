@@ -436,18 +436,21 @@ class Client {
     }
 
     //tell server that the player updated their character data
-    updateClientPlayerData(data) {
-        socket.emit('updateClientPlayerData', data, () => {
-            currentScene.events.emit('updatedClientPlayerData');
+    saveCharacterData(data) {
+        //wait for client player data to return
+        return new Promise((resolve) => {
+            socket.emit('requestCharacterDataUpdate', data, () => {
+                resolve();
+            });
         });
     }
     //get all player data from the sockets current room
-    requestAllPlayersInRoom() {
+    requestRoomUpdate() {
         //run wait screen
         loadingScreen.runWaitScreen(currentScene);
 
         //request data from server
-        socket.emit('requestAllPlayersInRoom', (data) => {
+        socket.emit('requestRoomUpdate', (data) => {
             if (currentScene.scene.key == 'Game') {
                 //update players in room
                 for (var i = 0; i < data.length; i++) {
@@ -468,6 +471,7 @@ class Client {
     playerMoved(x, y, direction) {
         socket.emit('playerMoved', x, y, direction);
     }
+    //tell server that the player has changed directions
     playerChangedDirection(direction, x, y) {
         socket.emit('playerChangedDirection', direction, x, y);
     }
@@ -478,6 +482,30 @@ class Client {
     //tell server that player is going to interact with an NPC
     playerInteractingWithObject(npcID) {
         socket.emit('playerInteractingWithObject', npcID);
+    }
+    //tell server that the player is requesting to purchase an item
+    requestItemPurchase(itemID) {
+        socket.emit('requestItemPurchase', itemID, (action) => {
+            //successful purchase
+            if (action.status) {
+                globalUI.showDialog(
+                    currentScene,
+                    'Success',
+                    action.reason,
+                    'Continue'
+                );
+            }
+
+            //unsuccessful purchase
+            else {
+                globalUI.showDialog(
+                    currentScene,
+                    'Oops!',
+                    action.reason,
+                    'Continue'
+                );
+            }
+        });
     }
 
     // EVENTS

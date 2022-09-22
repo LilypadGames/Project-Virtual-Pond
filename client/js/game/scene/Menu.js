@@ -43,7 +43,7 @@ class Menu extends Phaser.Scene {
         clientID = playerData.id;
 
         //send to character creator
-        if (!playerData.character) {
+        if (playerData.external && playerData.external.newfrog) {
             this.end();
             this.scene.start('CharacterCreator');
         }

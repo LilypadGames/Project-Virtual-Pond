@@ -101,16 +101,32 @@ class Game extends Phaser.Scene {
         //set to asset path
         this.load.setPath('assets/');
 
-        //character
+        //load character body
         this.load.image('frog_body', 'character/player/body/0.5x/Tintable.png');
         this.load.image(
             'frog_belly',
             'character/player/body/0.5x/Non-Tintable.png'
         );
-        this.load.image('frog_eyes_0', 'character/player/eyes/0.5x/Eyes_0.png');
-        this.load.image('frog_eyes_1', 'character/player/eyes/0.5x/Eyes_1.png');
-        this.load.image('frog_eyes_2', 'character/player/eyes/0.5x/Eyes_2.png');
-        this.load.image('frog_eyes_3', 'character/player/eyes/0.5x/Eyes_3.png');
+
+        //load character eyes
+        let eyesData = itemData.eyes;
+        for (var i = 0; i < eyesData.length; i++) {
+            this.load.image(
+                'frog_eyes_' + eyesData[i].id,
+                'character/player/eyes/0.5x/' + eyesData[i].id + '.png'
+            );
+        }
+
+        //load character accessories
+        let accessoryData = itemData.accessories;
+        for (var i = 0; i < accessoryData.length; i++) {
+            this.load.image(
+                'accessories_' + accessoryData[i].id,
+                'character/player/accessories/0.5x/' +
+                    accessoryData[i].id +
+                    '.png'
+            );
+        }
 
         //load room assets
         this.preloadRoomData(this.room);
@@ -523,14 +539,14 @@ class Game extends Phaser.Scene {
                 this
             );
 
-            //daily spin wheel
+            //free birthday hats
             this.addNewInteractableObject(
                 //set up object
                 (id) => {
                     //create sprite
                     this.interactableObjects[id] = this.add
-                        .image(318, 532.3, 'Daily_Spin_Wheel')
-                        .setDepth(570);
+                        .image(886, 578.7, 'Free_Birthday_Hats_Crates')
+                        .setDepth(630);
                 },
 
                 //set physics object
@@ -545,39 +561,69 @@ class Game extends Phaser.Scene {
 
                 //final interaction callback
                 () => {
-                    //start daily spin scene
-                    this.end();
-                    this.scene.start('FF22DailySpin');
+                    //get free birthday hat
+                    client.requestItemPurchase('birthday_hat');
                 }
             );
 
-            //emote match table
-            this.addNewInteractableObject(
-                //set up object
-                (id) => {
-                    //create sprite
-                    this.interactableObjects[id] = this.add
-                        .image(899.6, 720.8, 'Emote_Match_Table')
-                        .setDepth(745);
-                },
+            //FF22 Event
+            if (globalData.currentEvents.includes('FF22')) {
+                //daily spin wheel
+                this.addNewInteractableObject(
+                    //set up object
+                    (id) => {
+                        //create sprite
+                        this.interactableObjects[id] = this.add
+                            .image(318, 532.3, 'Daily_Spin_Wheel')
+                            .setDepth(570);
+                    },
 
-                //set physics object
-                (id) => {
-                    return this.interactableObjects[id];
-                },
+                    //set physics object
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
 
-                //set interactable sprite
-                (id) => {
-                    return this.interactableObjects[id];
-                },
+                    //set interactable sprite
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
 
-                //final interaction callback
-                () => {
-                    //start daily spin scene
-                    this.end();
-                    this.scene.start('FF22EmoteMatch');
-                }
-            );
+                    //final interaction callback
+                    () => {
+                        //start daily spin scene
+                        this.end();
+                        this.scene.start('FF22DailySpin');
+                    }
+                );
+
+                //emote match table
+                this.addNewInteractableObject(
+                    //set up object
+                    (id) => {
+                        //create sprite
+                        this.interactableObjects[id] = this.add
+                            .image(899.6, 720.8, 'Emote_Match_Table')
+                            .setDepth(745);
+                    },
+
+                    //set physics object
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
+
+                    //set interactable sprite
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
+
+                    //final interaction callback
+                    () => {
+                        //start daily spin scene
+                        this.end();
+                        this.scene.start('FF22EmoteMatch');
+                    }
+                );
+            }
 
             // //lost recording
             // let lost_recording = this.add
@@ -737,7 +783,7 @@ class Game extends Phaser.Scene {
     // UI
     //reload the world when window is re-focused
     onFocus() {
-        client.requestAllPlayersInRoom();
+        client.requestRoomUpdate();
     }
 
     //show menu
@@ -1514,6 +1560,12 @@ class Game extends Phaser.Scene {
         var playerEyes = this.add
             .sprite(0, 0, 'frog_eyes_' + data.character.eye_type)
             .setOrigin(0.5, 1);
+        //create accessory layer if it exists
+        if (data.character.accessory) {
+            var playerAccessory = this.add
+                .sprite(0, 0, 'accessories_' + data.character.accessory)
+                .setOrigin(0.5, 1);
+        }
 
         //get sprite container size
         var spriteContainer = {
@@ -1551,6 +1603,10 @@ class Game extends Phaser.Scene {
             playerBelly,
             playerEyes,
         ]);
+
+        //add accessory to player container
+        if (data.character.accessory)
+            this.playerCharacter[data.id].list[0].add(playerAccessory);
 
         //create player overlay container
         this.playerCharacter[data.id].add(

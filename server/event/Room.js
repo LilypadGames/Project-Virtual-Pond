@@ -19,20 +19,18 @@ const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
 const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
 const commands = require(path.join(__dirname, '../utility/Commands.js'));
 
-//import events
-const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
-
-//import room events
-const roomTheatre = require(path.join(__dirname, '../event/room/Theatre.js'));
+//event handlers
+// const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
+const roomTheatre = require(path.join(__dirname, 'room/Theatre.js'));
 
 class Room {
-    constructor(io, socket, room) {
+    constructor(io, socket, playerData, room) {
         this.socket = socket;
         this.io = io;
         this.room = room;
 
-        //init PlayerData instance
-        this.PlayerData = new PlayerData(io, socket);
+        //save PlayerData instance
+        this.PlayerData = playerData;
     }
 
     async init() {
@@ -45,8 +43,8 @@ class Room {
 
     async register() {
         //triggers when player reloads their client and requests current player data
-        this.socket.on('requestAllPlayersInRoom', async (cb) => {
-            cb(await this.PlayerData.requestAllPlayersInRoom());
+        this.socket.on('requestRoomUpdate', async (cb) => {
+            cb(await this.PlayerData.requestRoomUpdate());
         });
 
         //triggers when player moves

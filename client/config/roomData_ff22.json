@@ -2,7 +2,7 @@
     "forest": {
         "option": {
             "chatLogUIHeight": 250,
-            "music": "frog_caves_chill_kopie",
+            "music": "frog_caves_fair",
             "ambience": "forest_ambience"
         },
         "asset": {
@@ -69,15 +69,19 @@
                 },
                 {
                     "name": "Daily_Spin_Tent",
-                    "path": "event/ff22/room/forest/layers/Daily_Spin_Tent_Dev.png"
+                    "path": "event/ff22/room/forest/layers/Daily_Spin_Tent.png"
                 },
                 {
                     "name": "Daily_Spin_Tent_Background",
-                    "path": "event/ff22/room/forest/layers/Daily_Spin_Tent_Background_Dev.png"
+                    "path": "event/ff22/room/forest/layers/Daily_Spin_Tent_Background.png"
                 },
                 {
                     "name": "Daily_Spin_Wheel",
                     "path": "event/ff22/room/forest/objects/Daily_Spin_Wheel.png"
+                },
+                {
+                    "name": "Emote_Match_Sign",
+                    "path": "event/ff22/room/forest/layers/Emote_Match_Sign.png"
                 },
                 {
                     "name": "Emote_Match_Table",
@@ -90,14 +94,6 @@
                 {
                     "name": "Frog_Shuffle_Tent_Background",
                     "path": "event/ff22/room/forest/layers/Frog_Shuffle_Tent_Background.png"
-                },
-                {
-                    "name": "Birthday_Cake",
-                    "path": "room/forest/layers/Birthday_Cake.png"
-                },
-                {
-                    "name": "Free_Birthday_Hats_Crates",
-                    "path": "room/forest/objects/Free_Birthday_Hats_Crates.png"
                 }
             ],
             "audio": [
@@ -106,8 +102,8 @@
                     "path": "room/forest/audio/sfx/object/radio_click.mp3"
                 },
                 {
-                    "name": "frog_caves_chill_kopie",
-                    "path": "room/forest/audio/music/frog_caves_chill_kopie.mp3"
+                    "name": "frog_caves_fair",
+                    "path": "event/ff22/audio/music/frog_caves_fair.mp3"
                 },
                 {
                     "name": "mask",
@@ -157,8 +153,8 @@
                 "depth": 605
             },
             {
-                "name": "Birthday_Cake",
-                "depth": 580
+                "name": "Emote_Match_Sign",
+                "depth": 735
             },
             {
                 "name": "Forest_Foreground",

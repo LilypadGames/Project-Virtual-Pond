@@ -1,14 +1,14 @@
 // Connection Events
 
-//dependencies: file parsing
+//file parsing
 const path = require('path');
 const jsonPath = require('jsonpath');
 
-//get config values
+//configs
 const config = require(path.join(__dirname, '../config/config.json'));
 const roomData = require(path.join(__dirname, '../config/roomData.json'));
 
-//imports
+//modules
 const utility = require(path.join(__dirname, '../utility/Utility.js'));
 const logs = require(path.join(__dirname, '../utility/Logs.js'));
 const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
@@ -20,10 +20,10 @@ const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
 // const emoteLib = require(path.join(__dirname, '../utility/Emotes.js'));
 const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
 
-//import events
+//event handlers
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
-const Room = require(path.join(__dirname, 'Room.js'));
 const Events = require(path.join(__dirname, 'Events.js'));
+const Room = require(path.join(__dirname, 'Room.js'));
 
 class Connection {
     constructor(io, socket) {
@@ -79,7 +79,7 @@ class Connection {
                 this.socket.player = await this.PlayerData.getPlayerData();
 
                 //register events
-                this.register();
+                await this.register();
             }
         }
 
@@ -95,11 +95,14 @@ class Connection {
             };
 
             //register events
-            this.register();
+            await this.register();
 
             //increment ID
             this.io.guestID = this.io.guestID + 1;
         }
+
+        //init playerdata events
+        await this.PlayerData.init();
 
         //init party events
         await this.Events.init();
@@ -135,7 +138,10 @@ class Connection {
         //triggers when client requests the players data
         this.socket.on('requestLoadData', (cb) => {
             var loadData = {};
-            loadData['player'] = this.PlayerData.requestClientPlayerData();
+            loadData['player'] = this.PlayerData.requestParsedPlayerData(
+                this.socket.player,
+                this.socket.player
+            );
             // loadData['emotes'] = emoteLib.getEmotes();
 
             cb(loadData);
@@ -144,17 +150,6 @@ class Connection {
         //triggers when client requests global data
         this.socket.on('requestGlobalData', (cb) => {
             cb(globalData.get());
-        });
-
-        //triggers when client requests the players data
-        this.socket.on('requestClientPlayerData', (cb) => {
-            cb(this.PlayerData.requestClientPlayerData());
-        });
-
-        //triggers when client changes their player data and may want to go to next scene only AFTER the data has been updated
-        this.socket.on('updateClientPlayerData', (data, cb) => {
-            this.PlayerData.updateClientPlayerData(data);
-            cb();
         });
 
         //triggers when client is attempting to join a room
@@ -235,6 +230,7 @@ class Connection {
 
         //determine whether player can join this room
 
+        //send room joined
         return room;
     }
 
@@ -297,7 +293,12 @@ class Connection {
         //register room events
         if (!this.roomInstance) {
             //new room instance
-            this.roomInstance = new Room(this.io, this.socket, room);
+            this.roomInstance = new Room(
+                this.io,
+                this.socket,
+                this.PlayerData,
+                room
+            );
             await this.roomInstance.init();
         } else {
             //store room
@@ -321,15 +322,18 @@ class Connection {
         );
 
         //send new player to ONLY OTHER clients in this room
+        let newPlayerData = await this.PlayerData.requestParsedPlayerData(
+            this.socket.player
+        );
         this.socket
             .to(this.socket.roomID)
-            .emit('payloadNewPlayerData', this.socket.player);
+            .emit('payloadNewPlayerData', newPlayerData);
 
         //init room info
         var roomInfo = {};
 
         //send all currently connected players in this room to ONLY THIS client
-        roomInfo['players'] = await this.PlayerData.getAllPlayers(
+        roomInfo['players'] = await this.PlayerData.requestAllParsedPlayerData(
             this.socket.roomID
         );
 
@@ -387,7 +391,7 @@ class Connection {
                 ? this.socket.player.stat.playTime
                 : 0;
             let sessionPlayTimeInSeconds = Math.floor(
-                (Date.now() - this.socket.player.stat.loginTime) / 1000
+                (Date.now() - this.socket.player.internal.loginTime) / 1000
             );
             this.socket.player.stat.playTime =
                 totalPlayTimeInSeconds + sessionPlayTimeInSeconds;

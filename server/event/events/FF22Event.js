@@ -1,12 +1,12 @@
 // FF22Event Events
 
-//dependency: file path
+//file parsing
 const path = require('path');
 
-//get config values
+//configs
 const config = require(path.join(__dirname, '../../config/config.json'));
 
-//imports
+//modules
 const utility = require(path.join(__dirname, '../../utility/Utility.js'));
 
 //DailySpinData
@@ -56,7 +56,7 @@ class FF22Event {
         this.register();
 
         //get players ticket count
-        this.ticketCount = await this.retreiveTicketCount();
+        this.socket.player.internal.tickets = await this.retreiveTicketCount();
 
         //init spins
         this.dailySpinCheck();
@@ -100,7 +100,7 @@ class FF22Event {
             //save players ticket count
             await this.PlayerData.changeSpecificClientPlayerData(
                 '/event/ff22/tickets',
-                this.ticketCount
+                this.socket.player.internal.tickets
             );
         }
     }
@@ -127,7 +127,7 @@ class FF22Event {
 
     //triggers when client requests the players ticket count
     getTicketCount() {
-        return this.ticketCount;
+        return this.socket.player.internal.tickets;
     }
 
     //triggers when client requests the daily spin count
@@ -236,7 +236,8 @@ class FF22Event {
                 ];
 
             //award the players win
-            this.ticketCount = this.ticketCount + prizeAmount;
+            this.socket.player.internal.tickets =
+                this.socket.player.internal.tickets + prizeAmount;
 
             return { status: true, degrees: degrees };
         } else {
@@ -357,7 +358,9 @@ class FF22Event {
                     status['prize_amount'] = EmoteMatchData.prizeAmount;
 
                     //give tickets
-                    this.ticketCount = this.ticketCount + EmoteMatchData.prizeAmount;
+                    this.socket.player.internal.tickets =
+                        this.socket.player.internal.tickets +
+                        EmoteMatchData.prizeAmount;
                 }
             }
 
