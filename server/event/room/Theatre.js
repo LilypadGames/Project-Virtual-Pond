@@ -1,15 +1,11 @@
 // theatre room
 
-//dependency: file path
+//file parsing
 const path = require('path');
 
-//dependency: media share
-const mediaShare = require(path.join(__dirname, '../../utility/MediaShare.js'));
-
-//dependency: twitch API
+//modules
 const twitch = require(path.join(__dirname, '../../utility/Twitch.js'));
-
-//imports
+const mediaShare = require(path.join(__dirname, '../../utility/MediaShare.js'));
 const globalData = require(path.join(__dirname, '../../utility/GlobalData.js'));
 
 //get twitch events

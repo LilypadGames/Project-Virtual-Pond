@@ -18,19 +18,9 @@ class BongBuckets extends Phaser.Scene {
 
         //loading screen
         loadingScreen.runLoadingScreen(this);
-
-        //sfx
-        this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
     }
 
     create() {
-        //register sfx
-        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
-        this.sfxButtonClick.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume
-        );
     }
 
     end() {

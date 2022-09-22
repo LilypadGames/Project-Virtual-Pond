@@ -20,12 +20,8 @@ class LilypadHopper extends Phaser.Scene {
 
     // LOGIC
     preload() {
-        //sfx
-        this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
     }
 
     create() {
-        //sfx
-        this.sfxButtonClick = this.sound.add('button_click');
     }
 }

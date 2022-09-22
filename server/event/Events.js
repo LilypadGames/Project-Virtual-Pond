@@ -1,9 +1,9 @@
 // Events Events
 
-//dependencies: file parsing
+//file parsing
 const path = require('path');
 
-//import events
+//event handlers
 const FF22Event = require(path.join(__dirname, 'events/FF22Event.js'));
 
 class Events {
