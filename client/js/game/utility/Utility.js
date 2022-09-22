@@ -9,8 +9,8 @@ class Utility {
 
     // RANDOM
     //get a random integer
-    getRandomInt(low, high) {
-        return Math.floor(Math.random() * (high - low) + low);
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
     //get random from array
     randomFromArray(array) {

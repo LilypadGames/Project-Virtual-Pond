@@ -1,13 +1,55 @@
+//dependency: file parsing
+const path = require('path');
+const jsonPath = require('jsonpath');
+
+//imports
+const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const ConsoleColor = require(path.join(
+    __dirname,
+    '../utility/ConsoleColor.js'
+));
+const roomData = require(path.join(__dirname, '../config/roomData.json'));
+
 chatLogs = {};
 
 module.exports = {
-    chatLogs: {},
-
     init: function (io) {
         //on room creation
         io.of('/').adapter.on('create-room', (room) => {
-            //init chat log for room
-            if (this.chatLogs[room] === undefined) this.chatLogs[room] = [];
+            try {
+                //check if room exists
+                if (jsonPath.query(roomData, '$..' + room)[0]) {
+                    //init chat log for room
+                    if (chatLogs[room] === undefined) {
+                        chatLogs[room] = [];
+
+                        //log
+                        console.log(
+                            ConsoleColor.Cyan,
+                            utility.timestampString(
+                                'Room Chat Log Initialized: ' + room
+                            )
+                        );
+                    }
+                }
+            } catch (error) {
+                //ignore certain errors
+                if (
+                    error
+                        .toString()
+                        .includes('Error: Parse error on line 1:') ||
+                    error
+                        .toString()
+                        .includes(
+                            'Error: Lexical error on line 1. Unrecognized text.'
+                        )
+                )
+                    return;
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString('Chat Log Init - ' + error)
+                );
+            }
         });
     },
 
@@ -21,15 +63,15 @@ module.exports = {
         };
 
         //store entry
-        this.chatLogs[roomID].push(entry);
+        chatLogs[roomID].push(entry);
 
         //delete older entries if over max
-        if (this.chatLogs[roomID].length > 30) {
-            this.chatLogs[roomID].splice(0, 1);
+        if (chatLogs[roomID].length > 30) {
+            chatLogs[roomID].splice(0, 1);
         }
     },
 
     getRoomLogs: function (roomID) {
-        return this.chatLogs[roomID];
+        return chatLogs[roomID];
     },
 };

@@ -1,18 +1,37 @@
 // Initializes Game
 
 //imports
+const utility = new Utility();
+
+const client = new Client();
+
 const ui = new UI();
 const globalUI = new GlobalUI();
-const utility = new Utility();
-const client = new Client();
 const loadingScreen = new LoadingScreen();
+
+const events = new Events();
+const ff22 = new FF22();
+
 const twitchEmotes = new Emotes();
+
+//set up config
+var roomData = {};
+$.getJSON('../config/roomData.json', function (json) {
+    roomData.rooms = json;
+});
+var itemData = {};
+$.getJSON('../config/itemData.json', function (json) {
+    itemData = json;
+});
 
 // GLOBAL VARIABLES
 //canvas
 var canvas = document.createElement('canvas');
+//canvas size
 const gameWidth = 1280;
 const gameHeight = 800;
+//global data
+var globalData = {};
 
 //cookies
 var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
@@ -48,7 +67,6 @@ var currentScene;
 
 //debug
 var debugMode = false;
-const depthDebug = 1000000;
 
 //player
 var clientID;
@@ -64,7 +82,7 @@ window.onload = function () {
             parent: 'game-container',
             fullscreenTarget: 'game-container',
             mode: Phaser.Scale.FIT,
-            autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
             resolution: window.devicePixelRatio,
             max: {
                 width: gameWidth,
@@ -103,6 +121,12 @@ window.onload = function () {
                     mapping: 'rexCover',
                 },
                 {
+                    key: 'rexSoundFade',
+                    plugin: rexsoundfadeplugin,
+                    start: true,
+                    mapping: 'rexSoundFade',
+                },
+                {
                     key: 'rexOutlineFX',
                     plugin: rexoutlinepipelineplugin,
                     start: true,
@@ -119,9 +143,38 @@ window.onload = function () {
         disableContextMenu: true,
         hidePhaser: true,
         hideBanner: true,
-        scene: [Menu, Game, CharacterCreator],
+        scene: [
+            Menu,
+            Game,
+            CharacterCreator,
+            FF22DailySpin,
+            FF22FrogShuffle,
+            FF22EmoteMatch,
+        ],
     };
 
     //init game
     game = new Phaser.Game(config);
+
+    // pure javascript to give focus to the page/frame and scale the game
+    window.focus();
+    // resize();
+    // window.addEventListener("resize", resize, false);
 };
+
+// pure javascript to scale the game
+// function resize() {
+//     var canvas = document.querySelector("canvas");
+//     var windowWidth = window.innerWidth;
+//     var windowHeight = window.innerHeight;
+//     var windowRatio = windowWidth / windowHeight;
+//     var gameRatio = game.config.width / game.config.height;
+//     if(windowRatio < gameRatio){
+//         canvas.style.width = windowWidth + "px";
+//         canvas.style.height = (windowWidth / gameRatio) + "px";
+//     }
+//     else{
+//         canvas.style.width = (windowHeight * gameRatio) + "px";
+//         canvas.style.height = windowHeight + "px";
+//     }
+// }

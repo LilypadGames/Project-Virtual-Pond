@@ -6,12 +6,9 @@ class BongBuckets extends Phaser.Scene {
         super({ key: 'BongBuckets' });
     }
 
-    init(previousRoom) {
+    init() {
         //set scene
         currentScene = this;
-
-        //set previous room
-        this.previousRoom = previousRoom;
     }
 
     // LOGIC
@@ -20,20 +17,10 @@ class BongBuckets extends Phaser.Scene {
         this.canvas = this.sys.game.canvas;
 
         //loading screen
-        loadingScreen.run(this);
-
-        //sfx
-        this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
+        loadingScreen.runLoadingScreen(this);
     }
 
     create() {
-        //register sfx
-        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
-        this.sfxButtonClick.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume
-        );
     }
 
     end() {

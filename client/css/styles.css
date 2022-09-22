@@ -94,6 +94,11 @@ a.btn .bi:hover {
   color: #00ff1a;
 }
 
+/* Toggler */
+.hide {
+  display: none;
+}
+
 /* Dark Mode */
 /* Body */
 body.dark {

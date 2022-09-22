@@ -1,8 +1,11 @@
 {
     "version": "",
     "server": {
+        "hostName": "",
         "port": "",
-        "proxy": false
+        "proxy": false,
+        "local": false,
+        "bypassAuth": false
     },
     "socketio_admin_dash": {
         "auth": {
@@ -15,6 +18,10 @@
         "clientID": "",
         "clientSecret": "",
         "callbackURL": ""
+    },
+    "streamelements": {
+        "JWTToken": "",
+        "accountId": ""
     },
     "database": {
         "databaseURL": ""

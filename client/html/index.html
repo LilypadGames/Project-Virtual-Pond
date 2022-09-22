@@ -10,9 +10,10 @@
     <meta name="description" content="A Social Virtual World for Twitch Frogs to Hang and Chat.">
     <meta name="keywords" content="Social, Virtual, World, Game, Twitch, Pokelawls">
     <meta name="author" content="DanMizu">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height" />
     <meta name="color-scheme" content="light dark">
-
+    
     <!-- Site Dependencies -->
     <script src="lib/js/jquery-3.6.0.min.js"></script>
     <link href="lib/css/bootstrap.min.css" rel="stylesheet" id="light">
@@ -40,75 +41,71 @@
 
 <body>
 
-    <div class="min-vh-100 d-flex flex-column justify-content-between">
+    <!-- Header -->
+    <header>
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-dark navbar-expand-lg">
+            <div class="container-fluid">
 
-        <!-- Header -->
-        <header>
-            <!-- Navigation Bar -->
-            <nav class="navbar navbar-dark navbar-expand-lg">
-                <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" href="#"> <img src="assets/site/logo.svg" alt="Logo"> </a>
 
-                    <!-- Logo -->
-                    <a class="navbar-brand" href="#"> <img src="assets/site/logo.svg" alt="Logo"> </a>
+                <!-- Navbar Toggler (For Smaller Screens/Mobile) -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-                    <!-- Navbar Toggler (For Smaller Screens/Mobile) -->
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+                <!-- Links -->
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav ms-md-auto mb-2 align-items-center align-items-end">
 
-                    <!-- Links -->
-                    <div class="collapse navbar-collapse" id="navbarMain">
-                        <ul class="navbar-nav ms-md-auto mb-2 align-items-center align-items-end">
+                        <!-- Dark Mode Switch -->
+                        <li class="nav-item form-check form-switch" style="padding-right: 10px;">
+                            <input class="form-check-input" type="checkbox" role="switch" id="dark-mode-switch" aria-label="Dark Mode"/>
+                            <label class="form-check-label" for="dark-mode-switch"> <i class="bi bi-moon-fill"></i> </label>
+                        </li>
 
-                            <!-- Dark Mode Switch -->
-                            <li class="nav-item form-check form-switch" style="padding-right: 10px;">
-                                <input class="form-check-input" type="checkbox" role="switch" id="dark-mode-switch" aria-label="Dark Mode"/>
-                                <label class="form-check-label" for="dark-mode-switch"> <i class="bi bi-moon-fill"></i> </label>
-                            </li>
+                        <!-- Discord Icon -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://discord.gg/2aVq8qmcSr" target="_blank" aria-label="Discord Button"> <i class="bi bi-discord"></i> </a>
+                        </li>
 
-                            <!-- Discord Icon -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="https://discord.gg/2aVq8qmcSr" target="_blank" aria-label="Discord Button"> <i class="bi bi-discord"></i> </a>
-                            </li>
+                        <!-- Trello Icon -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://trello.com/b/2EppX5wM/project-virtual-pond" target="_blank" aria-label="Trello Button"> <i class="bi bi-kanban" ></i> </a>
+                        </li>
 
-                            <!-- Trello Icon -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="https://trello.com/b/2EppX5wM/project-virtual-pond" target="_blank" aria-label="Trello Button"> <i class="bi bi-kanban" ></i> </a>
-                            </li>
+                        <!-- Github Icon -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://github.com/Dan-Mizu/Project-Virtual-Pond" target="_blank" aria-label="Github Button"> <i class="bi bi-github"></i> </a>
+                        </li>
 
-                            <!-- Github Icon -->
-                            <li class="nav-item">
-                                <a class="nav-link" href="https://github.com/Dan-Mizu/Project-Virtual-Pond" target="_blank" aria-label="Github Button"> <i class="bi bi-github"></i> </a>
-                            </li>
+                        <!-- Donate Button -->
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light ms-md-3" href="https://streamelements.com/danmizu-2547/tip" target="_blank" aria-label="Donate Button"><i class="bi bi-box2-heart-fill" style="padding-right: 10px;"></i>Donate</a>
+                        </li>
 
-                            <!-- Donate Button -->
-                            <li class="nav-item">
-                                <a class="btn btn-outline-light ms-md-3" href="https://www.paypal.com/paypalme/DanMizu" target="_blank" aria-label="Donate Button"><i class="bi bi-paypal" style="padding-right: 10px;"></i>Donate</a>
-                            </li>
-
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-        </header>
-      
-        <!-- Game -->
-        <section>
-            <div id="game-container"></div>
-        </section>
-    
-        <!-- Footer -->
-        <footer class="pt-4 pb-4">
-            <div class="container">
-                <div class="row text-center">
-                    <div class="col">
-                        <p>Developed By <a class="credit-link" href="https://www.twitter.com/dan_mizu" target="_blank">DanMizu</a> | Music By <a class="credit-link" href="https://www.instagram.com/biioeai/" target="_blank">Caristan</a> | For <a class="credit-link" href="https://www.twitch.tv/pokelawls" target="_blank">Pokelawls</a> Community <3</p>
-                    </div>
+                    </ul>
                 </div>
             </div>
-        </footer>
+        </nav>
+    </header>
+    
+    <!-- Game -->
+    <section>
+        <div id="game-container"></div>
+    </section>
 
-    </div>
+    <!-- Footer -->
+    <footer class="pt-4 pb-4">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col">
+                    <p>Developed By <a class="credit-link" href="https://www.twitter.com/dan_mizu" target="_blank">DanMizu</a> | Music By <a class="credit-link" href="https://www.instagram.com/biioeai/" target="_blank">Caristan</a> | For <a class="credit-link" href="https://www.twitch.tv/pokelawls" target="_blank">Pokelawls</a> Community <3</p>
+                </div>
+            </div>
+        </div>
+    </footer>
 
 </body>
 
@@ -123,6 +120,7 @@
     <!-- Game Plugins -->
     <script src="js/game/plugin/rexuiplugin.min.js" type="text/javascript"></script>
     <script src="js/game/plugin/rexcoverplugin.min.js" type="text/javascript"></script>
+    <script src="js/game/plugin/rexsoundfadeplugin.min.js" type="text/javascript"></script>
     <script src="js/game/plugin/rexoutlinepipelineplugin.min.js" type="text/javascript"></script>
     <script src="js/game/plugin/rexinputtextplugin.min.js" type="text/javascript"></script>
 
@@ -137,9 +135,18 @@
     <!-- Game Websocket Handler -->
     <script src="js/game/Client.js" type="text/javascript"></script>
 
-    <!-- Game Logic -->
+    <!-- Events -->
+    <script src="js/game/scene/event/Events.js" type="text/javascript"></script>
+    <script src="js/game/scene/event/fallfaire22/FF22.js" type="text/javascript"></script>
+    <script src="js/game/scene/event/fallfaire22/minigame/DailySpin.js" type="text/javascript"></script>
+    <script src="js/game/scene/event/fallfaire22/minigame/FrogShuffle.js" type="text/javascript"></script>
+    <script src="js/game/scene/event/fallfaire22/minigame/EmoteMatch.js" type="text/javascript"></script>
+
+    <!-- Game Scenes -->
     <script src="js/game/scene/Game.js" type="text/javascript"></script>
     <script src="js/game/scene/CharacterCreator.js" type="text/javascript"></script>
+
+    <!-- Game Handler -->
     <script src="js/game/scene/Menu.js" type="text/javascript"></script>
     <script src="js/game/Main.js" type="text/javascript"></script>
 
