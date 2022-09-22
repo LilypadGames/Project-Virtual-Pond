@@ -7,13 +7,12 @@ class Game extends Phaser.Scene {
     }
 
     init(room) {
-        //client file needs the current game instance
-        currentScene = this;
+        //global variables
+        globalUI.init(this);
 
-        //save room
+        //set room
         this.room = room;
 
-        // LOCAL VARIABLES
         //world
         this.walkableLayer = undefined;
         this.unWalkableLayer = [];
@@ -21,8 +20,6 @@ class Game extends Phaser.Scene {
         this.DOMElements = [];
 
         //depth
-        this.depthUI = 100002;
-        this.depthOverlay = 100001;
         this.depthForeground = 100000;
         this.depthGround = 1;
         this.depthBackground = 0;
@@ -58,7 +55,8 @@ class Game extends Phaser.Scene {
         this.playerData = [];
 
         //object variables
-        this.npcCharacter = {};
+        this.interactableObjects = [];
+        this.interactableObjectFunction = [];
         this.npcData = [];
         this.npcList = [];
 
@@ -84,47 +82,67 @@ class Game extends Phaser.Scene {
             padding: { left: 8, right: 8, top: 6, bottom: 6 },
             wordWrap: { width: 250 },
         };
-        this.messageLength = 80;
+        this.messageMaxLength = 80;
         this.disableInput = false;
         this.menuOpen = false;
-        this.formattedNews;
     }
 
     // LOGIC
     preload() {
-        //register canvas
-        this.canvas = this.sys.game.canvas;
-
         //loading screen
-        loadingScreen.run(this);
+        loadingScreen.runLoadingScreen(this);
 
-        //asset path
+        //preload global UI
+        globalUI.preload(this);
+
+        //preload events data
+        events.preload(this);
+
+        //set to asset path
         this.load.setPath('assets/');
 
-        //sfx
-        this.load.audio('button_click', 'audio/sfx/UI/button_click.mp3');
+        //load character body
+        this.load.image('frog_body', 'character/player/body/0.5x/Tintable.png');
+        this.load.image(
+            'frog_belly',
+            'character/player/body/0.5x/Non-Tintable.png'
+        );
 
-        //character
-        this.load.image('frog_body', 'character/player/Tintable.png');
-        this.load.image('frog_belly', 'character/player/Non-Tintable.png');
-        this.load.image('frog_eyes_0', 'character/player/eyes/Eyes_0.png');
-        this.load.image('frog_eyes_1', 'character/player/eyes/Eyes_1.png');
+        //load character eyes
+        let eyesData = itemData.eyes;
+        for (var i = 0; i < eyesData.length; i++) {
+            this.load.image(
+                'frog_eyes_' + eyesData[i].id,
+                'character/player/eyes/0.5x/' + eyesData[i].id + '.png'
+            );
+        }
 
-        //debug
-        this.load.image('target', 'debug/target.png');
+        //load character accessories
+        let accessoryData = itemData.accessories;
+        for (var i = 0; i < accessoryData.length; i++) {
+            this.load.image(
+                'accessories_' + accessoryData[i].id,
+                'character/player/accessories/0.5x/' +
+                    accessoryData[i].id +
+                    '.png'
+            );
+        }
 
         //load room assets
-        this.preloadRoomAssets(this.room);
+        this.preloadRoomData(this.room);
     }
 
-    create() {
+    async create() {
+        //wait screen
+        loadingScreen.runWaitScreen(this);
+
+        //create global UI
+        globalUI.create(this);
+
+        //create events data
+        await events.create(this);
+
         //register sfxs
-        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
-        this.sfxButtonClick.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume
-        );
         if (this.room === 'forest') {
             this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
             this.sfxRadioClick.setVolume(
@@ -132,15 +150,15 @@ class Game extends Phaser.Scene {
                     utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
                 ].volume
             );
-            this.audioLostRecording = this.sound.add('lost_recording', {
-                volume: 1,
-            });
+            // this.audioLostRecording = this.sound.add('lost_recording', {
+            //     volume: 1,
+            // });
         }
 
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
 
-        //register keyboard inputs
+        //chat box inputs
         this.input.keyboard.on(
             'keydown-' + 'ENTER',
             () => {
@@ -157,18 +175,40 @@ class Game extends Phaser.Scene {
             },
             this
         );
+
+        //player direction inputs
         this.input.keyboard.on(
-            'keydown-' + 'SHIFT',
+            'keydown-' + 'D',
             () => {
-                if (!this.chatBox.isFocused) {
-                    this.toggleDebugMode();
-                }
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('right');
             },
             this
         );
-
-        //add debug info
-        this.createDebug();
+        this.input.keyboard.on(
+            'keydown-' + 'RIGHT',
+            () => {
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('right');
+            },
+            this
+        );
+        this.input.keyboard.on(
+            'keydown-' + 'A',
+            () => {
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('left');
+            },
+            this
+        );
+        this.input.keyboard.on(
+            'keydown-' + 'LEFT',
+            () => {
+                if (!this.chatBox.isFocused)
+                    this.onDirectionChangeAttempt('left');
+            },
+            this
+        );
 
         //add room layers
         this.addRoomLayers(this.room);
@@ -188,12 +228,6 @@ class Game extends Phaser.Scene {
         //add room teleports
         this.addRoomTeleports(this.room);
 
-        //add room DOM elements
-        this.addRoomDOMElements(this.room);
-
-        //tell server that the client has joined this room and recieve information such as currently connected players to this room
-        client.joinRoom(this.room);
-
         //add toolbar
         this.createToolbar();
 
@@ -209,59 +243,116 @@ class Game extends Phaser.Scene {
             ].value = welcomeMessageVersion;
             utility.storeLocalStorageArray('gameValues', options);
         }
+
+        //tell server that the client has joined this room and recieve information such as currently connected players to this room
+        let roomData = await client.joinRoom(this.room);
+
+        //add connected players into room
+        for (var i = 0; i < roomData['players'].length; i++) {
+            currentScene.addNewPlayer(roomData['players'][i]);
+        }
+
+        //set chat log of this room
+        currentScene.setChatLog(roomData['chatLog']);
+
+        //end wait screen
+        loadingScreen.endWaitScreen(currentScene);
+
+        //add room DOM elements
+        this.addRoomDOMElements(this.room);
     }
 
     update() {
-        //handle collisions between player and npc characters
-        for (var i = 0; i < this.npcList.length; i++) {
-            Object.keys(this.playerCharacter).forEach((key) => {
+        //handle all players
+        Object.keys(this.playerCharacter).forEach((playerID) => {
+            //handle collisions between this player and all interactable objects
+            for (
+                var objectID = 0;
+                objectID < this.interactableObjects.length;
+                objectID++
+            ) {
+                //check this interactable object and the player for a collision
                 this.physics.world.collide(
-                    this.playerCharacter[key],
-                    this.npcCharacter[i],
+                    this.playerCharacter[playerID],
+                    this.interactableObjects[objectID],
                     () => {
-                        //get player interact NPC data
-                        let interactNPC = utility.getObject(
+                        //get object player last clicked
+                        let attemptedObjectInteract = utility.getObject(
                             this.playerData,
-                            key
-                        ).interactNPC;
+                            playerID
+                        ).attemptedObjectInteract;
 
-                        //if player is trying to interact with this NPC
-                        if (interactNPC == i) {
-                            //interact with NPC
-                            this.interactNPC(key, i);
+                        //if player is trying to interact with this object
+                        if (attemptedObjectInteract === objectID) {
+                            //reset attemptedObjectInteract player data
+                            delete utility.getObject(this.playerData, playerID)
+                                .attemptedObjectInteract;
+
+                            //stop player when colliding with interactable object
+                            this.haltPlayer(
+                                playerID,
+                                this.playerCharacter[playerID].x,
+                                this.playerCharacter[playerID].y
+                            );
+
+                            //run interactable objects function
+                            this.interactableObjectFunction[objectID](
+                                objectID,
+                                playerID
+                            );
 
                             //log
                             if (debugMode)
                                 console.log(
                                     utility.timestampString(
-                                        'Interacted With NPC: ' + i
+                                        'Interacted With Object: ' + objectID
                                     )
                                 );
                         }
                     }
                 );
-            });
-        }
-
-        //check if player attempts to teleport
-        if (this.playerCharacter[clientID]) {
-            for (var i = 0; i < this.teleportList.length; i++) {
-                this.physics.world.collide(
-                    this.playerCharacter[clientID],
-                    this.teleportList[i]['teleport'],
-                    () => {
-                        //start new room scene
-                        this.end();
-                        this.scene.start('Game', this.teleportList[i]['room']);
-                    }
-                );
             }
-        }
 
-        //handle player character depth
-        Object.keys(this.playerCharacter).forEach((key) => {
-            this.playerCharacter[key].setDepth(this.playerCharacter[key].y);
+            //existence check
+            if (!this.playerCharacter[playerID]) return;
+
+            //handle player character depth
+            this.playerCharacter[playerID].setDepth(
+                this.playerCharacter[playerID].y
+            );
+
+            //existence check
+            if (!this.playerCharacter[playerID]) return;
+
+            //handle client player only
+            if (playerID === clientID) {
+                //handle collision between this client player and all teleporters in room
+                for (
+                    var teleporterID = 0;
+                    teleporterID < this.teleportList.length;
+                    teleporterID++
+                ) {
+                    //check for collision between the teleporter and the client player
+                    this.physics.world.collide(
+                        this.playerCharacter[playerID],
+                        this.teleportList[teleporterID]['teleport'],
+                        () => {
+                            //start new room scene
+                            this.end();
+                            client.requestRoom(
+                                this.teleportList[teleporterID]['room']
+                            );
+                        }
+                    );
+                }
+            }
         });
+    }
+
+    pause() {
+        //remove DOM elements
+        this.removeRoomDOMElements();
+        this.chatBox.destroy();
     }
 
     end() {
@@ -271,14 +362,14 @@ class Game extends Phaser.Scene {
         //delete data
         this.playerCharacter = {};
         this.playerData = [];
-        this.npcCharacter = {};
+        this.interactableObjects = [];
         this.npcData = [];
 
         //stop music
-        this.audioMusic.stop();
+        if (this.audioMusic) this.audioMusic.stop();
 
         //stop ambience
-        this.audioAmbience.stop();
+        if (this.audioAmbience) this.audioAmbience.stop();
 
         //reset data
         this.registry.destroy();
@@ -291,284 +382,95 @@ class Game extends Phaser.Scene {
 
     // WORLD
     //preload room assets
-    preloadRoomAssets(room) {
-        //forest
-        if (room === 'forest') {
-            //layers
-            this.load.image(
-                'Forest_Background',
-                'room/forest/layers/Background.png'
-            );
-            this.load.image('Forest_Ground', 'room/forest/layers/Ground.png');
-            this.load.image('Forest_Tree_3', 'room/forest/layers/Tree_3.png');
-            this.load.image('Forest_Tree_2', 'room/forest/layers/Tree_2.png');
-            this.load.image('Forest_Rock_1', 'room/forest/layers/Rock_1.png');
-            this.load.image('Forest_Stump_1', 'room/forest/layers/Stump_1.png');
-            this.load.image('Forest_Tree_1', 'room/forest/layers/Tree_1.png');
-            this.load.image(
-                'Forest_Foreground',
-                'room/forest/layers/Foreground.png'
-            );
+    preloadRoomData(room) {
+        //get room options
+        let roomOptions = roomData.rooms[room].option;
 
-            //npc
-            this.load.image('Poke', 'character/npc/Poke.png');
-            this.load.image('Gigi', 'character/npc/Gigi.png');
-            this.load.image('Jesse', 'character/npc/Jesse.png');
-            this.load.image('Snic', 'character/npc/Snic.png');
+        //options
+        if (roomOptions) {
+            if (roomOptions.chatLogUIHeight)
+                this.chatLogUIHeight = roomOptions.chatLogUIHeight;
+        }
 
-            //npc data
-            this.npcList = [
-                {
-                    id: 0,
-                    name: 'Poke',
-                    x: 363,
-                    y: 629,
-                    direction: 'right',
-                    lines: [
-                        "*cough* i'm sick",
-                        'yo',
-                        "i'll be on lacari later",
-                        'one sec gunna take a water break',
-                        'u ever have a hemorrhoid?',
-                    ],
-                },
-                {
-                    id: 1,
-                    name: 'Gigi',
-                    x: 250,
-                    y: 540,
-                    direction: 'right',
-                    lines: [
-                        '*thinking of something HUH to say*',
-                        'people call me a very accurate gamer',
-                        'GEORGIEEEEEE!',
-                    ],
-                },
-                {
-                    id: 2,
-                    name: 'Jesse',
-                    x: 1032,
-                    y: 666,
-                    direction: 'left',
-                    lines: [
-                        'have you heard about the hangry hippos NFT?',
-                        "fuck all the bitches I know I don't give a fuck about flow",
-                        'a ha ha...',
-                        'i could be playing among us rn',
-                    ],
-                },
-                {
-                    id: 3,
-                    name: 'Snic',
-                    x: 1238,
-                    y: 554,
-                    direction: 'left',
-                    lines: ['IDGAF'],
-                },
-            ];
+        //get room assets
+        let roomAssets = roomData.rooms[room].asset;
 
-            //objects
-            this.load.image('Sign_News', 'room/forest/objects/Sign_News.png');
-            this.load.image(
-                'Sign_Theatre',
-                'room/forest/objects/Sign_Theatre.png'
-            );
-            this.load.image('Radio', 'room/forest/objects/Radio.png');
-            this.load.image(
-                'Lost_Recording',
-                'room/forest/objects/Lost_Recording.png'
-            );
-            // this.load.image('Banner', 'room/forest/objects/Banner.png');
-            // this.load.image('Table_FindFour', 'room/forest/objects/Table_FindFour.png');
+        //images
+        if (roomAssets.image) {
+            for (var i = 0; i < roomAssets.image.length; i++) {
+                this.load.image(
+                    roomAssets.image[i].name,
+                    roomAssets.image[i].path
+                );
+            }
+        }
 
-            //object sfx
-            this.load.audio(
-                'radio_click',
-                'room/forest/audio/sfx/object/radio_click.mp3'
-            );
-            this.load.audio(
-                'lost_recording',
-                'room/forest/audio/sfx/object/lost_recording.mp3'
-            );
-
-            //music
-            this.load.audio(
-                'frog_caves_chill_kopie',
-                'room/forest/audio/music/frog_caves_chill_kopie.mp3'
-            );
-            this.load.audio('mask', 'room/forest/audio/music/mask.mp3');
-
-            //ambience
-            this.load.audio(
-                'forest_ambience',
-                'room/forest/audio/ambience/forest_ambience.mp3'
-            );
-        } else if (room === 'theatre') {
-            //variables
-            this.chatLogUIHeight = 195;
-
-            //layers
-            this.load.image(
-                'Theatre_Background',
-                'room/theatre/layers/Background.png'
-            );
-            this.load.image('Theatre_Stage', 'room/theatre/layers/Stage.png');
-            this.load.image(
-                'Theatre_Curtains',
-                'room/theatre/layers/Curtains.png'
-            );
-            this.load.image(
-                'Theatre_Foreground',
-                'room/theatre/layers/Foreground.png'
-            );
-
-            //objects
-            this.load.image(
-                'Sign_Forest',
-                'room/theatre/objects/Sign_Forest.png'
-            );
-            this.load.image(
-                'Sign_Free_Sub',
-                'room/theatre/objects/Sign_Free_Sub.png'
-            );
-            this.load.image(
-                'CrazySlickd',
-                'room/theatre/objects/CrazySlickd.png'
-            );
-
-            //audio
-            this.load.audio(
-                'crazyslickd',
-                'room/theatre/audio/crazyslickd.mp3'
-            );
+        //audio
+        if (roomAssets.audio) {
+            for (var i = 0; i < roomAssets.audio.length; i++) {
+                this.load.audio(
+                    roomAssets.audio[i].name,
+                    roomAssets.audio[i].path
+                );
+            }
         }
     }
 
     //add layers
     addRoomLayers(room) {
-        //forest
-        if (room == 'forest') {
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Background'
-                )
-                .setDepth(this.depthBackground);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Ground'
-                )
-                .setDepth(this.depthGround)
-                .setInteractive()
-                .on(
-                    'pointerdown',
-                    () => {
-                        if (this.navigationCheck()) {
-                            this.onMoveAttempt(
-                                this.input.mousePointer.worldX,
-                                this.input.mousePointer.worldY
-                            );
-                        }
-                    },
-                    this
-                );
-            this.walkableLayer = 'Forest_Ground';
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Tree_3'
-                )
-                .setDepth(610);
-            this.unWalkableLayer.push('Forest_Tree_3');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Tree_2'
-                )
-                .setDepth(628);
-            this.unWalkableLayer.push('Forest_Tree_2');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Rock_1'
-                )
-                .setDepth(629);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Stump_1'
-                )
-                .setDepth(649);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Tree_1'
-                )
-                .setDepth(665);
-            this.unWalkableLayer.push('Forest_Tree_1');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Forest_Foreground'
-                )
-                .setDepth(this.depthForeground);
-            this.unWalkableLayer.push('Forest_Foreground');
+        //get room layer data
+        let roomLayerData = roomData.rooms[room].layers;
 
-            //theatre
-        } else if (room == 'theatre') {
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Background'
-                )
-                .setDepth(this.depthBackground);
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Stage'
-                )
-                .setDepth(this.depthGround)
-                .setInteractive()
-                .on(
+        //set up layers
+        for (var i = 0; i < roomLayerData.length; i++) {
+            //layer image
+            let layer = this.add.image(
+                this.sys.game.canvas.width / 2,
+                this.sys.game.canvas.height / 2,
+                roomLayerData[i].name
+            );
+
+            //background layer
+            if (roomLayerData[i].depth === 'background') {
+                //set depth
+                layer.setDepth(this.depthBackground);
+            }
+
+            //ground layer
+            else if (roomLayerData[i].depth === 'ground') {
+                //set depth
+                layer.setDepth(this.depthGround);
+
+                //set as walkable
+                layer.setInteractive().on(
                     'pointerdown',
-                    () => {
-                        if (this.navigationCheck()) {
-                            this.onMoveAttempt(
-                                this.input.mousePointer.worldX,
-                                this.input.mousePointer.worldY
-                            );
+                    (pointer) => {
+                        if (this.navigationCheck(pointer.x, pointer.y)) {
+                            this.onMoveAttempt(pointer.x, pointer.y);
                         }
                     },
                     this
                 );
-            this.walkableLayer = 'Theatre_Stage';
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Curtains'
-                )
-                .setDepth(610);
-            this.unWalkableLayer.push('Theatre_Curtains');
-            this.add
-                .image(
-                    this.canvas.width / 2,
-                    this.canvas.height / 2,
-                    'Theatre_Foreground'
-                )
-                .setDepth(this.depthForeground);
-            this.unWalkableLayer.push('Theatre_Foreground');
+                this.walkableLayer = roomLayerData[i].name;
+            }
+
+            //foreground layer
+            else if (roomLayerData[i].depth === 'foreground') {
+                //set depth
+                layer.setDepth(this.depthForeground);
+
+                //set as unwalkable
+                this.unWalkableLayer.push(roomLayerData[i].name);
+            }
+
+            //other layer
+            else if (Number.isFinite(roomLayerData[i].depth)) {
+                //set depth
+                layer.setDepth(roomLayerData[i].depth);
+
+                //set as unwalkable
+                this.unWalkableLayer.push(roomLayerData[i].name);
+            }
         }
     }
 
@@ -620,14 +522,16 @@ class Game extends Phaser.Scene {
                 .image(294, 625, 'Radio')
                 .setDepth(649)
                 .setInteractive();
-            this.setInteractObject(radio);
+            globalUI.setOutlineOnHover(this, radio);
             radio.on(
                 'pointerdown',
                 () => {
                     //play music
-                    if (this.audioMusic.key === 'mask')
+                    if (this.audioMusic.key === 'mask') {
                         this.addRoomMusic(this.room);
-                    else this.playMusic('mask');
+                    } else {
+                        this.playMusic('mask');
+                    }
 
                     //click sfx
                     this.sfxRadioClick.play();
@@ -635,153 +539,242 @@ class Game extends Phaser.Scene {
                 this
             );
 
-            //lost recording
-            let lost_recording = this.add
-                .image(1209, 621.2, 'Lost_Recording')
-                .setDepth(655)
-                .setInteractive();
-            this.setInteractObject(lost_recording);
-            lost_recording.on(
-                'pointerdown',
+            //free birthday hats
+            this.addNewInteractableObject(
+                //set up object
+                (id) => {
+                    //create sprite
+                    this.interactableObjects[id] = this.add
+                        .image(886, 578.7, 'Free_Birthday_Hats_Crates')
+                        .setDepth(630);
+                },
+
+                //set physics object
+                (id) => {
+                    return this.interactableObjects[id];
+                },
+
+                //set interactable sprite
+                (id) => {
+                    return this.interactableObjects[id];
+                },
+
+                //final interaction callback
                 () => {
-                    //play lost recording
-                    this.audioLostRecording.play();
-
-                    //click sfx
-                    this.sfxRadioClick.play();
-                },
-                this
+                    //get free birthday hat
+                    client.requestItemPurchase('birthday_hat');
+                }
             );
+
+            //FF22 Event
+            if (globalData.currentEvents.includes('FF22')) {
+                //daily spin wheel
+                this.addNewInteractableObject(
+                    //set up object
+                    (id) => {
+                        //create sprite
+                        this.interactableObjects[id] = this.add
+                            .image(318, 532.3, 'Daily_Spin_Wheel')
+                            .setDepth(570);
+                    },
+
+                    //set physics object
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
+
+                    //set interactable sprite
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
+
+                    //final interaction callback
+                    () => {
+                        //start daily spin scene
+                        this.end();
+                        this.scene.start('FF22DailySpin');
+                    }
+                );
+
+                //emote match table
+                this.addNewInteractableObject(
+                    //set up object
+                    (id) => {
+                        //create sprite
+                        this.interactableObjects[id] = this.add
+                            .image(899.6, 720.8, 'Emote_Match_Table')
+                            .setDepth(745);
+                    },
+
+                    //set physics object
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
+
+                    //set interactable sprite
+                    (id) => {
+                        return this.interactableObjects[id];
+                    },
+
+                    //final interaction callback
+                    () => {
+                        //start daily spin scene
+                        this.end();
+                        this.scene.start('FF22EmoteMatch');
+                    }
+                );
+            }
+
+            // //lost recording
+            // let lost_recording = this.add
+            //     .image(1209, 621.2, 'Lost_Recording')
+            //     .setDepth(655)
+            //     .setInteractive();
+            // globalUI.setOutlineOnHover(this, lost_recording);
+            // lost_recording.on(
+            //     'pointerdown',
+            //     () => {
+            //         //play lost recording
+            //         this.audioLostRecording.play();
+
+            //         //click sfx
+            //         this.sfxRadioClick.play();
+            //     },
+            //     this
+            // );
 
             //find four table
             // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
             // .setDepth(600)
             // .setOrigin(0.5, 1)
             // .setInteractive();
-            // this.setInteractObject(tableFindFour);
+            // globalUI.setOutlineOnHover(this, tableFindFour);
             // tableFindFour.on('pointerdown', () => {
             // }, this);
+        }
 
-            //theatre
-        } else if (room == 'theatre') {
+        //theatre
+        else if (room == 'theatre') {
             //forest sign
             let forest_sign = this.add
                 .image(1236, 692, 'Sign_Forest')
                 .setDepth(700)
                 .setOrigin(0.5, 1);
 
-            //free sub sign
-            let free_sub_sign = this.add
-                .image(204, 580, 'Sign_Free_Sub')
-                .setDepth(528)
-                .setOrigin(0.5, 1)
-                .setInteractive();
-            this.setInteractObject(free_sub_sign);
-            free_sub_sign.on(
-                'pointerdown',
-                () => {
-                    //stop interactions temporarily
-                    free_sub_sign.disableInteractive();
+            // //free sub sign
+            // let free_sub_sign = this.add
+            //     .image(204, 580, 'Sign_Free_Sub')
+            //     .setDepth(528)
+            //     .setOrigin(0.5, 1)
+            //     .setInteractive();
+            // globalUI.setOutlineOnHover(this, free_sub_sign);
+            // free_sub_sign.on(
+            //     'pointerdown',
+            //     () => {
+            //         //stop interactions temporarily
+            //         free_sub_sign.disableInteractive();
 
-                    //remove DOM objects
-                    this.removeRoomDOMElements();
+            //         //remove DOM objects
+            //         this.removeRoomDOMElements();
 
-                    //play music
-                    this.playMusic('crazyslickd');
+            //         //play music
+            //         this.playMusic('crazyslickd');
 
-                    //show sprite
-                    const crazySlickdSprite = this.add
-                        .image(630, 20, 'CrazySlickd')
-                        .setDepth(this.depthForeground)
-                        .setOrigin(0.5, 0)
-                        .setScale(2);
+            //         //show sprite
+            //         const crazySlickdSprite = this.add
+            //             .image(630, 20, 'CrazySlickd')
+            //             .setDepth(this.depthForeground)
+            //             .setOrigin(0.5, 0)
+            //             .setScale(2);
 
-                    //wait
-                    setTimeout(() => {
-                        //stop music
-                        this.audioMusic.stop();
+            //         //wait
+            //         setTimeout(() => {
+            //             //stop music
+            //             this.audioMusic.stop();
 
-                        //remove sprite
-                        crazySlickdSprite.destroy();
+            //             //remove sprite
+            //             crazySlickdSprite.destroy();
 
-                        //re-enable DOM objects
-                        if (!this.menuOpen) {
-                            this.addRoomDOMElements();
-                        }
+            //             //re-enable DOM objects
+            //             if (!this.menuOpen) {
+            //                 this.addRoomDOMElements();
+            //             }
 
-                        //re-enable interactions
-                        free_sub_sign.setInteractive();
-                    }, 8000);
-                },
-                this
-            );
+            //             //re-enable interactions
+            //             free_sub_sign.setInteractive();
+            //         }, 8000);
+            //     },
+            //     this
+            // );
         }
     }
 
+    //add room teleports
     addRoomTeleports(room) {
-        //forest
-        if (room == 'forest') {
-            //create collider
-            var theatreTeleport = this.add.sprite(142, 601);
-            theatreTeleport.width = 100;
-            theatreTeleport.height = 500;
-            this.physics.world.enable(theatreTeleport);
-            theatreTeleport.body.setCollideWorldBounds(true);
+        //get teleports data
+        let roomTeleportData = roomData.rooms[room].teleports;
 
-            //add teleport to list
-            const theatreTeleportObject = {
-                room: 'theatre',
-                teleport: theatreTeleport,
-                spawn: { x: 1042, y: 637, direction: 'left' },
-            };
-            this.teleportList.push(theatreTeleportObject);
+        //create teleport
+        if (roomTeleportData) {
+            for (var i = 0; i < roomTeleportData.length; i++) {
+                //create collider
+                var teleportCollider = this.add.sprite(
+                    roomTeleportData[i].x,
+                    roomTeleportData[i].y
+                );
+                teleportCollider.width = roomTeleportData[i].width;
+                teleportCollider.height = roomTeleportData[i].height;
+                this.physics.world.enable(teleportCollider);
+                teleportCollider.body.setCollideWorldBounds(true);
 
-            //theatre
-        } else if (room == 'theatre') {
-            //create collider
-            var forestTeleport = this.add.sprite(1502, 601);
-            forestTeleport.width = 100;
-            forestTeleport.height = 300;
-            this.physics.world.enable(forestTeleport);
-            forestTeleport.body.setCollideWorldBounds(true);
-
-            //add teleport to list
-            const forestTeleportObject = {
-                room: 'forest',
-                teleport: forestTeleport,
-                spawn: { x: 252, y: 632, direction: 'right' },
-            };
-            this.teleportList.push(forestTeleportObject);
+                //add teleport to list
+                const teleportObject = {
+                    room: roomTeleportData[i].room,
+                    teleport: teleportCollider,
+                };
+                this.teleportList.push(teleportObject);
+            }
         }
     }
 
     //add room music
     addRoomMusic(room) {
-        //forest
-        if (room == 'forest') {
-            this.playMusic('frog_caves_chill_kopie');
+        //get teleports data
+        let music = roomData.rooms[room].option.music;
+
+        //play music
+        if (music) {
+            this.playMusic(roomData.rooms[room].option.music);
         }
     }
 
     //add room music
     addRoomAmbience(room) {
-        //forest
-        if (room == 'forest') {
-            this.playAmbience('forest_ambience');
+        //get teleports data
+        let ambience = roomData.rooms[room].option.ambience;
+
+        //play ambience
+        if (ambience) {
+            this.playAmbience(roomData.rooms[room].option.ambience);
         }
     }
 
     //add room NPCs
     addRoomNPCs(room) {
-        //forest
-        if (room == 'forest') {
-            for (var i = 0; i < this.npcList.length; i++) {
+        //get room NPCs
+        let roomNPCs = roomData.rooms[room].npcs;
+
+        if (roomNPCs) {
+            //set NPC list
+            this.npcList = roomNPCs;
+
+            //add NPCs to game
+            for (var i = 0; i < roomNPCs.length; i++) {
                 this.addNewNPC(
-                    this.npcList[i].id,
-                    this.npcList[i].name,
-                    this.npcList[i].x,
-                    this.npcList[i].y,
-                    this.npcList[i].direction
+                    roomNPCs[i].name,
+                    roomNPCs[i].x,
+                    roomNPCs[i].y,
+                    roomNPCs[i].direction
                 );
             }
         }
@@ -790,35 +783,11 @@ class Game extends Phaser.Scene {
     // UI
     //reload the world when window is re-focused
     onFocus() {
-        client.onReload();
-    }
-
-    //create outlines on hover
-    setInteractObject(sprite) {
-        sprite
-            .on(
-                'pointerover',
-                function () {
-                    //show outline
-                    this.rexOutlineFX.add(sprite, {
-                        thickness: 3,
-                        outlineColor: ColorScheme.White,
-                    });
-                },
-                this
-            )
-            .on(
-                'pointerout',
-                function () {
-                    //remove outline
-                    this.rexOutlineFX.remove(sprite);
-                },
-                this
-            );
+        client.requestRoomUpdate();
     }
 
     //show menu
-    menuOpened() {
+    menuOpened(removeRoomDOMElements = true) {
         //disable input
         this.disableInput = true;
         this.menuOpen = true;
@@ -827,67 +796,61 @@ class Game extends Phaser.Scene {
         this.chatBox.setBlur();
 
         //remove DOM elements temporarily
-        this.removeRoomDOMElements();
+        if (removeRoomDOMElements) this.removeRoomDOMElements();
     }
 
     //close menu
-    menuClosed() {
+    menuClosed(removeRoomDOMElements = true) {
         //enable input
         this.disableInput = false;
         this.menuOpen = false;
 
         //place DOM elements back
-        this.addRoomDOMElements();
+        if (removeRoomDOMElements) this.addRoomDOMElements();
     }
 
     //create chat box
     createChatBox() {
-        return ui
-            .createInputBox(this, {
-                id: 'chat-box',
-                x: this.canvas.width / 2,
-                y: this.canvas.height - this.canvas.height / 23,
-                width: this.canvas.width * 0.6,
-                height: 30,
-                placeholder: 'Say Yo...',
-                backgroundColor: ColorScheme.White,
-                backgroundRadius: 15,
-                maxLength: this.messageLength,
-                depth: this.depthUI,
-            })
-            .on(
-                'focus',
-                function (inputBox, event) {
-                    if (this.menuOpen) inputBox.setBlur();
-                },
-                this
-            )
-            .on(
-                'keydown',
-                function (inputBox, event) {
-                    if (event.key == 'Enter') {
-                        //format message
-                        const chatMessage = inputBox.text
-                            .substr(0, this.messageLength)
-                            .trim()
-                            .replace(/\s+/g, ' ');
+        return ui.createInputBox(this, {
+            id: 'chat-box',
+            x: this.sys.game.canvas.width / 2,
+            y: this.sys.game.canvas.height - this.sys.game.canvas.height / 23,
+            width: this.sys.game.canvas.width * 0.6,
+            height: 30,
+            placeholder: 'Say Yo...',
+            background: {
+                color: ColorScheme.White,
+                radius: 15,
+            },
+            color: utility.hexIntegerToString(ColorScheme.Black),
+            maxLength: this.messageMaxLength,
+            depth: this.depthUI,
+            onFocus: (inputBox) => {
+                if (this.menuOpen) inputBox.setBlur();
+            },
+            onKeydown: (inputBox, event) => {
+                if (event.key == 'Enter') {
+                    //format message
+                    const chatMessage = inputBox.text
+                        .substr(0, this.messageMaxLength)
+                        .trim()
+                        .replace(/\s+/g, ' ');
 
-                        //send the message to the server
-                        if (chatMessage !== '' || chatMessage !== null) {
-                            client.sendMessage(chatMessage);
-                        }
-
-                        //leave chat bar
-                        else {
-                            inputBox.setBlur();
-                        }
-
-                        //clear chat box
-                        inputBox.setText('');
+                    //send the message to the server
+                    if (chatMessage !== '' && chatMessage !== null) {
+                        client.playerSendingMessage(chatMessage);
                     }
-                },
-                this
-            );
+
+                    //leave chat bar
+                    else {
+                        inputBox.setBlur();
+                    }
+
+                    //clear chat box
+                    inputBox.setText('');
+                }
+            },
+        });
     }
 
     //create toolbar
@@ -901,16 +864,16 @@ class Game extends Phaser.Scene {
             buttons: [
                 {
                     text: 'Chat Log',
-                    backgroundRadius: 8,
+                    background: { radius: 8 },
                     width: 230,
-                    onClick: function (scene) {
+                    onClick: () => {
                         //chat log not showing
-                        if (!scene.chatLogUI) {
+                        if (!this.chatLogUI) {
                             //show chat log
-                            scene.showChatLog();
+                            this.showChatLog();
                         } else {
                             //close chat log
-                            scene.chatLogUI.emit('modal.requestClose');
+                            this.chatLogUI.emit('modal.requestClose');
                         }
                     },
                 },
@@ -929,34 +892,34 @@ class Game extends Phaser.Scene {
                 //news
                 {
                     text: '📰',
-                    backgroundRadius: 8,
-                    onClick: function (scene) {
+                    background: { radius: 8 },
+                    onClick: () => {
                         //check if menu is open
-                        if (!scene.menuOpen) {
+                        if (!this.menuOpen) {
                             //show news menu
-                            scene.showNews();
+                            this.showNews();
                         }
                     },
                 },
                 //character creator
                 {
                     text: '🎨',
-                    backgroundRadius: 8,
-                    onClick: function (scene) {
+                    background: { radius: 8 },
+                    onClick: () => {
                         //start character creator scene
-                        scene.end();
-                        scene.scene.start('CharacterCreator', scene.room);
+                        this.end();
+                        this.scene.start('CharacterCreator');
                     },
                 },
                 //options menu
                 {
                     text: '⚙️',
-                    backgroundRadius: 8,
-                    onClick: function (scene) {
+                    background: { radius: 8 },
+                    onClick: () => {
                         //check if menu is open
-                        if (!scene.menuOpen) {
+                        if (!this.menuOpen) {
                             //show options menu
-                            scene.showOptions();
+                            this.showOptions();
                         }
                     },
                 },
@@ -967,6 +930,35 @@ class Game extends Phaser.Scene {
 
         //chat box
         this.chatBox = this.createChatBox();
+
+        //theatre specific UI
+        if (this.room === 'theatre') {
+            // //mini buttons
+            // ui.createButtons(this, {
+            //     x: 1245,
+            //     y: 30,
+            //     fontSize: 22,
+            //     space: {
+            //         item: 10,
+            //     },
+            //     buttons: [
+            //         //media share queue
+            //         {
+            //             text: '🎞️',
+            //             background: { radius: 8 },
+            //             onClick: () => {
+            //                 //check if menu is open
+            //                 if (!this.menuOpen) {
+            //                     //show media share menu
+            //                     this.showMediaShareMenu();
+            //                 }
+            //             },
+            //         },
+            //     ],
+            // })
+            //     .setDepth(this.depthUI)
+            //     .setOrigin(0, 0.5);
+        }
     }
 
     //show intro message
@@ -986,7 +978,7 @@ class Game extends Phaser.Scene {
                         type: 'button',
                         text: 'Turn on Hardware Acceleration',
                         fontSize: 20,
-                        onClick: function () {
+                        onClick: () => {
                             window.open(
                                 'https://www.webnots.com/what-is-hardware-acceleration-and-how-to-enable-in-browsers/',
                                 '_blank'
@@ -1002,7 +994,7 @@ class Game extends Phaser.Scene {
                         type: 'button',
                         text: 'Join the Discord',
                         fontSize: 20,
-                        onClick: function () {
+                        onClick: () => {
                             window.open(
                                 'https://discord.gg/2aVq8qmcSr',
                                 '_blank'
@@ -1018,20 +1010,17 @@ class Game extends Phaser.Scene {
                         type: 'button',
                         text: 'Donate',
                         fontSize: 20,
-                        onClick: function () {
-                            window.open(
-                                'https://www.paypal.com/paypalme/DanMizu',
-                                '_blank'
-                            );
+                        onClick: () => {
+                            window.open(donationSite, '_blank');
                         },
                     },
                 ],
             },
             {
                 cover: true,
-                onExit: function (scene) {
+                onExit: () => {
                     //set menu as closed
-                    scene.menuClosed();
+                    this.menuClosed();
                 },
             }
         );
@@ -1052,7 +1041,7 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'music')
                 ].volume,
-                onSliderChange: function (scene, value) {
+                onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
                     var options = utility.getLocalStorage('gameOptions');
                     options[
@@ -1064,7 +1053,7 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    scene.audioMusic.setVolume(value);
+                    if (this.audioMusic) this.audioMusic.setVolume(value);
                 },
             },
 
@@ -1076,7 +1065,7 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
                 ].volume,
-                onSliderChange: function (scene, value) {
+                onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
                     var options = utility.getLocalStorage('gameOptions');
                     options[
@@ -1088,7 +1077,7 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    scene.audioAmbience.setVolume(value);
+                    if (this.audioAmbience) this.audioAmbience.setVolume(value);
                 },
             },
 
@@ -1100,7 +1089,7 @@ class Game extends Phaser.Scene {
                 value: utility.getLocalStorage('gameOptions')[
                     utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
                 ].volume,
-                onSliderChange: function (scene, value) {
+                onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
                     var options = utility.getLocalStorage('gameOptions');
                     options[
@@ -1109,8 +1098,9 @@ class Game extends Phaser.Scene {
                     utility.storeLocalStorageArray('gameOptions', options);
 
                     //change volume
-                    scene.sfxButtonClick.setVolume(value);
-                    scene.sfxRadioClick.setVolume(value);
+                    if (this.sfxButtonClick)
+                        this.sfxButtonClick.setVolume(value);
+                    if (this.sfxRadioClick) this.sfxRadioClick.setVolume(value);
                 },
             },
         ];
@@ -1132,7 +1122,7 @@ class Game extends Phaser.Scene {
                                 'show_stream_chat'
                             )
                         ].value,
-                    onClick: function (state) {
+                    onClick: (state) => {
                         //store new value
                         options[
                             utility.getLocalStorageArrayIndex(
@@ -1146,6 +1136,18 @@ class Game extends Phaser.Scene {
             );
         }
 
+        //logout button
+        content.push({
+            type: 'button',
+            text: 'Log Out',
+            align: 'center',
+            fontSize: 20,
+            colorOnHover: ColorScheme.Red,
+            onClick: () => {
+                client.onLogout();
+            },
+        });
+
         //create options menu
         ui.createMenu(
             this,
@@ -1155,9 +1157,9 @@ class Game extends Phaser.Scene {
             },
             {
                 cover: true,
-                onExit: function (scene) {
+                onExit: () => {
                     //set menu as closed
-                    scene.menuClosed();
+                    this.menuClosed();
                 },
             }
         );
@@ -1188,9 +1190,9 @@ class Game extends Phaser.Scene {
             {
                 height: 500,
                 cover: true,
-                onExit: function (scene) {
+                onExit: () => {
                     //set menu as closed
-                    scene.menuClosed();
+                    this.menuClosed();
                 },
             }
         );
@@ -1198,6 +1200,107 @@ class Game extends Phaser.Scene {
         //set menu as opened
         this.menuOpened();
     }
+
+    // //show media share menu
+    // showMediaShareMenu() {
+    //     //create news menu
+    //     ui.createMenu(
+    //         this,
+    //         {
+    //             title: 'Media Share',
+    //             content: [
+    //                 {
+    //                     type: 'text',
+    //                     text: 'Submit Media',
+    //                     fontSize: 22,
+    //                 },
+    //                 {
+    //                     type: 'inputBox',
+    //                     id: 'media-share-box',
+    //                     width: 400,
+    //                     height: 30,
+    //                     placeholder: 'URL...',
+    //                     background: {
+    //                         color: ColorScheme.White,
+    //                         radius: 15,
+    //                     },
+    //                     color: '#000000',
+    //                     maxLength: this.messageMaxLength,
+    //                     depth: this.depthUI,
+    //                     // onFocus: (inputBox) => {
+    //                     //     if (this.menuOpen) inputBox.setBlur();
+    //                     // },
+    //                     onKeydown: (inputBox, event) => {
+    //                         if (event.key == 'Enter') {
+    //                             //format media submission
+    //                             const mediaSubmission = inputBox.text
+    //                                 .substr(0, this.messageMaxLength)
+    //                                 .trim()
+    //                                 .replace(/\s+/g, ' ');
+
+    //                             // //send the message to the server
+    //                             // if (mediaSubmission !== '' && mediaSubmission !== null) {
+    //                             //     client.playerSendingMessage(mediaSubmission);
+    //                             // }
+
+    //                             // //leave chat bar
+    //                             // else {
+    //                             //     inputBox.setBlur();
+    //                             // }
+
+    //                             //clear chat box
+    //                             inputBox.setText('');
+    //                         }
+    //                     },
+    //                 },
+    //                 {
+    //                     type: 'buttons',
+    //                     align: 'center',
+    //                     fontSize: 20,
+    //                     buttons: [
+    //                         {
+    //                             text: 'Vote Skip',
+    //                             align: 'left',
+    //                             onClick: () => {
+    //                                 console.log('skip');
+    //                             },
+    //                         },
+    //                         {
+    //                             text: 'View Queue',
+    //                             align: 'left',
+    //                             onClick: () => {
+    //                                 console.log('view queue');
+    //                             },
+    //                         },
+    //                     ],
+    //                 },
+    //                 // {
+    //                 //     type: 'text',
+    //                 //     text: 'Dim the Lights',
+    //                 //     fontSize: 22,
+    //                 // },
+    //                 // {
+    //                 //     type: 'checkbox',
+    //                 //     initialValue: false,
+    //                 //     onClick: (state) => {
+    //                 //         console.log(state);
+    //                 //     },
+    //                 // }
+    //             ],
+    //         },
+    //         {
+    //             y: 635,
+    //             draggable: false,
+    //             onExit: () => {
+    //                 //set menu as closed (do not add DOM elements)
+    //                 this.menuClosed(false);
+    //             },
+    //         }
+    //     );
+
+    //     //set menu as opened (do not remove DOM elements)
+    //     this.menuOpened(false);
+    // }
 
     //set room chat log from server
     setChatLog(log) {
@@ -1260,14 +1363,14 @@ class Game extends Phaser.Scene {
                     //         {
                     //             text: 'Global',
                     //             align: 'left',
-                    //             onClick: function (scene) {
+                    //             onClick: () => {
                     //                 console.log('global');
                     //             },
                     //         },
                     //         {
                     //             text: 'Local',
                     //             align: 'left',
-                    //             onClick: function (scene) {
+                    //             onClick: () => {
                     //                 console.log('local');
                     //             },
                     //         },
@@ -1322,32 +1425,57 @@ class Game extends Phaser.Scene {
     // INPUT
     //on mouse down
     onMoveAttempt(x, y) {
-        //if clicking is not disabled
-        if (!this.disableInput) {
-            // un-focus chatbox
-            if (this.chatBox.isFocused) this.chatBox.setBlur();
+        //if clicking is disabled, cancel
+        if (this.disableInput) return;
 
-            //move client player
-            this.movePlayer(clientID, x, y);
+        // un-focus chatbox
+        if (this.chatBox.isFocused) this.chatBox.setBlur();
 
-            //tell the server that this player is moving
-            client.onMove(x, y, this.getPlayerDirection(clientID));
+        //move client player
+        this.movePlayer(clientID, x, y);
+
+        //tell the server that this player is moving
+        client.playerMoved(x, y, this.getPlayerDirection(clientID));
+    }
+
+    //on mouse down
+    onDirectionChangeAttempt(direction) {
+        //if clicking is disabled, cancel
+        if (this.disableInput) return;
+
+        //if direction didnt change, cancel
+        if (direction === this.getPlayerDirection(clientID)) return;
+
+        //if client player is moving, halt player
+        try {
+            if (utility.getObject(this.playerData, clientID).movement)
+                this.haltPlayer(clientID);
+        } catch (error) {
+            console.log(
+                '\x1b[31m%s\x1b[0m',
+                'Game.js onDirectionChangeAttempt - ' + error
+            );
+            return;
         }
+
+        //change client player direction
+        this.setPlayerDirection(clientID, direction);
+
+        //tell the server that this player is changing direction
+        client.playerChangedDirection(
+            direction,
+            this.playerCharacter[clientID].x,
+            this.playerCharacter[clientID].y
+        );
     }
 
     //check if click location is allowed by navigational map (returns true if click location is allowed by navigation map and false otherwise)
-    navigationCheck(layer) {
+    navigationCheck(x, y, layer) {
         //if clicking is not disabled
         if (!this.disableInput) {
             //if layer is specified, ignore everything else and only check for this layers navigational map
             if (layer) {
-                if (
-                    this.textures.getPixelAlpha(
-                        this.input.mousePointer.worldX,
-                        this.input.mousePointer.worldY,
-                        layer
-                    ) == 255
-                ) {
+                if (this.textures.getPixelAlpha(x, y, layer) == 255) {
                     return true;
                 }
             }
@@ -1357,8 +1485,8 @@ class Game extends Phaser.Scene {
                 for (let i = 0; i < this.unWalkableLayer.length; i++) {
                     if (
                         this.textures.getPixelAlpha(
-                            this.input.mousePointer.worldX,
-                            this.input.mousePointer.worldY,
+                            x,
+                            y,
                             this.unWalkableLayer[i]
                         ) == 255
                     ) {
@@ -1370,11 +1498,7 @@ class Game extends Phaser.Scene {
             //if layer wasn't specified and click wasnt on an unwalkable layer, then check the walkable layer
             if (
                 layer !== this.walkableLayer &&
-                this.textures.getPixelAlpha(
-                    this.input.mousePointer.worldX,
-                    this.input.mousePointer.worldY,
-                    this.walkableLayer
-                ) == 255
+                this.textures.getPixelAlpha(x, y, this.walkableLayer) == 255
             ) {
                 return true;
             }
@@ -1436,6 +1560,12 @@ class Game extends Phaser.Scene {
         var playerEyes = this.add
             .sprite(0, 0, 'frog_eyes_' + data.character.eye_type)
             .setOrigin(0.5, 1);
+        //create accessory layer if it exists
+        if (data.character.accessory) {
+            var playerAccessory = this.add
+                .sprite(0, 0, 'accessories_' + data.character.accessory)
+                .setOrigin(0.5, 1);
+        }
 
         //get sprite container size
         var spriteContainer = {
@@ -1473,6 +1603,10 @@ class Game extends Phaser.Scene {
             playerBelly,
             playerEyes,
         ]);
+
+        //add accessory to player container
+        if (data.character.accessory)
+            this.playerCharacter[data.id].list[0].add(playerAccessory);
 
         //create player overlay container
         this.playerCharacter[data.id].add(
@@ -1519,34 +1653,44 @@ class Game extends Phaser.Scene {
         //get player's character
         var player = this.playerCharacter[id];
 
-        //move player (and store it for alteration later)
-        let playerMovement = utility.getObject(this.playerData, id).movement;
-        try {
-            if (playerMovement)
-                utility.getObject(this.playerData, id).movement.stop();
-        } catch {
-            console.log('ERROR: Issue stopping movement');
+        //cancel if player not found
+        if (!player) {
+            return;
         }
-        utility.getObject(this.playerData, id).movement = this.add.tween({
-            targets: player,
-            x: x,
-            y: y,
-            duration:
-                Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
-        });
+
+        //move player (and store it for alteration later)
+        try {
+            //stop current movement
+            if (utility.getObject(this.playerData, id).movement)
+                utility.getObject(this.playerData, id).movement.stop();
+
+            //new movement
+            utility.getObject(this.playerData, id).movement = this.add.tween({
+                targets: player,
+                x: x,
+                y: y,
+                duration:
+                    Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
+            });
+        } catch (error) {
+            console.log('\x1b[31m%s\x1b[0m', 'Game.js movePlayer - ' + error);
+        }
     }
 
     //stop a player's movement
-    haltPlayer(id, newX, newY) {
+    haltPlayer(
+        id,
+        newX = this.playerCharacter[id].x,
+        newY = this.playerCharacter[id].y
+    ) {
         //stop movement
-        let playerMovement = utility.getObject(this.playerData, id).movement;
         try {
-            if (playerMovement)
+            if (utility.getObject(this.playerData, id).movement)
                 utility.getObject(this.playerData, id).movement.stop();
-        } catch {
-            console.log('ERROR: Issue stopping movement');
+        } catch (error) {
+            console.log('\x1b[31m%s\x1b[0m', 'Game.js haltPlayer - ' + error);
+            return;
         }
-        utility.getObject(this.playerData, id).movement.stop();
 
         //sync check
         if (
@@ -1558,9 +1702,14 @@ class Game extends Phaser.Scene {
     }
 
     //change a players movement location
-    changePlayerMovement(id, newX, newY) {
+    changePlayerMovement(id, newX, newY, newDirection) {
         //get player's character
         var player = this.playerCharacter[id];
+
+        //cancel if player not found
+        if (!player) {
+            return;
+        }
 
         //get duration of movement
         var newDuration =
@@ -1580,6 +1729,11 @@ class Game extends Phaser.Scene {
         utility
             .getObject(this.playerData, id)
             .movement.updateTo('duration', newDuration, true);
+
+        //change direction
+        if (newDirection) {
+            this.setPlayerDirection(id, newDirection);
+        }
     }
 
     //place a player at a specific coordinate
@@ -1655,6 +1809,11 @@ class Game extends Phaser.Scene {
         //get player container
         var player = this.playerCharacter[id];
 
+        //cancel if player not found
+        if (!player) {
+            return;
+        }
+
         //get player sprite container
         var playerSprites = player.list[0];
 
@@ -1712,8 +1871,61 @@ class Game extends Phaser.Scene {
         }
     }
 
+    //adds new interactable object that must be moved to and reach to interact with
+    addNewInteractableObject(
+        objectSetup,
+        physicsObject,
+        interactableSprite,
+        finalInteractionCallback,
+        firstInteractionCallback
+    ) {
+        //get ID
+        let id = 0 + this.interactableObjects.length;
+
+        //set up object
+        objectSetup(id);
+
+        //add physics to object
+        let object = physicsObject(id);
+        this.physics.world.enable(object);
+        object.body.setCollideWorldBounds(true);
+
+        //set up hover outline effect
+        globalUI.setOutlineOnHover(this, interactableSprite(id));
+
+        //set up interaction
+        let sprite = interactableSprite(id);
+        sprite.setInteractive().on(
+            'pointerup',
+            (pointer) => {
+                // //check if player can move to object
+                // if (this.navigationCheck(pointer.x, pointer.y)) {
+                // }
+
+                //set player as attempting to interact with this object
+                utility.getObject(
+                    this.playerData,
+                    clientID
+                ).attemptedObjectInteract = id;
+
+                //tell server that the player is attempting to interact with an object
+                client.playerInteractingWithObject(id);
+
+                //attempt to move player
+                this.onMoveAttempt(pointer.x, pointer.y);
+
+                //first interaction callback
+                if (firstInteractionCallback) firstInteractionCallback(id);
+            },
+            this
+        );
+
+        //set final interaction callback
+        this.interactableObjectFunction[id] = finalInteractionCallback;
+    }
+
     //adds NPC character to the game
-    addNewNPC(id, name, x, y, direction = 'right') {
+    addNewNPC(name, x, y, direction = 'right') {
         //set npc sprite
         var npcSprite = this.add.sprite(0, 0, name).setOrigin(0.5, 1);
 
@@ -1732,91 +1944,71 @@ class Game extends Phaser.Scene {
             .setFontSize(this.nametagFontSize)
             .setOrigin(0.5, 1);
 
-        //create npc container
-        this.npcCharacter[id] = this.add
-            .container(x, y)
-            .setSize(spriteContainer.width, spriteContainer.height);
+        //set up interactable object
+        this.addNewInteractableObject(
+            //object set up
+            (id) => {
+                //create npc container
+                this.interactableObjects[id] = this.add
+                    .container(x, y)
+                    .setSize(spriteContainer.width, spriteContainer.height);
 
-        //create npc sprite container
-        this.npcCharacter[id].add(
-            this.add
-                .container(0, 0)
-                .setSize(spriteContainer.width, spriteContainer.height)
-        );
+                //create npc sprite container
+                this.interactableObjects[id].add(
+                    this.add
+                        .container(0, 0)
+                        .setSize(spriteContainer.width, spriteContainer.height)
+                );
 
-        //add npc sprites to npc sprite container
-        this.npcCharacter[id].list[0].add([npcSprite]);
+                //add npc sprites to npc sprite container
+                this.interactableObjects[id].list[0].add([npcSprite]);
 
-        //detect clicks
-        this.npcCharacter[id].list[0].setInteractive().on(
-            'pointerup',
-            () => {
-                if (this.navigationCheck()) {
-                    //set player as interacting with this NPC
-                    utility.getObject(this.playerData, clientID).interactNPC =
-                        id;
+                //create npc overlay container
+                this.interactableObjects[id].add(
+                    this.add
+                        .container(0, 0)
+                        .setSize(spriteContainer.width, spriteContainer.height)
+                );
 
-                    //tell server that the player is interacting with an NPC
-                    client.onInteractNPC(id);
+                //add npc name to npc overlay container
+                this.interactableObjects[id].list[1].add([npcName]);
 
-                    this.onMoveAttempt(
-                        this.input.mousePointer.worldX,
-                        this.input.mousePointer.worldY
-                    );
+                //set direction of NPC
+                if (direction === 'left') {
+                    this.interactableObjects[id].list[0].list[0].scaleX *= -1;
                 }
+
+                //set depth
+                this.interactableObjects[id].setDepth(y);
             },
-            this
+
+            //set physics object
+            (id) => {
+                return this.interactableObjects[id];
+            },
+
+            //set interactable sprite
+            (id) => {
+                return this.interactableObjects[id].list[0];
+            },
+
+            //final interaction callback
+            (objectID, playerID) => {
+                //show message if client interacted with NPC
+                if (playerID == clientID)
+                    this.showMessage(
+                        objectID,
+                        {
+                            id: Date.now(),
+                            text: utility.randomFromArray(
+                                this.npcList[objectID].lines
+                            ),
+                            endTime: Date.now() + 5000,
+                        },
+                        'npc'
+                    );
+            }
         );
-
-        //add hover outline to npc sprite
-        this.setInteractObject(this.npcCharacter[id].list[0]);
-
-        //create npc overlay container
-        this.npcCharacter[id].add(
-            this.add
-                .container(0, 0)
-                .setSize(spriteContainer.width, spriteContainer.height)
-        );
-
-        //add npc name to npc overlay container
-        this.npcCharacter[id].list[1].add([npcName]);
-
-        //set direction of NPC
-        if (direction === 'left') {
-            this.npcCharacter[id].list[0].list[0].scaleX *= -1;
-        }
-
-        //enable physics on npc character
-        this.physics.world.enable(this.npcCharacter[id]);
-        this.npcCharacter[id].body.setCollideWorldBounds(true);
-
-        //set depth
-        this.npcCharacter[id].setDepth(y);
-    }
-
-    //player interacts/collides with NPC
-    interactNPC(playerID, npcID) {
-        //reset interactNPC player data
-        delete utility.getObject(this.playerData, playerID).interactNPC;
-
-        //stop player when colliding with npc
-        this.haltPlayer(
-            playerID,
-            this.playerCharacter[playerID].x,
-            this.playerCharacter[playerID].y
-        );
-
-        //show message if client interacted with NPC
-        if (playerID == clientID)
-            this.showMessage(
-                npcID,
-                {
-                    id: Date.now(),
-                    text: utility.randomFromArray(this.npcList[npcID].lines),
-                    endTime: Date.now() + 5000,
-                },
-                'npc'
-            );
     }
 
     //remove player character from game
@@ -1865,10 +2057,10 @@ class Game extends Phaser.Scene {
         //npc message
         else if (characterType === 'npc') {
             //get npc overlay container
-            var overlayContainer = this.npcCharacter[id].list[1];
+            var overlayContainer = this.interactableObjects[id].list[1];
 
             //get player sprite container
-            var spriteContainer = this.npcCharacter[id].list[0];
+            var spriteContainer = this.interactableObjects[id].list[0];
 
             //store message data
             utility.getObject(this.npcData, id).message = messageData;
@@ -1958,7 +2150,7 @@ class Game extends Phaser.Scene {
         //npc message
         else if (characterType === 'npc') {
             //get npc overlay container
-            var overlayContainer = this.npcCharacter[id].list[1];
+            var overlayContainer = this.interactableObjects[id].list[1];
 
             //get message id
             currentID = utility.getObject(this.npcData, id).message.id;
@@ -1978,62 +2170,6 @@ class Game extends Phaser.Scene {
             overlayContainer.list[2].destroy();
         } else {
             return;
-        }
-    }
-
-    // DEBUG
-    //create debug visuals
-    createDebug() {
-        //cursor
-        this.debugCursor = this.add.image(8, 8, 'target').setDepth(depthDebug);
-        this.input.on(
-            'pointermove',
-            function (pointer) {
-                if (debugMode) {
-                    this.debugCursor.copyPosition(pointer);
-                }
-            },
-            this
-        );
-
-        //ping info
-        this.debugPing = this.add
-            .text(0, 0, 'Ping: Waiting...')
-            .setDepth(depthDebug);
-
-        //if debug mode is off, change visibility of debug info
-        if (!debugMode) {
-            this.debugCursor.setVisible(false);
-            this.debugPing.setVisible(false);
-        }
-    }
-
-    //toggle console logging
-    toggleDebugMode() {
-        //off
-        if (debugMode) {
-            console.log(utility.timestampString('[DEBUG MODE: OFF]'));
-            debugMode = false;
-
-            this.debugCursor.setVisible(false);
-            this.debugPing.setVisible(false);
-        }
-
-        //on
-        else if (!debugMode) {
-            console.log(utility.timestampString('[DEBUG MODE: ON]'));
-            debugMode = true;
-
-            this.debugCursor.setVisible(true);
-            this.debugPing.setVisible(true);
-        }
-    }
-
-    //update ping text
-    newPing(latency) {
-        if (debugMode) {
-            this.debugPing.text = 'Ping: ' + latency + 'ms';
-            console.log(utility.timestampString('Ping: ' + latency + 'ms'));
         }
     }
 }

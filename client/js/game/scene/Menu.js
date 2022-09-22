@@ -1,115 +1,64 @@
 // Menu Scene
 
 class Menu extends Phaser.Scene {
-    // LOCAL VARIABLE
-    //UI
-    disableInput = false;
-
-    //audio
-    sfxButtonClick;
-
-    //depth
-    depthUI = 100002;
-
-    //server
-    receivedSignal;
-
     // INIT
     constructor() {
         super({ key: 'Menu' });
     }
 
     init() {
-        //set scene
-        currentScene = this;
+        //global variables
+        globalUI.init(this);
     }
 
     // LOGIC
     preload() {
-        //register canvas
-        this.canvas = this.sys.game.canvas;
-
-        //sfx
-        this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
-
-        //ui
-        this.load.spritesheet('loadingIcon', 'assets/ui/loading.png', {
-            frameWidth: 64,
-            frameHeight: 64,
-        });
+        //preload global UI
+        globalUI.preload(this);
     }
 
-    create() {
-        //sfx
-        this.sfxButtonClick = this.sound.add('button_click');
+    async create() {
+        //create global UI
+        globalUI.create(this);
 
-        //create loading icon animation
-        this.anims.create({
-            key: 'loadingIconAnim',
-            frames: this.anims.generateFrameNumbers('loadingIcon', { end: 7 }),
-            frameRate: 18,
-            repeat: -1,
-        });
+        //wait screen
+        loadingScreen.runWaitScreen(this);
 
-        //create loading icon
-        let loadingIcon = this.add.sprite(
-            this.canvas.width / 2,
-            this.canvas.height / 2,
-            'loadingIcon'
-        );
-        loadingIcon.play('loadingIconAnim');
+        //wait until connected to the server
+        while (!socket.connected) {}
 
-        //attempt player data request from server
-        this.attemptRequest();
+        //get global data
+        await client.requestGlobalData();
+
+        //get initial load data from the server
+        let loadData = await client.requestLoadData();
+
+        //emote data
+        // let emoteData = data['emotes'];
+
+        //player data
+        let playerData = loadData['player'];
+
+        //save client ID
+        clientID = playerData.id;
+
+        //send to character creator
+        if (playerData.external && playerData.external.newfrog) {
+            this.end();
+            this.scene.start('CharacterCreator');
+        }
+        //send to game
+        else {
+            this.end();
+            client.requestRoom();
+        }
     }
 
     end() {
         //reset data
         this.registry.destroy();
-        // this.events.removeAllListeners();
         this.game.events.removeAllListeners();
         this.input.keyboard.removeAllListeners();
         this.scene.stop();
-    }
-
-    // FUNCTIONS
-    //attempt player data request
-    attemptRequest() {
-        //signal not received yet
-        if (!this.receivedSignal) {
-            //get player data
-            client.requestLoadData();
-
-            //attempt again
-            setTimeout(() => {
-                //request again if still not received
-                if (!this.receivedSignal) {
-                    //attempt request again
-                    this.attemptRequest();
-                }
-            }, 1000);
-        }
-    }
-
-    //get character information
-    parseLoadData(data) {
-        //emote data
-        // let emoteData = data['emotes'];
-
-        //player data
-        let playerData = data['player'];
-
-        //save client ID
-        clientID = playerData.id;
-
-        //set as signal recieved
-        this.receivedSignal = true;
-
-        //send to character creator or game
-        if (!playerData.character) {
-            this.scene.start('CharacterCreator', 'forest');
-        } else {
-            this.scene.start('Game', 'forest');
-        }
     }
 }

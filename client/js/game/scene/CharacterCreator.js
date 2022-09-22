@@ -6,17 +6,11 @@ class CharacterCreator extends Phaser.Scene {
         super({ key: 'CharacterCreator' });
     }
 
-    init(previousRoom) {
-        //client file needs the game instance
-        currentScene = this;
+    init() {
+        //global variables
+        globalUI.init(this);
 
-        //save previous room
-        this.previousRoom = previousRoom;
-
-        // LOCAL VARIABLES
-        //character
-        this.characterData = {};
-        this.character = {};
+        //init data
         this.characterCreated = false;
 
         //UI
@@ -28,217 +22,361 @@ class CharacterCreator extends Phaser.Scene {
             stroke: utility.hexIntegerToString(ColorScheme.Black),
             strokeThickness: 6,
         };
-        this.disableInput = false;
-
-        //audio
-        this.sfxButtonClick = undefined;
 
         //depth
-        this.depthUI = 100002;
         this.depthCharacterUI = 100001;
         this.depthBackgroundUI = 1;
     }
 
     // LOGIC
     preload() {
-        //get canvas
-        this.canvas = this.sys.game.canvas;
-
         //loading screen
-        loadingScreen.run(this);
+        loadingScreen.runLoadingScreen(this);
 
-        //character
+        //preload global UI
+        globalUI.preload(this);
+
+        //load character body
         this.load.image(
             'CC_frog_body',
-            'assets/character/player/5x/Tintable.png'
+            'assets/character/player/body/2.5x/Tintable.png'
         );
         this.load.image(
             'CC_frog_belly',
-            'assets/character/player/5x/Non-Tintable.png'
-        );
-        this.load.image(
-            'CC_frog_eyes_0',
-            'assets/character/player/5x/eyes/Eyes_0.png'
-        );
-        this.load.image(
-            'CC_frog_eyes_1',
-            'assets/character/player/5x/eyes/Eyes_1.png'
+            'assets/character/player/body/2.5x/Non-Tintable.png'
         );
 
-        //UI
-        this.load.image(
-            'UI_frog_eyes_0',
-            'assets/character/player/2x/UI/eyes/Eyes_0.png'
-        );
-        this.load.image(
-            'UI_frog_eyes_1',
-            'assets/character/player/2x/UI/eyes/Eyes_1.png'
-        );
+        //path
+        let path = 'assets/character/player/';
 
-        //sfx
-        this.load.audio('button_click', 'assets/audio/sfx/UI/button_click.mp3');
+        //load character eyes
+        let eyesData = itemData.eyes;
+        for (var i = 0; i < eyesData.length; i++) {
+            this.load.image(
+                'CC_frog_eyes_' + eyesData[i].id,
+                path + 'eyes/2.5x/' + eyesData[i].id + '.png'
+            );
+            this.load.image(
+                'UI_frog_eyes_' + eyesData[i].id,
+                path + 'eyes/UI/' + eyesData[i].id + '.png'
+            );
+        }
+
+        //load character accessories
+        let accessoryData = itemData.accessories;
+        for (var i = 0; i < accessoryData.length; i++) {
+            this.load.image(
+                'CC_accessories_' + accessoryData[i].id,
+                path + 'accessories/2.5x/' + accessoryData[i].id + '.png'
+            );
+            this.load.image(
+                'UI_accessories_' + accessoryData[i].id,
+                path + 'accessories/UI/' + accessoryData[i].id + '.png'
+            );
+        }
     }
 
-    create() {
-        //register sfx
-        this.sfxButtonClick = this.sound.add('button_click', { volume: 0 });
-        this.sfxButtonClick.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume
-        );
+    async create() {
+        //create global UI
+        globalUI.create(this);
 
         //get player data
-        client.requestClientPlayerData();
-
-        //set up character creator menu
-        this.createCharacterCreatorMenu();
+        this.parseClientPlayerData(await client.requestClientPlayerData());
     }
 
     end() {
         //reset data
+        delete this.inventoryData;
+        delete this.characterData;
+        delete this.character;
+        delete this.characterCreated;
+
+        //reset data
         this.registry.destroy();
         this.events.removeAllListeners('updatedClientPlayerData');
         this.scene.stop();
-
-        //reset variables
-        this.characterData = {};
-        this.character = {};
-        this.characterCreated = false;
     }
 
-    quit() {
+    async quit() {
+        //parse player data
+        let data = {
+            color: this.characterData.color,
+            eye_type: this.characterData.eye_type,
+        };
+        if (this.characterData.accessory)
+            data.accessory = this.characterData.accessory;
+
+        console.log(data);
+
+        //save character data to server
+        await client.saveCharacterData(data);
+
+        //set character as created
+        this.characterCreated = false;
+
         //end scene
         this.end();
 
         //join game world
-        this.scene.start('Game', this.previousRoom);
+        client.requestRoom();
     }
 
     // UI
     //create menu
-    createCharacterCreatorMenu() {
-        //set background color
+    async createCharacterCreatorMenu() {
+        //defaults
+        let labelIndent = 565;
+        let interactableIndent = 575;
+
+        //background
         this.cameras.main.setBackgroundColor(ColorScheme.DarkBlue);
 
-        //backgrounds
+        //character background
         this.rexUI.add
             .roundRectangle(300, 400, 500, 600, 15, ColorScheme.Blue)
             .setDepth(this.depthBackgroundUI);
 
-        //eye type label
+        //label: Color
         this.rexUI.add
-            .sizer({ x: 630, y: 140, width: 0, height: 0 })
-            .add(
-                ui.createLabel(this, {
-                    text: 'Eyes',
-                    fontSize: 45,
-                    align: 'center',
-                    backgroundColor: ColorScheme.Blue,
-                    space: { left: 10, right: 10, top: 0, bottom: 0 },
-                })
-            )
-            .layout()
-            .setDepth(this.depthCharacterUI)
-            .setOrigin(0, 0.5);
-
-        //eye types
-        ui.createButtons(this, {
-            x: 650,
-            y: 230,
-            buttons: [
-                { icon: 'UI_frog_eyes_0', backgroundRadius: 8 },
-                { icon: 'UI_frog_eyes_1', backgroundRadius: 8 },
-            ],
-            onClick: function (scene, index) {
-                //set eye type
-                scene.characterData.eye_type = index;
-
-                //update character display
-                scene.updateCharacter();
-            },
-        }).setDepth(this.depthCharacterUI);
-
-        //color label
-        this.rexUI.add
-            .sizer({ x: 630, y: 400, width: 0, height: 0 })
+            .sizer({ x: labelIndent, y: 140, width: 0, height: 0 })
             .add(
                 ui.createLabel(this, {
                     text: 'Color',
                     fontSize: 45,
                     align: 'center',
-                    backgroundColor: ColorScheme.Blue,
+                    background: { color: ColorScheme.Blue },
                     space: { left: 10, right: 10, top: 0, bottom: 0 },
                 })
             )
-            .layout()
             .setDepth(this.depthCharacterUI)
-            .setOrigin(0, 0.5);
+            .setOrigin(0, 0.5)
+            .layout();
 
-        //color wheel
+        //selector: Color
         ui.createColorPicker(this, {
-            x: 770,
-            y: 500,
+            x: interactableIndent,
+            y: 230,
             width: 400,
-            height: 60,
+            height: 30,
             sliderID: 'color',
-            onSliderChange: function (scene, value) {
+            onSliderChange: (value) => {
                 //update color
-                scene.characterData.color = value;
+                this.characterData.color = value;
 
                 //update character display
-                scene.updateCharacter();
+                this.updateCharacter();
             },
-        }).setDepth(this.depthCharacterUI);
+        })
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5)
+            .layout();
+
+        //label: Eye Type
+        this.rexUI.add
+            .sizer({ x: labelIndent, y: 320, width: 0, height: 0 })
+            .add(
+                ui.createLabel(this, {
+                    text: 'Eyes',
+                    fontSize: 45,
+                    align: 'center',
+                    background: { color: ColorScheme.Blue },
+                    space: { left: 10, right: 10, top: 0, bottom: 0 },
+                })
+            )
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5)
+            .layout();
+
+        //selector: Eye Type
+        let eyeTypes = [];
+        let eyesData = itemData.eyes;
+        for (var i = 0; i < eyesData.length; i++) {
+            let id = eyesData[i].id;
+            eyeTypes.push({
+                icon: 'UI_frog_eyes_' + id,
+                background: { radius: 8 },
+                onClick: () => {
+                    //set eye type
+                    this.characterData.eye_type = id;
+
+                    //update character display
+                    this.updateCharacter();
+                },
+            });
+        }
+        let eye_buttons = ui
+            .createButtons(this, {
+                x: interactableIndent,
+                y: 410,
+                buttons: eyeTypes,
+                onClick: (index) => {
+                    //highlight selected button on click
+                    eye_buttons.forEachButtton((button, thisIndex) => {
+                        if (thisIndex === index) {
+                            button
+                                .getElement('background')
+                                .setStrokeStyle(3, ColorScheme.White);
+                        } else {
+                            button.getElement('background').setStrokeStyle(0);
+                        }
+                    }, this);
+                },
+            })
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5)
+            .layout();
+        eye_buttons.forEachButtton((button, thisIndex) => {
+            if (this.characterData.eye_type === eyesData[thisIndex].id) {
+                button
+                    .getElement('background')
+                    .setStrokeStyle(3, ColorScheme.White);
+            } else {
+                button.getElement('background').setStrokeStyle(0);
+            }
+        }, this);
+
+        //label: Accessories
+        this.rexUI.add
+            .sizer({ x: labelIndent, y: 500, width: 0, height: 0 })
+            .add(
+                ui.createLabel(this, {
+                    text: 'Accessories',
+                    fontSize: 45,
+                    align: 'center',
+                    background: { color: ColorScheme.Blue },
+                    space: { left: 10, right: 10, top: 0, bottom: 0 },
+                })
+            )
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(0, 0.5)
+            .layout();
+
+        //selector: Accessories
+        //player has accessories?
+        if (this.inventoryData) {
+            let accessoryTypes = [];
+            let accessoryData = itemData.accessories;
+            for (var i = 0; i < accessoryData.length; i++) {
+                //get accessory id
+                let id = accessoryData[i].id;
+
+                //player does not own accessory
+                if (!(id in this.inventoryData.accessory)) continue;
+
+                //add accessory to list
+                accessoryTypes.push({
+                    icon: 'UI_accessories_' + id,
+                    background: { radius: 8 },
+                    onClick: () => {
+                        //already set
+                        if (this.characterData.accessory === id) {
+                            delete this.characterData.accessory;
+                        }
+                        //set accessory
+                        else {
+                            this.characterData.accessory = id;
+                        }
+
+                        //update character display
+                        this.updateCharacter();
+                    },
+                });
+            }
+
+            //accessories owned?
+            if (accessoryTypes.length > 0) {
+                let accessory_buttons = ui
+                    .createButtons(this, {
+                        x: interactableIndent,
+                        y: 590,
+                        buttons: accessoryTypes,
+                        onClick: (index) => {
+                            //highlight selected button on click if not already selected
+                            accessory_buttons.forEachButtton(
+                                (button, thisIndex) => {
+                                    if (
+                                        thisIndex === index &&
+                                        button.getElement('background')
+                                            .strokeColor !== ColorScheme.White
+                                    ) {
+                                        button
+                                            .getElement('background')
+                                            .setStrokeStyle(
+                                                3,
+                                                ColorScheme.White
+                                            );
+                                    } else {
+                                        button
+                                            .getElement('background')
+                                            .setStrokeStyle(0);
+                                    }
+                                },
+                                this
+                            );
+                        },
+                    })
+                    .setDepth(this.depthCharacterUI)
+                    .setOrigin(0, 0.5)
+                    .layout();
+                // accessory_buttons.forEachButtton((button, thisIndex) => {
+                //     console.log(button)
+                //     if (
+                //         accessoryData[thisIndex].id === this.characterData.accessory
+                //     ) {
+                //         button
+                //             .getElement('background')
+                //             .setStrokeStyle(3, ColorScheme.White);
+                //     } else {
+                //         button.getElement('background').setStrokeStyle(0);
+                //     }
+                // }, this);
+            }
+        }
 
         //save & play button
         ui.createButtons(this, {
-            x: 800,
-            y: 700,
+            x: 1275,
+            y: 790,
             fontSize: 50,
             buttons: [
                 {
                     text: 'Save & Play',
-                    backgroundRadius: 16,
-                    onClick: function (scene) {
-                        //parse player data
-                        const data = {
-                            name: scene.characterData.name,
-                            character: {
-                                color: scene.characterData.color,
-                                eye_type: scene.characterData.eye_type,
-                            },
-                        };
-
-                        //save character data to server
-                        client.updateClientPlayerData(data);
-
-                        //set character as created
-                        scene.characterCreated = false;
+                    background: { radius: 8 },
+                    onClick: async () => {
+                        //quit character creator
+                        await this.quit();
                     },
                 },
             ],
-        }).setDepth(this.depthCharacterUI);
-
-        //when the server updates the players character data, quit this scene and return to previous scene
-        this.events.on('updatedClientPlayerData', this.quit, this);
+        })
+            .setDepth(this.depthCharacterUI)
+            .setOrigin(1, 1)
+            .layout();
     }
 
     // FUNCTIONS
     //get character information
-    parsePlayerData(data) {
+    parseClientPlayerData(data) {
+        //set inventory
+        if (data.inventory) {
+            this.inventoryData = data.inventory;
+        }
+
         //set character data
         if (data.character) {
             this.characterData = data.character;
         } else {
             this.characterData = {
                 color: Math.random() * ColorScheme.White,
-                eye_type: 0,
+                eye_type: 'normal',
             };
         }
 
         //set character name
         this.characterData.name = data.name;
+
+        //set up character creator menu
+        this.createCharacterCreatorMenu();
 
         //create character
         this.createCharacter(this.characterData);
@@ -271,6 +409,14 @@ class CharacterCreator extends Phaser.Scene {
         var playerEyes = this.add
             .sprite(0, 0, 'CC_frog_eyes_' + data.eye_type)
             .setOrigin(0.5, 1);
+        var playerAccessory = this.add
+            .sprite(
+                0,
+                0,
+                data.accessory ? 'CC_accessories_' + data.accessory : ''
+            )
+            .setOrigin(0.5, 1);
+        if (!data.accessory) playerAccessory.setVisible(false);
 
         //get sprite container size
         var spriteContainer = {
@@ -285,7 +431,12 @@ class CharacterCreator extends Phaser.Scene {
             .setDepth(this.depthCharacterUI);
 
         //add player sprites to player sprite container
-        this.character.add([playerBody, playerBelly, playerEyes]);
+        this.character.add([
+            playerBody,
+            playerBelly,
+            playerEyes,
+            playerAccessory,
+        ]);
 
         //update players color
         this.character.list[0].tint = data.color;
@@ -297,13 +448,24 @@ class CharacterCreator extends Phaser.Scene {
     //update character representation
     updateCharacter() {
         if (this.characterCreated) {
+            //update players color
+            this.character.list[0].tint = this.characterData.color;
+
             //update players eye type
             this.character.list[2].setTexture(
                 'CC_frog_eyes_' + this.characterData.eye_type
             );
 
-            //update players color
-            this.character.list[0].tint = this.characterData.color;
+            //update players accessory
+            if (this.characterData.accessory) {
+                this.character.list[3].setTexture(
+                    'CC_accessories_' + this.characterData.accessory
+                );
+                this.character.list[3].setVisible(true);
+            } else {
+                this.character.list[3].setTexture('');
+                this.character.list[3].setVisible(false);
+            }
         }
     }
 }

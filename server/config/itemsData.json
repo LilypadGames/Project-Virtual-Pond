@@ -1,0 +1,38 @@
+{
+    "white_round_sunglasses": {
+        "type": "accessory",
+        "name": "White Round Sunglasses"
+    },
+    "birthday_hat": {
+        "type": "accessory",
+        "name": "Birthday Hat"
+    },
+    "cowboy_hat": {
+        "type": "accessory",
+        "name": "Cowboy Hat",
+        "cost": {
+            "tickets": 1000
+        }
+    },
+    "giant_yellow_sunglasses": {
+        "type": "accessory",
+        "name": "Giant Yellow Sunglasses",
+        "cost": {
+            "tickets": 1000
+        }
+    },
+    "clown_nose": {
+        "type": "accessory",
+        "name": "Clown Nose",
+        "cost": {
+            "tickets": 500
+        }
+    },
+    "green_balloon": {
+        "type": "accessory",
+        "name": "Green Balloon",
+        "cost": {
+            "tickets": 500
+        }
+    }
+}

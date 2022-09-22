@@ -4,39 +4,19 @@ class UI {
     //create text with background
     createText(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
-        if (!content.fontSize) {
-            content.fontSize = 12;
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
+        if (!content.fontSize) content.fontSize = 12;
 
-        if (!content.align) {
-            content.align = 'left';
-        }
+        if (!content.align) content.align = 'left';
 
-        if (!content.fontFamily) {
-            content.fontFamily = 'Burbin';
-        }
+        if (!content.fontFamily) content.fontFamily = 'Burbin';
 
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 5;
-        }
-        if (!content.space.right) {
-            content.space.right = 5;
-        }
-        if (!content.space.top) {
-            content.space.top = 5;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 5;
-        }
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 5;
+        if (!content.space.right) content.space.right = 5;
+        if (!content.space.top) content.space.top = 5;
+        if (!content.space.bottom) content.space.bottom = 5;
 
         return scene.rexUI.add.label({
             text: scene.add.text(content.x, content.y, content.text, {
@@ -59,57 +39,29 @@ class UI {
     //create text with background
     createLabel(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
 
-        if (!content.width) {
-            content.width = 40;
-        }
-        if (!content.height) {
-            content.height = 40;
-        }
+        if (!content.width) content.width = 40;
+        if (!content.height) content.height = 40;
 
-        if (!content.backgroundRadius) {
-            content.backgroundRadius = 20;
-        }
-        if (!content.backgroundColor) {
-            content.backgroundColor = ColorScheme.Blue;
-        }
-        if (!content.backgroundTransparency) {
-            content.backgroundTransparency = 1;
-        }
+        if (!content.background) content.background = {};
+        if (!content.background.radius) content.background.radius = 20;
+        if (!content.background.color)
+            content.background.color = ColorScheme.Blue;
+        if (!content.background.alpha) content.background.alpha = 1;
 
-        if (!content.fontSize) {
-            content.fontSize = 12;
-        }
+        if (!content.fontSize) content.fontSize = 12;
 
-        if (!content.align) {
-            content.align = 'center';
-        }
+        if (!content.align) content.align = 'center';
 
-        if (!content.fontFamily) {
-            content.fontFamily = 'Burbin';
-        }
+        if (!content.fontFamily) content.fontFamily = 'Burbin';
 
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 10;
-        }
-        if (!content.space.right) {
-            content.space.right = 10;
-        }
-        if (!content.space.top) {
-            content.space.top = 10;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 10;
-        }
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 10;
+        if (!content.space.right) content.space.right = 10;
+        if (!content.space.top) content.space.top = 10;
+        if (!content.space.bottom) content.space.bottom = 10;
 
         //has icon
         if (content.icon) {
@@ -125,9 +77,9 @@ class UI {
                     0,
                     content.width,
                     content.height,
-                    content.backgroundRadius,
-                    content.backgroundColor,
-                    content.backgroundTransparency
+                    content.background.radius,
+                    content.background.color,
+                    content.background.alpha
                 ),
 
                 icon: scene.add.sprite(
@@ -165,9 +117,9 @@ class UI {
                     0,
                     content.width,
                     content.height,
-                    content.backgroundRadius,
-                    content.backgroundColor,
-                    content.backgroundTransparency
+                    content.background.radius,
+                    content.background.color,
+                    content.background.alpha
                 ),
 
                 text: scene.add.text(0, 0, content.text, {
@@ -187,116 +139,128 @@ class UI {
         }
     }
 
+    //create toast message
+    createToast(scene, option) {
+        //defaults
+        if (!option.x) option.x = scene.sys.game.canvas.width / 2;
+        if (!option.y) option.y = scene.sys.game.canvas.height / 2;
+
+        if (!option.fontSize) option.fontSize = '24px';
+        if (!option.fontFamily) option.fontFamily = 'Burbin';
+        if (!option.color)
+            option.color = utility.hexIntegerToString(ColorScheme.White);
+
+        if (!option.background) option.background = {};
+        if (!option.background.color)
+            option.background.color = ColorScheme.Blue;
+        if (!option.background.radius) option.background.radius = 15;
+
+        if (!option.duration) option.duration = {};
+        if (!option.duration.in) option.duration.in = 200;
+        if (!option.duration.hold) {
+            let textLength = option.text.length;
+            if (textLength * 100 < 3000) {
+                option.duration.hold = 3000;
+            } else {
+                if (textLength * 100 < 8000) {
+                    option.duration.hold = textLength * 100;
+                } else {
+                    option.duration.hold = 8000;
+                }
+            }
+        }
+        if (!option.duration.out) option.duration.out = 200;
+
+        if (!option.space) option.space = {};
+        if (!option.space.left) option.space.left = 10;
+        if (!option.space.right) option.space.right = 10;
+        if (!option.space.top) option.space.top = 10;
+        if (!option.space.bottom) option.space.bottom = 10;
+
+        var toast = scene.rexUI.add
+            .toast({
+                x: option.x,
+                y: option.y,
+
+                background: scene.rexUI.add.roundRectangle(
+                    0,
+                    0,
+                    2,
+                    2,
+                    option.background.radius,
+                    option.background.color
+                ),
+
+                text: scene.add.text(0, 0, '', {
+                    fontSize: option.fontSize,
+                    fontFamily: option.fontFamily,
+                    color: option.color,
+                }),
+
+                space: {
+                    left: option.space.left,
+                    right: option.space.right,
+                    top: option.space.top,
+                    bottom: option.space.bottom,
+                },
+
+                duration: {
+                    in: option.duration.in,
+                    hold: option.duration.hold,
+                    out: option.duration.out,
+                },
+            })
+            .showMessage(option.text)
+            .setDepth(scene.depthUI);
+
+        return toast;
+    }
+
     //create slider
     createSlider(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
-        if (!content.width) {
-            content.width = 300;
-        }
-        if (!content.height) {
-            content.height = 30;
-        }
-        if (!content.orientation) {
-            content.orientation = 'x';
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
+        if (!content.width) content.width = 300;
+        if (!content.height) content.height = 30;
+        if (!content.orientation) content.orientation = 'x';
 
-        if (!content.value) {
-            content.value = 0;
-        }
+        if (!content.value) content.value = 0;
 
-        if (!content.trackX) {
-            content.trackX = 0;
-        }
-        if (!content.trackY) {
-            content.trackY = 0;
-        }
-        if (!content.trackWidth) {
-            content.trackWidth = 0;
-        }
-        if (!content.trackHeight) {
-            content.trackHeight = 0;
-        }
-        if (!content.trackRadius) {
-            content.trackRadius = 10;
-        }
-        if (!content.trackColor) {
-            content.trackColor = ColorScheme.Blue;
-        }
-        if (!content.trackTransparency) {
-            content.trackTransparency = 1;
-        }
+        if (!content.trackX) content.trackX = 0;
+        if (!content.trackY) content.trackY = 0;
+        if (!content.trackWidth) content.trackWidth = 0;
+        if (!content.trackHeight) content.trackHeight = 0;
+        if (!content.trackRadius) content.trackRadius = 10;
+        if (!content.trackColor) content.trackColor = ColorScheme.Blue;
+        if (!content.trackTransparency) content.trackTransparency = 1;
 
-        if (!content.indicatorX) {
-            content.indicatorX = 0;
-        }
-        if (!content.indicatorY) {
-            content.indicatorY = 0;
-        }
-        if (!content.indicatorWidth) {
-            content.indicatorWidth = 0;
-        }
-        if (!content.indicatorHeight) {
-            content.indicatorHeight = 0;
-        }
-        if (!content.indicatorRadius) {
-            content.indicatorRadius = 10;
-        }
-        if (!content.indicatorColor) {
+        if (!content.indicatorX) content.indicatorX = 0;
+        if (!content.indicatorY) content.indicatorY = 0;
+        if (!content.indicatorWidth) content.indicatorWidth = 0;
+        if (!content.indicatorHeight) content.indicatorHeight = 0;
+        if (!content.indicatorRadius) content.indicatorRadius = 10;
+        if (!content.indicatorColor)
             content.indicatorColor = ColorScheme.LightBlue;
-        }
-        if (!content.indicatorTransparency) {
-            content.indicatorTransparency = 1;
-        }
+        if (!content.indicatorTransparency) content.indicatorTransparency = 1;
 
-        if (!content.thumbX) {
-            content.thumbX = 0;
-        }
-        if (!content.thumbY) {
-            content.thumbY = 0;
-        }
-        if (!content.thumbWidth) {
-            content.thumbWidth = 0;
-        }
-        if (!content.thumbHeight) {
-            content.thumbHeight = 0;
-        }
-        if (!content.thumbRadius) {
-            content.thumbRadius = 12;
-        }
-        if (!content.thumbColor) {
-            content.thumbColor = ColorScheme.White;
-        }
-        if (!content.thumbTransparency) {
-            content.thumbTransparency = 1;
-        }
+        if (!content.thumbX) content.thumbX = 0;
+        if (!content.thumbY) content.thumbY = 0;
+        if (!content.thumbWidth) content.thumbWidth = 0;
+        if (!content.thumbHeight) content.thumbHeight = 0;
+        if (!content.thumbRadius) content.thumbRadius = 12;
+        if (!content.thumbColor) content.thumbColor = ColorScheme.White;
+        if (!content.thumbTransparency) content.thumbTransparency = 1;
 
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 5;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 5;
-        }
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 0;
+        if (!content.space.right) content.space.right = 0;
+        if (!content.space.top) content.space.top = 5;
+        if (!content.space.bottom) content.space.bottom = 5;
 
-        if (!content.input) {
-            content.input = 'click';
-        }
+        if (!content.input) content.input = 'click';
 
-        return scene.rexUI.add
+        let slider = scene.rexUI.add
             .slider({
                 x: content.x,
                 y: content.y,
@@ -334,11 +298,6 @@ class UI {
                     content.thumbTransparency
                 ),
 
-                valuechangeCallback: function (value) {
-                    if (content.onSliderChange)
-                        content.onSliderChange(scene, value);
-                },
-
                 space: {
                     left: content.space.left,
                     right: content.space.right,
@@ -346,200 +305,188 @@ class UI {
                     bottom: content.space.bottom,
                 },
 
+                easeValue: {
+                    duration: 100,
+                },
+
                 input: content.input, // 'drag'|'click'
             })
             .layout();
+
+        //events
+        slider.on(
+            'valuechange',
+            function (value, oldValue, slider) {
+                //callback
+                content.onSliderChange(value);
+            },
+            scene
+        );
+
+        return slider;
     }
 
     //create input box
-    createInputBox(scene, content) {
+    createInputBox(scene, option, useSizer = false) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
-        if (!content.width) {
-            content.width = 500;
-        }
-        if (!content.height) {
-            content.height = 40;
-        }
-        if (!content.type) {
-            content.type = 'text';
-        }
-        if (!content.text) {
-            content.text = '';
-        }
-        if (!content.placeholder) {
-            content.placeholder = '';
-        }
-        if (!content.fontSize) {
-            content.fontSize = 24;
-        }
-        if (!content.color) {
-            content.color = ColorScheme.Black;
-        }
-        if (!content.backgroundColor) {
-            content.backgroundColor = ColorScheme.White;
-        }
-        if (!content.backgroundRadius) {
-            content.backgroundRadius = 0;
-        }
-        if (!content.backgroundSpace) {
-            content.backgroundSpace = {};
-        }
-        if (!content.backgroundSpace.left) {
-            content.backgroundSpace.left = 5;
-        }
-        if (!content.backgroundSpace.right) {
-            content.backgroundSpace.right = 5;
-        }
-        if (!content.backgroundSpace.top) {
-            content.backgroundSpace.top = 0;
-        }
-        if (!content.backgroundSpace.bottom) {
-            content.backgroundSpace.bottom = 0;
-        }
-        if (!content.border) {
-            content.border = 0;
-        }
-        if (!content.borderColor) {
-            content.borderColor = ColorScheme.Black;
-        }
-        if (!content.spellCheck) {
-            content.spellCheck = false;
-        }
-        if (!content.autoComplete) {
-            content.autoComplete = 'off';
-        }
-        if (!content.maxLength) {
-            content.maxLength = 1000;
-        }
+        if (!option.x) option.x = 0;
+        if (!option.y) option.y = 0;
+        if (!option.width) option.width = 500;
+        if (!option.height) option.height = 40;
+        if (!option.type) option.type = 'text';
+        if (!option.text) option.text = '';
+        if (!option.placeholder) option.placeholder = '';
+        if (!option.fontSize) option.fontSize = 24;
+        if (!option.color) option.color = ColorScheme.Black;
+
+        if (!option.background) option.background = {};
+        if (!option.background.color)
+            option.background.color = ColorScheme.White;
+        if (!option.background.radius) option.background.radius = 0;
+        if (!option.background.space) option.background.space = {};
+        if (!option.background.space.left) option.background.space.left = 5;
+        if (!option.background.space.right) option.background.space.right = 5;
+        if (!option.background.space.top) option.background.space.top = 0;
+        if (!option.background.space.bottom) option.background.space.bottom = 0;
+
+        if (!option.border) option.border = 0;
+        if (!option.borderColor) option.borderColor = ColorScheme.Black;
+        if (!option.spellCheck) option.spellCheck = false;
+        if (!option.autoComplete) option.autoComplete = 'off';
+        if (!option.maxLength) option.maxLength = 1000;
 
         //create input box
-        var inputBox = scene.add.rexInputText(
-            content.x,
-            content.y,
-            content.width,
-            content.height,
-            {
-                id: content.id,
-                type: content.type,
-                text: content.text,
-                placeholder: content.placeholder,
-                fontSize: content.fontSize,
-                color: content.color,
-                spellCheck: content.spellCheck,
-                autoComplete: content.autoComplete,
-                maxLength: content.maxLength,
-            }
-        );
+        let inputBox = scene.add.rexInputText({
+            x: option.x,
+            y: option.y,
+            width: option.width,
+            height: option.height,
+            id: option.id,
+            type: option.type,
+            text: option.text,
+            placeholder: option.placeholder,
+            fontSize: option.fontSize,
+            color: option.color,
+            spellCheck: option.spellCheck,
+            autoComplete: option.autoComplete,
+            maxLength: option.maxLength,
+        });
 
-        //create background
-        scene.rexUI.add
-            .roundRectangle(
-                content.x - content.backgroundSpace.left / 2,
-                content.y + content.backgroundSpace.bottom / 2,
-                content.width +
-                    (content.backgroundSpace.left +
-                        content.backgroundSpace.right),
-                content.height +
-                    (content.backgroundSpace.top +
-                        content.backgroundSpace.bottom),
-                content.backgroundRadius,
-                content.backgroundColor,
-                1
-            )
-            .setDepth(content.depth);
+        //events
+        if (option.onFocus) {
+            inputBox.on(
+                'focus',
+                function (inputBox, event) {
+                    //callback
+                    option.onFocus(inputBox, event);
+                },
+                scene
+            );
+        }
+        if (option.onKeydown) {
+            inputBox.on(
+                'keydown',
+                function (inputBox, event) {
+                    //callback
+                    option.onKeydown(inputBox, event);
+                },
+                scene
+            );
+        }
 
-        return inputBox;
+        //sizer backgound
+        if (useSizer) {
+            //create parent and background object
+            var sizer = scene.rexUI.add
+                .sizer({
+                    orientation: 0,
+                })
+                .addBackground(
+                    scene.rexUI.add.roundRectangle(
+                        option.x - option.background.space.left / 2,
+                        option.y + option.background.space.bottom / 2,
+                        option.width +
+                            (option.background.space.left +
+                                option.background.space.right),
+                        option.height +
+                            (option.background.space.top +
+                                option.background.space.bottom),
+                        option.background.radius,
+                        option.background.color,
+                        1
+                    )
+                );
+
+            //add input box to parent
+            sizer.add(inputBox);
+            return sizer;
+        }
+
+        //normal background
+        else {
+            scene.rexUI.add
+                .roundRectangle(
+                    option.x - option.background.space.left / 2,
+                    option.y + option.background.space.bottom / 2,
+                    option.width +
+                        (option.background.space.left +
+                            option.background.space.right),
+                    option.height +
+                        (option.background.space.top +
+                            option.background.space.bottom),
+                    option.background.radius,
+                    option.background.color,
+                    1
+                )
+                .setDepth(option.depth);
+            return inputBox;
+        }
     }
 
     //create button
     createButtons(scene, content) {
         //defaults
-        if (!content.x) {
-            content.x = 0;
-        }
-        if (!content.y) {
-            content.y = 0;
-        }
-        if (!content.width) {
-            content.width = 20;
-        }
-        if (!content.height) {
-            content.height = 20;
-        }
-        if (!content.align) {
-            content.align = 'center';
-        }
-        if (!content.orientation) {
-            content.orientation = 'x';
-        }
-        if (!content.color) {
-            content.color = ColorScheme.Blue;
-        }
-        if (!content.colorOnHover) {
-            content.colorOnHover = ColorScheme.LightBlue;
-        }
-        if (!content.space) {
-            content.space = {};
-        }
-        if (!content.space.left) {
-            content.space.left = 0;
-        }
-        if (!content.space.right) {
-            content.space.right = 0;
-        }
-        if (!content.space.top) {
-            content.space.top = 0;
-        }
-        if (!content.space.bottom) {
-            content.space.bottom = 0;
-        }
-        if (!content.space.item) {
-            content.space.item = 5;
-        }
+        if (!content.x) content.x = 0;
+        if (!content.y) content.y = 0;
+        if (!content.width) content.width = 20;
+        if (!content.height) content.height = 20;
+        if (!content.align) content.align = 'center';
+        if (!content.orientation) content.orientation = 'x';
+        if (!content.color) content.color = ColorScheme.Blue;
+        if (!content.colorOnHover) content.colorOnHover = ColorScheme.LightBlue;
+        if (!content.space) content.space = {};
+        if (!content.space.left) content.space.left = 0;
+        if (!content.space.right) content.space.right = 0;
+        if (!content.space.top) content.space.top = 0;
+        if (!content.space.bottom) content.space.bottom = 0;
+        if (!content.space.item) content.space.item = 5;
 
-        var buttons = [];
+        var buttonsData = [];
         for (let i = 0; i < content.buttons.length; i++) {
             //get action content
             const buttonsContent = content.buttons[i];
 
             //defaults
-            if (!buttonsContent.align) {
-                buttonsContent.align = 'center';
-            }
-            if (!buttonsContent.width) {
-                buttonsContent.width = 20;
-            }
-            if (!buttonsContent.height) {
-                buttonsContent.height = 20;
-            }
+            if (!buttonsContent.align) buttonsContent.align = 'center';
+            if (!buttonsContent.width) buttonsContent.width = 20;
+            if (!buttonsContent.height) buttonsContent.height = 20;
 
-            if (!buttonsContent.space) {
-                buttonsContent.space = {};
-            }
-            if (!buttonsContent.space.left) {
-                buttonsContent.space.left = 0;
-            }
-            if (!buttonsContent.space.right) {
-                buttonsContent.space.right = 0;
-            }
-            if (!buttonsContent.space.top) {
-                buttonsContent.space.top = 0;
-            }
-            if (!buttonsContent.space.bottom) {
-                buttonsContent.space.bottom = 0;
-            }
-            if (!buttonsContent.space.item) {
-                buttonsContent.space.item = 0;
-            }
+            if (!buttonsContent.background) buttonsContent.background = {};
+            if (!buttonsContent.background.radius)
+                buttonsContent.background.radius = 20;
+            if (!buttonsContent.background.color)
+                buttonsContent.background.color = ColorScheme.Blue;
+            if (!buttonsContent.background.alpha)
+                buttonsContent.background.alpha = 1;
+            if (!buttonsContent.space) buttonsContent.space = {};
+            if (!buttonsContent.space.left) buttonsContent.space.left = 0;
+            if (!buttonsContent.space.right) buttonsContent.space.right = 0;
+            if (!buttonsContent.space.top) buttonsContent.space.top = 0;
+            if (!buttonsContent.space.bottom) buttonsContent.space.bottom = 0;
+            if (!buttonsContent.space.item) buttonsContent.space.item = 0;
 
             //add to buttons
-            buttons.push(
+            buttonsData.push(
                 this.createLabel(scene, {
                     x: buttonsContent.x,
                     y: buttonsContent.y,
@@ -547,10 +494,13 @@ class UI {
                     text: buttonsContent.text,
                     fontSize: content.fontSize,
                     align: buttonsContent.align,
-                    backgroundColor: content.color,
+                    background: {
+                        radius: buttonsContent.background.radius,
+                        color: buttonsContent.background.color,
+                        alpha: buttonsContent.background.alpha,
+                    },
                     width: buttonsContent.width,
                     height: buttonsContent.height,
-                    backgroundRadius: buttonsContent.backgroundRadius,
                     space: {
                         left: content.space.left,
                         right: content.space.right,
@@ -561,83 +511,88 @@ class UI {
             );
         }
 
-        return (
-            scene.rexUI.add
-                .buttons({
-                    x: content.x,
-                    y: content.y,
+        let buttons = scene.rexUI.add
+            .buttons({
+                x: content.x,
+                y: content.y,
 
-                    width: content.width,
-                    height: content.height,
+                width: content.width,
+                height: content.height,
 
-                    orientation: content.orientation,
+                orientation: content.orientation,
 
-                    buttons: buttons,
-                    expand: false,
-                    align: content.align,
-                    click: {
-                        mode: 'pointerup',
-                        clickInterval: 100,
-                    },
+                buttons: buttonsData,
+                expand: false,
+                align: content.align,
+                click: {
+                    mode: 'pointerup',
+                    clickInterval: 100,
+                },
 
-                    space: {
-                        left: content.space.left,
-                        right: content.space.right,
-                        top: content.space.top,
-                        bottom: content.space.bottom,
-                        item: content.space.item,
-                    },
-                })
-                .layout()
+                space: {
+                    left: content.space.left,
+                    right: content.space.right,
+                    top: content.space.top,
+                    bottom: content.space.bottom,
+                    item: content.space.item,
+                },
+            })
+            .layout();
 
-                //animation
-                .on(
-                    'button.over',
-                    function (button, groupName, index, pointer, event) {
-                        button
-                            .getElement('background')
-                            .setFillStyle(content.colorOnHover);
-                    }
-                )
-                .on(
-                    'button.out',
-                    function (button, groupName, index, pointer, event) {
-                        button
-                            .getElement('background')
-                            .setFillStyle(content.color);
-                    }
-                )
+        //animation
+        buttons
+            .on(
+                'button.over',
+                function (button, groupName, index, pointer, event) {
+                    button
+                        .getElement('background')
+                        .setFillStyle(content.colorOnHover);
+                },
+                scene
+            )
+            .on(
+                'button.out',
+                function (button, groupName, index, pointer, event) {
+                    button.getElement('background').setFillStyle(content.color);
+                },
+                scene
+            );
 
-                //click event
-                .on('button.click', function (button, index, pointer, event) {
-                    //sfx
-                    scene.sfxButtonClick.play();
+        //events
+        buttons.on(
+            'button.click',
+            function (button, index, pointer, event) {
+                //sfx
+                scene.sfxButtonClick.play();
 
-                    //callback per button
-                    if (content.buttons[index].onClick)
-                        content.buttons[index].onClick(scene);
-                    //callback for all buttons
-                    if (content.onClick) content.onClick(scene, index);
-                })
+                //callback per button
+                if (content.buttons[index].onClick)
+                    content.buttons[index].onClick(
+                        index,
+                        button,
+                        pointer,
+                        event
+                    );
+                //callback for all buttons
+                if (content.onClick) content.onClick(index, button);
+            },
+            scene
         );
+
+        return buttons;
     }
 
     //create color picker
     createColorPicker(scene, option) {
         //defaults
-        if (!option.x) {
-            option.x = 0;
-        }
-        if (!option.y) {
-            option.y = 0;
-        }
+        if (!option.x) option.x = 0;
+        if (!option.y) option.y = 0;
 
-        if (!option.width) {
-            option.width = 400;
-        }
-        if (!option.height) {
-            option.height = 60;
-        }
+        if (!option.width) option.width = 400;
+        if (!option.height) option.height = 30;
+
+        //random value
+        let sliderValue = Math.random();
 
         //create background
         var background = scene.rexUI.add.roundRectangle(
@@ -671,31 +626,45 @@ class UI {
         colorStrip.updateTexture();
 
         //create thumb
-        var thumb = scene.add.rectangle(0, 0, 20, 30);
+        var thumb = scene.add
+            .rectangle(0, 0, 20, 30, ColorScheme.White)
+            .setStrokeStyle(2, ColorScheme.White);
 
         //create slider
         var slider = scene.rexUI.add.slider({
             height: 30,
             thumb: thumb,
             input: 'click',
-            valuechangeCallback: function (value) {
-                //determine color from position
-                var x = (colorStrip.width - 1) * value;
-                var color = colorStrip.getPixel(x, 0);
-                thumb.setFillStyle(color.color);
-
-                //send info to scene
-                if (option.onSliderChange)
-                    option.onSliderChange(scene, color.color);
+            value: sliderValue,
+            easeValue: {
+                duration: 100,
             },
         });
 
         //make slider interactive
-        colorStrip
-            .setInteractive()
-            .on('pointerdown', function (pointer, localX, localY) {
+        colorStrip.setInteractive().on(
+            'pointerdown',
+            function (pointer, localX, localY) {
                 slider.setValue(localX / colorStrip.width);
-            });
+            },
+            scene
+        );
+
+        //events
+        slider.on(
+            'valuechange',
+            function (value, oldValue, slider) {
+                //get color
+                let color = convertToColor(value);
+
+                //update thumb
+                updateThumb(value);
+
+                //callback
+                if (option.onSliderChange) option.onSliderChange(color);
+            },
+            scene
+        );
 
         //create sizer for entire color picker
         var colorPicker = scene.rexUI.add
@@ -710,18 +679,33 @@ class UI {
             .setPosition(option.x, option.y)
             .layout();
 
+        //convert slider value to color
+        let convertToColor = function (value) {
+            var x = (colorStrip.width - 1) * value;
+            var color = colorStrip.getPixel(x, 0);
+            return color.color;
+        };
+
+        //set thumb color to selected color
+        let updateThumb = function (value) {
+            //convert slider value to color
+            let color = convertToColor(value);
+
+            //set thumb color
+            thumb.setFillStyle(color);
+        };
+
+        //slider init
+        // updateThumb();
+
         return colorPicker;
     }
 
     //format passage
     formatPassage(scene, element, passage, options = {}) {
         //defaults
-        if (!options.fontSize) {
-            options.fontSize = 18;
-        }
-        if (!options.fontFamily) {
-            options.fontFamily = 'Burbin';
-        }
+        if (!options.fontSize) options.fontSize = 18;
+        if (!options.fontFamily) options.fontFamily = 'Burbin';
 
         //clear text in element
         element.clear(true);
@@ -756,40 +740,18 @@ class UI {
     //create sizer
     createSizer(scene, content = {}, options = {}) {
         //default options
-        if (!options.x) {
-            options.x = 0;
-        }
-        if (!options.y) {
-            options.y = 0;
-        }
-        if (!options.width) {
-            options.width = 400;
-        }
-        if (!options.height) {
-            options.height = 80;
-        }
-        if (!options.orientation) {
-            options.orientation = 'y';
-        }
+        if (!options.x) options.x = 0;
+        if (!options.y) options.y = 0;
+        if (!options.width) options.width = 400;
+        if (!options.height) options.height = 80;
+        if (!options.orientation) options.orientation = 'y';
 
-        if (!options.space) {
-            options.space = {};
-        }
-        if (!options.space.left) {
-            options.space.left = 20;
-        }
-        if (!options.space.right) {
-            options.space.right = 20;
-        }
-        if (!options.space.top) {
-            options.space.top = 20;
-        }
-        if (!options.space.bottom) {
-            options.space.bottom = 20;
-        }
-        if (!options.space.item) {
-            options.space.item = 5;
-        }
+        if (!options.space) options.space = {};
+        if (!options.space.left) options.space.left = 20;
+        if (!options.space.right) options.space.right = 20;
+        if (!options.space.top) options.space.top = 20;
+        if (!options.space.bottom) options.space.bottom = 20;
+        if (!options.space.item) options.space.item = 5;
 
         //init sizer
         var sizer = scene.rexUI.add.sizer({
@@ -810,21 +772,13 @@ class UI {
         //add background
         if (options.background) {
             //default options
-            if (!options.background.x) {
-                options.background.x = 0;
-            }
-            if (!options.background.y) {
-                options.background.y = 0;
-            }
-            if (!options.background.radius) {
-                options.background.radius = 20;
-            }
-            if (!options.background.color) {
+            if (!options.background.x) options.background.x = 0;
+            if (!options.background.y) options.background.y = 0;
+            if (!options.background.radius) options.background.radius = 20;
+            if (!options.background.color)
                 options.background.color = ColorScheme.DarkBlue;
-            }
-            if (!options.background.transparency) {
+            if (!options.background.transparency)
                 options.background.transparency = 1;
-            }
 
             sizer.addBackground(
                 scene.rexUI.add.roundRectangle(
@@ -859,27 +813,40 @@ class UI {
                             align: internalContent.align,
                         })
                     );
+                }
 
-                    //add button
-                } else if (internalContent.type == 'button') {
-                    let onClick = internalContent.onClick
-                        ? internalContent.onClick
-                        : undefined;
+                //add button
+                else if (internalContent.type == 'button') {
                     sizer.add(
                         this.createButtons(scene, {
                             align: internalContent.align,
                             fontSize: internalContent.fontSize,
-                            buttons: [{ text: internalContent.text }],
-                            onClick: onClick,
+                            buttons: [
+                                {
+                                    text: internalContent.text,
+                                    background: internalContent.background,
+                                },
+                            ],
+                            colorOnHover: internalContent.colorOnHover,
+                            onClick: internalContent.onClick,
                         })
                     );
+                }
 
-                    //add buttons
-                } else if (internalContent.type == 'buttons') {
+                //add buttons
+                else if (internalContent.type == 'buttons') {
                     sizer.add(this.createButtons(scene, internalContent));
+                }
 
-                    //add checkbox
-                } else if (internalContent.type == 'checkbox') {
+                //add input box
+                else if (internalContent.type == 'inputBox') {
+                    sizer.add(
+                        this.createInputBox(scene, internalContent, true)
+                    );
+                }
+
+                //add checkbox
+                else if (internalContent.type == 'checkbox') {
                     //create checkbox
                     let checkbox = scene.rexUI.add.buttons({
                         x: 0,
@@ -945,6 +912,7 @@ class UI {
                                 internalContent.onClick(value);
                             }
                         },
+                        setButtonStateCallbackScope: scene,
                     });
 
                     //set initial state
@@ -954,50 +922,36 @@ class UI {
                     );
 
                     sizer.add(checkbox);
+                }
 
-                    //add slider
-                } else if (internalContent.type == 'slider') {
+                //add slider
+                else if (internalContent.type == 'slider') {
                     sizer.add(this.createSlider(scene, internalContent));
+                }
 
-                    //add scrollable panel
-                } else if (internalContent.type == 'scrollable') {
+                //add scrollable panel
+                else if (internalContent.type == 'scrollable') {
                     //default options
-                    if (!internalContent.x) {
-                        internalContent.x = 0;
-                    }
-                    if (!internalContent.y) {
-                        internalContent.y = 0;
-                    }
-                    if (!internalContent.width) {
+                    if (!internalContent.x) internalContent.x = 0;
+                    if (!internalContent.y) internalContent.y = 0;
+                    if (!internalContent.width)
                         internalContent.width = options.width;
-                    }
-                    if (!internalContent.height) {
+                    if (!internalContent.height)
                         internalContent.height = options.height;
-                    }
-                    if (!internalContent.position) {
-                        internalContent.position = 1;
-                    }
-                    if (!internalContent.space) {
-                        internalContent.space = {};
-                    }
-                    if (!internalContent.space.left) {
+                    if (!internalContent.position) internalContent.position = 1;
+                    if (!internalContent.space) internalContent.space = {};
+                    if (!internalContent.space.left)
                         internalContent.space.left = 3;
-                    }
-                    if (!internalContent.space.right) {
+                    if (!internalContent.space.right)
                         internalContent.space.right = 3;
-                    }
-                    if (!internalContent.space.top) {
+                    if (!internalContent.space.top)
                         internalContent.space.top = 3;
-                    }
-                    if (!internalContent.space.bottom) {
+                    if (!internalContent.space.bottom)
                         internalContent.space.bottom = 3;
-                    }
-                    if (!internalContent.space.item) {
+                    if (!internalContent.space.item)
                         internalContent.space.item = 8;
-                    }
-                    if (!internalContent.space.line) {
+                    if (!internalContent.space.line)
                         internalContent.space.line = 8;
-                    }
 
                     //create scrollable panel
                     var panel = scene.rexUI.add.scrollablePanel({
@@ -1074,127 +1028,58 @@ class UI {
     }
 
     //create dialog box
-    createDialog(
-        scene,
-        content,
-        options = {
-            background: {},
-            title: {},
-            description: {},
-            button: { space: {} },
-            space: {},
-            expand: {},
-            align: {},
-            animation: {},
-        }
-    ) {
+    createDialog(scene, content, options = {}) {
         //defaults
-        if (!options.x) {
-            options.x = scene.canvas.width / 2;
-        }
-        if (!options.y) {
-            options.y = scene.canvas.height / 2;
-        }
-        if (!options.width) {
-            options.width = 500;
-        }
-        if (!options.height) {
-            options.height = 80;
-        }
-        if (options.draggable == undefined) {
-            options.draggable = true;
-        }
+        if (!options.x) options.x = scene.sys.game.canvas.width / 2;
+        if (!options.y) options.y = scene.sys.game.canvas.height / 2;
+        if (!options.width) options.width = 500;
+        if (!options.height) options.height = 80;
+        if (options.draggable == undefined) options.draggable = true;
 
-        if (!options.background.width) {
-            options.background.width = 100;
-        }
-        if (!options.background.height) {
-            options.background.width = 100;
-        }
-        if (!options.background.radius) {
-            options.background.radius = 20;
-        }
-        if (!options.background.color) {
+        if (!options.background) options.background = {};
+        if (!options.background.width) options.background.width = 100;
+        if (!options.background.height) options.background.width = 100;
+        if (!options.background.radius) options.background.radius = 20;
+        if (!options.background.color)
             options.background.color = ColorScheme.DarkBlue;
-        }
 
-        if (!options.title.fontSize) {
-            options.title.fontSize = 48;
-        }
-        if (!options.title.align) {
-            options.title.align = 'center';
-        }
+        if (!options.title) options.title = {};
+        if (!options.title.fontSize) options.title.fontSize = 48;
+        if (!options.title.align) options.title.align = 'center';
 
-        if (!options.description.fontSize) {
-            options.description.fontSize = 28;
-        }
-        if (!options.description.align) {
-            options.description.align = 'center';
-        }
+        if (!options.description) options.description = {};
+        if (!options.description.fontSize) options.description.fontSize = 28;
+        if (!options.description.align) options.description.align = 'center';
 
-        if (!options.button.fontSize) {
-            options.button.fontSize = 28;
-        }
-        if (!options.button.align) {
-            options.button.align = 'center';
-        }
-        if (!options.button.color) {
-            options.button.color = ColorScheme.Blue;
-        }
-        if (!options.button.colorOnHover) {
+        if (!options.button) options.button = {};
+        if (!options.button.fontSize) options.button.fontSize = 28;
+        if (!options.button.align) options.button.align = 'center';
+        if (!options.button.color) options.button.color = ColorScheme.Blue;
+        if (!options.button.colorOnHover)
             options.button.colorOnHover = ColorScheme.LightBlue;
-        }
-        if (!options.button.space.left) {
-            options.button.space.left = 10;
-        }
-        if (!options.button.space.right) {
-            options.button.space.right = 10;
-        }
-        if (!options.button.space.top) {
-            options.button.space.top = 8;
-        }
-        if (!options.button.space.bottom) {
-            options.button.space.bottom = 8;
-        }
+        if (!options.button.space) options.button.space = {};
+        if (!options.button.space.left) options.button.space.left = 10;
+        if (!options.button.space.right) options.button.space.right = 10;
+        if (!options.button.space.top) options.button.space.top = 8;
+        if (!options.button.space.bottom) options.button.space.bottom = 8;
 
-        if (!options.space.left) {
-            options.space.left = 20;
-        }
-        if (!options.space.right) {
-            options.space.right = 20;
-        }
-        if (!options.space.top) {
-            options.space.top = -20;
-        }
-        if (!options.space.bottom) {
-            options.space.bottom = -20;
-        }
-        if (!options.space.title) {
-            options.space.title = 10;
-        }
-        if (!options.space.content) {
-            options.space.content = 15;
-        }
-        if (!options.space.action) {
-            options.space.action = 0;
-        }
+        if (!options.space) options.space = {};
+        if (!options.space.left) options.space.left = 20;
+        if (!options.space.right) options.space.right = 20;
+        if (!options.space.top) options.space.top = -20;
+        if (!options.space.bottom) options.space.bottom = -20;
+        if (!options.space.title) options.space.title = 10;
+        if (!options.space.content) options.space.content = 15;
+        if (!options.space.action) options.space.action = 0;
 
-        if (!options.align.title) {
-            options.align.title = 'center';
-        }
-        if (!options.align.options) {
-            options.align.options = 'center';
-        }
-        if (!options.align.actions) {
-            options.align.actions = 'center';
-        }
+        if (!options.align) options.align = {};
+        if (!options.align.title) options.align.title = 'center';
+        if (!options.align.options) options.align.options = 'center';
+        if (!options.align.actions) options.align.actions = 'center';
 
-        if (!options.animation.ease) {
-            options.animation.ease = 'Bounce';
-        }
-        if (!options.animation.duration) {
-            options.animation.duration = 100;
-        }
+        if (!options.animation) options.animation = {};
+        if (!options.animation.ease) options.animation.ease = 'Bounce';
+        if (!options.animation.duration) options.animation.duration = 100;
 
         //create elements
         const background = scene.rexUI.add.roundRectangle(
@@ -1211,7 +1096,7 @@ class UI {
             text: content.title,
             fontSize: options.title.fontSize,
             align: options.title.align,
-            backgroundColor: options.background.color,
+            background: { color: options.background.color },
         });
 
         const description = this.createText(scene, {
@@ -1225,7 +1110,7 @@ class UI {
                 text: content.button,
                 fontSize: options.button.fontSize,
                 align: options.button.align,
-                backgroundColor: options.button.color,
+                background: { color: options.button.color },
                 space: {
                     left: options.button.space.left,
                     right: options.button.space.right,
@@ -1287,7 +1172,8 @@ class UI {
                     button
                         .getElement('background')
                         .setFillStyle(options.button.colorOnHover);
-                }
+                },
+                scene
             )
             .on(
                 'button.out',
@@ -1295,7 +1181,8 @@ class UI {
                     button
                         .getElement('background')
                         .setFillStyle(options.button.color);
-                }
+                },
+                scene
             );
         scene.tweens.add({
             targets: dialog,
@@ -1316,101 +1203,46 @@ class UI {
     }
 
     //create menu (exit button top right, draggable, and filled with sizer and extra content added by the executor)
-    createMenu(
-        scene,
-        content,
-        options = { title: {}, background: {}, space: {} }
-    ) {
+    createMenu(scene, content, options = {}) {
         //default options
-        if (!options.x) {
-            options.x = scene.canvas.width / 2;
-        }
-        if (!options.y) {
-            options.y = scene.canvas.height / 2;
-        }
-        if (!options.width) {
-            options.width = 400;
-        }
-        if (!options.height) {
-            options.height = 200;
-        }
-        if (options.draggable == undefined) {
-            options.draggable = true;
-        }
+        if (!options.x) options.x = scene.sys.game.canvas.width / 2;
+        if (!options.y) options.y = scene.sys.game.canvas.height / 2;
+        if (!options.width) options.width = 400;
+        if (!options.height) options.height = 200;
+        if (options.draggable == undefined) options.draggable = true;
 
-        if (!options.title) {
-            options.title = {};
-        }
-        if (!options.title.fontSize) {
-            options.title.fontSize = 30;
-        }
+        if (!options.title) options.title = {};
+        if (!options.title.fontSize) options.title.fontSize = 30;
 
-        if (!options.background) {
-            options.background = {};
-        }
-        if (!options.background.x) {
-            options.background.x = 0;
-        }
-        if (!options.background.y) {
-            options.background.y = 0;
-        }
-        if (!options.background.width) {
-            options.background.width = options.width;
-        }
-        if (!options.background.height) {
+        if (!options.background) options.background = {};
+        if (!options.background.x) options.background.x = 0;
+        if (!options.background.y) options.background.y = 0;
+        if (!options.background.width) options.background.width = options.width;
+        if (!options.background.height)
             options.background.height = options.height;
-        }
-        if (!options.background.radius) {
-            options.background.radius = 20;
-        }
-        if (!options.background.color) {
+        if (!options.background.radius) options.background.radius = 20;
+        if (!options.background.color)
             options.background.color = ColorScheme.DarkBlue;
-        }
-        if (!options.background.transparency) {
+        if (!options.background.transparency)
             options.background.transparency = 1;
-        }
 
-        if (!options.space) {
-            options.space = {};
-        }
-        if (!options.space.left) {
-            options.space.left = 10;
-        }
-        if (!options.space.right) {
-            options.space.right = 10;
-        }
-        if (!options.space.top) {
-            options.space.top = 0;
-        }
-        if (!options.space.bottom) {
-            options.space.bottom = 0;
-        }
-        if (!options.space.panel) {
-            options.space.panel = 10;
-        }
-        if (!options.space.item) {
-            options.space.item = 0;
-        }
-        if (!options.space.title) {
-            options.space.title = 5;
-        }
-        if (!options.space.titleLeft) {
-            options.space.titleLeft = 30;
-        }
+        if (!options.space) options.space = {};
+        if (!options.space.left) options.space.left = 10;
+        if (!options.space.right) options.space.right = 10;
+        if (!options.space.top) options.space.top = 0;
+        if (!options.space.bottom) options.space.bottom = 0;
+        if (!options.space.panel) options.space.panel = 10;
+        if (!options.space.item) options.space.item = 0;
+        if (!options.space.title) options.space.title = 5;
+        if (!options.space.titleLeft) options.space.titleLeft = 30;
 
-        if (!options.exitButton) {
-            options.exitButton = {};
-        }
-        if (!options.exitButton.color) {
+        if (!options.exitButton) options.exitButton = {};
+        if (!options.exitButton.color)
             options.exitButton.color = ColorScheme.Blue;
-        }
-        if (!options.exitButton.colorOnHover) {
+        if (!options.exitButton.colorOnHover)
             options.exitButton.colorOnHover = ColorScheme.LightBlue;
-        }
 
-        if (options.cover === undefined) {
-            options.cover = false;
-        }
+        if (options.cover === undefined) options.cover = false;
 
         //content
         let cover = options.cover
@@ -1440,7 +1272,7 @@ class UI {
                     text: 'X',
                     width: 40,
                     height: 0,
-                    backgroundRadius: 8,
+                    background: { radius: 8 },
                 },
             ],
             space: {
@@ -1510,7 +1342,8 @@ class UI {
                             .getElement('background')
                             .setFillStyle(options.exitButton.colorOnHover);
                     }
-                }
+                },
+                scene
             )
             .on(
                 'button.out',
@@ -1522,7 +1355,8 @@ class UI {
                             .getElement('background')
                             .setFillStyle(options.exitButton.color);
                     }
-                }
+                },
+                scene
             );
 
         //draggable
@@ -1545,6 +1379,7 @@ class UI {
             }
         );
 
+        //exit event
         menu.on(
             'button.click',
             function (button, groupName, index, pointer, event) {

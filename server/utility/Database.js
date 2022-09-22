@@ -22,6 +22,11 @@ module.exports = {
         database.ref(path).set(value);
     },
 
+    //update value in database (merges instead of overwriting object for example)
+    updateValue: function (path, value) {
+        database.ref(path).update(value);
+    },
+
     //get value in database
     getValue: async function (path) {
         //init value
@@ -34,12 +39,6 @@ module.exports = {
             .once('value', async (data) => {
                 value = await data.val();
             });
-
-        // //set value if none set and default value provided
-        // if (!value && base != undefined) {
-        //     this.setValue(path, base);
-        //     value = base;
-        // };
 
         //return the found or set value
         return value;

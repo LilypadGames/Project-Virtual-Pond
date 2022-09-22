@@ -5,17 +5,24 @@ const fs = require('fs');
 const path = require('path');
 var util = require('util');
 
-//imports
-const utility = require(path.join(__dirname, '/utility/Utility.js'));
-const database = require(path.join(__dirname, '/utility/Database.js'));
-const logs = require(path.join(__dirname, '/utility/Logs.js'));
-const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
-const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
-
 //get config values
 const config = JSON.parse(
     fs.readFileSync(path.join(__dirname, '/config/config.json'))
 );
+
+//imports
+const utility = require(path.join(__dirname, '/utility/Utility.js'));
+const ConsoleColor = require(path.join(__dirname, '/utility/ConsoleColor.js'));
+const database = require(path.join(__dirname, '/utility/Database.js'));
+const logs = require(path.join(__dirname, '/utility/Logs.js'));
+const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
+// const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
+const streamElements = require(path.join(
+    __dirname,
+    '/utility/StreamElements.js'
+));
+const twitch = require(path.join(__dirname, '/utility/Twitch.js'));
+const globalData = require(path.join(__dirname, '/utility/GlobalData.js'));
 
 //dependency: web server
 var express = require('express');
@@ -46,7 +53,6 @@ app.set('trust proxy', config.server.proxy);
 app.use('/', express.static(__dirname + '/../client'));
 
 // OVERRIDES
-
 //send console logs to server log file
 console.log = function () {
     //format message
@@ -60,7 +66,6 @@ console.log = function () {
 console.error = console.log;
 
 // AUTHENTICATION
-
 //init authentication
 const sessionAuthentication = session({
     secret: crypto.randomBytes(64).toString('hex'),
@@ -148,7 +153,10 @@ app.get(
 //detect authentication and serve game page
 app.get('/', function (req, res) {
     //successfully authenticated
-    if (req.session && req.session.passport && req.session.passport.user) {
+    if (
+        (req.session && req.session.passport && req.session.passport.user) ||
+        config.server.bypassAuth
+    ) {
         res.sendFile('index.html', { root: 'client/html' });
     }
 
@@ -158,22 +166,39 @@ app.get('/', function (req, res) {
     }
 });
 
-// WEB SERVER
+//logout
+app.get('/logout', function (req, res) {
+    req.logout(function (err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/');
+    });
+});
 
+// WEB SERVER
 //init web server
 server.listen(process.env.PORT || config.server.port, function () {
     console.log(
+        ConsoleColor.Blue,
         utility.timestampString(
-            'WEB SERVER STARTED> Listening on port ' + server.address().port
+            'Web Server Initialized> Port: ' + server.address().port
         )
     );
 });
 
 // WEBSOCKETS (Socket.io/Express)
-
 //dependency: websocket
 var io = require('socket.io')(server);
 const { instrument } = require('@socket.io/admin-ui');
+console.log(
+    ConsoleColor.Blue,
+    utility.timestampString(
+        'Websockets Initialized> Authentication: ' +
+            (config.server.bypassAuth ? 'DISABLED' : 'ENABLED')
+    )
+);
+
 instrument(io, {
     auth: {
         type: config.socketio_admin_dash.auth.type,
@@ -210,11 +235,29 @@ io.use((socket, next) => {
     passportSession(socket.client.request, socket.client.request.res, next);
 });
 
+// DEBUG
+process.on('warning', (e) => console.warn(e.stack));
+
 //init chat log storage
 chatLogs.init(io);
 
 //init emotes
-emoteLib.init();
+// emoteLib.init();
+
+//init global data
+globalData.init(io);
+
+//init twitch event subs
+twitch.init('pokelawls', app, globalData);
+
+//init donations
+// streamElements.init();
+streamElements.updateDonations();
+
+//bypass auth
+if (config.server.bypassAuth) {
+    io.guestID = 0;
+}
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));
