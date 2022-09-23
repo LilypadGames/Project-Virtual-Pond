@@ -48,7 +48,6 @@ class Inventory {
         //get item type if it exists
         else {
             item = jsonPath.query(itemData, '$..' + itemID)[0];
-            console.log(item);
         }
 
         //player already has item
