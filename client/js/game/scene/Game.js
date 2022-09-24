@@ -542,32 +542,32 @@ class Game extends Phaser.Scene {
                 this
             );
 
-            //free birthday hats
-            this.addNewInteractableObject(
-                //set up object
-                (id) => {
-                    //create sprite
-                    this.interactableObjects[id] = this.add
-                        .image(886, 578.7, 'Free_Birthday_Hats_Crates')
-                        .setDepth(630);
-                },
+            // //free birthday hats
+            // this.addNewInteractableObject(
+            //     //set up object
+            //     (id) => {
+            //         //create sprite
+            //         this.interactableObjects[id] = this.add
+            //             .image(886, 578.7, 'Free_Birthday_Hats_Crates')
+            //             .setDepth(630);
+            //     },
 
-                //set physics object
-                (id) => {
-                    return this.interactableObjects[id];
-                },
+            //     //set physics object
+            //     (id) => {
+            //         return this.interactableObjects[id];
+            //     },
 
-                //set interactable sprite
-                (id) => {
-                    return this.interactableObjects[id];
-                },
+            //     //set interactable sprite
+            //     (id) => {
+            //         return this.interactableObjects[id];
+            //     },
 
-                //final interaction callback
-                () => {
-                    //get free birthday hat
-                    client.requestItemPurchase('birthday_hat');
-                }
-            );
+            //     //final interaction callback
+            //     () => {
+            //         //get free birthday hat
+            //         client.requestItemPurchase('birthday_hat');
+            //     }
+            // );
 
             //FF22 Event
             if (globalData.currentEvents.includes('FF22')) {

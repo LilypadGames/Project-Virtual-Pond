@@ -5,8 +5,10 @@ const path = require('path');
 const jsonPath = require('jsonpath');
 
 //get config values
-// const config = require(path.join(__dirname, '../config/config.json'));
 const itemData = require(path.join(__dirname, '../config/itemsData.json'));
+
+//modules
+const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
 
 class Inventory {
     constructor(io, socket, playerData) {
@@ -28,15 +30,22 @@ class Inventory {
         this.socket.on('requestItemPurchase', async (itemID, cb) => {
             cb(await this.purchaseItem(itemID));
         });
-
-        // //triggers when client requests to equip an item
-        // this.socket.on('requestItemEquip', async (itemID, cb) => {
-        //     cb(await this.equipItem(itemID));
-        // });
     }
 
     //triggers when a player attempts to purchase an item
     async purchaseItem(itemID) {
+        //easter egg 4 jesse lol
+        let cantAffordDialog = () => {
+            return {
+                title:
+                    this.socket.player.id === 46483820 ? 'Jesse...' : 'Oops!',
+                message:
+                    this.socket.player.id === 46483820
+                        ? "You KNOW you can't afford this..."
+                        : 'You cannot afford this item.',
+            };
+        };
+
         //init item
         let item;
 
@@ -50,6 +59,12 @@ class Inventory {
             item = jsonPath.query(itemData, '$..' + itemID)[0];
         }
 
+        //check if item is obtainable
+        if (item.purchasable) {
+            if (item.purchasable === false)
+                return { status: false, reason: 'Item is not obtainable.' };
+        }
+
         //player already has item
         if (
             (await this.PlayerData.getSpecificClientPlayerData(
@@ -59,15 +74,34 @@ class Inventory {
             return { status: false, reason: 'You already have this item.' };
         }
 
+        //check conditions
+        if (item.conditions) {
+            //event conditions
+            if (item.conditions.event) {
+                //check if event is one of the current events
+                if (
+                    !globalData
+                        .getObject('currentEvents')
+                        .includes(item.conditions.event)
+                )
+                    return {
+                        status: false,
+                        reason: 'Item is not obtainable at this time.',
+                    };
+            }
+        }
+
         //item has a cost
         if (item.cost) {
             //check if player can afford cost
             if (item.cost.tickets) {
                 //player cant afford ticket cost
                 if (this.socket.player.currency.tickets < item.cost.tickets) {
+                    let dialog = cantAffordDialog;
                     return {
                         status: false,
-                        reason: 'You cannot afford this item.',
+                        title: dialog.title,
+                        reason: dialog.message,
                     };
                 }
             }
@@ -92,8 +126,6 @@ class Inventory {
         //return status of transaction
         return { status: true, reason: 'You now own the ' + item.name + '.' };
     }
-
-    async equipItem() {}
 }
 
 module.exports = Inventory;
