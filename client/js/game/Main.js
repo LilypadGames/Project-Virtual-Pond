@@ -14,24 +14,20 @@ const ff22 = new FF22();
 
 const twitchEmotes = new Emotes();
 
-//set up config
+//global variables
+var canvas = document.createElement('canvas');
+const gameWidth = 1280;
+const gameHeight = 800;
+
+//global data
+var globalData = {};
+
+//game data
 var roomData = {};
-$.getJSON('../config/roomData.json', function (json) {
-    roomData.rooms = json;
-});
 var itemData = {};
 $.getJSON('../config/itemData.json', function (json) {
     itemData = json;
 });
-
-// GLOBAL VARIABLES
-//canvas
-var canvas = document.createElement('canvas');
-//canvas size
-const gameWidth = 1280;
-const gameHeight = 800;
-//global data
-var globalData = {};
 
 //cookies
 var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));

@@ -58,7 +58,7 @@ class Game extends Phaser.Scene {
         this.interactableObjects = [];
         this.interactableObjectFunction = [];
         this.npcData = [];
-        this.npcList = [];
+        this.npcList = {};
 
         //UI
         this.overlayPadding = 8;
@@ -384,7 +384,7 @@ class Game extends Phaser.Scene {
     //preload room assets
     preloadRoomData(room) {
         //get room options
-        let roomOptions = roomData.rooms[room].option;
+        let roomOptions = roomData[room].option;
 
         //options
         if (roomOptions) {
@@ -393,25 +393,25 @@ class Game extends Phaser.Scene {
         }
 
         //get room assets
-        let roomAssets = roomData.rooms[room].asset;
+        let roomAssets = roomData[room].asset;
 
         //images
         if (roomAssets.image) {
-            for (var i = 0; i < roomAssets.image.length; i++) {
-                this.load.image(
-                    roomAssets.image[i].name,
-                    roomAssets.image[i].path
-                );
+            for (let name of Object.keys(roomAssets.image)) {
+                //disabled?
+                if (roomAssets.image[name].disabled) continue;
+
+                this.load.image(name, roomAssets.image[name].path);
             }
         }
 
         //audio
         if (roomAssets.audio) {
-            for (var i = 0; i < roomAssets.audio.length; i++) {
-                this.load.audio(
-                    roomAssets.audio[i].name,
-                    roomAssets.audio[i].path
-                );
+            for (let name of Object.keys(roomAssets.audio)) {
+                //disabled?
+                if (roomAssets.audio[name].disabled) continue;
+
+                this.load.audio(name, roomAssets.audio[name].path);
             }
         }
     }
@@ -419,25 +419,28 @@ class Game extends Phaser.Scene {
     //add layers
     addRoomLayers(room) {
         //get room layer data
-        let roomLayerData = roomData.rooms[room].layers;
+        let roomLayerData = roomData[room].layers;
 
         //set up layers
-        for (var i = 0; i < roomLayerData.length; i++) {
+        for (let name of Object.keys(roomLayerData)) {
+            //disabled?
+            if (roomLayerData[name].disabled) continue;
+
             //layer image
             let layer = this.add.image(
                 this.sys.game.canvas.width / 2,
                 this.sys.game.canvas.height / 2,
-                roomLayerData[i].name
+                name
             );
 
             //background layer
-            if (roomLayerData[i].depth === 'background') {
+            if (roomLayerData[name].depth === 'background') {
                 //set depth
                 layer.setDepth(this.depthBackground);
             }
 
             //ground layer
-            else if (roomLayerData[i].depth === 'ground') {
+            else if (roomLayerData[name].depth === 'ground') {
                 //set depth
                 layer.setDepth(this.depthGround);
 
@@ -451,25 +454,25 @@ class Game extends Phaser.Scene {
                     },
                     this
                 );
-                this.walkableLayer = roomLayerData[i].name;
+                this.walkableLayer = name;
             }
 
             //foreground layer
-            else if (roomLayerData[i].depth === 'foreground') {
+            else if (roomLayerData[name].depth === 'foreground') {
                 //set depth
                 layer.setDepth(this.depthForeground);
 
                 //set as unwalkable
-                this.unWalkableLayer.push(roomLayerData[i].name);
+                this.unWalkableLayer.push(name);
             }
 
             //other layer
-            else if (Number.isFinite(roomLayerData[i].depth)) {
+            else if (Number.isFinite(roomLayerData[name].depth)) {
                 //set depth
-                layer.setDepth(roomLayerData[i].depth);
+                layer.setDepth(roomLayerData[name].depth);
 
                 //set as unwalkable
-                this.unWalkableLayer.push(roomLayerData[i].name);
+                this.unWalkableLayer.push(name);
             }
         }
     }
@@ -712,24 +715,27 @@ class Game extends Phaser.Scene {
     //add room teleports
     addRoomTeleports(room) {
         //get teleports data
-        let roomTeleportData = roomData.rooms[room].teleports;
+        let roomTeleportData = roomData[room].teleports;
 
         //create teleport
         if (roomTeleportData) {
-            for (var i = 0; i < roomTeleportData.length; i++) {
+            for (let name of Object.keys(roomTeleportData)) {
+                //disabled?
+                if (roomTeleportData[name].disabled) continue;
+
                 //create collider
                 var teleportCollider = this.add.sprite(
-                    roomTeleportData[i].x,
-                    roomTeleportData[i].y
+                    roomTeleportData[name].x,
+                    roomTeleportData[name].y
                 );
-                teleportCollider.width = roomTeleportData[i].width;
-                teleportCollider.height = roomTeleportData[i].height;
+                teleportCollider.width = roomTeleportData[name].width;
+                teleportCollider.height = roomTeleportData[name].height;
                 this.physics.world.enable(teleportCollider);
                 teleportCollider.body.setCollideWorldBounds(true);
 
                 //add teleport to list
                 const teleportObject = {
-                    room: roomTeleportData[i].room,
+                    room: roomTeleportData[name].room,
                     teleport: teleportCollider,
                 };
                 this.teleportList.push(teleportObject);
@@ -740,41 +746,44 @@ class Game extends Phaser.Scene {
     //add room music
     addRoomMusic(room) {
         //get teleports data
-        let music = roomData.rooms[room].option.music;
+        let music = roomData[room].option.music;
 
         //play music
         if (music) {
-            this.playMusic(roomData.rooms[room].option.music);
+            this.playMusic(roomData[room].option.music);
         }
     }
 
     //add room music
     addRoomAmbience(room) {
         //get teleports data
-        let ambience = roomData.rooms[room].option.ambience;
+        let ambience = roomData[room].option.ambience;
 
         //play ambience
         if (ambience) {
-            this.playAmbience(roomData.rooms[room].option.ambience);
+            this.playAmbience(roomData[room].option.ambience);
         }
     }
 
     //add room NPCs
     addRoomNPCs(room) {
         //get room NPCs
-        let roomNPCs = roomData.rooms[room].npcs;
+        let roomNPCs = roomData[room].npcs;
 
         if (roomNPCs) {
             //set NPC list
             this.npcList = roomNPCs;
 
             //add NPCs to game
-            for (var i = 0; i < roomNPCs.length; i++) {
+            for (let name of Object.keys(roomNPCs)) {
+                //disabled?
+                if (roomNPCs[name].disabled) continue;
+
                 this.addNewNPC(
-                    roomNPCs[i].name,
-                    roomNPCs[i].x,
-                    roomNPCs[i].y,
-                    roomNPCs[i].direction
+                    name,
+                    roomNPCs[name].x,
+                    roomNPCs[name].y,
+                    roomNPCs[name].direction
                 );
             }
         }
@@ -1980,6 +1989,9 @@ class Game extends Phaser.Scene {
 
                 //set depth
                 this.interactableObjects[id].setDepth(y);
+
+                //store object ID of NPC
+                this.npcList[name].objectID = id;
             },
 
             //set physics object
@@ -1995,13 +2007,13 @@ class Game extends Phaser.Scene {
             //final interaction callback
             (objectID, playerID) => {
                 //show message if client interacted with NPC
-                if (playerID == clientID)
+                if (playerID === clientID)
                     this.showMessage(
-                        objectID,
+                        name,
                         {
                             id: Date.now(),
                             text: utility.randomFromArray(
-                                this.npcList[objectID].lines
+                                this.npcList[name].lines
                             ),
                             endTime: Date.now() + 5000,
                         },
