@@ -157,7 +157,7 @@ app.get('/', function (req, res) {
         (req.session && req.session.passport && req.session.passport.user) ||
         config.server.bypassAuth
     ) {
-        res.sendFile('index.html', { root: 'client/html' });
+        res.sendFile('game.html', { root: 'client/html' });
     }
 
     //request authentication
@@ -248,7 +248,7 @@ chatLogs.init(io);
 globalData.init(io);
 
 //init twitch event subs
-twitch.init('pokelawls', app, globalData);
+// twitch.init('pokelawls', app, globalData);
 
 //init donations
 // streamElements.init();

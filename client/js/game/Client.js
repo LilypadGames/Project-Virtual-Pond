@@ -486,25 +486,16 @@ class Client {
     //tell server that the player is requesting to purchase an item
     requestItemPurchase(itemID) {
         socket.emit('requestItemPurchase', itemID, (action) => {
-            //successful purchase
-            if (action.status) {
-                globalUI.showDialog(
-                    currentScene,
-                    'Success',
-                    action.reason,
-                    'Continue'
-                );
-            }
+            //title is not provided
+            if (!action.title) action.title = action.status ? 'Success' : 'Oops!';
 
-            //unsuccessful purchase
-            else {
-                globalUI.showDialog(
-                    currentScene,
-                    'Oops!',
-                    action.reason,
-                    'Continue'
-                );
-            }
+            //show response from server to requested item purchase
+            globalUI.showDialog(
+                currentScene,
+                action.title,
+                action.reason,
+                'Continue'
+            );
         });
     }
 
