@@ -9,16 +9,16 @@ const config = require(path.join(__dirname, '../config/config.json'));
 const roomData = require(path.join(__dirname, '../config/roomData.json'));
 
 //modules
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
-const logs = require(path.join(__dirname, '../utility/Logs.js'));
-const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
+const utility = require(path.join(__dirname, '../module/Utility.js'));
+const logs = require(path.join(__dirname, '../module/Logs.js'));
+const chatLogs = require(path.join(__dirname, '../module/ChatLogs.js'));
 const serverMetrics = require(path.join(
     __dirname,
-    '../utility/ServerMetrics.js'
+    '../module/ServerMetrics.js'
 ));
-const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
-// const emoteLib = require(path.join(__dirname, '../utility/Emotes.js'));
-const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
+const moderation = require(path.join(__dirname, '../module/Moderation.js'));
+// const emoteLib = require(path.join(__dirname, '../module/Emotes.js'));
+const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
 
 //event handlers
 const PlayerData = require(path.join(__dirname, 'PlayerData.js'));

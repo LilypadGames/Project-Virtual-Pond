@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 //imports
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const utility = require(path.join(__dirname, '../module/Utility.js'));
 
 //init logging
 var currentDay = utility.getCurrentDay();

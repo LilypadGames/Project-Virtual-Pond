@@ -7,7 +7,7 @@ const path = require('path');
 const config = require(path.join(__dirname, '../../config/config.json'));
 
 //modules
-const utility = require(path.join(__dirname, '../../utility/Utility.js'));
+const utility = require(path.join(__dirname, '../../module/Utility.js'));
 
 //DailySpinData
 let DailySpinData = {

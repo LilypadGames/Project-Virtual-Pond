@@ -13,11 +13,11 @@ var chatFilter = require('leo-profanity');
 chatFilter.add(badWords.badWords);
 
 //imports
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
-const logs = require(path.join(__dirname, '../utility/Logs.js'));
-const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
-const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
-const commands = require(path.join(__dirname, '../utility/Commands.js'));
+const utility = require(path.join(__dirname, '../module/Utility.js'));
+const logs = require(path.join(__dirname, '../module/Logs.js'));
+const chatLogs = require(path.join(__dirname, '../module/ChatLogs.js'));
+const moderation = require(path.join(__dirname, '../module/Moderation.js'));
+const commands = require(path.join(__dirname, '../module/Commands.js'));
 
 //event handlers
 // const PlayerData = require(path.join(__dirname, 'PlayerData.js'));

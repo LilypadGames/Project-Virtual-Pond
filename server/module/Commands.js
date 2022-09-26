@@ -3,7 +3,7 @@ const path = require('path');
 const jsonPath = require('jsonpath');
 
 //imports
-// const utility = require(path.join(__dirname, '../utility/Utility.js'));
+// const utility = require(path.join(__dirname, '../module/Utility.js'));
 const sceneData = require(path.join(__dirname, '../config/sceneData.json'));
 
 module.exports = {

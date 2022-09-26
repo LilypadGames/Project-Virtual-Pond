@@ -7,9 +7,9 @@ const path = require('path');
 const config = require(path.join(__dirname, '../config/config.json'));
 
 //imports
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
-const database = require(path.join(__dirname, '../utility/Database.js'));
-const logs = require(path.join(__dirname, '../utility/Logs.js'));
+const utility = require(path.join(__dirname, '../module/Utility.js'));
+const database = require(path.join(__dirname, '../module/Database.js'));
+const logs = require(path.join(__dirname, '../module/Logs.js'));
 
 //event handlers
 const Inventory = require(path.join(__dirname, 'Inventory.js'));

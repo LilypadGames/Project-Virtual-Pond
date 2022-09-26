@@ -8,7 +8,7 @@ const jsonPath = require('jsonpath');
 const itemData = require(path.join(__dirname, '../config/itemsData.json'));
 
 //modules
-const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
+const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
 
 class Inventory {
     constructor(io, socket, playerData) {

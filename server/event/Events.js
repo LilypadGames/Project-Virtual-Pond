@@ -4,7 +4,7 @@
 const path = require('path');
 
 //modules
-const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
+const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
 
 //event handlers
 const FF22Event = require(path.join(__dirname, 'events/FF22Event.js'));

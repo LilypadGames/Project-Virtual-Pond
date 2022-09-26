@@ -4,8 +4,8 @@
 const path = require('path');
 
 //imports
-const logs = require(path.join(__dirname, '../utility/Logs.js'));
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const logs = require(path.join(__dirname, '../module/Logs.js'));
+const utility = require(path.join(__dirname, '../module/Utility.js'));
 
 module.exports = {
     kickClient: async function (

@@ -10,10 +10,10 @@ const events = require('events');
 const config = require(path.join(__dirname, '../config/config.json'));
 
 //imports
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const utility = require(path.join(__dirname, '../module/Utility.js'));
 const ConsoleColor = require(path.join(
     __dirname,
-    '../utility/ConsoleColor.js'
+    '../module/ConsoleColor.js'
 ));
 
 //twitch api

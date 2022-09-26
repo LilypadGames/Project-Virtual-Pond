@@ -11,18 +11,18 @@ const config = JSON.parse(
 );
 
 //imports
-const utility = require(path.join(__dirname, '/utility/Utility.js'));
-const ConsoleColor = require(path.join(__dirname, '/utility/ConsoleColor.js'));
-const database = require(path.join(__dirname, '/utility/Database.js'));
-const logs = require(path.join(__dirname, '/utility/Logs.js'));
-const chatLogs = require(path.join(__dirname, '/utility/ChatLogs.js'));
-// const emoteLib = require(path.join(__dirname, '/utility/Emotes.js'));
+const utility = require(path.join(__dirname, '/module/Utility.js'));
+const ConsoleColor = require(path.join(__dirname, '/module/ConsoleColor.js'));
+const database = require(path.join(__dirname, '/module/Database.js'));
+const logs = require(path.join(__dirname, '/module/Logs.js'));
+const chatLogs = require(path.join(__dirname, '/module/ChatLogs.js'));
+// const emoteLib = require(path.join(__dirname, '/module/Emotes.js'));
 const streamElements = require(path.join(
     __dirname,
-    '/utility/StreamElements.js'
+    '/module/StreamElements.js'
 ));
-const twitch = require(path.join(__dirname, '/utility/Twitch.js'));
-const globalData = require(path.join(__dirname, '/utility/GlobalData.js'));
+const twitch = require(path.join(__dirname, '/module/Twitch.js'));
+const globalData = require(path.join(__dirname, '/module/GlobalData.js'));
 
 //dependency: web server
 var express = require('express');

@@ -7,13 +7,13 @@ const path = require('path');
 const config = require(path.join(__dirname, '../config/config.json'));
 
 //imports
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
+const utility = require(path.join(__dirname, '../module/Utility.js'));
 const ConsoleColor = require(path.join(
     __dirname,
-    '../utility/ConsoleColor.js'
+    '../module/ConsoleColor.js'
 ));
-const database = require(path.join(__dirname, '../utility/Database.js'));
-const twitch = require(path.join(__dirname, '../utility/Twitch.js'));
+const database = require(path.join(__dirname, '../module/Database.js'));
+const twitch = require(path.join(__dirname, '../module/Twitch.js'));
 
 //stream elements donation api
 const seAPI = require('node-streamelements');

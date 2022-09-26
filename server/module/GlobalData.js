@@ -7,7 +7,7 @@ const path = require('path');
 const config = require(path.join(__dirname, '../config/config.json'));
 
 //dependency: twitch API
-const twitch = require(path.join(__dirname, '../utility/Twitch.js'));
+const twitch = require(path.join(__dirname, '../module/Twitch.js'));
 
 //global data variable
 var globalData = JSON.parse(JSON.stringify(require(path.join(__dirname, '../config/globalData.json'))));

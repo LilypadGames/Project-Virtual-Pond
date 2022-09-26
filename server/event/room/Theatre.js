@@ -4,9 +4,9 @@
 const path = require('path');
 
 //modules
-const twitch = require(path.join(__dirname, '../../utility/Twitch.js'));
-const mediaShare = require(path.join(__dirname, '../../utility/MediaShare.js'));
-const globalData = require(path.join(__dirname, '../../utility/GlobalData.js'));
+const twitch = require(path.join(__dirname, '../../module/Twitch.js'));
+const mediaShare = require(path.join(__dirname, '../../module/MediaShare.js'));
+const globalData = require(path.join(__dirname, '../../module/GlobalData.js'));
 
 //get twitch events
 const twitchEvent = twitch.getListener();
