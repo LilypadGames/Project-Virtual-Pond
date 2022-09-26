@@ -1,17 +1,24 @@
 {
     "white_round_sunglasses": {
         "type": "accessory",
-        "name": "White Round Sunglasses"
+        "name": "White Round Sunglasses",
+        "purchasable": false
     },
     "birthday_hat": {
         "type": "accessory",
-        "name": "Birthday Hat"
+        "name": "Birthday Hat",
+        "conditions": {
+            "event": "Birthday_Party"
+        }
     },
     "cowboy_hat": {
         "type": "accessory",
         "name": "Cowboy Hat",
         "cost": {
             "tickets": 1000
+        },
+        "conditions": {
+            "event": "FF22"
         }
     },
     "giant_yellow_sunglasses": {
@@ -19,6 +26,9 @@
         "name": "Giant Yellow Sunglasses",
         "cost": {
             "tickets": 1000
+        },
+        "conditions": {
+            "event": "FF22"
         }
     },
     "clown_nose": {
@@ -26,6 +36,9 @@
         "name": "Clown Nose",
         "cost": {
             "tickets": 500
+        },
+        "conditions": {
+            "event": "FF22"
         }
     },
     "green_balloon": {
@@ -33,6 +46,9 @@
         "name": "Green Balloon",
         "cost": {
             "tickets": 500
+        },
+        "conditions": {
+            "event": "FF22"
         }
     }
 }
