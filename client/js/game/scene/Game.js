@@ -278,10 +278,11 @@ class Game extends Phaser.Scene {
                             );
 
                             //run interactable objects function
-                            this.interactableObjectFunction[objectID](
-                                objectID,
-                                playerID
-                            );
+                            if (this.interactableObjectFunction[objectID])
+                                this.interactableObjectFunction[objectID](
+                                    objectID,
+                                    playerID
+                                );
 
                             //log
                             if (debugMode)
@@ -566,21 +567,19 @@ class Game extends Phaser.Scene {
                                     .image(this.x, this.y, this.objectName)
                                     .setDepth(this.depthValue);
                             },
-        
+
                             //set physics object
                             (id) => {
                                 return instance.interactableObjects[id];
                             },
-        
+
                             //set interactable sprite
                             (id) => {
                                 return instance.interactableObjects[id];
                             },
-        
+
                             //final interaction callback
-                            () => {
-                                this.interactionCallback();
-                            }
+                            this.interactionCallback
                         );
                     },
                 },

@@ -261,17 +261,17 @@ class GameConfig {
                 .name('Radio')
                 .location(294, 625)
                 .depth(649)
-                .onInteraction(() => {
-                    //play music
-                    if (game.audioMusic.key === 'mask') {
-                        game.addRoomMusic(room);
-                    } else {
-                        game.playMusic('mask');
-                    }
+                // .onInteraction(() => {
+                //     //play music
+                //     if (game.audioMusic.key === 'mask') {
+                //         game.addRoomMusic(room);
+                //     } else {
+                //         // game.playMusic('mask');
+                //     }
 
-                    //click sfx
-                    game.sfxRadioClick.play();
-                })
+                //     //click sfx
+                //     game.sfxRadioClick.play();
+                // })
                 .in(game);
 
             //overrides
