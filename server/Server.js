@@ -10,6 +10,9 @@ const config = JSON.parse(
     fs.readFileSync(path.join(__dirname, '/config/config.json'))
 );
 
+//environment settings
+process.env.NODE_ENV = config.production ? 'production' : 'development';
+
 //imports
 const utility = require(path.join(__dirname, '/module/Utility.js'));
 const ConsoleColor = require(path.join(__dirname, '/module/ConsoleColor.js'));

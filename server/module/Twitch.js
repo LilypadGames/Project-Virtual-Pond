@@ -11,10 +11,7 @@ const config = require(path.join(__dirname, '../config/config.json'));
 
 //imports
 const utility = require(path.join(__dirname, '../module/Utility.js'));
-const ConsoleColor = require(path.join(
-    __dirname,
-    '../module/ConsoleColor.js'
-));
+const ConsoleColor = require(path.join(__dirname, '../module/ConsoleColor.js'));
 
 //twitch api
 const twurpleAuth = require('@twurple/auth');
@@ -44,7 +41,7 @@ module.exports = {
         let listener;
 
         //development environment
-        if (config.server.local) {
+        if (!config.production) {
             //get twurple ngrok middleware
             const twurpleEventLocal = require('@twurple/eventsub-ngrok');
 
