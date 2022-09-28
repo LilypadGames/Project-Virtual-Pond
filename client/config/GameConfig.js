@@ -211,7 +211,7 @@ class GameConfig {
             )
                 event.layer.add('Forest_Tree_2', 628).in(game);
             event.layer.add('Forest_Rock_1', 629).in(game);
-            event.layer.add('Forest_Stump_1', 649).in(game);
+            // event.layer.add('Forest_Stump_1', 649).in(game);
             if (
                 !globalData.currentEvents.includes('FF22') &&
                 !globalData.currentEvents.includes('FF22Dev')
@@ -256,23 +256,23 @@ class GameConfig {
                 .size(100, 500)
                 .in(game);
 
-            //objects
-            event.object.interactable
-                .name('Radio')
-                .location(294, 625)
-                .depth(649)
-                // .onInteraction(() => {
-                //     //play music
-                //     if (game.audioMusic.key === 'mask') {
-                //         game.addRoomMusic(room);
-                //     } else {
-                //         // game.playMusic('mask');
-                //     }
+            // //objects
+            // event.object.interactable
+            //     .name('Radio')
+            //     .location(294, 625)
+            //     .depth(649)
+            //     .onInteraction(() => {
+            //         //play music
+            //         if (game.audioMusic.key === 'mask') {
+            //             game.addRoomMusic(room);
+            //         } else {
+            //             // game.playMusic('mask');
+            //         }
 
-                //     //click sfx
-                //     game.sfxRadioClick.play();
-                // })
-                .in(game);
+            //         //click sfx
+            //         game.sfxRadioClick.play();
+            //     })
+            //     .in(game);
 
             //overrides
             if (globalData.currentEvents.includes('FF22')) {
