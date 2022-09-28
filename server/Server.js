@@ -212,12 +212,6 @@ instrument(io, {
         ),
     },
 });
-// const { RateLimiterMemory } = require('rate-limiter-flexible');
-// const rateLimiter = new RateLimiterMemory({
-//     points: 5, // 5 points
-//     duration: 1, // per second
-// });
-
 //authentication socket session
 io.use((socket, next) => {
     socket.client.request.originalUrl = socket.client.request.url;
