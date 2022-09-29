@@ -21,6 +21,22 @@
         {
             "id": "birthday_hat",
             "name": "Birthday Hat"
+        },
+        {
+            "id": "green_balloon",
+            "name": "Green Balloon"
+        },
+        {
+            "id": "clown_nose",
+            "name": "Clown Nose"
+        },
+        {
+            "id": "cowboy_hat",
+            "name": "Cowboy Hat"
+        },
+        {
+            "id": "giant_yellow_sunglasses",
+            "name": "Giant Yellow Sunglasses"
         }
     ]
 }
