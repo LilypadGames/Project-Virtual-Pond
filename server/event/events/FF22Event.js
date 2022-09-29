@@ -1,6 +1,7 @@
 // FF22Event Events
 
 //file parsing
+const e = require('express');
 const path = require('path');
 
 //configs
@@ -9,7 +10,7 @@ const config = require(path.join(__dirname, '../../config/config.json'));
 //modules
 const utility = require(path.join(__dirname, '../../module/Utility.js'));
 
-//DailySpinData
+//Daily Spin game data
 let DailySpinData = {
     // slices (prizes) placed in the wheel
     slices: 8,
@@ -18,7 +19,7 @@ let DailySpinData = {
     prizeAmounts: [50, 5, 25, 0, 50, 5, 25, 0],
 };
 
-//set up game data
+//Emote Match game data
 let EmoteMatchData = {
     cards: [
         'pokeAYAYA',
@@ -39,6 +40,13 @@ let EmoteMatchData = {
     rowCount: 3,
 
     prizeAmount: 30,
+};
+
+//Frog Shuffle game data
+let FrogShuffleData = {
+    frogs: ['Poke', 'Gigi', 'Jesse'],
+
+    payoutPerCorrectPick: 5
 };
 
 class FF22Event {
@@ -91,6 +99,21 @@ class FF22Event {
         //triggers when client requests the emote for a card using its index on the grid
         this.socket.on('FF22requestCardFlip', async (index, cb) => {
             cb(await this.flippedCard(index));
+        });
+
+        //trigger when client begins to play the frog shuffle game
+        this.socket.on('FF22requestFrogOrder', (cb) => {
+            cb(this.generateFrogOrder());
+        });
+
+        //trigger when client requests the hats to shuffle
+        this.socket.on('FF22requestHatShuffle', (cb) => {
+            cb(this.generateHatShuffle());
+        });
+
+        //trigger when client selects a hat
+        this.socket.on('FF22requestHatPick', (index, cb) => {
+            cb(this.pickedHat(index));
         });
     }
 
@@ -293,6 +316,7 @@ class FF22Event {
         return true;
     }
 
+    //player attempted to flip a card
     async flippedCard(index) {
         //init game status
         let status = {};
@@ -388,6 +412,119 @@ class FF22Event {
 
         //return status of the game
         return status;
+    }
+
+    //player started playing frog shuffle and needs to get the randomized frog order
+    generateFrogOrder() {
+        //reset data
+        delete this.frogOrder;
+        delete this.hatShuffleState;
+        delete this.frogTarget;
+        delete this.correctPicks;
+
+        //set up hats in each slot
+        let frogList = FrogShuffleData.frogs.slice(0);
+
+        //init final frog order
+        this.frogOrder = [];
+
+        //randomize frog order
+        for (let index = 3; index > 0; index--) {
+            //get one of the frogs left in the list
+            let frogSlot = utility.getRandomInt(0, index - 1);
+
+            //save selected frog to final frog order
+            this.frogOrder.push(frogList[frogSlot]);
+
+            //remove frog from list as its already selected
+            frogList.splice(frogSlot, 1);
+        }
+
+        //allow player to start shuffling hats
+        this.hatShuffleState = 'shuffling';
+
+        return { status: true, frogOrder: this.frogOrder};
+    }
+
+    //player wants the randomized sequence of hat shuffling and the target
+    generateHatShuffle() {
+        //wrong state
+        if (this.hatShuffleState !== 'shuffling') {
+            return { status: false, reason: 'Wrong State.' };
+        }
+
+        //send sequence of hat switches
+        let sequence = [];
+
+        //generate hat switch sequence
+        for (let index = 0; index < 6; index++) {
+            //set up hats in each slot
+            let hatList = [1, 2, 3];
+
+            //init hat sequence
+            let sequence_layer = [];
+
+            //generate this sequence layer
+            for (let index2 = 3; index2 > 1; index2--) {
+                //get one of the hats left in the list
+                let hatSlot = utility.getRandomInt(0, index2 - 1);
+
+                //save selected hat to sequence layer
+                sequence_layer.push(hatList[hatSlot]);
+
+                //remove hat from list as its already selected
+                hatList.splice(hatSlot, 1);
+            }
+
+            //update frog order
+            [this.frogOrder[sequence_layer[0] - 1], this.frogOrder[sequence_layer[1] - 1]] = [this.frogOrder[sequence_layer[1] - 1], this.frogOrder[sequence_layer[0] - 1]];
+
+            //save sequence layer to final sequence
+            sequence.push(sequence_layer);
+        }
+
+        //find (this) frog
+        this.frogTarget = FrogShuffleData.frogs[utility.getRandomInt(0, 2)];
+
+        //set state to picking
+        this.hatShuffleState = 'picking';
+
+        //send the current game state
+        return { status: true, target: this.frogTarget, sequence: sequence };
+    }
+
+    //check if the player chose the correct hat corresponding to the target
+    pickedHat(index) {
+        //wrong state
+        if (this.hatShuffleState !== 'picking') {
+            return { status: false, reason: 'Wrong State.' };
+        }
+
+        //init correct picks
+        if (this.correctPicks === undefined) this.correctPicks = 0;
+
+        //player chose the correct hat
+        if (this.frogTarget === this.frogOrder[index]) {
+            //set state
+            this.hatShuffleState = 'shuffling';
+
+            //increase correct picks
+            this.correctPicks++;
+
+            //tell game to request again
+            return { status: true, reason: 'You found the right Frog!' };
+        }
+
+        //player chose the wrong hat
+        else {
+            //set state
+            this.hatShuffleState = 'gameover';
+
+            //generate payout from correct picks
+            let payout = this.correctPicks * FrogShuffleData.payoutPerCorrectPick;
+
+            return { status: false, reason: 'Wrong Frog!', payout: payout };
+        }
     }
 }
 

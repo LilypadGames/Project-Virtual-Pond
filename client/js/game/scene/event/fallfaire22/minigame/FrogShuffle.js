@@ -21,40 +21,6 @@ class FF22FrogShuffle extends Phaser.Scene {
 
         //preload events data
         events.preload(this);
-
-        //layers
-        // this.load.image(
-        //     'background',
-        //     'assets/event/ff22/minigame/dailyspin/layers/Background.png'
-        // );
-
-        //objects
-        // this.load.image(
-        //     'wheel',
-        //     'assets/event/ff22/minigame/dailyspin/objects/wheel.png'
-        // );
-        // this.load.image(
-        //     'wheel_shadow',
-        //     'assets/event/ff22/minigame/dailyspin/objects/wheel_shadow.png'
-        // );
-        // this.load.image(
-        //     'pin',
-        //     'assets/event/ff22/minigame/dailyspin/objects/pin.png'
-        // );
-
-        //music
-
-        //sfx
-        // this.load.audio(
-        //     'wheel_spin',
-        //     'assets/event/ff22/minigame/dailyspin/audio/sfx/wheel_spin.mp3'
-        // );
-        // this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
-        // this.load.audio(
-        //     'success_long',
-        //     'assets/audio/sfx/minigame/success_long.mp3'
-        // );
-        // this.load.audio('failure', 'assets/audio/sfx/minigame/failure.mp3');
     }
 
     async create() {
@@ -66,6 +32,12 @@ class FF22FrogShuffle extends Phaser.Scene {
 
         //create events data
         await events.create(this);
+
+        console.log(await client.FF22generateFrogOrder());
+
+        console.log(await client.FF22generateHatShuffle());
+
+        console.log(await client.FF22requestHatPick(1));
 
         //end wait screen
         loadingScreen.endWaitScreen(this);
@@ -87,4 +59,16 @@ class FF22FrogShuffle extends Phaser.Scene {
         //join game world
         client.requestRoom();
     }
+
+    changeVolume(type, value) {
+        if (type === 'sfx') {
+            // for (var i = 1; i <= 3; i++) {
+            //     this.audio_card_flip[i - 1].setVolume(value);
+            // }
+            // this.audio_success.setVolume(value);
+            // this.audio_success_long.setVolume(value);
+        }
+    }
+
+
 }
