@@ -6,7 +6,7 @@ const jsonPath = require('jsonpath');
 
 //configs
 const config = require(path.join(__dirname, '../config/config.json'));
-const roomData = require(path.join(__dirname, '../config/roomData.json'));
+const roomData = require(path.join(__dirname, '../data/roomData.json'));
 
 //modules
 const utility = require(path.join(__dirname, '../module/Utility.js'));

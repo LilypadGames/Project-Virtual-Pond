@@ -8,7 +8,7 @@ const ConsoleColor = require(path.join(
     __dirname,
     '../module/ConsoleColor.js'
 ));
-const roomData = require(path.join(__dirname, '../config/roomData.json'));
+const roomData = require(path.join(__dirname, '../data/roomData.json'));
 
 chatLogs = {};
 

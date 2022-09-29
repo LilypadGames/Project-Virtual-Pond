@@ -6,7 +6,7 @@ const path = require('path');
 
 //config
 const config = require(path.join(__dirname, '../config/config.json'));
-const badWords = require(path.join(__dirname, '../config/bad_words.js'));
+const badWords = require(path.join(__dirname, '../data/badWords.js'));
 
 //dependencies
 var chatFilter = require('leo-profanity');

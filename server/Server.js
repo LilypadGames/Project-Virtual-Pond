@@ -1,4 +1,4 @@
-// Handles Server
+// Handles web app, authentication, and websockets
 
 //dependency: file parsing
 const fs = require('fs');
@@ -13,19 +13,11 @@ const config = JSON.parse(
 //environment settings
 process.env.NODE_ENV = config.production ? 'production' : 'development';
 
-//imports
+//modules
 const utility = require(path.join(__dirname, '/module/Utility.js'));
 const ConsoleColor = require(path.join(__dirname, '/module/ConsoleColor.js'));
 const database = require(path.join(__dirname, '/module/Database.js'));
 const logs = require(path.join(__dirname, '/module/Logs.js'));
-const chatLogs = require(path.join(__dirname, '/module/ChatLogs.js'));
-// const emoteLib = require(path.join(__dirname, '/module/Emotes.js'));
-const streamElements = require(path.join(
-    __dirname,
-    '/module/StreamElements.js'
-));
-const twitch = require(path.join(__dirname, '/module/Twitch.js'));
-const globalData = require(path.join(__dirname, '/module/GlobalData.js'));
 
 //dependency: web server
 var express = require('express');
@@ -190,18 +182,15 @@ server.listen(process.env.PORT || config.server.port, function () {
     );
 });
 
-// WEBSOCKETS (Socket.io/Express)
+// DEBUG
+process.on('warning', (e) => console.warn(e.stack));
+
+// WEBSOCKETS
 //dependency: websocket
 var io = require('socket.io')(server);
 const { instrument } = require('@socket.io/admin-ui');
-console.log(
-    ConsoleColor.Blue,
-    utility.timestampString(
-        'Websockets Initialized> Authentication: ' +
-            (config.server.bypassAuth ? 'DISABLED' : 'ENABLED')
-    )
-);
 
+//authentication
 instrument(io, {
     auth: {
         type: config.socketio_admin_dash.auth.type,
@@ -212,7 +201,6 @@ instrument(io, {
         ),
     },
 });
-//authentication socket session
 io.use((socket, next) => {
     socket.client.request.originalUrl = socket.client.request.url;
     cookieParse(socket.client.request, socket.client.request.res, next);
@@ -232,29 +220,43 @@ io.use((socket, next) => {
     passportSession(socket.client.request, socket.client.request.res, next);
 });
 
-// DEBUG
-process.on('warning', (e) => console.warn(e.stack));
+//log
+console.log(
+    ConsoleColor.Blue,
+    utility.timestampString(
+        'Websockets Initialized> Authentication: ' +
+            (config.server.bypassAuth ? 'DISABLED' : 'ENABLED')
+    )
+);
+
+//set up temp user ID if auth mode is disabled
+if (config.server.bypassAuth) {
+    io.guestID = 0;
+}
 
 //init chat log storage
+const chatLogs = require(path.join(__dirname, '/module/ChatLogs.js'));
 chatLogs.init(io);
 
 //init emotes
+// const emoteLib = require(path.join(__dirname, '/module/Emotes.js'));
 // emoteLib.init();
 
 //init global data
+const globalData = require(path.join(__dirname, '/module/GlobalData.js'));
 globalData.init(io);
 
 //init twitch event subs
+// const twitch = require(path.join(__dirname, '/module/Twitch.js'));
 // twitch.init('pokelawls', app, globalData);
 
 //init donations
 // streamElements.init();
+const streamElements = require(path.join(
+    __dirname,
+    '/module/StreamElements.js'
+));
 streamElements.updateDonations();
-
-//bypass auth
-if (config.server.bypassAuth) {
-    io.guestID = 0;
-}
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));
@@ -264,3 +266,7 @@ io.on('connection', async function (socket) {
     const connection = new Connection(io, socket);
     await connection.init();
 });
+
+// // Start Game Logic
+// const GameLogic = new (require(path.join(__dirname, 'GameLogic.js')))(io);
+// GameLogic.init();

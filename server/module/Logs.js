@@ -4,12 +4,17 @@
 const fs = require('fs');
 const path = require('path');
 
+//get config values
+const config = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '../config/config.json'))
+);
+
 //imports
 const utility = require(path.join(__dirname, '../module/Utility.js'));
 
 //init logging
 var currentDay = utility.getCurrentDay();
-utility.createDirectory(path.join(__dirname, '../logs/'));
+utility.createDirectory(path.join(__dirname, config.logPath + '/'));
 var logFile = [];
 
 module.exports = {
@@ -26,7 +31,7 @@ module.exports = {
             //get path
             const filePath = path.join(
                 __dirname,
-                '../logs/',
+                config.logPath + '/',
                 logType,
                 '/',
                 date + '.txt'
@@ -51,7 +56,7 @@ module.exports = {
             //get path
             const filePath = path.join(
                 __dirname,
-                '../logs/',
+                config.logPath + '/',
                 logType,
                 '/',
                 date + '.txt'
@@ -73,8 +78,8 @@ module.exports = {
 
     logMessage: function (logType, message) {
         //make log type directory if it doesn't exist
-        if (!fs.existsSync(path.join(__dirname, '../logs/', logType))) {
-            utility.createDirectory(path.join(__dirname, '../logs/', logType));
+        if (!fs.existsSync(path.join(__dirname, config.logPath + '/', logType))) {
+            utility.createDirectory(path.join(__dirname, config.logPath + '/', logType));
         }
 
         //get log file

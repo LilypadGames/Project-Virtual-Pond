@@ -4,7 +4,7 @@ const jsonPath = require('jsonpath');
 
 //imports
 // const utility = require(path.join(__dirname, '../module/Utility.js'));
-const sceneData = require(path.join(__dirname, '../config/sceneData.json'));
+const sceneData = require(path.join(__dirname, '../data/sceneData.json'));
 
 module.exports = {
     runCommand: function (socket, command) {

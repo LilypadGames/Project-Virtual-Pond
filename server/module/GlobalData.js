@@ -10,7 +10,7 @@ const config = require(path.join(__dirname, '../config/config.json'));
 const twitch = require(path.join(__dirname, '../module/Twitch.js'));
 
 //global data variable
-var globalData = JSON.parse(JSON.stringify(require(path.join(__dirname, '../config/globalData.json'))));
+var globalData = JSON.parse(JSON.stringify(require(path.join(__dirname, '../data/globalData.json'))));
 
 module.exports = {
     init: async function (io) {

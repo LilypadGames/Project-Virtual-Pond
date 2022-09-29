@@ -1,6 +1,7 @@
 {
     "version": "",
     "production": false,
+    "logPath": "../logs",
     "server": {
         "hostName": "",
         "port": "",

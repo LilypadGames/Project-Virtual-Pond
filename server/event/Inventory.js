@@ -5,7 +5,7 @@ const path = require('path');
 const jsonPath = require('jsonpath');
 
 //get config values
-const itemData = require(path.join(__dirname, '../config/itemsData.json'));
+const itemData = require(path.join(__dirname, '../data/itemsData.json'));
 
 //modules
 const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
