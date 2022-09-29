@@ -102,6 +102,7 @@ passport.deserializeUser(function (user, done) {
     done(null, user);
 });
 
+//CRASH ISSUE
 passport.use(
     'twitch',
     new OAuth2Strategy(
