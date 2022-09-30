@@ -22,6 +22,7 @@ const logs = require(path.join(__dirname, '/module/Logs.js'));
 //dependency: web server
 var express = require('express');
 var session = require('express-session');
+var cors = require('cors');
 
 //init web server
 var app = express();
@@ -40,6 +41,9 @@ var request = require('request');
 //dependency: misc
 var cookieParse = require('cookie-parser')();
 const crypto = require('crypto');
+
+//enable cross origin requests
+app.use(cors());
 
 //proxy setting
 app.set('trust proxy', config.server.proxy);
@@ -240,8 +244,10 @@ const chatLogs = require(path.join(__dirname, '/module/ChatLogs.js'));
 chatLogs.init(io);
 
 //init emotes
-// const emoteLib = require(path.join(__dirname, '/module/Emotes.js'));
-// emoteLib.init();
+const emotes = require(path.join(__dirname, '/module/Emotes.js'));
+(async () => {
+    await emotes.init('pokelawls');
+})();
 
 //init global data
 const globalData = require(path.join(__dirname, '/module/GlobalData.js'));

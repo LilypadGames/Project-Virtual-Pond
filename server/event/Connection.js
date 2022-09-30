@@ -17,7 +17,7 @@ const serverMetrics = require(path.join(
     '../module/ServerMetrics.js'
 ));
 const moderation = require(path.join(__dirname, '../module/Moderation.js'));
-// const emoteLib = require(path.join(__dirname, '../module/Emotes.js'));
+const emotes = require(path.join(__dirname, '../module/Emotes.js'));
 const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
 
 //event handlers
@@ -132,17 +132,14 @@ class Connection {
             if (typeof cb === 'function') cb();
         });
 
-        //triggers when client requests emotes
-        // this.socket.on('requestEmotes', () => this.requestEmotes());
-
         //triggers when client requests the players data
-        this.socket.on('requestLoadData', (cb) => {
+        this.socket.on('requestLoadData', async (cb) => {
             var loadData = {};
             loadData['player'] = this.PlayerData.requestParsedPlayerData(
                 this.socket.player,
                 this.socket.player
             );
-            // loadData['emotes'] = emoteLib.getEmotes();
+            loadData['emotes'] = emotes.getEmotes();
 
             cb(loadData);
         });

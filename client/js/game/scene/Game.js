@@ -1932,6 +1932,9 @@ class Game extends Phaser.Scene {
             utility.getObject(this.npcData, id).message = messageData;
         }
 
+        //check if message contains an emote
+        // if (emoteData.inclu)
+
         //format message
         var messageFormatted = this.add
             .text(0, 0, messageData.text, this.messageConfig)

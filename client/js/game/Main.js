@@ -1,7 +1,7 @@
 // Initializes Game
 
 //modules
-// const twitchEmotes = new Emotes();
+const emotes = new Emotes();
 const utility = new Utility();
 const globalUI = new GlobalUI();
 const loadingScreen = new LoadingScreen();
