@@ -106,40 +106,41 @@ OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
                 }
             }
 
-            //error
-            else {
-                //get error
-                let error;
-                //automatic parsing
-                if (
-                    response.headers['content-type'].includes(
-                        'application/json'
-                    )
-                ) {
-                    error = response.data;
-                }
+            // //error
+            // else {
+            //     //get error
+            //     let error;
 
-                //response isnt considered json from origin server- force parsing
-                else {
-                    error = JSON.parse(response.data);
-                }
+            //     //automatic parsing
+            //     if (
+            //         response.headers['content-type'].includes(
+            //             'application/json'
+            //         )
+            //     ) {
+            //         error = response.data;
+            //     }
 
+            //     //response isnt considered json from origin server- force parsing
+            //     else {
+            //         error = JSON.parse(response.data);
+            //     }
+
+            //     //log error
+            //     console.log(
+            //         ConsoleColor.Red,
+            //         utility.timestampString('ERROR: ' + error)
+            //     );
+            // }
+        })
+        .catch((error) => {
+            if (error.response) {
                 //log error
                 console.log(
                     ConsoleColor.Red,
-                    utility.timestampString('ERROR: ' + error)
+                    utility.timestampString('ERROR: ' + error.response.data)
                 );
             }
         });
-    // .catch((error) => {
-    //     if (error.response) {
-    //         //log error
-    //         console.log(
-    //             ConsoleColor.Red,
-    //             utility.timestampString('ERROR: ' + error.response.data)
-    //         );
-    //     }
-    // });
 };
 
 passport.serializeUser(function (user, done) {
