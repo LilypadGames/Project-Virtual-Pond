@@ -25,6 +25,7 @@
     "@twurple/api": "^5.1.8",
     "@twurple/auth": "^5.1.8",
     "@twurple/eventsub": "^5.1.8",
+    "axios": "^0.27.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

@@ -22,7 +22,7 @@ const logs = require(path.join(__dirname, '/module/Logs.js'));
 //dependency: web server
 var express = require('express');
 var session = require('express-session');
-var cors = require('cors');
+// var cors = require('cors');
 
 //init web server
 var app = express();
@@ -36,14 +36,14 @@ var server = require('http').Server(app);
 //dependency: authentication
 var passport = require('passport');
 var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
-var request = require('request');
+const axios = require('axios');
 
 //dependency: misc
 var cookieParse = require('cookie-parser')();
 const crypto = require('crypto');
 
-//enable cross origin requests
-app.use(cors());
+// //enable cross origin requests
+// app.use(cors());
 
 //proxy setting
 app.set('trust proxy', config.server.proxy);
@@ -80,22 +80,66 @@ app.use(passportSession);
 
 //override passport profile function to get user profile from Twitch API
 OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
-    var options = {
-        url: 'https://api.twitch.tv/helix/users',
-        method: 'GET',
-        headers: {
-            'Client-ID': config.twitch.clientID,
-            Accept: 'application/vnd.twitchtv.v5+json',
-            Authorization: 'Bearer ' + accessToken,
-        },
-    };
-    request(options, function (error, response, body) {
-        if (response && response.statusCode == 200) {
-            done(null, JSON.parse(body));
-        } else {
-            done(JSON.parse(body));
-        }
-    });
+    axios
+        .get('https://api.twitch.tv/helix/users', {
+            headers: {
+                'Client-ID': config.twitch.clientID,
+                Accept: 'application/vnd.twitchtv.v5+json',
+                Authorization: 'Bearer ' + accessToken,
+            },
+            responseType: 'json',
+        })
+        .then((response) => {
+            //success
+            if (response && response.status == 200) {
+                //automatic parsing
+                if (
+                    response.headers['content-type'].includes(
+                        'application/json'
+                    )
+                ) {
+                    done(null, response.data);
+                }
+                //response isnt considered json from origin server- force parsing
+                else {
+                    done(null, JSON.parse(response.data));
+                }
+            }
+
+            //error
+            else {
+                //get error
+                let error;
+                //automatic parsing
+                if (
+                    response.headers['content-type'].includes(
+                        'application/json'
+                    )
+                ) {
+                    error = response.data;
+                }
+
+                //response isnt considered json from origin server- force parsing
+                else {
+                    error = JSON.parse(response.data);
+                }
+
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString('ERROR: ' + error)
+                );
+            }
+        });
+    // .catch((error) => {
+    //     if (error.response) {
+    //         //log error
+    //         console.log(
+    //             ConsoleColor.Red,
+    //             utility.timestampString('ERROR: ' + error.response.data)
+    //         );
+    //     }
+    // });
 };
 
 passport.serializeUser(function (user, done) {
@@ -175,6 +219,51 @@ app.get('/logout', function (req, res) {
         res.redirect('/');
     });
 });
+
+//discord authentication
+// async function getJSONResponse(body) {
+//     let fullBody = '';
+//     for await (const data of body) {
+//         fullBody += data.toString();
+//     }
+//     return JSON.parse(fullBody);
+// }
+// app.get('/discordauth', function ({ query }, res) {
+//     const { code } = query;
+
+//     if (code) {
+//         try {
+//             const tokenResponseData = (async () => {
+//                 return await undici.request('https://discord.com/api/oauth2/token', {
+//                     method: 'POST',
+//                     body: new URLSearchParams({
+//                         client_id: config.discord.clientID,
+//                         client_secret: config.discord.clientSecret,
+//                         code,
+//                         grant_type: 'authorization_code',
+//                         redirect_uri: config.discord.redirectURI,
+//                         scope: 'identify',
+//                     }),
+//                     headers: {
+//                         'Content-Type': 'application/x-www-form-urlencoded',
+//                     },
+//                 });
+//             })();
+
+//             const oauthData = (async () => {
+//                 // return await getJSONResponse(tokenResponseData.body);
+//                 return tokenResponseData.body
+//             })();
+//             console.log(oauthData);
+//         } catch (error) {
+//             // NOTE: An unauthorized token will not throw an error
+//             // tokenResponseData.statusCode will be 401
+//             console.error(error);
+//         }
+//     }
+
+//     return res.sendFile('discordauth.html', { root: 'client/html' });
+// });
 
 // WEB SERVER
 //init web server
