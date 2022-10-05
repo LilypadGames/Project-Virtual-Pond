@@ -105,39 +105,18 @@ OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
                     done(null, JSON.parse(response.data));
                 }
             }
-
-            // //error
-            // else {
-            //     //get error
-            //     let error;
-
-            //     //automatic parsing
-            //     if (
-            //         response.headers['content-type'].includes(
-            //             'application/json'
-            //         )
-            //     ) {
-            //         error = response.data;
-            //     }
-
-            //     //response isnt considered json from origin server- force parsing
-            //     else {
-            //         error = JSON.parse(response.data);
-            //     }
-
-            //     //log error
-            //     console.log(
-            //         ConsoleColor.Red,
-            //         utility.timestampString('ERROR: ' + error)
-            //     );
-            // }
         })
         .catch((error) => {
             if (error.response) {
                 //log error
                 console.log(
                     ConsoleColor.Red,
-                    utility.timestampString('ERROR: ' + error.response.data)
+                    utility.timestampString(
+                        'ERROR ' +
+                            error.response.status +
+                            ': ' +
+                            error.response.data
+                    )
                 );
             }
         });
@@ -221,50 +200,148 @@ app.get('/logout', function (req, res) {
     });
 });
 
-//discord authentication
-// async function getJSONResponse(body) {
-//     let fullBody = '';
-//     for await (const data of body) {
-//         fullBody += data.toString();
-//     }
-//     return JSON.parse(fullBody);
-// }
-// app.get('/discordauth', function ({ query }, res) {
-//     const { code } = query;
+/// DISCORD AUTH
+//get discord users twitch account from connections data
+let connectDiscordAccountToTwitchAccount = (
+    userData,
+    userConnections,
+    pageCallback
+) => {
+    //get discord users ID
+    let discordID = userData.id;
+    console.log(discordID);
 
-//     if (code) {
-//         try {
-//             const tokenResponseData = (async () => {
-//                 return await undici.request('https://discord.com/api/oauth2/token', {
-//                     method: 'POST',
-//                     body: new URLSearchParams({
-//                         client_id: config.discord.clientID,
-//                         client_secret: config.discord.clientSecret,
-//                         code,
-//                         grant_type: 'authorization_code',
-//                         redirect_uri: config.discord.redirectURI,
-//                         scope: 'identify',
-//                     }),
-//                     headers: {
-//                         'Content-Type': 'application/x-www-form-urlencoded',
-//                     },
-//                 });
-//             })();
+    //discord user has a twitch connection
+    if (
+        userConnections &&
+        userConnections.some((property) => property.type === 'twitch')
+    ) {
+        let twitchID = userConnections.find(
+            (property) => property.type === 'twitch'
+        ).id;
+        console.log(twitchID);
+    }
 
-//             const oauthData = (async () => {
-//                 // return await getJSONResponse(tokenResponseData.body);
-//                 return tokenResponseData.body
-//             })();
-//             console.log(oauthData);
-//         } catch (error) {
-//             // NOTE: An unauthorized token will not throw an error
-//             // tokenResponseData.statusCode will be 401
-//             console.error(error);
-//         }
-//     }
+    //discord user does not have a twitch connection
+    else {
+        console.log('No Twitch Connection');
+    }
 
-//     return res.sendFile('discordauth.html', { root: 'client/html' });
-// });
+    //give response page to authorization
+    pageCallback('discord.html', 'client/html/auth');
+};
+//get discord users connection using access token
+let getDiscordUsersData = async (data, pageCallback) => {
+    //get user data
+    let userData = await axios
+        .get('https://discord.com/api/users/@me', {
+            headers: {
+                authorization: data.token_type + ' ' + data.access_token,
+            },
+            responseType: 'json',
+        })
+
+        //successfully got discord user's connections
+        .then((response) => {
+            return response.data;
+        })
+
+        //error
+        .catch((error) => {
+            if (error.response) {
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString(
+                        'ERROR ' + error.response.data.message
+                    )
+                );
+            }
+        });
+
+    //get connections
+    let userConnections = await axios
+        .get('https://discord.com/api/users/@me/connections', {
+            headers: {
+                authorization: data.token_type + ' ' + data.access_token,
+            },
+            responseType: 'json',
+        })
+
+        //successfully got discord user's connections
+        .then((response) => {
+            return response.data;
+        })
+
+        //error
+        .catch((error) => {
+            if (error.response) {
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString(
+                        'ERROR ' + error.response.data.message
+                    )
+                );
+            }
+        });
+
+    //tie this Discord user to their Twitch Account
+    connectDiscordAccountToTwitchAccount(
+        userData,
+        userConnections,
+        pageCallback
+    );
+};
+//use auth code to get access token
+let getDiscordUsersAccessToken = (code, pageCallback) => {
+    axios
+        .post(
+            'https://discord.com/api/oauth2/token',
+            new URLSearchParams({
+                client_id: config.discord.clientID,
+                client_secret: config.discord.clientSecret,
+                code: code,
+                grant_type: 'authorization_code',
+                redirect_uri: config.discord.redirectURI,
+                scope: 'identify',
+            }),
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            }
+        )
+        .then((response) => {
+            getDiscordUsersData(response.data, pageCallback);
+        })
+        .catch((error) => {
+            // NOTE: An unauthorized token will not throw an error
+            // response.status will be 401
+            if (error.response) {
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString(
+                        'ERROR ' +
+                            error.response.status +
+                            ': ' +
+                            error.response.data.error
+                    )
+                );
+            }
+        });
+};
+//user has completed authorization and has passed auth code to us
+app.get('/auth/discord', (req, res) => {
+    //page redirect callback
+    let callback = (page, root) => {
+        res.sendFile(page, { root: root });
+    };
+    if (req.query && req.query.code) {
+        getDiscordUsersAccessToken(req.query.code, callback);
+    }
+});
 
 // WEB SERVER
 //init web server
@@ -348,11 +425,11 @@ globalData.init(io);
 // twitch.init('pokelawls', app, globalData);
 
 //init donations
-// streamElements.init();
 const streamElements = require(path.join(
     __dirname,
     '/module/StreamElements.js'
 ));
+// streamElements.init();
 streamElements.updateDonations();
 
 //import connection event
