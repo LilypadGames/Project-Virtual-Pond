@@ -34,7 +34,7 @@ class Inventory {
 
     //triggers when a player attempts to purchase an item
     async purchaseItem(itemID) {
-        //easter egg 4 jesse lol
+        //easter egg 4 jessesmfi lol
         let cantAffordDialog = () => {
             return {
                 title:
