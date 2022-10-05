@@ -7,11 +7,11 @@ const path = require('path');
 const config = require(path.join(__dirname, '../config/config.json'));
 
 //imports
+const io = require('socket.io-client');
+
+//modules
 const utility = require(path.join(__dirname, '../module/Utility.js'));
-const ConsoleColor = require(path.join(
-    __dirname,
-    '../module/ConsoleColor.js'
-));
+const ConsoleColor = require(path.join(__dirname, '../module/ConsoleColor.js'));
 const database = require(path.join(__dirname, '../module/Database.js'));
 const twitch = require(path.join(__dirname, '../module/Twitch.js'));
 
@@ -25,20 +25,41 @@ const seInstance = new seAPI({
 module.exports = {
     //initialize websocket events from stream elements
     init: function () {
-        // AccessToken is grabbed from OAuth2 authentication of the account.
-        const accessToken = '';
+        //connect to realtime websocket interface
         const socket = io('https://realtime.streamelements.com', {
             transports: ['websocket'],
         });
-        // Socket connected
+
+        //handle low level events
+        let onConnect = () => {
+            console.log(
+                ConsoleColor.Cyan,
+                utility.timestampString('StreamElements Events> Connected.')
+            );
+            socket.emit('authenticate', {
+                method: 'jwt',
+                token: config.streamelements.JWTToken,
+            });
+        }
+        let onDisconnect = () => {
+            console.log(
+                ConsoleColor.Red,
+                utility.timestampString('StreamElements Events> Disconnected.')
+            );
+            // Reconnect
+        }
+        let onAuthenticated = (data) => {
+            const { channelId } = data;
+            console.log(
+                ConsoleColor.Cyan,
+                utility.timestampString('StreamElements Events> Connected to Channel ID: ' + channelId)
+            );
+        }
+
+        //register low level events
         socket.on('connect', onConnect);
-
-        // // Socket got disconnected
-        // socket.on('disconnect', onDisconnect);
-
-        // // Socket is authenticated
-        // socket.on('authenticated', onAuthenticated);
-
+        socket.on('disconnect', onDisconnect);
+        socket.on('authenticated', onAuthenticated);
         socket.on('unauthorized', console.error);
 
         //register events
@@ -58,17 +79,6 @@ module.exports = {
             console.log(utility.timestampString(data));
             // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
         });
-
-        function onConnect() {
-            console.log(
-                utility.timestampString('Connected to StreamElements Events')
-            );
-            socket.emit('authenticate', {
-                method: 'oauth2',
-                token: accessToken,
-            });
-            //socket.emit('authenticate', {method: 'jwt', token: config.streamelements.JWTToken});
-        }
     },
 
     updateDonations: async function () {
