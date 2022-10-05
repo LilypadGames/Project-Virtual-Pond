@@ -37,8 +37,7 @@ class Menu extends Phaser.Scene {
         let loadData = await client.requestLoadData();
 
         //store emote data globally
-        emotes.init(loadData['emotes']);
-        // console.log(emotes.getEmoteByName(':tf:'));
+        // emotes.init(loadData['emotes']);
 
         //player data
         let playerData = loadData['player'];

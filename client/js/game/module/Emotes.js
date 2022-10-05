@@ -8,8 +8,6 @@ class Emotes {
         //set emote list
         this.emotes = emoteList;
 
-        console.log(emoteList)
-
         //init current emote length
         let currentEmoteLength;
 

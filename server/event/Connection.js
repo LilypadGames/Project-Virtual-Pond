@@ -139,7 +139,7 @@ class Connection {
                 this.socket.player,
                 this.socket.player
             );
-            loadData['emotes'] = emotes.getEmotes();
+            // loadData['emotes'] = emotes.getEmotes();
 
             cb(loadData);
         });
