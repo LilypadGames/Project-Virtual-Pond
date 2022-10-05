@@ -21,9 +21,9 @@
             "event": "FF22"
         }
     },
-    "giant_yellow_sunglasses": {
+    "yellow_sunglasses": {
         "type": "accessory",
-        "name": "Giant Yellow Sunglasses",
+        "name": "Yellow Sunglasses",
         "cost": {
             "tickets": 1000
         },
