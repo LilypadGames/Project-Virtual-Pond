@@ -138,13 +138,11 @@ class FF22EmoteMatch extends Phaser.Scene {
         events.end(this);
 
         //reset data
-        this.registry.destroy();
-        this.scene.stop();
-
-        //reset data
         delete this.cardObjects;
         delete this.emoteObjects;
         delete this.flippedCards;
+        this.registry.destroy();
+        this.scene.stop();
     }
 
     quit() {
@@ -167,11 +165,6 @@ class FF22EmoteMatch extends Phaser.Scene {
 
     //restart the game
     async startGame() {
-        //reset data
-        delete this.cardObjects;
-        delete this.emoteObjects;
-        delete this.flippedCards;
-
         //init flipped cards
         if (this.flippedCards === undefined) this.flippedCards = [];
 
