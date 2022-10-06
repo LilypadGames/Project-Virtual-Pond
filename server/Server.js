@@ -411,10 +411,14 @@ const chatLogs = require(path.join(__dirname, '/module/ChatLogs.js'));
 chatLogs.init(io);
 
 //init emotes
-const emotes = require(path.join(__dirname, '/module/Emotes.js'));
-(async () => {
-    await emotes.init('pokelawls');
-})();
+// const emotes = require(path.join(__dirname, '/module/Emotes.js'));
+// try {
+//     (async () => {
+//         await emotes.init('pokelawls');
+//     })();
+// } catch (error) {
+//     console.log(ConsoleColor.Red, utility.timestampString(error));
+// }
 
 //init global data
 const globalData = require(path.join(__dirname, '/module/GlobalData.js'));
@@ -422,15 +426,23 @@ globalData.init(io);
 
 //init twitch event subs
 // const twitch = require(path.join(__dirname, '/module/Twitch.js'));
-// twitch.init('pokelawls', app, globalData);
+// try {
+//     twitch.init('pokelawls', app, globalData);
+// } catch (error) {
+//     console.log(ConsoleColor.Red, utility.timestampString(error));
+// }
 
 //init donations
 const streamElements = require(path.join(
     __dirname,
     '/module/StreamElements.js'
 ));
-// streamElements.init();
-streamElements.updateDonations();
+try {
+    // streamElements.init();
+    streamElements.updateDonations();
+} catch (error) {
+    console.log(ConsoleColor.Red, utility.timestampString(error));
+}
 
 //import connection event
 const Connection = require(path.join(__dirname, '/event/Connection.js'));
