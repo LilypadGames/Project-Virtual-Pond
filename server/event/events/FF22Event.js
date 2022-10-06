@@ -121,7 +121,7 @@ class FF22Event {
         //check if bypass auth mode is on
         if (!config.server.bypassAuth) {
             //save players ticket count
-            await this.PlayerData.changeSpecificClientPlayerData(
+            await this.PlayerData.setSpecificClientPlayerData(
                 '/event/ff22/tickets',
                 this.socket.player.internal.tickets
             );
