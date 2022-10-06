@@ -287,9 +287,9 @@ class FF22EmoteMatch extends Phaser.Scene {
                                 this,
                                 'Good Job!',
                                 'You won ' +
-                                    status['prize_amount'] +
+                                    status['prizeAmount'] +
                                     ' tickets!',
-                                'Play Again',
+                                'Play Again?',
                                 async () => {
                                     //restart game
                                     this.scene.start('FF22EmoteMatch');
@@ -297,7 +297,7 @@ class FF22EmoteMatch extends Phaser.Scene {
                             );
 
                             //update ticket amount
-                            ff22.changeTickets(this, status['prize_amount']);
+                            ff22.changeTickets(this, status['prizeAmount']);
                         }, 500);
                     }
                 }, 500);

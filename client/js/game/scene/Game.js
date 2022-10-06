@@ -1247,7 +1247,7 @@ class Game extends Phaser.Scene {
                 background: { transparency: 0.5 },
                 space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 },
             }
-        );
+        ).layout();
         this.chatLogUI = chatLogSizer[0];
         this.chatLogPanel = chatLogSizer[1];
 

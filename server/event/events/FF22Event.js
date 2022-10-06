@@ -46,7 +46,7 @@ let EmoteMatchData = {
 let FrogShuffleData = {
     frogs: ['Poke', 'Gigi', 'Jesse'],
 
-    payoutPerCorrectPick: 5
+    payoutPerRound: 5
 };
 
 class FF22Event {
@@ -379,7 +379,7 @@ class FF22Event {
                     status['completed'] = true;
 
                     //set prize amount
-                    status['prize_amount'] = EmoteMatchData.prizeAmount;
+                    status['prizeAmount'] = EmoteMatchData.prizeAmount;
 
                     //give tickets
                     this.socket.player.internal.tickets =
@@ -490,7 +490,7 @@ class FF22Event {
         this.hatShuffleState = 'picking';
 
         //send the current game state
-        return { status: true, target: this.frogTarget, sequence: sequence };
+        return { status: true, target: this.frogTarget, sequence: sequence, FINALFROGORDER: this.frogOrder };
     }
 
     //check if the player chose the correct hat corresponding to the target
@@ -512,7 +512,7 @@ class FF22Event {
             this.correctPicks++;
 
             //tell game to request again
-            return { status: true, reason: 'You found the right Frog!' };
+            return { status: true, reason: 'You found the right Frog!', frogOrder: this.frogOrder};
         }
 
         //player chose the wrong hat
@@ -521,9 +521,13 @@ class FF22Event {
             this.hatShuffleState = 'gameover';
 
             //generate payout from correct picks
-            let payout = this.correctPicks * FrogShuffleData.payoutPerCorrectPick;
+            let prizeAmount = this.correctPicks * FrogShuffleData.payoutPerRound;
 
-            return { status: false, reason: 'Wrong Frog!', payout: payout };
+            //give tickets
+            this.socket.player.internal.tickets =
+                this.socket.player.internal.tickets + prizeAmount;
+
+            return { status: false, reason: 'Wrong Frog!', prizeAmount: prizeAmount, frogOrder: this.frogOrder };
         }
     }
 }
