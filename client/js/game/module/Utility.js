@@ -66,4 +66,13 @@ class Utility {
     hexStringToInteger(hex) {
         return parseInt(hex.substring(2), 16);
     }
+
+    // PROMISES
+    async wait(duration) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve()
+            }, duration)
+        })
+    }
 }
