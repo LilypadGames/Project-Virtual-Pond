@@ -643,7 +643,8 @@ class Game extends Phaser.Scene {
     // UI
     //reload the world when window is re-focused
     onFocus() {
-        client.requestRoomUpdate();
+        //update room if still connected to server
+        if (socket.connected) client.requestRoomUpdate();
     }
 
     //show menu
@@ -681,6 +682,9 @@ class Game extends Phaser.Scene {
             background: {
                 color: ColorScheme.White,
                 radius: 15,
+                stroke: {
+                    color: ColorScheme.LightGray,
+                },
             },
             color: utility.hexIntegerToString(ColorScheme.Black),
             maxLength: this.messageMaxLength,
@@ -1196,57 +1200,62 @@ class Game extends Phaser.Scene {
         const log = this.chatLog.join('\n');
 
         //show chat log
-        this.chatLogUI = ui.createSizer(
-            this,
-            {
-                content: [
-                    {
-                        type: 'scrollable',
-                        width: 550,
-                        height: this.chatLogUIHeight,
-                        text: log,
-                        position: 0,
-                        track: { color: ColorScheme.Blue },
-                        thumb: { color: ColorScheme.LightBlue },
-                        space: {
-                            top: 0,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            item: 0,
-                            line: 0,
+        this.chatLogUI = ui
+            .createSizer(
+                this,
+                {
+                    content: [
+                        {
+                            type: 'scrollable',
+                            width: 550,
+                            height: this.chatLogUIHeight,
+                            text: log,
+                            position: 0,
+                            track: { color: ColorScheme.Blue },
+                            thumb: { color: ColorScheme.LightBlue },
+                            space: {
+                                top: 0,
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                item: 0,
+                                line: 0,
+                            },
                         },
+                        // {
+                        //     type: 'buttons',
+                        //     align: 'center',
+                        //     fontSize: 14,
+                        //     buttons: [
+                        //         {
+                        //             text: 'Global',
+                        //             align: 'left',
+                        //             onClick: () => {
+                        //                 console.log('global');
+                        //             },
+                        //         },
+                        //         {
+                        //             text: 'Local',
+                        //             align: 'left',
+                        //             onClick: () => {
+                        //                 console.log('local');
+                        //             },
+                        //         },
+                        //     ],
+                        // },
+                    ],
+                },
+                {
+                    x: 5,
+                    y: 740,
+                    background: {
+                        transparency: 0.5,
+                        stroke: { transparency: 0.5 },
                     },
-                    // {
-                    //     type: 'buttons',
-                    //     align: 'center',
-                    //     fontSize: 14,
-                    //     buttons: [
-                    //         {
-                    //             text: 'Global',
-                    //             align: 'left',
-                    //             onClick: () => {
-                    //                 console.log('global');
-                    //             },
-                    //         },
-                    //         {
-                    //             text: 'Local',
-                    //             align: 'left',
-                    //             onClick: () => {
-                    //                 console.log('local');
-                    //             },
-                    //         },
-                    //     ],
-                    // },
-                ],
-            },
-            {
-                x: 5,
-                y: 740,
-                background: { transparency: 0.5 },
-                space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 },
-            }
-        ).layout();
+                    space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 },
+                }
+            )
+            .layout();
 
         //arrange UI
         this.chatLogUI.setOrigin(0, 1);

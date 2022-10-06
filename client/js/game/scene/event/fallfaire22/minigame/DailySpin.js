@@ -97,18 +97,25 @@ class FF22DailySpin extends Phaser.Scene {
 
         //create background
         this.add
-            .sprite(game.config.width / 2, game.config.height / 2, 'dailyspin_background')
+            .sprite(
+                game.config.width / 2,
+                game.config.height / 2,
+                'dailyspin_background'
+            )
             .setDepth(this.depthBackgroundUI);
 
         //create background for spin info
-        this.rexUI.add.roundRectangle(
-            game.config.width / 2 + 330,
-            game.config.height / 2,
-            300,
-            150,
-            30,
-            ColorScheme.Blue
-        );
+        this.add.rexRoundRectangle({
+            x: game.config.width / 2 + 330,
+            y: game.config.height / 2,
+            width: 300,
+            height: 150,
+            radius: 30,
+            color: ColorScheme.Blue,
+
+            strokeColor: ColorScheme.DarkBlue,
+            strokeWidth: 3,
+        });
 
         //update spin info
         await this.updateSpinInfo();

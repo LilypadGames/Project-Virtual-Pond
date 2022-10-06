@@ -127,7 +127,7 @@ class CharacterCreator extends Phaser.Scene {
         let interactableIndent = 575;
 
         //background
-        this.cameras.main.setBackgroundColor(ColorScheme.DarkBlue);
+        this.cameras.main.setBackgroundColor(ColorScheme.DarkerBlue);
 
         //character background
         this.rexUI.add

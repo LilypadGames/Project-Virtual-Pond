@@ -389,10 +389,12 @@ class UI {
             option.background.stroke === true
         )
             option.background.stroke = {};
-        if (option.background.stroke)
+        if (option.background.stroke && !option.background.stroke.color)
             option.background.stroke.color = ColorScheme.DarkerBlue;
-        if (option.background.stroke) option.background.stroke.width = 2;
-        if (option.background.stroke) option.background.stroke.transparency = 1;
+        if (option.background.stroke && !option.background.stroke.width)
+            option.background.stroke.width = 2;
+        if (option.background.stroke && !option.background.stroke.transparency)
+            option.background.stroke.transparency = 1;
         if (!option.background.space) option.background.space = {};
         if (!option.background.space.left) option.background.space.left = 5;
         if (!option.background.space.right) option.background.space.right = 5;
@@ -862,10 +864,14 @@ class UI {
                 options.background.stroke === true
             )
                 options.background.stroke = {};
-            if (options.background.stroke)
+            if (options.background.stroke && !options.background.stroke.color)
                 options.background.stroke.color = ColorScheme.DarkerBlue;
-            if (options.background.stroke) options.background.stroke.width = 2;
-            if (options.background.stroke)
+            if (options.background.stroke && !options.background.stroke.width)
+                options.background.stroke.width = 2;
+            if (
+                options.background.stroke &&
+                !options.background.stroke.transparency
+            )
                 options.background.stroke.transparency = 1;
 
             //add background element
