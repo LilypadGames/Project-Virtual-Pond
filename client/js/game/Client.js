@@ -558,7 +558,7 @@ class Client {
         });
     }
     //get hat switching sequence and target
-    FF22generateHatShuffle() {
+    FF22requestHatShuffle() {
         return new Promise((resolve) => {
             socket.emit('FF22requestHatShuffle', (data) => {
                 resolve(data);
