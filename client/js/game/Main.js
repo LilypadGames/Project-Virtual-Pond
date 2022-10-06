@@ -124,6 +124,12 @@ window.onload = function () {
                     start: true,
                     mapping: 'rexInputText',
                 },
+                {
+                    key: 'rexRoundRectanglePlugin',
+                    plugin: rexroundrectangleplugin,
+                    start: true,
+                    mapping: 'rexRoundRectangle',
+                },
             ],
         },
         disableContextMenu: true,

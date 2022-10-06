@@ -50,6 +50,16 @@ class UI {
         if (!content.background.color)
             content.background.color = ColorScheme.Blue;
         if (!content.background.alpha) content.background.alpha = 1;
+        if (
+            content.background.stroke === undefined ||
+            content.background.stroke === true
+        )
+            content.background.stroke = {};
+        if (content.background.stroke)
+            content.background.stroke.color = ColorScheme.DarkBlue;
+        if (content.background.stroke) content.background.stroke.width = 3;
+        if (content.background.stroke)
+            content.background.stroke.transparency = 1;
 
         if (!content.fontSize) content.fontSize = 12;
 
@@ -72,15 +82,25 @@ class UI {
                 width: content.width,
                 height: content.height,
 
-                background: scene.rexUI.add.roundRectangle(
-                    0,
-                    0,
-                    content.width,
-                    content.height,
-                    content.background.radius,
-                    content.background.color,
-                    content.background.alpha
-                ),
+                background: scene.add.rexRoundRectangle({
+                    x: 0,
+                    y: 0,
+                    width: content.width,
+                    height: content.height,
+                    radius: content.background.radius,
+                    color: content.background.color,
+                    alpha: content.background.transparency,
+
+                    strokeColor: content.background.stroke
+                        ? content.background.stroke.color
+                        : undefined,
+                    strokeAlpha: content.background.stroke
+                        ? content.background.stroke.transparency
+                        : undefined,
+                    strokeWidth: content.background.stroke
+                        ? content.background.stroke.width
+                        : undefined,
+                }),
 
                 icon: scene.add.sprite(
                     content.width,
@@ -112,15 +132,25 @@ class UI {
                 width: content.width,
                 height: content.height,
 
-                background: scene.rexUI.add.roundRectangle(
-                    0,
-                    0,
-                    content.width,
-                    content.height,
-                    content.background.radius,
-                    content.background.color,
-                    content.background.alpha
-                ),
+                background: scene.add.rexRoundRectangle({
+                    x: 0,
+                    y: 0,
+                    width: content.width,
+                    height: content.height,
+                    radius: content.background.radius,
+                    color: content.background.color,
+                    alpha: content.background.transparency,
+
+                    strokeColor: content.background.stroke
+                        ? content.background.stroke.color
+                        : undefined,
+                    strokeAlpha: content.background.stroke
+                        ? content.background.stroke.transparency
+                        : undefined,
+                    strokeWidth: content.background.stroke
+                        ? content.background.stroke.width
+                        : undefined,
+                }),
 
                 text: scene.add.text(0, 0, content.text, {
                     fontSize: content.fontSize,
@@ -182,14 +212,25 @@ class UI {
                 x: option.x,
                 y: option.y,
 
-                background: scene.rexUI.add.roundRectangle(
-                    0,
-                    0,
-                    2,
-                    2,
-                    option.background.radius,
-                    option.background.color
-                ),
+                background: scene.add.rexRoundRectangle({
+                    x: 0,
+                    y: 0,
+                    width: 2,
+                    height: 2,
+                    radius: content.background.radius,
+                    color: content.background.color,
+                    alpha: content.background.transparency,
+
+                    strokeColor: content.background.stroke
+                        ? content.background.stroke.color
+                        : undefined,
+                    strokeAlpha: content.background.stroke
+                        ? content.background.stroke.transparency
+                        : undefined,
+                    strokeWidth: content.background.stroke
+                        ? content.background.stroke.width
+                        : undefined,
+                }),
 
                 text: scene.add.text(0, 0, '', {
                     fontSize: option.fontSize,
@@ -270,7 +311,7 @@ class UI {
 
                 value: content.value,
 
-                track: scene.rexUI.add.roundRectangle(
+                track: scene.add.rexRoundRectangle(
                     content.trackX,
                     content.trackY,
                     content.trackWidth,
@@ -279,7 +320,7 @@ class UI {
                     content.trackColor,
                     content.trackTransparency
                 ),
-                indicator: scene.rexUI.add.roundRectangle(
+                indicator: scene.add.rexRoundRectangle(
                     content.indicatorX,
                     content.indicatorY,
                     content.indicatorWidth,
@@ -288,7 +329,7 @@ class UI {
                     content.indicatorColor,
                     content.indicatorTransparency
                 ),
-                thumb: scene.rexUI.add.roundRectangle(
+                thumb: scene.add.rexRoundRectangle(
                     content.thumbX,
                     content.thumbY,
                     content.thumbWidth,
@@ -343,6 +384,15 @@ class UI {
         if (!option.background.color)
             option.background.color = ColorScheme.White;
         if (!option.background.radius) option.background.radius = 0;
+        if (
+            option.background.stroke === undefined ||
+            option.background.stroke === true
+        )
+            option.background.stroke = {};
+        if (option.background.stroke)
+            option.background.stroke.color = ColorScheme.DarkerBlue;
+        if (option.background.stroke) option.background.stroke.width = 2;
+        if (option.background.stroke) option.background.stroke.transparency = 1;
         if (!option.background.space) option.background.space = {};
         if (!option.background.space.left) option.background.space.left = 5;
         if (!option.background.space.right) option.background.space.right = 5;
@@ -402,19 +452,31 @@ class UI {
                     orientation: 0,
                 })
                 .addBackground(
-                    scene.rexUI.add.roundRectangle(
-                        option.x - option.background.space.left / 2,
-                        option.y + option.background.space.bottom / 2,
-                        option.width +
+                    scene.add.rexRoundRectangle({
+                        x: option.x - option.background.space.left / 2,
+                        y: option.y + option.background.space.bottom / 2,
+                        width:
+                            option.width +
                             (option.background.space.left +
                                 option.background.space.right),
-                        option.height +
+                        height:
+                            option.height +
                             (option.background.space.top +
                                 option.background.space.bottom),
-                        option.background.radius,
-                        option.background.color,
-                        1
-                    )
+                        radius: option.background.radius,
+                        color: option.background.color,
+                        alpha: 1,
+
+                        strokeColor: option.background.stroke
+                            ? option.background.stroke.color
+                            : undefined,
+                        strokeAlpha: option.background.stroke
+                            ? option.background.stroke.transparency
+                            : undefined,
+                        strokeWidth: option.background.stroke
+                            ? option.background.stroke.width
+                            : undefined,
+                    })
                 );
 
             //add input box to parent
@@ -424,20 +486,32 @@ class UI {
 
         //normal background
         else {
-            scene.rexUI.add
-                .roundRectangle(
-                    option.x - option.background.space.left / 2,
-                    option.y + option.background.space.bottom / 2,
-                    option.width +
+            scene.add
+                .rexRoundRectangle({
+                    x: option.x - option.background.space.left / 2,
+                    y: option.y + option.background.space.bottom / 2,
+                    width:
+                        option.width +
                         (option.background.space.left +
                             option.background.space.right),
-                    option.height +
+                    height:
+                        option.height +
                         (option.background.space.top +
                             option.background.space.bottom),
-                    option.background.radius,
-                    option.background.color,
-                    1
-                )
+                    radius: option.background.radius,
+                    color: option.background.color,
+                    alpha: 1,
+
+                    strokeColor: option.background.stroke
+                        ? option.background.stroke.color
+                        : undefined,
+                    strokeAlpha: option.background.stroke
+                        ? option.background.stroke.transparency
+                        : undefined,
+                    strokeWidth: option.background.stroke
+                        ? option.background.stroke.width
+                        : undefined,
+                })
                 .setDepth(option.depth);
             return inputBox;
         }
@@ -595,15 +669,19 @@ class UI {
         let sliderValue = Math.random();
 
         //create background
-        var background = scene.rexUI.add.roundRectangle(
-            0,
-            0,
-            option.width,
-            option.height,
-            8,
-            ColorScheme.Blue,
-            1
-        );
+        var background = scene.add.rexRoundRectangle({
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            radius: 8,
+            color: ColorScheme.Blue,
+            alpha: 1,
+
+            strokeColor: ColorScheme.DarkBlue,
+            strokeAlpha: 1,
+            strokeWidth: 2,
+        });
 
         //create color strip
         var colorStrip = scene.rexUI.add.canvas(
@@ -779,17 +857,38 @@ class UI {
                 options.background.color = ColorScheme.DarkBlue;
             if (!options.background.transparency)
                 options.background.transparency = 1;
+            if (
+                options.background.stroke === undefined ||
+                options.background.stroke === true
+            )
+                options.background.stroke = {};
+            if (options.background.stroke)
+                options.background.stroke.color = ColorScheme.DarkerBlue;
+            if (options.background.stroke) options.background.stroke.width = 2;
+            if (options.background.stroke)
+                options.background.stroke.transparency = 1;
 
+            //add background element
             sizer.addBackground(
-                scene.rexUI.add.roundRectangle(
-                    options.background.x,
-                    options.background.y,
-                    0,
-                    0,
-                    options.background.radius,
-                    options.background.color,
-                    options.background.transparency
-                )
+                scene.add.rexRoundRectangle({
+                    x: options.background.x,
+                    y: options.background.y,
+                    width: 0,
+                    height: 0,
+                    radius: options.background.radius,
+                    color: options.background.color,
+                    alpha: options.background.transparency,
+
+                    strokeColor: options.background.stroke
+                        ? options.background.stroke.color
+                        : undefined,
+                    strokeAlpha: options.background.stroke
+                        ? options.background.stroke.transparency
+                        : undefined,
+                    strokeWidth: options.background.stroke
+                        ? options.background.stroke.width
+                        : undefined,
+                })
             );
         }
 
@@ -989,22 +1088,22 @@ class UI {
                         },
 
                         slider: {
-                            track: scene.rexUI.add.roundRectangle(
-                                0,
-                                0,
-                                20,
-                                10,
-                                10,
-                                internalContent.track.color
-                            ),
-                            thumb: scene.rexUI.add.roundRectangle(
-                                0,
-                                0,
-                                0,
-                                0,
-                                13,
-                                internalContent.thumb.color
-                            ),
+                            track: scene.add.rexRoundRectangle({
+                                x: 0,
+                                y: 0,
+                                width: 20,
+                                height: 10,
+                                radius: 10,
+                                color: internalContent.track.color,
+                            }),
+                            thumb: scene.add.rexRoundRectangle({
+                                x: 0,
+                                y: 0,
+                                width: 0,
+                                height: 0,
+                                radius: 13,
+                                color: internalContent.thumb.color,
+                            }),
                         },
 
                         space: {
@@ -1058,6 +1157,16 @@ class UI {
         if (!options.background.radius) options.background.radius = 20;
         if (!options.background.color)
             options.background.color = ColorScheme.DarkBlue;
+        if (
+            options.background.stroke === undefined ||
+            options.background.stroke === true
+        )
+            options.background.stroke = {};
+        if (options.background.stroke)
+            options.background.stroke.color = ColorScheme.DarkerBlue;
+        if (options.background.stroke) options.background.stroke.width = 2;
+        if (options.background.stroke)
+            options.background.stroke.transparency = 1;
 
         if (!options.title) options.title = {};
         if (!options.title.fontSize) options.title.fontSize = 48;
@@ -1098,15 +1207,25 @@ class UI {
         if (!options.animation.duration) options.animation.duration = 100;
 
         //create elements
-        const background = scene.rexUI.add.roundRectangle(
-            0,
-            0,
-            options.background.width,
-            options.background.height,
-            options.background.radius,
-            options.background.color,
-            1
-        );
+        const background = scene.add.rexRoundRectangle({
+            x: 0,
+            y: 0,
+            width: options.background.width,
+            height: options.background.height,
+            radius: options.background.radius,
+            color: options.background.color,
+            alpha: 1,
+
+            strokeColor: options.background.stroke
+                ? options.background.stroke.color
+                : undefined,
+            strokeAlpha: options.background.stroke
+                ? options.background.stroke.transparency
+                : undefined,
+            strokeWidth: options.background.stroke
+                ? options.background.stroke.width
+                : undefined,
+        });
 
         const title = this.createLabel(scene, {
             text: content.title,
@@ -1241,6 +1360,16 @@ class UI {
             options.background.color = ColorScheme.DarkBlue;
         if (!options.background.transparency)
             options.background.transparency = 1;
+        if (
+            options.background.stroke === undefined ||
+            options.background.stroke === true
+        )
+            options.background.stroke = {};
+        if (options.background.stroke)
+            options.background.stroke.color = ColorScheme.DarkerBlue;
+        if (options.background.stroke) options.background.stroke.width = 2;
+        if (options.background.stroke)
+            options.background.stroke.transparency = 1;
 
         if (!options.space) options.space = {};
         if (!options.space.left) options.space.left = 10;
@@ -1265,15 +1394,25 @@ class UI {
             ? scene.add.rexCover({ alpha: 0.8 }).setDepth(scene.depthUI)
             : undefined;
 
-        const background = scene.rexUI.add.roundRectangle(
-            options.background.x,
-            options.background.y,
-            options.background.width,
-            options.background.height,
-            options.background.radius,
-            options.background.color,
-            options.background.transparency
-        );
+        const background = scene.add.rexRoundRectangle({
+            x: options.background.x,
+            y: options.background.y,
+            width: options.background.width,
+            height: options.background.height,
+            radius: options.background.radius,
+            color: options.background.color,
+            alpha: 1,
+
+            strokeColor: options.background.stroke
+                ? options.background.stroke.color
+                : undefined,
+            strokeAlpha: options.background.stroke
+                ? options.background.stroke.transparency
+                : undefined,
+            strokeWidth: options.background.stroke
+                ? options.background.stroke.width
+                : undefined,
+        });
 
         const title = this.createText(scene, {
             text: content.title,
