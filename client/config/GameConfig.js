@@ -237,6 +237,7 @@ class GameConfig {
             //             '*thinking of something weird to say*',
             //             "i'm not 40",
             //             'GEORGIEEEEEE!',
+            //             '*hic*'
             //         ]);
             //     event.npc
             //         .add('Jesse')
