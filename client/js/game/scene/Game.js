@@ -48,7 +48,6 @@ class Game extends Phaser.Scene {
         this.chatLog = [];
         this.chatLogUI = undefined;
         this.chatLogUIHeight = 250;
-        this.chatLogPanel;
 
         //player variables
         this.playerCharacter = {};
@@ -1181,7 +1180,7 @@ class Game extends Phaser.Scene {
         //if chat log currently showing
         if (this.chatLogUI) {
             //get current scroll position
-            const scrollPosition = this.chatLogPanel.t;
+            const scrollPosition = this.chatLogUI.getElement('items')[0].t;
 
             //delete old chat log
             this.chatLogUI.destroy();
@@ -1197,7 +1196,7 @@ class Game extends Phaser.Scene {
         const log = this.chatLog.join('\n');
 
         //show chat log
-        var chatLogSizer = ui.createSizer(
+        this.chatLogUI = ui.createSizer(
             this,
             {
                 content: [
@@ -1248,15 +1247,13 @@ class Game extends Phaser.Scene {
                 space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 },
             }
         ).layout();
-        this.chatLogUI = chatLogSizer[0];
-        this.chatLogPanel = chatLogSizer[1];
 
         //arrange UI
         this.chatLogUI.setOrigin(0, 1);
         this.chatLogUI.layout();
 
         //set scroll position
-        this.chatLogPanel.setT(scrollPosition);
+        this.chatLogUI.getElement('items')[0].setT(scrollPosition);
 
         //close promise + animation
         this.rexUI.modalPromise(
@@ -1279,7 +1276,6 @@ class Game extends Phaser.Scene {
             function () {
                 //clear chatLogUI
                 this.chatLogUI = undefined;
-                this.chatLogPanel = undefined;
             },
             this
         );

@@ -774,8 +774,6 @@ class UI {
             //default options
             if (!options.background.x) options.background.x = 0;
             if (!options.background.y) options.background.y = 0;
-            if (!options.background.width) options.background.width = 0;
-            if (!options.background.height) options.background.height = 0;
             if (!options.background.radius) options.background.radius = 20;
             if (!options.background.color)
                 options.background.color = ColorScheme.DarkBlue;
@@ -786,8 +784,8 @@ class UI {
                 scene.rexUI.add.roundRectangle(
                     options.background.x,
                     options.background.y,
-                    options.background.width,
-                    options.background.height,
+                    0,
+                    0,
                     options.background.radius,
                     options.background.color,
                     options.background.transparency
@@ -808,23 +806,17 @@ class UI {
 
                 //custom
                 if (internalContent.type == 'custom') {
-                    sizer.add(
-                        internalContent.custom()
-                    );
+                    sizer.add(internalContent.custom());
                 }
 
                 //add text
                 else if (internalContent.type == 'text') {
                     sizer.add(
-                        this.createText(
-                            scene,
-                            {
-                                text: internalContent.text,
-                                fontSize: internalContent.fontSize,
-                                align: internalContent.align,
-                            },
-                            { expand: true, align: internalContent.align }
-                        )
+                        this.createText(scene, {
+                            text: internalContent.text,
+                            fontSize: internalContent.fontSize,
+                            align: internalContent.align,
+                        })
                     );
                 }
 
@@ -1040,14 +1032,15 @@ class UI {
         //format sizer
         sizer.layout().setDepth(scene.depthUI);
 
-        //if sizer has a scrollable panel, return both
-        if (panel) {
-            return [sizer, panel];
-        }
-        //only return sizer
-        else {
-            return sizer;
-        }
+        // //if sizer has a scrollable panel, return both
+        // if (panel) {
+        //     return [sizer, panel];
+        // }
+        // //only return sizer
+        // else {
+        //     return sizer;
+        // }
+        return sizer;
     }
 
     //create dialog box
@@ -1315,7 +1308,6 @@ class UI {
                 item: options.space.item,
             },
         });
-        sizer = sizer[0];
 
         //create menu
         var menu = scene.rexUI.add
