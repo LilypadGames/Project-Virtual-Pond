@@ -121,37 +121,18 @@ class GameConfig {
                         'event/ff22/room/forest/layers/Frog_Shuffle_Tent_Background.png'
                     )
                     .in(game);
+                event.texture
+                    .add(
+                        'Frog_Shuffle_Table',
+                        'event/ff22/room/forest/objects/Frog_Shuffle_Table.png'
+                    )
+                    .in(game);
 
                 //audio
                 event.audio
                     .add(
                         'frog_caves_fair',
                         'event/ff22/audio/music/frog_caves_fair.mp3'
-                    )
-                    .in(game);
-            } else if (globalData.currentEvents.includes('FF22Dev')) {
-                event.texture
-                    .add(
-                        'Daily_Spin_Tent',
-                        'event/ff22/room/forest/layers/Daily_Spin_Tent_Dev.png'
-                    )
-                    .in(game);
-                event.texture
-                    .add(
-                        'Daily_Spin_Tent_Background',
-                        'event/ff22/room/forest/layers/Daily_Spin_Tent_Background_Dev.png'
-                    )
-                    .in(game);
-                event.texture
-                    .add(
-                        'Frog_Shuffle_Tent',
-                        'event/ff22/room/forest/layers/Frog_Shuffle_Tent.png'
-                    )
-                    .in(game);
-                event.texture
-                    .add(
-                        'Frog_Shuffle_Tent_Background',
-                        'event/ff22/room/forest/layers/Frog_Shuffle_Tent_Background.png'
                     )
                     .in(game);
             }
@@ -206,15 +187,13 @@ class GameConfig {
             event.layer.add('Theatre_Sign', 600).in(game);
             event.layer.add('Forest_Tree_3', 610).in(game);
             if (
-                !globalData.currentEvents.includes('FF22') &&
-                !globalData.currentEvents.includes('FF22Dev')
+                !globalData.currentEvents.includes('FF22')
             )
                 event.layer.add('Forest_Tree_2', 628).in(game);
             event.layer.add('Forest_Rock_1', 629).in(game);
             // event.layer.add('Forest_Stump_1', 649).in(game);
             if (
-                !globalData.currentEvents.includes('FF22') &&
-                !globalData.currentEvents.includes('FF22Dev')
+                !globalData.currentEvents.includes('FF22')
             )
                 event.layer.add('Forest_Tree_1', 665).in(game);
             event.layer.add('Forest_Foreground', 'foreground').in(game);
@@ -305,12 +284,16 @@ class GameConfig {
                         game.scene.start('FF22EmoteMatch');
                     })
                     .in(game);
-            } else if (globalData.currentEvents.includes('FF22Dev')) {
-                //layers
-                event.layer.add('Daily_Spin_Tent_Background', 560).in(game);
-                event.layer.add('Daily_Spin_Tent', 610).in(game);
-                event.layer.add('Frog_Shuffle_Tent_Background', 555).in(game);
-                event.layer.add('Frog_Shuffle_Tent', 605).in(game);
+                event.object.interactable
+                    .name('Frog_Shuffle_Table')
+                    .location(1111, 567.6)
+                    .depth(590)
+                    .onInteraction(() => {
+                        //start frog shuffle scene
+                        game.end();
+                        game.scene.start('FF22FrogShuffle');
+                    })
+                    .in(game);
             }
             if (globalData.currentEvents.includes('Birthday_Party')) {
                 //layers

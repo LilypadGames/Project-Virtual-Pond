@@ -31,14 +31,16 @@ class FF22FrogShuffle extends Phaser.Scene {
 
             swapSpeedMin: 100,
             swapSpeedMax: 600,
+            swapSpeedMultiplier: 10,
 
             swapDelayMin: 100,
             swapDelayMax: 400,
+            swapDelayMultiplier: 20,
 
             depthHat: 100,
             depthFrog: 99,
 
-            payoutPerRound: 5
+            payoutPerRound: 5,
         };
     }
 
@@ -78,8 +80,6 @@ class FF22FrogShuffle extends Phaser.Scene {
         //end event data
         events.end(this);
 
-        delete this.frogOrder;
-
         //reset data
         delete this.audio_slide;
         delete this.audio_success;
@@ -89,7 +89,6 @@ class FF22FrogShuffle extends Phaser.Scene {
         delete this.startButton;
         delete this.shuffleRound;
         delete this.roundNumber;
-        delete this.score;
         delete this.targetDisplay;
         delete this.scoreDisplay;
         this.registry.destroy();
@@ -197,9 +196,6 @@ class FF22FrogShuffle extends Phaser.Scene {
         //get frog order
         let generatedFrogOrder = await client.FF22generateFrogOrder();
 
-        //DEBUG
-        this.frogOrder = generatedFrogOrder.frogOrder;
-
         //quit scene if failed
         if (generatedFrogOrder.status === false) this.quit();
 
@@ -208,21 +204,27 @@ class FF22FrogShuffle extends Phaser.Scene {
 
         //hats
         this.hats = [];
-        this.hats[0] = this.add.sprite(
-            this.gameData.leftPosition,
-            this.gameData.hatHeight,
-            'Hat_FrogShuffle'
-        ).setDepth(this.gameData.depthHat);
-        this.hats[1] = this.add.sprite(
-            this.gameData.middlePosition,
-            this.gameData.hatHeight,
-            'Hat_FrogShuffle'
-        ).setDepth(this.gameData.depthHat);
-        this.hats[2] = this.add.sprite(
-            this.gameData.rightPosition,
-            this.gameData.hatHeight,
-            'Hat_FrogShuffle'
-        ).setDepth(this.gameData.depthHat);
+        this.hats[0] = this.add
+            .sprite(
+                this.gameData.leftPosition,
+                this.gameData.hatHeight,
+                'Hat_FrogShuffle'
+            )
+            .setDepth(this.gameData.depthHat);
+        this.hats[1] = this.add
+            .sprite(
+                this.gameData.middlePosition,
+                this.gameData.hatHeight,
+                'Hat_FrogShuffle'
+            )
+            .setDepth(this.gameData.depthHat);
+        this.hats[2] = this.add
+            .sprite(
+                this.gameData.rightPosition,
+                this.gameData.hatHeight,
+                'Hat_FrogShuffle'
+            )
+            .setDepth(this.gameData.depthHat);
 
         //let hats have an outline on hover (when set as interactive)
         this.hats.forEach((hat) => {
@@ -254,28 +256,33 @@ class FF22FrogShuffle extends Phaser.Scene {
 
         //init variables
         this.roundNumber = 0;
-        this.score = 0;
     }
 
     //place frogs in correct order
     placeFrogs(frogOrder) {
         this.frogs = [];
-        this.frogs[0] = this.add.sprite(
-            this.gameData.leftPosition,
-            this.gameData.frogHeight,
-            frogOrder[0] + '_FrogShuffle'
-        ).setDepth(this.gameData.depthFrog);
-        this.frogs[1] = this.add.sprite(
-            this.gameData.middlePosition,
-            this.gameData.frogHeight,
-            frogOrder[1] + '_FrogShuffle'
-        ).setDepth(this.gameData.depthFrog);
-        this.frogs[2] = this.add.sprite(
-            this.gameData.rightPosition,
-            this.gameData.frogHeight,
-            frogOrder[2] + '_FrogShuffle'
-        ).setDepth(this.gameData.depthFrog);
-    };
+        this.frogs[0] = this.add
+            .sprite(
+                this.gameData.leftPosition,
+                this.gameData.frogHeight,
+                frogOrder[0] + '_FrogShuffle'
+            )
+            .setDepth(this.gameData.depthFrog);
+        this.frogs[1] = this.add
+            .sprite(
+                this.gameData.middlePosition,
+                this.gameData.frogHeight,
+                frogOrder[1] + '_FrogShuffle'
+            )
+            .setDepth(this.gameData.depthFrog);
+        this.frogs[2] = this.add
+            .sprite(
+                this.gameData.rightPosition,
+                this.gameData.frogHeight,
+                frogOrder[2] + '_FrogShuffle'
+            )
+            .setDepth(this.gameData.depthFrog);
+    }
 
     //add game info before starting game
     initGame() {
@@ -287,9 +294,9 @@ class FF22FrogShuffle extends Phaser.Scene {
                     content: [
                         {
                             type: 'text',
-                            text: 'Score: ' + this.score,
+                            text: 'Score: 0',
                             fontSize: 32,
-                        }
+                        },
                     ],
                 },
                 {
@@ -337,6 +344,12 @@ class FF22FrogShuffle extends Phaser.Scene {
         //quit scene if failed
         if (this.shuffleRound.status === false) this.quit();
 
+        //determine swap speed
+        let swapSpeed = this.gameData.swapSpeedMax - (this.gameData.swapSpeedMultiplier * this.roundNumber) < this.gameData.swapSpeedMin ? this.gameData.swapSpeedMin : this.gameData.swapSpeedMax - (this.gameData.swapSpeedMultiplier * this.roundNumber);
+
+        //determine swap delay
+        let swapDelay = this.gameData.swapDelayMax - (this.gameData.swapDelayMultiplier * this.roundNumber) < this.gameData.swapDelayMin ? this.gameData.swapDelayMin : this.gameData.swapDelayMax - (this.gameData.swapDelayMultiplier * this.roundNumber);
+
         //start shuffling
         let queueTime = 0;
         this.shuffleRound.sequence.forEach((sequence, index) => {
@@ -344,7 +357,7 @@ class FF22FrogShuffle extends Phaser.Scene {
             if (index > 0)
                 queueTime =
                     queueTime +
-                    (this.gameData.swapSpeedMax + this.gameData.swapDelayMax);
+                    (swapSpeed + swapDelay);
 
             //queue each swap with a delay that gets bigger with each iteration so that it accounts for the time required for the previous swap in the queue
             setTimeout(
@@ -353,13 +366,13 @@ class FF22FrogShuffle extends Phaser.Scene {
                     this.tweens.add({
                         targets: this.hats[sequence[0] - 1],
                         x: this.hats[sequence[1] - 1].x,
-                        duration: this.gameData.swapSpeedMax,
+                        duration: swapSpeed,
                         ease: 'Cubic.easeIn',
                     });
                     this.tweens.add({
                         targets: this.hats[sequence[1] - 1],
                         x: this.hats[sequence[0] - 1].x,
-                        duration: this.gameData.swapSpeedMax,
+                        duration: swapSpeed,
                         ease: 'Cubic.easeIn',
                     });
 
@@ -367,12 +380,6 @@ class FF22FrogShuffle extends Phaser.Scene {
                     [this.hats[sequence[0] - 1], this.hats[sequence[1] - 1]] = [
                         this.hats[sequence[1] - 1],
                         this.hats[sequence[0] - 1],
-                    ];
-
-                    //DEBUG
-                    [this.frogOrder[sequence[0] - 1], this.frogOrder[sequence[1] - 1]] = [
-                        this.frogOrder[sequence[1] - 1],
-                        this.frogOrder[sequence[0] - 1],
                     ];
 
                     //play sound
@@ -384,9 +391,6 @@ class FF22FrogShuffle extends Phaser.Scene {
             );
         });
 
-        //DEBUG
-        console.log('Servers Final Frog Order: ' + this.shuffleRound.FINALFROGORDER + ' Client Frog Order: ' + this.frogOrder);
-
         //wait for swapping to finish
         await utility.wait(queueTime + 1000);
 
@@ -394,9 +398,11 @@ class FF22FrogShuffle extends Phaser.Scene {
         this.hats.forEach((hat, index) => {
             hat.setInteractive();
 
-            //give click listener if this is the first round
-            if (this.roundNumber === 1)
-                hat.on('pointerdown', this.hatSelected.bind(this, index));
+            //remove old listener
+            hat.removeListener('pointerdown');
+
+            //give click listener
+            hat.on('pointerdown', this.hatSelected.bind(this, index));
         });
 
         //ask player to choose a hat matching the target
@@ -418,8 +424,8 @@ class FF22FrogShuffle extends Phaser.Scene {
                                     0,
                                     this.shuffleRound.target + '_FrogShuffle_UI'
                                 );
-                            }
-                        }
+                            },
+                        },
                     ],
                 },
                 {
@@ -443,16 +449,14 @@ class FF22FrogShuffle extends Phaser.Scene {
         let hatPick = await client.FF22requestHatPick(index);
 
         //game is broken lole
-        if (hatPick.status === undefined || hatPick.status === null) this.quit();
+        if (hatPick.status === undefined || hatPick.status === null)
+            this.quit();
 
         //remove target display
         this.targetDisplay.destroy();
 
         //place frogs
         this.placeFrogs(hatPick.frogOrder);
-
-        //DEBUG
-        this.frogOrder = hatPick.frogOrder;
 
         //raise hats
         this.hats.forEach((hat) => {
@@ -469,12 +473,13 @@ class FF22FrogShuffle extends Phaser.Scene {
 
         //if success
         if (hatPick.status) {
-            //update score
-            this.score = this.score + this.gameData.payoutPerRound;
-
             //update score display
-            this.scoreDisplay.getElement('items')[0].setText('Score: ' + this.score);
-            
+            this.scoreDisplay
+                .getElement('items')[0]
+                .setText(
+                    'Score: ' + this.gameData.payoutPerRound * this.roundNumber
+                );
+
             //success sound
             this.audio_success.play();
 
@@ -494,12 +499,11 @@ class FF22FrogShuffle extends Phaser.Scene {
             globalUI.showDialog(
                 this,
                 'You Picked The Wrong Hat!',
-                'You won ' +
-                    hatPick['prizeAmount'] +
-                    ' tickets.',
+                'You won ' + hatPick['prizeAmount'] + ' tickets.',
                 'Play Again?',
                 async () => {
                     //restart game
+                    this.end();
                     this.scene.start('FF22FrogShuffle');
                 }
             );
