@@ -479,6 +479,7 @@ class FF22FrogShuffle extends Phaser.Scene {
                 .setText(
                     'Score: ' + this.gameData.payoutPerRound * this.roundNumber
                 );
+            this.scoreDisplay.layout();
 
             //success sound
             this.audio_success.play();

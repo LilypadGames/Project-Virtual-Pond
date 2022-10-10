@@ -46,7 +46,10 @@ let EmoteMatchData = {
 let FrogShuffleData = {
     frogs: ['Poke', 'Gigi', 'Jesse'],
 
-    payoutPerRound: 5
+    minSequenceLength: 6,
+    sequenceLengthMultiplier: 5,
+
+    payoutPerRound: 5,
 };
 
 class FF22Event {
@@ -443,7 +446,7 @@ class FF22Event {
         //allow player to start shuffling hats
         this.hatShuffleState = 'shuffling';
 
-        return { status: true, frogOrder: this.frogOrder};
+        return { status: true, frogOrder: this.frogOrder };
     }
 
     //player wants the randomized sequence of hat shuffling and the target
@@ -453,16 +456,29 @@ class FF22Event {
             return { status: false, reason: 'Wrong State.' };
         }
 
-        //send sequence of hat switches
+        //init hat switch sequence
         let sequence = [];
 
+        //determine length of sequence (every 5, or multipler, rounds: increase by 1)
+        let getSequenceLength = () => {
+            if (this.correctPicks)
+                return (
+                    FrogShuffleData.minSequenceLength +
+                    Math.floor(
+                        this.correctPicks /
+                            FrogShuffleData.sequenceLengthMultiplier
+                    )
+                );
+            else return FrogShuffleData.minSequenceLength;
+        };
+
         //generate hat switch sequence
-        for (let index = 0; index < 6; index++) {
+        for (let index = 0; index < getSequenceLength(); index++) {
             //set up hats in each slot
             let hatList = [1, 2, 3];
 
             //init hat sequence
-            let sequence_layer = [];
+            let sequenceLayer = [];
 
             //generate this sequence layer
             for (let index2 = 3; index2 > 1; index2--) {
@@ -470,27 +486,38 @@ class FF22Event {
                 let hatSlot = utility.getRandomInt(0, index2 - 1);
 
                 //save selected hat to sequence layer
-                sequence_layer.push(hatList[hatSlot]);
+                sequenceLayer.push(hatList[hatSlot]);
 
                 //remove hat from list as its already selected
                 hatList.splice(hatSlot, 1);
             }
 
             //update frog order
-            [this.frogOrder[sequence_layer[0] - 1], this.frogOrder[sequence_layer[1] - 1]] = [this.frogOrder[sequence_layer[1] - 1], this.frogOrder[sequence_layer[0] - 1]];
+            [
+                this.frogOrder[sequenceLayer[0] - 1],
+                this.frogOrder[sequenceLayer[1] - 1],
+            ] = [
+                this.frogOrder[sequenceLayer[1] - 1],
+                this.frogOrder[sequenceLayer[0] - 1],
+            ];
 
             //save sequence layer to final sequence
-            sequence.push(sequence_layer);
+            sequence.push(sequenceLayer);
         }
 
-        //find (this) frog
+        //randomly pick a frog for the player to find
         this.frogTarget = FrogShuffleData.frogs[utility.getRandomInt(0, 2)];
 
         //set state to picking
         this.hatShuffleState = 'picking';
 
         //send the current game state
-        return { status: true, target: this.frogTarget, sequence: sequence, FINALFROGORDER: this.frogOrder };
+        return {
+            status: true,
+            target: this.frogTarget,
+            sequence: sequence,
+            FINALFROGORDER: this.frogOrder,
+        };
     }
 
     //check if the player chose the correct hat corresponding to the target
@@ -512,7 +539,11 @@ class FF22Event {
             this.correctPicks++;
 
             //tell game to request again
-            return { status: true, reason: 'You found the right Frog!', frogOrder: this.frogOrder};
+            return {
+                status: true,
+                reason: 'You found the right Frog!',
+                frogOrder: this.frogOrder,
+            };
         }
 
         //player chose the wrong hat
@@ -521,13 +552,19 @@ class FF22Event {
             this.hatShuffleState = 'gameover';
 
             //generate payout from correct picks
-            let prizeAmount = this.correctPicks * FrogShuffleData.payoutPerRound;
+            let prizeAmount =
+                this.correctPicks * FrogShuffleData.payoutPerRound;
 
             //give tickets
             this.socket.player.internal.tickets =
                 this.socket.player.internal.tickets + prizeAmount;
 
-            return { status: false, reason: 'Wrong Frog!', prizeAmount: prizeAmount, frogOrder: this.frogOrder };
+            return {
+                status: false,
+                reason: 'Wrong Frog!',
+                prizeAmount: prizeAmount,
+                frogOrder: this.frogOrder,
+            };
         }
     }
 }
