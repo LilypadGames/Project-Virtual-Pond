@@ -221,8 +221,19 @@ class Room {
 
         //check if message contains blacklisted words
         if (chatFilter.check(message.toLowerCase())) {
+            //log command
+            let logMessage = utility.timestampString(
+                'PLAYER ID: ' +
+                    this.socket.player.id +
+                    ' (' +
+                    this.socket.player.name +
+                    ')' +
+                    ' > ' +
+                    message
+            );
+
             //log in moderation file
-            logs.logMessage('moderation', message);
+            logs.logMessage('moderation', logMessage);
 
             // //kick
             // moderation.kickClient(

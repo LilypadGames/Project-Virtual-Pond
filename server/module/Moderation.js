@@ -23,7 +23,7 @@ export default {
                 ' (' +
                 player.name +
                 ')' +
-                ' - KICKED> Reason: ' +
+                ' - KICKED > Reason: ' +
                 reason +
                 ', Message: ' +
                 kickMessage
