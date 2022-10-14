@@ -3,6 +3,6 @@ let badWords =
         ','
     );
 
-module.exports = {
+export default {
     badWords,
 };

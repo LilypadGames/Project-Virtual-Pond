@@ -1,27 +1,22 @@
 // Room Events
 
-//dependency: file path
-const fs = require('fs');
-const path = require('path');
-
 //config
-const config = require(path.join(__dirname, '../config/config.json'));
-const badWords = require(path.join(__dirname, '../data/badWords.js'));
+import config from '../config/config.json' assert { type: 'json' };
+import badWords from '../data/badWords.js';
 
 //dependencies
-var chatFilter = require('leo-profanity');
+import chatFilter from 'leo-profanity';
 chatFilter.add(badWords.badWords);
 
 //imports
-const utility = require(path.join(__dirname, '../module/Utility.js'));
-const logs = require(path.join(__dirname, '../module/Logs.js'));
-const chatLogs = require(path.join(__dirname, '../module/ChatLogs.js'));
-const moderation = require(path.join(__dirname, '../module/Moderation.js'));
-const commands = require(path.join(__dirname, '../module/Commands.js'));
+import utility from '../module/Utility.js';
+import logs from '../module/Logs.js';
+import chatLogs from '../module/ChatLogs.js';
+import moderation from '../module/Moderation.js';
+import commands from '../module/Commands.js';
 
 //event handlers
-// const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
-const roomTheatre = require(path.join(__dirname, 'room/Theatre.js'));
+import roomTheatre from '../event/room/Theatre.js';
 
 class Room {
     constructor(io, socket, playerData, room) {
@@ -361,4 +356,4 @@ class Room {
     }
 }
 
-module.exports = Room;
+export default Room;

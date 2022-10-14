@@ -1,14 +1,17 @@
 // Inventory Events
 
-//dependencies: file parsing
-const path = require('path');
-const jsonPath = require('jsonpath');
+//imports: file parsing
+import fs from 'fs';
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+import jsonPath from 'jsonpath';
 
 //get config values
-const itemData = require(path.join(__dirname, '../data/itemData.json'));
+import itemData from '../data/itemData.json' assert { type: 'json' };
 
 //modules
-const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
+import globalData from '../module/GlobalData.js';
 
 class Inventory {
     constructor(io, socket, playerData) {
@@ -128,4 +131,4 @@ class Inventory {
     }
 }
 
-module.exports = Inventory;
+export default Inventory;

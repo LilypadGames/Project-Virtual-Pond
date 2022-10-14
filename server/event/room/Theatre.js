@@ -1,12 +1,14 @@
-// theatre room
+// Theatre room events
 
-//file parsing
-const path = require('path');
+//imports: file parsing
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 //modules
-const twitch = require(path.join(__dirname, '../../module/Twitch.js'));
-const mediaShare = require(path.join(__dirname, '../../module/MediaShare.js'));
-const globalData = require(path.join(__dirname, '../../module/GlobalData.js'));
+import twitch from '../../module/Twitch.js';
+import mediaShare from '../../module/MediaShare.js';
+import globalData from '../../module/GlobalData.js';
 
 //get twitch events
 const twitchEvent = twitch.getListener();
@@ -92,4 +94,4 @@ class Theatre {
     }
 }
 
-module.exports = Theatre;
+export default Theatre;

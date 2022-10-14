@@ -1,13 +1,15 @@
 // Moderation functions
 
-//dependency: file path
-const path = require('path');
+//imports: file parsing
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 //imports
-const logs = require(path.join(__dirname, '../module/Logs.js'));
-const utility = require(path.join(__dirname, '../module/Utility.js'));
+import logs from '../module/Logs.js';
+import utility from '../module/Utility.js';
 
-module.exports = {
+export default {
     kickClient: async function (
         io,
         player,

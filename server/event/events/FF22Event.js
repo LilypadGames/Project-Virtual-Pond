@@ -1,14 +1,10 @@
 // FF22Event Events
 
-//file parsing
-const e = require('express');
-const path = require('path');
-
 //configs
-const config = require(path.join(__dirname, '../../config/config.json'));
+import config from '../../config/config.json' assert { type: 'json' };
 
 //modules
-const utility = require(path.join(__dirname, '../../module/Utility.js'));
+import utility from '../../module/Utility.js';
 
 //Daily Spin game data
 let DailySpinData = {
@@ -569,4 +565,4 @@ class FF22Event {
     }
 }
 
-module.exports = FF22Event;
+export default FF22Event;

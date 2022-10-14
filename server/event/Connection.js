@@ -1,29 +1,25 @@
 // Connection Events
 
-//file parsing
-const path = require('path');
-const jsonPath = require('jsonpath');
+//imports: file parsing
+import jsonPath from 'jsonpath';
 
-//configs
-const config = require(path.join(__dirname, '../config/config.json'));
-const roomData = require(path.join(__dirname, '../data/roomData.json'));
+//config
+import config from '../config/config.json' assert { type: 'json' };
+import roomData from '../data/roomData.json' assert { type: 'json' };
 
 //modules
-const utility = require(path.join(__dirname, '../module/Utility.js'));
-const logs = require(path.join(__dirname, '../module/Logs.js'));
-const chatLogs = require(path.join(__dirname, '../module/ChatLogs.js'));
-const serverMetrics = require(path.join(
-    __dirname,
-    '../module/ServerMetrics.js'
-));
-const moderation = require(path.join(__dirname, '../module/Moderation.js'));
-const emotes = require(path.join(__dirname, '../module/Emotes.js'));
-const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
+import utility from '../module/Utility.js';
+import logs from '../module/Logs.js';
+import chatLogs from '../module/ChatLogs.js';
+import serverMetrics from '../module/ServerMetrics.js';
+import moderation from '../module/Moderation.js';
+// import emotes from '../module/Emotes.js';
+import globalData from '../module/GlobalData.js';
 
 //event handlers
-const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
-const Events = require(path.join(__dirname, 'Events.js'));
-const Room = require(path.join(__dirname, 'Room.js'));
+import PlayerData from '../event/PlayerData.js';
+import Events from '../event/Events.js';
+import Room from '../event/Room.js';
 
 class Connection {
     constructor(io, socket) {
@@ -417,4 +413,4 @@ class Connection {
     }
 }
 
-module.exports = Connection;
+export default Connection;

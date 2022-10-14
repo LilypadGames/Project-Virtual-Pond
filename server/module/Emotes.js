@@ -1,10 +1,10 @@
 //dependency
-const emoteParser = require('tmi-emote-parse');
+import emoteParser from 'tmi-emote-parse';
 
 emotes = [];
 emoteLengthIndex = [];
 
-module.exports = {
+export default {
     init: async function (streamer) {
         //first fetch emotes
         await this.fetchEmotes(streamer);
@@ -13,7 +13,7 @@ module.exports = {
         this.indexEmotes();
     },
 
-    fetchEmotes: async function(streamer) {
+    fetchEmotes: async function (streamer) {
         //set twitch channel to pull emotes from
         emoteParser.loadAssets(streamer);
 
@@ -29,7 +29,7 @@ module.exports = {
         });
     },
 
-    indexEmotes: function() {
+    indexEmotes: function () {
         //init current emote length
         let currentEmoteLength;
 
@@ -78,7 +78,7 @@ module.exports = {
         return false;
     },
 
-    getEmoteByName: function(input) {
+    getEmoteByName: function (input) {
         let index = isEmote(input, true);
         if (index !== false) {
             return emotes[index];

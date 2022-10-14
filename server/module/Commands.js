@@ -1,12 +1,15 @@
-//dependency: file parsing
-const path = require('path');
-const jsonPath = require('jsonpath');
+// Game Commands
+
+//imports: file parsing
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+import jsonPath from 'jsonpath';
 
 //imports
-// const utility = require(path.join(__dirname, '../module/Utility.js'));
-const sceneData = require(path.join(__dirname, '../data/sceneData.json'));
+import sceneData from '../data/sceneData.json' assert { type: 'json' };
 
-module.exports = {
+export default {
     runCommand: function (socket, command) {
         //start scene command
         if (command[0] === 'startscene') {

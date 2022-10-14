@@ -1,18 +1,18 @@
-//dependency: file parsing
-const path = require('path');
-const jsonPath = require('jsonpath');
+// Game Rooms Chat Logs
+
+//imports: file parsing
+import jsonPath from 'jsonpath';
+
+//config
+import roomData from '../data/roomData.json' assert { type: 'json' };
 
 //imports
-const utility = require(path.join(__dirname, '../module/Utility.js'));
-const ConsoleColor = require(path.join(
-    __dirname,
-    '../module/ConsoleColor.js'
-));
-const roomData = require(path.join(__dirname, '../data/roomData.json'));
+import utility from '../module/Utility.js';
+import ConsoleColor from '../module/ConsoleColor.js';
 
-chatLogs = {};
+export default {
+    chatLogs: {},
 
-module.exports = {
     init: function (io) {
         //on room creation
         io.of('/').adapter.on('create-room', (room) => {
@@ -20,8 +20,8 @@ module.exports = {
                 //check if room exists
                 if (jsonPath.query(roomData, '$..' + room)[0]) {
                     //init chat log for room
-                    if (chatLogs[room] === undefined) {
-                        chatLogs[room] = [];
+                    if (this.chatLogs[room] === undefined) {
+                        this.chatLogs[room] = [];
 
                         //log
                         console.log(
@@ -63,15 +63,15 @@ module.exports = {
         };
 
         //store entry
-        chatLogs[roomID].push(entry);
+        this.chatLogs[roomID].push(entry);
 
         //delete older entries if over max
-        if (chatLogs[roomID].length > 30) {
-            chatLogs[roomID].splice(0, 1);
+        if (this.chatLogs[roomID].length > 30) {
+            this.chatLogs[roomID].splice(0, 1);
         }
     },
 
     getRoomLogs: function (roomID) {
-        return chatLogs[roomID];
+        return this.chatLogs[roomID];
     },
 };

@@ -1,32 +1,35 @@
 // Handles web app, authentication, and websockets
 
-//dependency: file parsing
-const fs = require('fs');
-const path = require('path');
-var util = require('util');
+//imports: file parsing
+import fs from 'fs';
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+import util from 'util';
 
-//get config values
-const config = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '/config/config.json'))
-);
+//config
+import config from '../server/config/config.json' assert { type: 'json' };
 
 //environment settings
 process.env.NODE_ENV = config.production ? 'production' : 'development';
 
 //modules
-const utility = require(path.join(__dirname, '/module/Utility.js'));
-const ConsoleColor = require(path.join(__dirname, '/module/ConsoleColor.js'));
-const database = require(path.join(__dirname, '/module/Database.js'));
-const logs = require(path.join(__dirname, '/module/Logs.js'));
+// const utility from '/module/Utility.js';
+import utility from '../server/module/Utility.js';
+import ConsoleColor from '../server/module/ConsoleColor.js';
+import database from '../server/module/Database.js';
+import logs from '../server/module/Logs.js';
 
 //dependency: web server
-var express = require('express');
-var session = require('express-session');
+import express from 'express';
+import session from 'express-session';
+import http from 'http';
 // var cors = require('cors');
 
 //init web server
 var app = express();
-var server = require('http').Server(app);
+var server = http.Server(app);
+
 // var SSL = {
 //     key: fs.readFileSync('/config/agent2-key.pem'),
 //     cert: fs.readFileSync('/config/agent2-cert.cert')
@@ -34,13 +37,17 @@ var server = require('http').Server(app);
 // var server = require('https').createServer(options, app);
 
 //dependency: authentication
-var passport = require('passport');
-var OAuth2Strategy = require('passport-oauth').OAuth2Strategy;
-const axios = require('axios');
+import passport from 'passport';
+
+import { OAuth2Strategy } from 'passport-oauth';
+import axios from 'axios';
 
 //dependency: misc
-var cookieParse = require('cookie-parser')();
-const crypto = require('crypto');
+import cookieParseFactory from 'cookie-parser';
+
+const cookieParse = cookieParseFactory();
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 
 // //enable cross origin requests
 // app.use(cors());
@@ -359,15 +366,17 @@ process.on('warning', (e) => console.warn(e.stack));
 
 // WEBSOCKETS
 //dependency: websocket
-var io = require('socket.io')(server);
-const { instrument } = require('@socket.io/admin-ui');
+import { Server as SocketIOServer} from "socket.io";
+
+const io = new SocketIOServer(server);
+import { instrument } from '@socket.io/admin-ui';
 
 //authentication
 instrument(io, {
     auth: {
         type: config.socketio_admin_dash.auth.type,
         username: config.socketio_admin_dash.auth.username,
-        password: require('bcrypt').hashSync(
+        password: bcrypt.hashSync(
             config.socketio_admin_dash.auth.password,
             10
         ),
@@ -407,11 +416,11 @@ if (config.server.bypassAuth) {
 }
 
 //init chat log storage
-const chatLogs = require(path.join(__dirname, '/module/ChatLogs.js'));
+import chatLogs from '../server/module/ChatLogs.js';
 chatLogs.init(io);
 
 //init emotes
-// const emotes = require(path.join(__dirname, '/module/Emotes.js'));
+// const emotes from '/module/Emotes.js';
 // try {
 //     (async () => {
 //         await emotes.init('pokelawls');
@@ -421,11 +430,11 @@ chatLogs.init(io);
 // }
 
 //init global data
-const globalData = require(path.join(__dirname, '/module/GlobalData.js'));
+import globalData from '../server/module/GlobalData.js';
 globalData.init(io);
 
 //init twitch event subs
-// const twitch = require(path.join(__dirname, '/module/Twitch.js'));
+// const twitch from '/module/Twitch.js';
 // try {
 //     twitch.init('pokelawls', app, globalData);
 // } catch (error) {
@@ -433,10 +442,7 @@ globalData.init(io);
 // }
 
 //init donations
-const streamElements = require(path.join(
-    __dirname,
-    '/module/StreamElements.js'
-));
+import streamElements from '../server/module/StreamElements.js';
 try {
     // streamElements.init();
     streamElements.updateDonations();
@@ -445,7 +451,7 @@ try {
 }
 
 //import connection event
-const Connection = require(path.join(__dirname, '/event/Connection.js'));
+import Connection from '../server/event/Connection.js'
 
 //on new websocket connection
 io.on('connection', async function (socket) {

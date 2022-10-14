@@ -1,9 +1,9 @@
 // Utility Functions
 
 //dependency: file parsing
-const fs = require('fs');
+import fs from 'fs';
 
-module.exports = {
+export default {
     //get a random integer
     getRandomInt: function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;

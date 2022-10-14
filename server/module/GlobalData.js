@@ -1,18 +1,15 @@
 // Global Data
 
-//dependency: file path
-const path = require('path');
-
 //config
-const config = require(path.join(__dirname, '../config/config.json'));
+import config from '../config/config.json' assert { type: 'json' };
 
 //dependency: twitch API
-const twitch = require(path.join(__dirname, '../module/Twitch.js'));
+import twitch from '../module/Twitch.js';
 
 //global data variable
-var globalData = JSON.parse(JSON.stringify(require(path.join(__dirname, '../data/globalData.json'))));
+import globalData from '../data/globalData.json' assert { type: 'json' };
 
-module.exports = {
+export default {
     init: async function (io) {
         //save socket.io instance
         this.io = io;

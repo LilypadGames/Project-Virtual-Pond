@@ -1,28 +1,26 @@
 // StreamElements Connection
 
-//dependency: file path
-const path = require('path');
-
-//get config values
-const config = require(path.join(__dirname, '../config/config.json'));
+//config
+import config from '../config/config.json' assert { type: 'json' };
 
 //imports
-const io = require('socket.io-client');
+import io from 'socket.io-client';
 
 //modules
-const utility = require(path.join(__dirname, '../module/Utility.js'));
-const ConsoleColor = require(path.join(__dirname, '../module/ConsoleColor.js'));
-const database = require(path.join(__dirname, '../module/Database.js'));
-const twitch = require(path.join(__dirname, '../module/Twitch.js'));
+import utility from '../module/Utility.js';
+import ConsoleColor from '../module/ConsoleColor.js';
+import database from '../module/Database.js';
+import twitch from '../module/Twitch.js';
 
 //stream elements donation api
-const seAPI = require('node-streamelements');
-const seInstance = new seAPI({
+import StreamElements from 'node-streamelements';
+
+const seInstance = new StreamElements({
     token: config.streamelements.JWTToken,
     accountId: config.streamelements.accountId,
 });
 
-module.exports = {
+export default {
     //initialize websocket events from stream elements
     init: function () {
         //connect to realtime websocket interface
@@ -40,21 +38,24 @@ module.exports = {
                 method: 'jwt',
                 token: config.streamelements.JWTToken,
             });
-        }
+        };
         let onDisconnect = () => {
             console.log(
                 ConsoleColor.Red,
                 utility.timestampString('StreamElements Events> Disconnected.')
             );
             // Reconnect
-        }
+        };
         let onAuthenticated = (data) => {
             const { channelId } = data;
             console.log(
                 ConsoleColor.Cyan,
-                utility.timestampString('StreamElements Events> Connected to Channel ID: ' + channelId)
+                utility.timestampString(
+                    'StreamElements Events> Connected to Channel ID: ' +
+                        channelId
+                )
             );
-        }
+        };
 
         //register low level events
         socket.on('connect', onConnect);

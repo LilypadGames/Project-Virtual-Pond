@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "project-virtual-pond",
   "version": "1.0.0",
   "description": "A Physical Space for Twitch Frogs to Hang and Chat.",

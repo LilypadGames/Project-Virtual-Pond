@@ -1,6 +1,6 @@
 // Color Scheme
 
-module.exports = {
+export default {
     Red: '\x1b[31m%s\x1b[0m',
     Green: '\x1b[32m%s\x1b[0m',
     Yellow: '\x1b[33m%s\x1b[0m',

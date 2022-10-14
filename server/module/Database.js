@@ -1,13 +1,10 @@
 // Database Functions
 
-//dependency: file path
-const path = require('path');
-
 //get config values
-const config = require(path.join(__dirname, '../config/config.json'));
+import config from '../config/config.json' assert { type: 'json' };
 
 //dependency: database
-var firebase = require('firebase-admin');
+import firebase from 'firebase-admin';
 
 //init database
 firebase.initializeApp({
@@ -16,7 +13,7 @@ firebase.initializeApp({
 });
 const database = firebase.database();
 
-module.exports = {
+export default {
     //set value in database
     setValue: function (path, value) {
         database.ref(path).set(value);

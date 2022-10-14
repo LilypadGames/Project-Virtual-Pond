@@ -1,34 +1,33 @@
 // Twitch functions and events
 
-//dependency: file path
-const path = require('path');
-
 //dependency: events
-const events = require('events');
+import events from 'events';
 
-//get config values
-const config = require(path.join(__dirname, '../config/config.json'));
+//config
+import config from '../config/config.json' assert { type: 'json' };
 
 //imports
-const utility = require(path.join(__dirname, '../module/Utility.js'));
-const ConsoleColor = require(path.join(__dirname, '../module/ConsoleColor.js'));
+import utility from '../module/Utility.js';
+import ConsoleColor from '../module/ConsoleColor.js';
 
 //twitch api
-const twurpleAuth = require('@twurple/auth');
-const twurpleAPI = require('@twurple/api');
-const twurpleEvent = require('@twurple/eventsub');
-const authProvider = new twurpleAuth.ClientCredentialsAuthProvider(
+import { ClientCredentialsAuthProvider } from '@twurple/auth';
+
+import { ApiClient } from '@twurple/api';
+import { EventSubListener, EventSubMiddleware } from '@twurple/eventsub';
+import { NgrokAdapter } from '@twurple/eventsub-ngrok';
+const authProvider = new ClientCredentialsAuthProvider(
     config.twitch.clientID,
     config.twitch.clientSecret
 );
-const twitchAPI = new twurpleAPI.ApiClient({ authProvider });
-const { randomUUID } = require('crypto');
+const twitchAPI = new ApiClient({ authProvider });
+import { randomUUID } from 'crypto';
 const fixedSecret = new randomUUID().toString();
 
 //init twitch events emitter
 const twitchEvent = new events.EventEmitter();
 
-module.exports = {
+export default {
     //set up event subs
     init: async function (streamerName, app, globalData) {
         //save global data instance
@@ -42,13 +41,10 @@ module.exports = {
 
         //development environment
         if (!config.production) {
-            //get twurple ngrok middleware
-            const twurpleEventLocal = require('@twurple/eventsub-ngrok');
-
             //use ngrok for local SSL encrypted eventsubbing
-            listener = new twurpleEvent.EventSubListener({
+            listener = new EventSubListener({
                 apiClient: twitchAPI,
-                adapter: new twurpleEventLocal.NgrokAdapter(),
+                adapter: new NgrokAdapter(),
                 secret: fixedSecret,
                 strictHostCheck: true,
             });
@@ -63,7 +59,7 @@ module.exports = {
         //production environment
         else {
             //set up listener
-            const middleware = new twurpleEvent.EventSubMiddleware({
+            const middleware = new EventSubMiddleware({
                 apiClient: twitchAPI,
                 hostName: config.server.hostName,
                 pathPrefix: '/twitch',

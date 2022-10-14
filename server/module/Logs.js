@@ -1,23 +1,23 @@
 // Logging Functions
 
-//dependency: file parsing
-const fs = require('fs');
-const path = require('path');
+//imports: file parsing
+import fs from 'fs';
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 //get config values
-const config = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '../config/config.json'))
-);
+import config from '../config/config.json' assert { type: 'json' };;
 
 //imports
-const utility = require(path.join(__dirname, '../module/Utility.js'));
+import utility from '../module/Utility.js';
 
 //init logging
 var currentDay = utility.getCurrentDay();
 utility.createDirectory(path.join(__dirname, config.logPath + '/'));
 var logFile = [];
 
-module.exports = {
+export default {
     //get log file
     getLog: function (logType) {
         //get current day
@@ -78,8 +78,12 @@ module.exports = {
 
     logMessage: function (logType, message) {
         //make log type directory if it doesn't exist
-        if (!fs.existsSync(path.join(__dirname, config.logPath + '/', logType))) {
-            utility.createDirectory(path.join(__dirname, config.logPath + '/', logType));
+        if (
+            !fs.existsSync(path.join(__dirname, config.logPath + '/', logType))
+        ) {
+            utility.createDirectory(
+                path.join(__dirname, config.logPath + '/', logType)
+            );
         }
 
         //get log file

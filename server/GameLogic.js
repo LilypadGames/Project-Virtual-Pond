@@ -1,19 +1,19 @@
 // Handles game logic
 
-//dependency: file parsing
-const fs = require('fs');
-const path = require('path');
+//imports: file parsing
+import fs from 'fs';
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 //get config values
-const config = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '/config/config.json'))
-);
+import config from '../server/config/config.json' assert { type: 'json' };;
 
 //modules
-// const utility = require(path.join(__dirname, '/module/Utility.js'));
-// const ConsoleColor = require(path.join(__dirname, '/module/ConsoleColor.js'));
-// const database = require(path.join(__dirname, '/module/Database.js'));
-// const logs = require(path.join(__dirname, '/module/Logs.js'));
+// const utility from '/module/Utility.js';
+// import ConsoleColor from '../module/ConsoleColor.js';
+// import database from '../server/module/Database.js';
+// import logs from '../server/module/Logs.js';
 
 class GameLogic {
     constructor(io) {
@@ -35,11 +35,11 @@ class GameLogic {
 
     registerModules() {
         //init chat log storage
-        const chatLogs = require(path.join(__dirname, '/module/ChatLogs.js'));
+        import chatLogs from '../server/module/ChatLogs.js';
         chatLogs.init(this.io);
 
         //init emotes
-        // const emoteLib = require(path.join(__dirname, '/module/Emotes.js'));
+        // const emoteLib from '/module/Emotes.js';
         // emoteLib.init();
 
         //init global data
@@ -50,7 +50,7 @@ class GameLogic {
         globalData.init(this.io);
 
         //init twitch event subs
-        // const twitch = require(path.join(__dirname, '/module/Twitch.js'));
+        // const twitch from '/module/Twitch.js';
         // twitch.init('pokelawls', app, globalData);
 
         //init donations
@@ -77,4 +77,4 @@ class GameLogic {
     }
 }
 
-module.exports = GameLogic;
+export default GameLogic;

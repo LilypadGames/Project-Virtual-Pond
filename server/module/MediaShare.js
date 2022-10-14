@@ -3,7 +3,7 @@
 //media share data
 var mediaShare = {};
 
-module.exports = {
+export default {
     init: async function (io) {
         //save socket.io instance
         this.io = io;

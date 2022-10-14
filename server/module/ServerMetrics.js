@@ -1,6 +1,6 @@
-playerCount = 0;
+// Server Metrics
 
-module.exports = {
+export default {
     playerCount: 0,
 
     init: function () {},

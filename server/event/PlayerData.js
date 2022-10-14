@@ -1,18 +1,15 @@
 // PlayerData Events
 
-//dependency: file path
-const path = require('path');
-
-//get config values
-const config = require(path.join(__dirname, '../config/config.json'));
+//config
+import config from '../config/config.json' assert { type: 'json' };
 
 //imports
-const utility = require(path.join(__dirname, '../module/Utility.js'));
-const database = require(path.join(__dirname, '../module/Database.js'));
-const logs = require(path.join(__dirname, '../module/Logs.js'));
+import utility from '../module/Utility.js';
+import database from '../module/Database.js';
+import logs from '../module/Logs.js';
 
 //event handlers
-const Inventory = require(path.join(__dirname, 'Inventory.js'));
+import Inventory from '../event/Inventory.js';
 
 class PlayerData {
     constructor(io, socket) {
@@ -500,4 +497,4 @@ class PlayerData {
     }
 }
 
-module.exports = PlayerData;
+export default PlayerData;

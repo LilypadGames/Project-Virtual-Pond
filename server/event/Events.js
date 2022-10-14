@@ -1,13 +1,15 @@
 // Events Events
 
-//file parsing
-const path = require('path');
+//imports: file parsing
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
 //modules
-const globalData = require(path.join(__dirname, '../module/GlobalData.js'));
+import globalData from '../module/GlobalData.js';
 
 //event handlers
-const FF22Event = require(path.join(__dirname, 'events/FF22Event.js'));
+import FF22Event from '../event/events/FF22Event.js';
 
 class Events {
     constructor(io, socket, playerData) {
@@ -40,4 +42,4 @@ class Events {
     }
 }
 
-module.exports = Events;
+export default Events;
