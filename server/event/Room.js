@@ -152,7 +152,10 @@ class Room {
                 ? message.trim()
                 : '';
 
-        //check if message is actually a command
+        //make sure message contains text
+        if (message === '' || message === null) return;
+
+        //check if its a message instead of a command
         if (message.startsWith('/')) {
             //check if player is an admin/mod OR no auth mode is on
             if (
@@ -218,11 +221,6 @@ class Room {
             //add strike to user profile in database
 
             //do not do the rest
-            return;
-        }
-
-        //make sure message contains text
-        if (message === '' || null) {
             return;
         }
 
