@@ -25,6 +25,9 @@ class ColorScheme {
     get Red() {
         return this.constructor.Red;
     }
+    get DarkRed() {
+        return this.constructor.DarkRed;
+    }
 }
 
 //determine colors
@@ -36,3 +39,4 @@ ColorScheme.Blue = 0x1883ed;
 ColorScheme.DarkBlue = 0x1563bb;
 ColorScheme.DarkerBlue = 0x1255A1;
 ColorScheme.Red = 0xf24747;
+ColorScheme.DarkRed = 0xad3434;

@@ -217,18 +217,18 @@ class UI {
                     y: 0,
                     width: 2,
                     height: 2,
-                    radius: content.background.radius,
-                    color: content.background.color,
-                    alpha: content.background.transparency,
+                    radius: option.background.radius,
+                    color: option.background.color,
+                    alpha: option.background.transparency,
 
-                    strokeColor: content.background.stroke
-                        ? content.background.stroke.color
+                    strokeColor: option.background.stroke
+                        ? option.background.stroke.color
                         : undefined,
-                    strokeAlpha: content.background.stroke
-                        ? content.background.stroke.transparency
+                    strokeAlpha: option.background.stroke
+                        ? option.background.stroke.transparency
                         : undefined,
-                    strokeWidth: content.background.stroke
-                        ? content.background.stroke.width
+                    strokeWidth: option.background.stroke
+                        ? option.background.stroke.width
                         : undefined,
                 }),
 

@@ -293,6 +293,9 @@ class GlobalUI {
         if (options.background === undefined) options.background = {};
         if (options.background.color === undefined)
             options.background.color = ColorScheme.Red;
+        if (options.background.stroke === undefined) options.background.stroke = {};
+        if (options.background.stroke.color === undefined)
+            options.background.stroke.color = ColorScheme.DarkRed;
         if (options.text === undefined) options.text = message;
         if (options.duration === undefined) options.duration = {};
         if (options.duration.hold === undefined)
