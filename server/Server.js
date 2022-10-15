@@ -1,11 +1,12 @@
 // Handles web app, authentication, and websockets
 
 //imports: file parsing
-import fs from 'fs';
-import path from 'path';
 import * as url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 import util from 'util';
+
+//import: http request api
+import axios from 'axios';
 
 //config
 import config from '../server/config/config.json' assert { type: 'json' };
@@ -14,43 +15,31 @@ import config from '../server/config/config.json' assert { type: 'json' };
 process.env.NODE_ENV = config.production ? 'production' : 'development';
 
 //modules
-// const utility from '/module/Utility.js';
 import utility from '../server/module/Utility.js';
 import ConsoleColor from '../server/module/ConsoleColor.js';
 import database from '../server/module/Database.js';
 import logs from '../server/module/Logs.js';
 
-//dependency: web server
+//imports: web server
 import express from 'express';
 import session from 'express-session';
 import http from 'http';
-// var cors = require('cors');
 
 //init web server
 var app = express();
 var server = http.Server(app);
 
-// var SSL = {
-//     key: fs.readFileSync('/config/agent2-key.pem'),
-//     cert: fs.readFileSync('/config/agent2-cert.cert')
-// };
-// var server = require('https').createServer(options, app);
-
-//dependency: authentication
+//imports: authentication
 import passport from 'passport';
-
 import { OAuth2Strategy } from 'passport-oauth';
-import axios from 'axios';
 
-//dependency: misc
+//import: cookies
 import cookieParseFactory from 'cookie-parser';
-
 const cookieParse = cookieParseFactory();
+
+//imports: cryptography
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-
-// //enable cross origin requests
-// app.use(cors());
 
 //proxy setting
 app.set('trust proxy', config.server.proxy);
@@ -365,7 +354,7 @@ server.listen(process.env.PORT || config.server.port, function () {
 process.on('warning', (e) => console.warn(e.stack));
 
 // WEBSOCKETS
-//dependency: websocket
+//import: websocket
 import { Server as SocketIOServer} from "socket.io";
 
 const io = new SocketIOServer(server);
@@ -432,6 +421,10 @@ chatLogs.init(io);
 //init global data
 import globalData from '../server/module/GlobalData.js';
 globalData.init(io);
+
+//init bad words filter
+import wordFilter from '../server/module/WordFilter.js';
+wordFilter.init();
 
 //init twitch event subs
 // const twitch from '/module/Twitch.js';

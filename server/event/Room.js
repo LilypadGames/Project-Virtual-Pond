@@ -2,18 +2,18 @@
 
 //config
 import config from '../config/config.json' assert { type: 'json' };
-import badWords from '../data/badWords.js';
-
-//dependencies
-import chatFilter from 'leo-profanity';
-chatFilter.add(badWords.badWords);
 
 //imports
+import { metaphone as convertToPhonetics } from 'metaphone';
+import { stemmer as removePluralForms } from 'stemmer';
+
+//modules
 import utility from '../module/Utility.js';
 import logs from '../module/Logs.js';
 import chatLogs from '../module/ChatLogs.js';
 import moderation from '../module/Moderation.js';
 import commands from '../module/Commands.js';
+import wordFilter from '../module/WordFilter.js';
 
 //event handlers
 import roomTheatre from '../event/room/Theatre.js';
@@ -219,34 +219,57 @@ class Room {
             return;
         }
 
-        //check if message contains blacklisted words
-        if (chatFilter.check(message.toLowerCase())) {
-            //log command
-            let logMessage = utility.timestampString(
-                'PLAYER ID: ' +
-                    this.socket.player.id +
-                    ' (' +
-                    this.socket.player.name +
-                    ')' +
-                    ' > ' +
-                    message
-            );
+        // //check if message contains blacklisted words
+        // if (chatFilter.check(message.toLowerCase())) {
+        //     //log command
+        //     let logMessage = utility.timestampString(
+        //         'PLAYER ID: ' +
+        //             this.socket.player.id +
+        //             ' (' +
+        //             this.socket.player.name +
+        //             ')' +
+        //             ' > ' +
+        //             message
+        //     );
 
-            //log in moderation file
-            logs.logMessage('moderation', logMessage);
+        //     //log in moderation file
+        //     logs.logMessage('moderation', logMessage);
 
-            // //kick
-            // moderation.kickClient(
-            //     this.io,
-            //     this.socket.player,
-            //     'Please no swear :)'
-            // );
+        //     // //kick
+        //     // moderation.kickClient(
+        //     //     this.io,
+        //     //     this.socket.player,
+        //     //     'Please no swear :)'
+        //     // );
 
-            // return;
+        //     // return;
 
-            //filter message
-            message = chatFilter.clean(message);
-        }
+        //     //filter message
+        //     message = chatFilter.clean(message);
+        // }
+
+        //remove plural forms
+        let messagePluraless = removePluralForms(message);
+        //split by spaces
+        const messageSplit = messagePluraless.split(' ');
+        //convert each word
+        let messagePhonetics;
+        let messagePhoneticsNoSpaces;
+        messageSplit.forEach((string, index, array) => {
+            //convert
+            let conversion = convertToPhonetics(string);
+            //add to complete conversion
+            messagePhonetics = (messagePhonetics ? messagePhonetics : '') + conversion;
+            //add space (unless its the last word)
+            if (index !== array.length - 1) messagePhonetics = messagePhonetics + ' ';
+            //add to complete conversion without spaces
+            messagePhoneticsNoSpaces = (messagePhoneticsNoSpaces ? messagePhoneticsNoSpaces : '') + conversion;
+        });
+        //compare blacklisted words to words in message using phonetics
+        let blacklist = wordFilter.get('blacklist');
+        console.log(blacklist)
+        console.log(messagePhonetics);
+        console.log(messagePhoneticsNoSpaces);
 
         //log
         console.log(
