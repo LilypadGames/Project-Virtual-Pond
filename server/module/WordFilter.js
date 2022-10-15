@@ -4,7 +4,8 @@
 import wordDataSource from '../data/wordData.json' assert { type: 'json' };
 
 //imports
-import { metaphone as convertToPhonetics } from 'metaphone';
+import natural from 'natural';
+const { Metaphone } = natural;
 
 export default {
     wordData: [],
@@ -15,8 +16,11 @@ export default {
 
         //convert to phonetic symbols
         this.wordData.blacklist.forEach((word, index, array) => {
-            array[index] = convertToPhonetics(word);
+            array[index] = Metaphone.process(word);
         });
+
+        //add phonetic blacklist
+        this.wordData.blacklist = this.wordData.blacklist.concat(wordDataSource.blacklistPhonetic);
     },
 
     get: function (listType) {

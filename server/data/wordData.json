@@ -4,5 +4,8 @@
         "Nigga",
         "Fag",
         "Faggot"
+    ],
+    "blacklistPhonetic": [
+        "NIJR"
     ]
 }

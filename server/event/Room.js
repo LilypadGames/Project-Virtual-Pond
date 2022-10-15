@@ -4,8 +4,8 @@
 import config from '../config/config.json' assert { type: 'json' };
 
 //imports
-import { metaphone as convertToPhonetics } from 'metaphone';
-import { stemmer as removePluralForms } from 'stemmer';
+import natural from 'natural';
+const { Metaphone } = natural;
 
 //modules
 import utility from '../module/Utility.js';
@@ -219,57 +219,76 @@ class Room {
             return;
         }
 
-        // //check if message contains blacklisted words
-        // if (chatFilter.check(message.toLowerCase())) {
-        //     //log command
-        //     let logMessage = utility.timestampString(
-        //         'PLAYER ID: ' +
-        //             this.socket.player.id +
-        //             ' (' +
-        //             this.socket.player.name +
-        //             ')' +
-        //             ' > ' +
-        //             message
-        //     );
-
-        //     //log in moderation file
-        //     logs.logMessage('moderation', logMessage);
-
-        //     // //kick
-        //     // moderation.kickClient(
-        //     //     this.io,
-        //     //     this.socket.player,
-        //     //     'Please no swear :)'
-        //     // );
-
-        //     // return;
-
-        //     //filter message
-        //     message = chatFilter.clean(message);
-        // }
-
-        //remove plural forms
-        let messagePluraless = removePluralForms(message);
         //split by spaces
-        const messageSplit = messagePluraless.split(' ');
+        const messageSplit = message.split(' ');
         //convert each word
         let messagePhonetics;
         let messagePhoneticsNoSpaces;
         messageSplit.forEach((string, index, array) => {
             //convert
-            let conversion = convertToPhonetics(string);
+            let conversion = Metaphone.process(string);
             //add to complete conversion
-            messagePhonetics = (messagePhonetics ? messagePhonetics : '') + conversion;
+            messagePhonetics =
+                (messagePhonetics ? messagePhonetics : '') + conversion;
             //add space (unless its the last word)
-            if (index !== array.length - 1) messagePhonetics = messagePhonetics + ' ';
+            if (index !== array.length - 1)
+                messagePhonetics = messagePhonetics + ' ';
             //add to complete conversion without spaces
-            messagePhoneticsNoSpaces = (messagePhoneticsNoSpaces ? messagePhoneticsNoSpaces : '') + conversion;
+            messagePhoneticsNoSpaces =
+                (messagePhoneticsNoSpaces ? messagePhoneticsNoSpaces : '') +
+                conversion;
         });
         //compare blacklisted words to words in message using phonetics
+        let status = true;
         let blacklist = wordFilter.get('blacklist');
-        console.log(blacklist)
-        console.log(messagePhonetics);
-        console.log(messagePhoneticsNoSpaces);
+        blacklist.every(phonetic => {
+            //if the message contains a phonetic similar to one of the blacklisted ones, then deny the message
+            if (messagePhoneticsNoSpaces.includes(phonetic)) {
+                status = false;
+                return false;
+            }
+            return true;
+        });
+
+        //message denied
+        if (!status) {
+            //log command
+            let logMessage = utility.timestampString(
+                'PLAYER ID: ' +
+                    this.socket.player.id +
+                    ' (' +
+                    this.socket.player.name +
+                    ')' +
+                    ' Slur Detected > ' +
+                    message
+            );
+
+            //log in moderation file
+            logs.logMessage('moderation', logMessage);
+
+            // //kick
+            // moderation.kickClient(
+            //     this.io,
+            //     this.socket.player,
+            //     'Please no swear :)'
+            // );
+
+            //tell player that the message was denied
+            let denyMessages = [
+                'My dumb robot brain detected a slur in your message, so I denied it.',
+                'Did you just freaking slur? Frick you.',
+                "Plz don't curse thx.",
+                'R u serious right nyow?',
+                '💀 NAHHHHHH',
+            ];
+            this.socket.emit(
+                'payloadServerMessage',
+                denyMessages[utility.getRandomInt(0, denyMessages.length - 1)]
+            );
+
+            //cancel
+            return;
+        }
 
         //log
         console.log(
