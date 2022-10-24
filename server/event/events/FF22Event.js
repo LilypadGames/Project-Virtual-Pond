@@ -274,6 +274,10 @@ class FF22Event {
         delete this.cardGrid;
         delete this.flippedCards;
         delete this.matchedCards;
+        delete this.emoteMatchStartTime;
+
+        //log start time
+        this.emoteMatchStartTime = Date.now();
 
         //make list of all the cards
         let cards = [];
@@ -379,6 +383,11 @@ class FF22Event {
 
                     //set prize amount
                     status['prizeAmount'] = EmoteMatchData.prizeAmount;
+
+                    //set time completed
+                    status['time'] = Math.floor(
+                        (Date.now() - this.emoteMatchStartTime) / 1000
+                    );
 
                     //give tickets
                     this.socket.player.internal.tickets =

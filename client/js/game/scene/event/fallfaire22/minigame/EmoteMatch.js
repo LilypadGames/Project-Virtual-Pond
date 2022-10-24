@@ -279,13 +279,16 @@ class FF22EmoteMatch extends Phaser.Scene {
                             //make sure player is still in the right scene
                             if (currentScene.scene.key !== 'FF22EmoteMatch') return;
 
+                            //format time
+                            let formattedTime = new Date(status['time'] * 1000).toISOString().slice(14, 19);
+
                             //sfx
                             this.audio_success_long.play();
 
                             //show reward dialog
                             globalUI.showDialog(
                                 this,
-                                'Good Job!',
+                                'Time: ' + formattedTime,
                                 'You won ' +
                                     status['prizeAmount'] +
                                     ' tickets!',
