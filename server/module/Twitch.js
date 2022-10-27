@@ -15,7 +15,10 @@ import { ClientCredentialsAuthProvider } from '@twurple/auth';
 
 import { ApiClient } from '@twurple/api';
 import { EventSubListener, EventSubMiddleware } from '@twurple/eventsub';
-import { NgrokAdapter } from '@twurple/eventsub-ngrok';
+if (!config.production) {
+    import('@twurple/eventsub-ngrok')
+    .then((exports) => {});
+}
 const authProvider = new ClientCredentialsAuthProvider(
     config.twitch.clientID,
     config.twitch.clientSecret

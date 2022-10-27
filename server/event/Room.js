@@ -219,39 +219,14 @@ class Room {
             return;
         }
 
-        //split by spaces
-        const messageSplit = message.split(' ');
-        //convert each word
-        let messagePhonetics;
-        let messagePhoneticsNoSpaces;
-        messageSplit.forEach((string, index, array) => {
-            //convert
-            let conversion = Metaphone.process(string);
-            //add to complete conversion
-            messagePhonetics =
-                (messagePhonetics ? messagePhonetics : '') + conversion;
-            //add space (unless its the last word)
-            if (index !== array.length - 1)
-                messagePhonetics = messagePhonetics + ' ';
-            //add to complete conversion without spaces
-            messagePhoneticsNoSpaces =
-                (messagePhoneticsNoSpaces ? messagePhoneticsNoSpaces : '') +
-                conversion;
-        });
-        //compare blacklisted words to words in message using phonetics
-        let status = true;
-        let blacklist = wordFilter.get('blacklist');
-        blacklist.every(phonetic => {
-            //if the message contains a phonetic similar to one of the blacklisted ones, then deny the message
-            if (messagePhoneticsNoSpaces.includes(phonetic)) {
-                status = false;
-                return false;
-            }
-            return true;
-        });
+        //check message against slur filter
+        let noSlur = wordFilter.checkMessage(message);
 
-        //message denied
-        if (!status) {
+        //deny messages containing slurs
+        if (!noSlur) {
+            //get phonetic version of message
+            let messagePhonetics = wordFilter.convertMessage(message, false);
+
             //log command
             let logMessage = utility.timestampString(
                 'PLAYER ID: ' +
@@ -260,7 +235,9 @@ class Room {
                     this.socket.player.name +
                     ')' +
                     ' Slur Detected > ' +
-                    message
+                    message +
+                    ' | Phonetic Version > ' +
+                    messagePhonetics
             );
 
             //log in moderation file
