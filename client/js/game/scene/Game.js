@@ -20,9 +20,10 @@ class Game extends Phaser.Scene {
         this.DOMElements = [];
 
         //depth
-        this.depthForeground = 100000;
-        this.depthGround = 1;
         this.depthBackground = 0;
+        this.depthGround = 1;
+        this.depthForeground = 100000;
+        this.depthShader = 100001;
 
         //audio
         this.defaultMusicSettings = {
@@ -483,6 +484,11 @@ class Game extends Phaser.Scene {
 
                         //set as unwalkable
                         instance.unWalkableLayer.push(this.name);
+                    }
+                    //shader layer
+                    else if (this.depth === 'shader') {
+                        //set depth
+                        layerObject.setDepth(instance.depthShader);
                     }
                     //other layer
                     else if (Number.isFinite(this.depth)) {

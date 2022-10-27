@@ -6,7 +6,8 @@ class GameConfig {
 
     //current news
     static news = [
-        "Alpha v0.5 - Happy Birthday Poke!\n\nChanges:\n - Birthday Event! Get a free Birthday Hat in the forest while the event lasts.\n - Simple accessories mechanic implemented. Frogs can now wear things.\n - New eye types! Now you can be a sad or happy frog.\n - A lot of stats are now collected about your frog. like when you first joined, when the last time you played was, your overall playtime etc. This will eventually be shown on your profile (when that's implemented.)\n - There is now a log-out button in the options menu. finally?\n - Character creator got a visual update.\n - There is now a prompt on mobile to rotate your device when you play- also mobile touch input is now recognized!\n - Fullscreen mode button.\n - A TON of backend stuff that's too boring and long to talk about here.\n\nFixes:\n- Chat messages no longer persist when changing rooms.\n- Fixed a server crash issue. I'm sure a new one will pop up though.\n- Some other small things here and there.",
+        "Alpha v0.5.1 - Happy Halloween!\n\nChanges:\n - Halloween Event! Get a free Carved Pumpkin Hat in the forest while the event lasts.\n - New profanity filter being tested.\n - UI changes to match rest of the games art style.\n\nFixes:\n- A ton of background changes to the server and client! Check the Trello for more information.",
+        // "Alpha v0.5 - Happy Birthday Poke!\n\nChanges:\n - Birthday Event! Get a free Birthday Hat in the forest while the event lasts.\n - Simple accessories mechanic implemented. Frogs can now wear things.\n - New eye types! Now you can be a sad or happy frog.\n - A lot of stats are now collected about your frog. like when you first joined, when the last time you played was, your overall playtime etc. This will eventually be shown on your profile (when that's implemented.)\n - There is now a log-out button in the options menu. finally?\n - Character creator got a visual update.\n - There is now a prompt on mobile to rotate your device when you play- also mobile touch input is now recognized!\n - Fullscreen mode button.\n - A TON of backend stuff that's too boring and long to talk about here.\n\nFixes:\n- Chat messages no longer persist when changing rooms.\n- Fixed a server crash issue. I'm sure a new one will pop up though.\n- Some other small things here and there.",
         // "Alpha v0.4 - Chat Log & New Room!\n\nChanges:\n- New Theatre Room where you can watch Poke's stream with other frogs!\n- Finally implemented a Chat Log so you can see recent messages from other frogs within each room.\n- New ambient sounds for the forest and volume control in the Options menu.\n- A welcome message now shows up the first time you access the site.\n- New site icon matching the newer frog design.\n- The character creator can be accessed at any time by the button on the toolbar.\n- New Donation button on the site. Any donation helps a lot, as I am developing this alone with any time I have!\n\nFixes:\n- Several UI bugs fixed.\n- Movement-based client crash fixed.",
         // "Alpha v0.3 - News, Dark Mode, & Backend Overhaul\n\nChanges:\n- New Dark Mode option on the site. It will take your OS's settings by default, but you can change it and the option you pick persists even if you leave the site.\n- SFX Volume option in the settings.\n- News Board that shows all these changes every update.\n- Loading screen when joining the game and in between scenes.\n- 1 Million Followers Banner. FeelsStrongMan Clap\n\nFixes:\n- Player direction, location, collision, and messages has been fixed so that they\'re synchronized across clients better.",
         // "Alpha v0.2.3 - New Font, Interactable Object Outlines, My Player Indication\n\nChanges:\n- The entire site now has its own font.\n- Interactable objects/NPCs will now show a white outline when being hovered over.\n- Your player will now have a nametag distinguishable from other players. It will be white with a black outline, while other players will not have any outline and just a black nametag.",
@@ -21,7 +22,7 @@ class GameConfig {
 
     //preload room data
     static preloadRoom(game, room, event) {
-        //default
+        //Forest Room
         if (room === 'forest') {
             //textures
             event.texture
@@ -135,6 +136,31 @@ class GameConfig {
                         'event/ff22/audio/music/frog_caves_fair.mp3'
                     )
                     .in(game);
+            } else if (globalData.currentEvents.includes('FF22Dev')) {
+                event.texture
+                    .add(
+                        'Daily_Spin_Tent',
+                        'event/ff22/room/forest/layers/Daily_Spin_Tent_Dev.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Daily_Spin_Tent_Background',
+                        'event/ff22/room/forest/layers/Daily_Spin_Tent_Background_Dev.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Frog_Shuffle_Tent',
+                        'event/ff22/room/forest/layers/Frog_Shuffle_Tent_Dev.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Frog_Shuffle_Tent_Background',
+                        'event/ff22/room/forest/layers/Frog_Shuffle_Tent_Background_Dev.png'
+                    )
+                    .in(game);
             }
             if (globalData.currentEvents.includes('Birthday_Party')) {
                 event.texture
@@ -145,11 +171,47 @@ class GameConfig {
                     .in(game);
                 event.texture
                     .add(
-                        'Free_Birthday_Hats_Crates',
-                        'event/birthday_party/room/forest/objects/Free_Birthday_Hats_Crates.png'
+                        'Free_Birthday_Hats_Crate',
+                        'event/birthday_party/room/forest/objects/Free_Birthday_Hats_Crate.png'
                     )
                     .in(game);
             }
+            if (globalData.currentEvents.includes('Night')) {
+                event.texture
+                    .add(
+                        'Forest_Background_Night',
+                        'room/forest/layers/Background_Night.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add('Shader_Night', 'room/forest/shaders/Night.png')
+                    .in(game);
+            }
+            if (globalData.currentEvents.includes('Halloween')) {
+                event.texture
+                    .add(
+                        'Forest_JackOLantern',
+                        'event/halloween/room/forest/layers/JackOLantern.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add('Forest_Ghosts', 'event/halloween/room/forest/layers/Ghosts.png')
+                    .in(game);
+                event.texture
+                    .add(
+                        'Free_Carved_Pumpkin_Hat_Crate',
+                        'event/halloween/room/forest/objects/Free_Carved_Pumpkin_Hat_Crate.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Shader_JackOLantern_Eyes',
+                        'event/halloween/room/forest/shaders/JackOLantern_Eyes.png'
+                    )
+                    .in(game);
+            }
+
+            //Theatre Room
         } else if (room === 'theatre') {
             //textures
             event.texture
@@ -172,7 +234,7 @@ class GameConfig {
 
     //build the room
     static buildRoom(game, room, event) {
-        //default
+        //Forest Room
         if (room === 'forest') {
             //options
             event.option.chatLogSize.set(250).in(game);
@@ -182,20 +244,18 @@ class GameConfig {
             event.option.ambience.set('forest_ambience').in(game);
 
             //layers
-            event.layer.add('Forest_Background', 'background').in(game);
+            if (globalData.currentEvents.includes('Night')) {
+                event.layer
+                    .add('Forest_Background_Night', 'background')
+                    .in(game);
+            } else {
+                event.layer.add('Forest_Background', 'background').in(game);
+            }
             event.layer.add('Forest_Ground', 'ground').in(game);
             event.layer.add('Theatre_Sign', 600).in(game);
             event.layer.add('Forest_Tree_3', 610).in(game);
-            if (
-                !globalData.currentEvents.includes('FF22')
-            )
-                event.layer.add('Forest_Tree_2', 628).in(game);
             event.layer.add('Forest_Rock_1', 629).in(game);
             // event.layer.add('Forest_Stump_1', 649).in(game);
-            if (
-                !globalData.currentEvents.includes('FF22')
-            )
-                event.layer.add('Forest_Tree_1', 665).in(game);
             event.layer.add('Forest_Foreground', 'foreground').in(game);
 
             //     //npcs
@@ -294,6 +354,12 @@ class GameConfig {
                         game.scene.start('FF22FrogShuffle');
                     })
                     .in(game);
+            } else if (globalData.currentEvents.includes('FF22Dev')) {
+                //layers
+                event.layer.add('Daily_Spin_Tent_Background', 560).in(game);
+                event.layer.add('Daily_Spin_Tent', 610).in(game);
+                event.layer.add('Frog_Shuffle_Tent_Background', 555).in(game);
+                event.layer.add('Frog_Shuffle_Tent', 605).in(game);
             }
             if (globalData.currentEvents.includes('Birthday_Party')) {
                 //layers
@@ -301,7 +367,7 @@ class GameConfig {
 
                 //objects
                 event.object.interactable
-                    .name('Free_Birthday_Hats_Crates')
+                    .name('Free_Birthday_Hats_Crate')
                     .location(886, 578.7)
                     .depth(615)
                     .onInteraction(() => {
@@ -310,6 +376,31 @@ class GameConfig {
                     })
                     .in(game);
             }
+            if (globalData.currentEvents.includes('Night')) {
+                //shader
+                event.layer.add('Shader_Night', 'shader').in(game);
+            }
+            if (globalData.currentEvents.includes('Halloween')) {
+                //layers
+                event.layer.add('Forest_JackOLantern', 550).in(game);
+                event.layer.add('Forest_Ghosts', 'foreground').in(game);
+
+                //objects
+                event.object.interactable
+                    .name('Free_Carved_Pumpkin_Hat_Crate')
+                    .location(850, 535.7)
+                    .depth(615)
+                    .onInteraction(() => {
+                        //get free carved pumpkin hat
+                        client.requestItemPurchase('carved_pumpkin_hat');
+                    })
+                    .in(game);
+
+                //shader
+                event.layer.add('Shader_JackOLantern_Eyes', 'shader').in(game);
+            }
+
+            //Theatre Room
         } else if (room === 'theatre') {
             //options
             event.option.chatLogSize.set(195).in(game);

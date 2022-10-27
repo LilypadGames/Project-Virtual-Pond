@@ -23,6 +23,10 @@
             "name": "Birthday Hat"
         },
         {
+            "id": "carved_pumpkin_hat",
+            "name": "Carved Pumpkin Hat"
+        },
+        {
             "id": "green_balloon",
             "name": "Green Balloon"
         },

@@ -11,6 +11,13 @@
             "event": "Birthday_Party"
         }
     },
+    "carved_pumpkin_hat": {
+        "type": "accessory",
+        "name": "Carved Pumpkin Hat",
+        "conditions": {
+            "event": "Halloween"
+        }
+    },
     "cowboy_hat": {
         "type": "accessory",
         "name": "Cowboy Hat",
