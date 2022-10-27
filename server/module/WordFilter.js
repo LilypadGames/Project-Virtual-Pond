@@ -63,8 +63,6 @@ export default {
 
         //compare blacklisted words to words in message using phonetics
         let blacklist = this.wordData.blacklist;
-        console.log(blacklist);
-        console.log(messagePhonetics);
         let noSlur = true;
         blacklist.every((phonetic) => {
             //find blacklisted words
