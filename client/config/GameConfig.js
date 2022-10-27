@@ -407,7 +407,7 @@ class GameConfig {
                 event.object.interactable
                     .name('Free_Carved_Pumpkin_Hat_Crate')
                     .location(850, 535.7)
-                    .depth(615)
+                    .depth(580)
                     .onInteraction(() => {
                         //get free carved pumpkin hat
                         client.requestItemPurchase('carved_pumpkin_hat');
