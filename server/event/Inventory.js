@@ -1,14 +1,17 @@
 // Inventory Events
 
-//dependencies: file parsing
-const path = require('path');
-const jsonPath = require('jsonpath');
+//imports: file parsing
+import fs from 'fs';
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+import jsonPath from 'jsonpath';
 
 //get config values
-const itemData = require(path.join(__dirname, '../config/itemsData.json'));
+import itemData from '../data/itemData.json' assert { type: 'json' };
 
 //modules
-const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
+import globalData from '../module/GlobalData.js';
 
 class Inventory {
     constructor(io, socket, playerData) {
@@ -34,7 +37,7 @@ class Inventory {
 
     //triggers when a player attempts to purchase an item
     async purchaseItem(itemID) {
-        //easter egg 4 jesse lol
+        //easter egg 4 jessesmfi lol
         let cantAffordDialog = () => {
             return {
                 title:
@@ -128,4 +131,4 @@ class Inventory {
     }
 }
 
-module.exports = Inventory;
+export default Inventory;

@@ -106,8 +106,6 @@ class CharacterCreator extends Phaser.Scene {
         if (this.characterData.accessory)
             data.accessory = this.characterData.accessory;
 
-        console.log(data);
-
         //save character data to server
         await client.saveCharacterData(data);
 
@@ -129,7 +127,7 @@ class CharacterCreator extends Phaser.Scene {
         let interactableIndent = 575;
 
         //background
-        this.cameras.main.setBackgroundColor(ColorScheme.DarkBlue);
+        this.cameras.main.setBackgroundColor(ColorScheme.DarkerBlue);
 
         //character background
         this.rexUI.add

@@ -1,29 +1,28 @@
 // Initializes Game
 
-//imports
+//modules
+const emotes = new Emotes();
 const utility = new Utility();
-
-const client = new Client();
-
-const ui = new UI();
 const globalUI = new GlobalUI();
 const loadingScreen = new LoadingScreen();
+const ui = new UI();
+const client = new Client();
 
+//game events
 const events = new Events();
 const ff22 = new FF22();
-
-const twitchEmotes = new Emotes();
 
 //global variables
 var canvas = document.createElement('canvas');
 const gameWidth = 1280;
 const gameHeight = 800;
-
-//global data
+var currentScene;
+var clientID;
+var debugMode = false;
 var globalData = {};
 
 //game data
-var roomData = {};
+// var roomData = {};
 var itemData = {};
 $.getJSON('../config/itemData.json', function (json) {
     itemData = json;
@@ -57,15 +56,6 @@ if (
     localStorage.setItem('gameValues', JSON.stringify(defaultValues));
     gameValues = defaultValues;
 }
-
-//scene
-var currentScene;
-
-//debug
-var debugMode = false;
-
-//player
-var clientID;
 
 //runs when window loads
 window.onload = function () {
@@ -134,6 +124,12 @@ window.onload = function () {
                     start: true,
                     mapping: 'rexInputText',
                 },
+                {
+                    key: 'rexRoundRectanglePlugin',
+                    plugin: rexroundrectangleplugin,
+                    start: true,
+                    mapping: 'rexRoundRectangle',
+                },
             ],
         },
         disableContextMenu: true,
@@ -151,26 +147,5 @@ window.onload = function () {
 
     //init game
     game = new Phaser.Game(config);
-
-    // pure javascript to give focus to the page/frame and scale the game
-    window.focus();
-    // resize();
-    // window.addEventListener("resize", resize, false);
+    // window.focus();
 };
-
-// pure javascript to scale the game
-// function resize() {
-//     var canvas = document.querySelector("canvas");
-//     var windowWidth = window.innerWidth;
-//     var windowHeight = window.innerHeight;
-//     var windowRatio = windowWidth / windowHeight;
-//     var gameRatio = game.config.width / game.config.height;
-//     if(windowRatio < gameRatio){
-//         canvas.style.width = windowWidth + "px";
-//         canvas.style.height = (windowWidth / gameRatio) + "px";
-//     }
-//     else{
-//         canvas.style.width = (windowHeight * gameRatio) + "px";
-//         canvas.style.height = windowHeight + "px";
-//     }
-// }

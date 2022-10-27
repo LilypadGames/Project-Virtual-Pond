@@ -20,9 +20,10 @@ class Game extends Phaser.Scene {
         this.DOMElements = [];
 
         //depth
-        this.depthForeground = 100000;
-        this.depthGround = 1;
         this.depthBackground = 0;
+        this.depthGround = 1;
+        this.depthForeground = 100000;
+        this.depthShader = 100001;
 
         //audio
         this.defaultMusicSettings = {
@@ -48,7 +49,6 @@ class Game extends Phaser.Scene {
         this.chatLog = [];
         this.chatLogUI = undefined;
         this.chatLogUIHeight = 250;
-        this.chatLogPanel;
 
         //player variables
         this.playerCharacter = {};
@@ -129,7 +129,7 @@ class Game extends Phaser.Scene {
         }
 
         //load room assets
-        this.preloadRoomData(this.room);
+        this.preloadRoom(this.room);
     }
 
     async create() {
@@ -150,9 +150,6 @@ class Game extends Phaser.Scene {
                     utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
                 ].volume
             );
-            // this.audioLostRecording = this.sound.add('lost_recording', {
-            //     volume: 1,
-            // });
         }
 
         //detect when window is re-focused
@@ -210,23 +207,8 @@ class Game extends Phaser.Scene {
             this
         );
 
-        //add room layers
-        this.addRoomLayers(this.room);
-
-        //add room objects
-        this.addRoomObjects(this.room);
-
-        //add room ambience
-        this.addRoomAmbience(this.room);
-
-        //add room music
-        this.addRoomMusic(this.room);
-
-        //add room NPCs
-        this.addRoomNPCs(this.room);
-
-        //add room teleports
-        this.addRoomTeleports(this.room);
+        //build the room
+        this.buildRoom(this.room);
 
         //add toolbar
         this.createToolbar();
@@ -235,12 +217,12 @@ class Game extends Phaser.Scene {
         var options = utility.getLocalStorage('gameValues');
         if (
             options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
-                .value !== welcomeMessageVersion
+                .value !== GameConfig.welcomeMessageVersion
         ) {
             this.showWelcomeMessage();
             options[
                 utility.getLocalStorageArrayIndex('gameValues', 'welcome')
-            ].value = welcomeMessageVersion;
+            ].value = GameConfig.welcomeMessageVersion;
             utility.storeLocalStorageArray('gameValues', options);
         }
 
@@ -296,10 +278,11 @@ class Game extends Phaser.Scene {
                             );
 
                             //run interactable objects function
-                            this.interactableObjectFunction[objectID](
-                                objectID,
-                                playerID
-                            );
+                            if (this.interactableObjectFunction[objectID])
+                                this.interactableObjectFunction[objectID](
+                                    objectID,
+                                    playerID
+                                );
 
                             //log
                             if (debugMode)
@@ -382,99 +365,231 @@ class Game extends Phaser.Scene {
 
     // WORLD
     //preload room assets
-    preloadRoomData(room) {
-        //get room options
-        let roomOptions = roomData[room].option;
-
-        //options
-        if (roomOptions) {
-            if (roomOptions.chatLogUIHeight)
-                this.chatLogUIHeight = roomOptions.chatLogUIHeight;
-        }
-
-        //get room assets
-        let roomAssets = roomData[room].asset;
-
-        //images
-        if (roomAssets.image) {
-            for (let name of Object.keys(roomAssets.image)) {
-                //disabled?
-                if (roomAssets.image[name].disabled) continue;
-
-                this.load.image(name, roomAssets.image[name].path);
-            }
-        }
-
-        //audio
-        if (roomAssets.audio) {
-            for (let name of Object.keys(roomAssets.audio)) {
-                //disabled?
-                if (roomAssets.audio[name].disabled) continue;
-
-                this.load.audio(name, roomAssets.audio[name].path);
-            }
-        }
+    preloadRoom(room) {
+        GameConfig.preloadRoom(this, room, {
+            texture: {
+                name: '',
+                path: '',
+                add: function (name, path) {
+                    this.name = name;
+                    this.path = path;
+                    return this;
+                },
+                in: function (instance) {
+                    instance.load.image(this.name, this.path);
+                },
+            },
+            audio: {
+                name: '',
+                path: '',
+                add: function (name, path) {
+                    this.name = name;
+                    this.path = path;
+                    return this;
+                },
+                in: function (instance) {
+                    instance.load.audio(this.name, this.path);
+                },
+            },
+        });
     }
 
-    //add layers
-    addRoomLayers(room) {
-        //get room layer data
-        let roomLayerData = roomData[room].layers;
-
-        //set up layers
-        for (let name of Object.keys(roomLayerData)) {
-            //disabled?
-            if (roomLayerData[name].disabled) continue;
-
-            //layer image
-            let layer = this.add.image(
-                this.sys.game.canvas.width / 2,
-                this.sys.game.canvas.height / 2,
-                name
-            );
-
-            //background layer
-            if (roomLayerData[name].depth === 'background') {
-                //set depth
-                layer.setDepth(this.depthBackground);
-            }
-
-            //ground layer
-            else if (roomLayerData[name].depth === 'ground') {
-                //set depth
-                layer.setDepth(this.depthGround);
-
-                //set as walkable
-                layer.setInteractive().on(
-                    'pointerdown',
-                    (pointer) => {
-                        if (this.navigationCheck(pointer.x, pointer.y)) {
-                            this.onMoveAttempt(pointer.x, pointer.y);
-                        }
+    //build room
+    buildRoom(room) {
+        GameConfig.buildRoom(this, room, {
+            option: {
+                chatLogSize: {
+                    value: 250,
+                    set: function (size) {
+                        this.value = size;
+                        return this;
                     },
-                    this
-                );
-                this.walkableLayer = name;
-            }
+                    in: function (instance) {
+                        instance.chatLogUIHeight = this.value;
+                    },
+                },
+                music: {
+                    value: '',
+                    set: function (music) {
+                        this.value = music;
+                        return this;
+                    },
+                    in: function (instance) {
+                        instance.playMusic(this.value);
+                    },
+                },
+                ambience: {
+                    value: '',
+                    set: function (ambience) {
+                        this.value = ambience;
+                        return this;
+                    },
+                    in: function (instance) {
+                        instance.playAmbience(this.value);
+                    },
+                },
+            },
+            layer: {
+                name: '',
+                depth: undefined,
+                add: function (name, depth) {
+                    this.name = name;
+                    this.depth = depth;
+                    return this;
+                },
+                in: function (instance) {
+                    //create layer
+                    let layerObject = instance.add.image(
+                        instance.sys.game.canvas.width / 2,
+                        instance.sys.game.canvas.height / 2,
+                        this.name
+                    );
 
-            //foreground layer
-            else if (roomLayerData[name].depth === 'foreground') {
-                //set depth
-                layer.setDepth(this.depthForeground);
+                    //background layer
+                    if (this.depth === 'background') {
+                        //set depth
+                        layerObject.setDepth(instance.depthBackground);
+                    }
+                    //ground layer
+                    else if (this.depth === 'ground') {
+                        //set depth
+                        layerObject.setDepth(instance.depthGround);
 
-                //set as unwalkable
-                this.unWalkableLayer.push(name);
-            }
+                        //set as walkable
+                        instance.walkableLayer = this.name;
 
-            //other layer
-            else if (Number.isFinite(roomLayerData[name].depth)) {
-                //set depth
-                layer.setDepth(roomLayerData[name].depth);
+                        //walkable functionality
+                        layerObject.setInteractive().on(
+                            'pointerdown',
+                            (pointer) => {
+                                if (
+                                    instance.navigationCheck(
+                                        pointer.x,
+                                        pointer.y
+                                    )
+                                ) {
+                                    instance.onMoveAttempt(
+                                        pointer.x,
+                                        pointer.y
+                                    );
+                                }
+                            },
+                            instance
+                        );
+                    }
+                    //foreground layer
+                    else if (this.depth === 'foreground') {
+                        //set depth
+                        layerObject.setDepth(instance.depthForeground);
 
-                //set as unwalkable
-                this.unWalkableLayer.push(name);
-            }
-        }
+                        //set as unwalkable
+                        instance.unWalkableLayer.push(this.name);
+                    }
+                    //shader layer
+                    else if (this.depth === 'shader') {
+                        //set depth
+                        layerObject.setDepth(instance.depthShader);
+                    }
+                    //other layer
+                    else if (Number.isFinite(this.depth)) {
+                        //set depth
+                        layerObject.setDepth(this.depth);
+
+                        //set as unwalkable
+                        instance.unWalkableLayer.push(this.name);
+                    }
+                },
+            },
+            teleport: {
+                roomName: '',
+                x: undefined,
+                y: undefined,
+                width: undefined,
+                height: undefined,
+                room: function (name) {
+                    this.roomName = name;
+                    return this;
+                },
+                location: function (x, y) {
+                    this.x = x;
+                    this.y = y;
+                    return this;
+                },
+                size: function (width, height) {
+                    this.width = width;
+                    this.height = height;
+                    return this;
+                },
+                in: function (instance) {
+                    //create collider at position
+                    let collider = instance.add.sprite(this.x, this.y);
+
+                    //set collider size
+                    collider.width = this.width;
+                    collider.height = this.height;
+
+                    //enable collisions
+                    instance.physics.world.enable(collider);
+                    collider.body.setCollideWorldBounds(true);
+
+                    //add to list of teleporters
+                    instance.teleportList.push({
+                        room: this.roomName,
+                        teleport: collider,
+                    });
+                },
+            },
+            object: {
+                interactable: {
+                    objectName: undefined,
+                    x: undefined,
+                    y: undefined,
+                    depthValue: undefined,
+                    interactionCallback: undefined,
+                    name: function (name) {
+                        this.objectName = name;
+                        return this;
+                    },
+                    location: function (x, y) {
+                        this.x = x;
+                        this.y = y;
+                        return this;
+                    },
+                    depth: function (depth) {
+                        this.depthValue = depth;
+                        return this;
+                    },
+                    onInteraction: function (callback) {
+                        this.interactionCallback = callback;
+                        return this;
+                    },
+                    in: function (instance) {
+                        instance.addNewInteractableObject(
+                            //set up object
+                            (id) => {
+                                //create sprite
+                                instance.interactableObjects[id] = instance.add
+                                    .image(this.x, this.y, this.objectName)
+                                    .setDepth(this.depthValue);
+                            },
+
+                            //set physics object
+                            (id) => {
+                                return instance.interactableObjects[id];
+                            },
+
+                            //set interactable sprite
+                            (id) => {
+                                return instance.interactableObjects[id];
+                            },
+
+                            //final interaction callback
+                            this.interactionCallback
+                        );
+                    },
+                },
+            },
+        });
     }
 
     //add room DOM elements
@@ -510,289 +625,32 @@ class Game extends Phaser.Scene {
         this.DOMElements = [];
     }
 
-    //add room objects
-    addRoomObjects(room) {
-        //forest
-        if (room == 'forest') {
-            //theatre sign
-            let theatre_sign = this.add
-                .image(148, 600, 'Sign_Theatre')
-                .setDepth(600)
-                .setOrigin(0.5, 1);
-
-            //radio
-            let radio = this.add
-                .image(294, 625, 'Radio')
-                .setDepth(649)
-                .setInteractive();
-            globalUI.setOutlineOnHover(this, radio);
-            radio.on(
-                'pointerdown',
-                () => {
-                    //play music
-                    if (this.audioMusic.key === 'mask') {
-                        this.addRoomMusic(this.room);
-                    } else {
-                        this.playMusic('mask');
-                    }
-
-                    //click sfx
-                    this.sfxRadioClick.play();
-                },
-                this
-            );
-
-            // //free birthday hats
-            // this.addNewInteractableObject(
-            //     //set up object
-            //     (id) => {
-            //         //create sprite
-            //         this.interactableObjects[id] = this.add
-            //             .image(886, 578.7, 'Free_Birthday_Hats_Crates')
-            //             .setDepth(630);
-            //     },
-
-            //     //set physics object
-            //     (id) => {
-            //         return this.interactableObjects[id];
-            //     },
-
-            //     //set interactable sprite
-            //     (id) => {
-            //         return this.interactableObjects[id];
-            //     },
-
-            //     //final interaction callback
-            //     () => {
-            //         //get free birthday hat
-            //         client.requestItemPurchase('birthday_hat');
-            //     }
-            // );
-
-            //FF22 Event
-            if (globalData.currentEvents.includes('FF22')) {
-                //daily spin wheel
-                this.addNewInteractableObject(
-                    //set up object
-                    (id) => {
-                        //create sprite
-                        this.interactableObjects[id] = this.add
-                            .image(318, 532.3, 'Daily_Spin_Wheel')
-                            .setDepth(570);
-                    },
-
-                    //set physics object
-                    (id) => {
-                        return this.interactableObjects[id];
-                    },
-
-                    //set interactable sprite
-                    (id) => {
-                        return this.interactableObjects[id];
-                    },
-
-                    //final interaction callback
-                    () => {
-                        //start daily spin scene
-                        this.end();
-                        this.scene.start('FF22DailySpin');
-                    }
-                );
-
-                //emote match table
-                this.addNewInteractableObject(
-                    //set up object
-                    (id) => {
-                        //create sprite
-                        this.interactableObjects[id] = this.add
-                            .image(899.6, 720.8, 'Emote_Match_Table')
-                            .setDepth(745);
-                    },
-
-                    //set physics object
-                    (id) => {
-                        return this.interactableObjects[id];
-                    },
-
-                    //set interactable sprite
-                    (id) => {
-                        return this.interactableObjects[id];
-                    },
-
-                    //final interaction callback
-                    () => {
-                        //start daily spin scene
-                        this.end();
-                        this.scene.start('FF22EmoteMatch');
-                    }
-                );
-            }
-
-            // //lost recording
-            // let lost_recording = this.add
-            //     .image(1209, 621.2, 'Lost_Recording')
-            //     .setDepth(655)
-            //     .setInteractive();
-            // globalUI.setOutlineOnHover(this, lost_recording);
-            // lost_recording.on(
-            //     'pointerdown',
-            //     () => {
-            //         //play lost recording
-            //         this.audioLostRecording.play();
-
-            //         //click sfx
-            //         this.sfxRadioClick.play();
-            //     },
-            //     this
-            // );
-
-            //find four table
-            // let tableFindFour = this.add.image(906, 607, 'Table_FindFour')
-            // .setDepth(600)
-            // .setOrigin(0.5, 1)
-            // .setInteractive();
-            // globalUI.setOutlineOnHover(this, tableFindFour);
-            // tableFindFour.on('pointerdown', () => {
-            // }, this);
-        }
-
-        //theatre
-        else if (room == 'theatre') {
-            //forest sign
-            let forest_sign = this.add
-                .image(1236, 692, 'Sign_Forest')
-                .setDepth(700)
-                .setOrigin(0.5, 1);
-
-            // //free sub sign
-            // let free_sub_sign = this.add
-            //     .image(204, 580, 'Sign_Free_Sub')
-            //     .setDepth(528)
-            //     .setOrigin(0.5, 1)
-            //     .setInteractive();
-            // globalUI.setOutlineOnHover(this, free_sub_sign);
-            // free_sub_sign.on(
-            //     'pointerdown',
-            //     () => {
-            //         //stop interactions temporarily
-            //         free_sub_sign.disableInteractive();
-
-            //         //remove DOM objects
-            //         this.removeRoomDOMElements();
-
-            //         //play music
-            //         this.playMusic('crazyslickd');
-
-            //         //show sprite
-            //         const crazySlickdSprite = this.add
-            //             .image(630, 20, 'CrazySlickd')
-            //             .setDepth(this.depthForeground)
-            //             .setOrigin(0.5, 0)
-            //             .setScale(2);
-
-            //         //wait
-            //         setTimeout(() => {
-            //             //stop music
-            //             this.audioMusic.stop();
-
-            //             //remove sprite
-            //             crazySlickdSprite.destroy();
-
-            //             //re-enable DOM objects
-            //             if (!this.menuOpen) {
-            //                 this.addRoomDOMElements();
-            //             }
-
-            //             //re-enable interactions
-            //             free_sub_sign.setInteractive();
-            //         }, 8000);
-            //     },
-            //     this
-            // );
-        }
-    }
-
-    //add room teleports
-    addRoomTeleports(room) {
-        //get teleports data
-        let roomTeleportData = roomData[room].teleports;
-
-        //create teleport
-        if (roomTeleportData) {
-            for (let name of Object.keys(roomTeleportData)) {
-                //disabled?
-                if (roomTeleportData[name].disabled) continue;
-
-                //create collider
-                var teleportCollider = this.add.sprite(
-                    roomTeleportData[name].x,
-                    roomTeleportData[name].y
-                );
-                teleportCollider.width = roomTeleportData[name].width;
-                teleportCollider.height = roomTeleportData[name].height;
-                this.physics.world.enable(teleportCollider);
-                teleportCollider.body.setCollideWorldBounds(true);
-
-                //add teleport to list
-                const teleportObject = {
-                    room: roomTeleportData[name].room,
-                    teleport: teleportCollider,
-                };
-                this.teleportList.push(teleportObject);
-            }
-        }
-    }
-
-    //add room music
-    addRoomMusic(room) {
-        //get teleports data
-        let music = roomData[room].option.music;
-
-        //play music
-        if (music) {
-            this.playMusic(roomData[room].option.music);
-        }
-    }
-
-    //add room music
-    addRoomAmbience(room) {
-        //get teleports data
-        let ambience = roomData[room].option.ambience;
-
-        //play ambience
-        if (ambience) {
-            this.playAmbience(roomData[room].option.ambience);
-        }
-    }
-
     //add room NPCs
     addRoomNPCs(room) {
-        //get room NPCs
-        let roomNPCs = roomData[room].npcs;
-
-        if (roomNPCs) {
-            //set NPC list
-            this.npcList = roomNPCs;
-
-            //add NPCs to game
-            for (let name of Object.keys(roomNPCs)) {
-                //disabled?
-                if (roomNPCs[name].disabled) continue;
-
-                this.addNewNPC(
-                    name,
-                    roomNPCs[name].x,
-                    roomNPCs[name].y,
-                    roomNPCs[name].direction
-                );
-            }
-        }
+        // //get room NPCs
+        // let roomNPCs = roomData[room].npcs;
+        // if (roomNPCs) {
+        //     //set NPC list
+        //     this.npcList = roomNPCs;
+        //     //add NPCs to game
+        //     for (let name of Object.keys(roomNPCs)) {
+        //         //disabled?
+        //         if (roomNPCs[name].disabled) continue;
+        //         this.addNewNPC(
+        //             name,
+        //             roomNPCs[name].x,
+        //             roomNPCs[name].y,
+        //             roomNPCs[name].direction
+        //         );
+        //     }
+        // }
     }
 
     // UI
     //reload the world when window is re-focused
     onFocus() {
-        client.requestRoomUpdate();
+        //update room if still connected to server
+        if (socket.connected) client.requestRoomUpdate();
     }
 
     //show menu
@@ -830,6 +688,9 @@ class Game extends Phaser.Scene {
             background: {
                 color: ColorScheme.White,
                 radius: 15,
+                stroke: {
+                    color: ColorScheme.LightGray,
+                },
             },
             color: utility.hexIntegerToString(ColorScheme.Black),
             maxLength: this.messageMaxLength,
@@ -1020,7 +881,7 @@ class Game extends Phaser.Scene {
                         text: 'Donate',
                         fontSize: 20,
                         onClick: () => {
-                            window.open(donationSite, '_blank');
+                            window.open(GameConfig.donationSite, '_blank');
                         },
                     },
                 ],
@@ -1180,7 +1041,9 @@ class Game extends Phaser.Scene {
     //show news menu
     showNews() {
         //combine news lines into one string separated by new lines
-        const passage = news.join('\n__________________________\n\n');
+        const passage = GameConfig.news.join(
+            '\n__________________________\n\n'
+        );
 
         //create news menu
         ui.createMenu(
@@ -1327,7 +1190,7 @@ class Game extends Phaser.Scene {
         //if chat log currently showing
         if (this.chatLogUI) {
             //get current scroll position
-            const scrollPosition = this.chatLogPanel.t;
+            const scrollPosition = this.chatLogUI.getElement('items')[0].t;
 
             //delete old chat log
             this.chatLogUI.destroy();
@@ -1343,66 +1206,69 @@ class Game extends Phaser.Scene {
         const log = this.chatLog.join('\n');
 
         //show chat log
-        var chatLogSizer = ui.createSizer(
-            this,
-            {
-                content: [
-                    {
-                        type: 'scrollable',
-                        width: 550,
-                        height: this.chatLogUIHeight,
-                        text: log,
-                        position: 0,
-                        track: { color: ColorScheme.Blue },
-                        thumb: { color: ColorScheme.LightBlue },
-                        space: {
-                            top: 0,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            item: 0,
-                            line: 0,
+        this.chatLogUI = ui
+            .createSizer(
+                this,
+                {
+                    content: [
+                        {
+                            type: 'scrollable',
+                            width: 550,
+                            height: this.chatLogUIHeight,
+                            text: log,
+                            position: 0,
+                            track: { color: ColorScheme.Blue },
+                            thumb: { color: ColorScheme.LightBlue },
+                            space: {
+                                top: 0,
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                item: 0,
+                                line: 0,
+                            },
                         },
+                        // {
+                        //     type: 'buttons',
+                        //     align: 'center',
+                        //     fontSize: 14,
+                        //     buttons: [
+                        //         {
+                        //             text: 'Global',
+                        //             align: 'left',
+                        //             onClick: () => {
+                        //                 console.log('global');
+                        //             },
+                        //         },
+                        //         {
+                        //             text: 'Local',
+                        //             align: 'left',
+                        //             onClick: () => {
+                        //                 console.log('local');
+                        //             },
+                        //         },
+                        //     ],
+                        // },
+                    ],
+                },
+                {
+                    x: 5,
+                    y: 740,
+                    background: {
+                        transparency: 0.5,
+                        stroke: { transparency: 0.5 },
                     },
-                    // {
-                    //     type: 'buttons',
-                    //     align: 'center',
-                    //     fontSize: 14,
-                    //     buttons: [
-                    //         {
-                    //             text: 'Global',
-                    //             align: 'left',
-                    //             onClick: () => {
-                    //                 console.log('global');
-                    //             },
-                    //         },
-                    //         {
-                    //             text: 'Local',
-                    //             align: 'left',
-                    //             onClick: () => {
-                    //                 console.log('local');
-                    //             },
-                    //         },
-                    //     ],
-                    // },
-                ],
-            },
-            {
-                x: 5,
-                y: 740,
-                background: { transparency: 0.5 },
-                space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 },
-            }
-        );
-        this.chatLogUI = chatLogSizer[0];
-        this.chatLogPanel = chatLogSizer[1];
+                    space: { top: 0, bottom: 0, left: 0, right: 0, item: 0 },
+                }
+            )
+            .layout();
 
         //arrange UI
         this.chatLogUI.setOrigin(0, 1);
         this.chatLogUI.layout();
 
         //set scroll position
-        this.chatLogPanel.setT(scrollPosition);
+        this.chatLogUI.getElement('items')[0].setT(scrollPosition);
 
         //close promise + animation
         this.rexUI.modalPromise(
@@ -1425,7 +1291,6 @@ class Game extends Phaser.Scene {
             function () {
                 //clear chatLogUI
                 this.chatLogUI = undefined;
-                this.chatLogPanel = undefined;
             },
             this
         );
@@ -2077,6 +1942,9 @@ class Game extends Phaser.Scene {
             //store message data
             utility.getObject(this.npcData, id).message = messageData;
         }
+
+        //check if message contains an emote
+        // if (emoteData.inclu)
 
         //format message
         var messageFormatted = this.add

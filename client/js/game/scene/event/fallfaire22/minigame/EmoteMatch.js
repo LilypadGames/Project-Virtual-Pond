@@ -85,13 +85,13 @@ class FF22EmoteMatch extends Phaser.Scene {
                 'card_flip_' + i,
                 'assets/event/ff22/minigame/emotematch/audio/sfx/card_flip_' +
                     i +
-                    '.mp3'
+                    '.ogg'
             );
         }
-        this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
+        this.load.audio('success', 'assets/audio/sfx/minigame/success.ogg');
         this.load.audio(
             'success_long',
-            'assets/audio/sfx/minigame/success_long.mp3'
+            'assets/audio/sfx/minigame/success_long.ogg'
         );
     }
 
@@ -138,13 +138,11 @@ class FF22EmoteMatch extends Phaser.Scene {
         events.end(this);
 
         //reset data
-        this.registry.destroy();
-        this.scene.stop();
-
-        //reset data
         delete this.cardObjects;
         delete this.emoteObjects;
         delete this.flippedCards;
+        this.registry.destroy();
+        this.scene.stop();
     }
 
     quit() {
@@ -167,11 +165,6 @@ class FF22EmoteMatch extends Phaser.Scene {
 
     //restart the game
     async startGame() {
-        //reset data
-        delete this.cardObjects;
-        delete this.emoteObjects;
-        delete this.flippedCards;
-
         //init flipped cards
         if (this.flippedCards === undefined) this.flippedCards = [];
 
@@ -286,17 +279,20 @@ class FF22EmoteMatch extends Phaser.Scene {
                             //make sure player is still in the right scene
                             if (currentScene.scene.key !== 'FF22EmoteMatch') return;
 
+                            //format time
+                            let formattedTime = new Date(status['time'] * 1000).toISOString().slice(14, 19);
+
                             //sfx
                             this.audio_success_long.play();
 
                             //show reward dialog
                             globalUI.showDialog(
                                 this,
-                                'Good Job!',
+                                'Time: ' + formattedTime,
                                 'You won ' +
-                                    status['prize_amount'] +
+                                    status['prizeAmount'] +
                                     ' tickets!',
-                                'Play Again',
+                                'Play Again?',
                                 async () => {
                                     //restart game
                                     this.scene.start('FF22EmoteMatch');
@@ -304,7 +300,7 @@ class FF22EmoteMatch extends Phaser.Scene {
                             );
 
                             //update ticket amount
-                            ff22.changeTickets(this, status['prize_amount']);
+                            ff22.changeTickets(this, status['prizeAmount']);
                         }, 500);
                     }
                 }, 500);

@@ -1,15 +1,12 @@
 // FF22Event Events
 
-//file parsing
-const path = require('path');
-
 //configs
-const config = require(path.join(__dirname, '../../config/config.json'));
+import config from '../../config/config.json' assert { type: 'json' };
 
 //modules
-const utility = require(path.join(__dirname, '../../utility/Utility.js'));
+import utility from '../../module/Utility.js';
 
-//DailySpinData
+//Daily Spin game data
 let DailySpinData = {
     // slices (prizes) placed in the wheel
     slices: 8,
@@ -18,7 +15,7 @@ let DailySpinData = {
     prizeAmounts: [50, 5, 25, 0, 50, 5, 25, 0],
 };
 
-//set up game data
+//Emote Match game data
 let EmoteMatchData = {
     cards: [
         'pokeAYAYA',
@@ -39,6 +36,16 @@ let EmoteMatchData = {
     rowCount: 3,
 
     prizeAmount: 30,
+};
+
+//Frog Shuffle game data
+let FrogShuffleData = {
+    frogs: ['Poke', 'Gigi', 'Jesse'],
+
+    minSequenceLength: 6,
+    sequenceLengthMultiplier: 5,
+
+    payoutPerRound: 5,
 };
 
 class FF22Event {
@@ -92,13 +99,28 @@ class FF22Event {
         this.socket.on('FF22requestCardFlip', async (index, cb) => {
             cb(await this.flippedCard(index));
         });
+
+        //trigger when client begins to play the frog shuffle game
+        this.socket.on('FF22requestFrogOrder', (cb) => {
+            cb(this.generateFrogOrder());
+        });
+
+        //trigger when client requests the hats to shuffle
+        this.socket.on('FF22requestHatShuffle', (cb) => {
+            cb(this.generateHatShuffle());
+        });
+
+        //trigger when client selects a hat
+        this.socket.on('FF22requestHatPick', (index, cb) => {
+            cb(this.pickedHat(index));
+        });
     }
 
     async onDisconnect() {
         //check if bypass auth mode is on
         if (!config.server.bypassAuth) {
             //save players ticket count
-            await this.PlayerData.changeSpecificClientPlayerData(
+            await this.PlayerData.setSpecificClientPlayerData(
                 '/event/ff22/tickets',
                 this.socket.player.internal.tickets
             );
@@ -252,6 +274,10 @@ class FF22Event {
         delete this.cardGrid;
         delete this.flippedCards;
         delete this.matchedCards;
+        delete this.emoteMatchStartTime;
+
+        //log start time
+        this.emoteMatchStartTime = Date.now();
 
         //make list of all the cards
         let cards = [];
@@ -293,6 +319,7 @@ class FF22Event {
         return true;
     }
 
+    //player attempted to flip a card
     async flippedCard(index) {
         //init game status
         let status = {};
@@ -355,7 +382,12 @@ class FF22Event {
                     status['completed'] = true;
 
                     //set prize amount
-                    status['prize_amount'] = EmoteMatchData.prizeAmount;
+                    status['prizeAmount'] = EmoteMatchData.prizeAmount;
+
+                    //set time completed
+                    status['time'] = Math.floor(
+                        (Date.now() - this.emoteMatchStartTime) / 1000
+                    );
 
                     //give tickets
                     this.socket.player.internal.tickets =
@@ -389,6 +421,157 @@ class FF22Event {
         //return status of the game
         return status;
     }
+
+    //player started playing frog shuffle and needs to get the randomized frog order
+    generateFrogOrder() {
+        //reset data
+        delete this.frogOrder;
+        delete this.hatShuffleState;
+        delete this.frogTarget;
+        delete this.correctPicks;
+
+        //set up hats in each slot
+        let frogList = FrogShuffleData.frogs.slice(0);
+
+        //init final frog order
+        this.frogOrder = [];
+
+        //randomize frog order
+        for (let index = 3; index > 0; index--) {
+            //get one of the frogs left in the list
+            let frogSlot = utility.getRandomInt(0, index - 1);
+
+            //save selected frog to final frog order
+            this.frogOrder.push(frogList[frogSlot]);
+
+            //remove frog from list as its already selected
+            frogList.splice(frogSlot, 1);
+        }
+
+        //allow player to start shuffling hats
+        this.hatShuffleState = 'shuffling';
+
+        return { status: true, frogOrder: this.frogOrder };
+    }
+
+    //player wants the randomized sequence of hat shuffling and the target
+    generateHatShuffle() {
+        //wrong state
+        if (this.hatShuffleState !== 'shuffling') {
+            return { status: false, reason: 'Wrong State.' };
+        }
+
+        //init hat switch sequence
+        let sequence = [];
+
+        //determine length of sequence (every 5, or multipler, rounds: increase by 1)
+        let getSequenceLength = () => {
+            if (this.correctPicks)
+                return (
+                    FrogShuffleData.minSequenceLength +
+                    Math.floor(
+                        this.correctPicks /
+                            FrogShuffleData.sequenceLengthMultiplier
+                    )
+                );
+            else return FrogShuffleData.minSequenceLength;
+        };
+
+        //generate hat switch sequence
+        for (let index = 0; index < getSequenceLength(); index++) {
+            //set up hats in each slot
+            let hatList = [1, 2, 3];
+
+            //init hat sequence
+            let sequenceLayer = [];
+
+            //generate this sequence layer
+            for (let index2 = 3; index2 > 1; index2--) {
+                //get one of the hats left in the list
+                let hatSlot = utility.getRandomInt(0, index2 - 1);
+
+                //save selected hat to sequence layer
+                sequenceLayer.push(hatList[hatSlot]);
+
+                //remove hat from list as its already selected
+                hatList.splice(hatSlot, 1);
+            }
+
+            //update frog order
+            [
+                this.frogOrder[sequenceLayer[0] - 1],
+                this.frogOrder[sequenceLayer[1] - 1],
+            ] = [
+                this.frogOrder[sequenceLayer[1] - 1],
+                this.frogOrder[sequenceLayer[0] - 1],
+            ];
+
+            //save sequence layer to final sequence
+            sequence.push(sequenceLayer);
+        }
+
+        //randomly pick a frog for the player to find
+        this.frogTarget = FrogShuffleData.frogs[utility.getRandomInt(0, 2)];
+
+        //set state to picking
+        this.hatShuffleState = 'picking';
+
+        //send the current game state
+        return {
+            status: true,
+            target: this.frogTarget,
+            sequence: sequence,
+            FINALFROGORDER: this.frogOrder,
+        };
+    }
+
+    //check if the player chose the correct hat corresponding to the target
+    pickedHat(index) {
+        //wrong state
+        if (this.hatShuffleState !== 'picking') {
+            return { status: false, reason: 'Wrong State.' };
+        }
+
+        //init correct picks
+        if (this.correctPicks === undefined) this.correctPicks = 0;
+
+        //player chose the correct hat
+        if (this.frogTarget === this.frogOrder[index]) {
+            //set state
+            this.hatShuffleState = 'shuffling';
+
+            //increase correct picks
+            this.correctPicks++;
+
+            //tell game to request again
+            return {
+                status: true,
+                reason: 'You found the right Frog!',
+                frogOrder: this.frogOrder,
+            };
+        }
+
+        //player chose the wrong hat
+        else {
+            //set state
+            this.hatShuffleState = 'gameover';
+
+            //generate payout from correct picks
+            let prizeAmount =
+                this.correctPicks * FrogShuffleData.payoutPerRound;
+
+            //give tickets
+            this.socket.player.internal.tickets =
+                this.socket.player.internal.tickets + prizeAmount;
+
+            return {
+                status: false,
+                reason: 'Wrong Frog!',
+                prizeAmount: prizeAmount,
+                frogOrder: this.frogOrder,
+            };
+        }
+    }
 }
 
-module.exports = FF22Event;
+export default FF22Event;

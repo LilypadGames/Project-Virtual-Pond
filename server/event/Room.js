@@ -1,27 +1,22 @@
 // Room Events
 
-//dependency: file path
-const fs = require('fs');
-const path = require('path');
-
 //config
-const config = require(path.join(__dirname, '../config/config.json'));
-const badWords = require(path.join(__dirname, '../config/bad_words.js'));
-
-//dependencies
-var chatFilter = require('leo-profanity');
-chatFilter.add(badWords.badWords);
+import config from '../config/config.json' assert { type: 'json' };
 
 //imports
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
-const logs = require(path.join(__dirname, '../utility/Logs.js'));
-const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
-const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
-const commands = require(path.join(__dirname, '../utility/Commands.js'));
+import natural from 'natural';
+const { Metaphone } = natural;
+
+//modules
+import utility from '../module/Utility.js';
+import logs from '../module/Logs.js';
+import chatLogs from '../module/ChatLogs.js';
+import moderation from '../module/Moderation.js';
+import commands from '../module/Commands.js';
+import wordFilter from '../module/WordFilter.js';
 
 //event handlers
-// const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
-const roomTheatre = require(path.join(__dirname, 'room/Theatre.js'));
+import roomTheatre from '../event/room/Theatre.js';
 
 class Room {
     constructor(io, socket, playerData, room) {
@@ -152,7 +147,10 @@ class Room {
                 ? message.trim()
                 : '';
 
-        //check if message is actually a command
+        //make sure message contains text
+        if (message === '' || message === null) return;
+
+        //check if its a message instead of a command
         if (message.startsWith('/')) {
             //check if player is an admin/mod OR no auth mode is on
             if (
@@ -221,15 +219,52 @@ class Room {
             return;
         }
 
-        //make sure message contains text
-        if (message === '' || null) {
-            return;
-        }
+        //split by spaces
+        const messageSplit = message.split(' ');
+        //convert each word
+        let messagePhonetics;
+        let messagePhoneticsNoSpaces;
+        messageSplit.forEach((string, index, array) => {
+            //convert
+            let conversion = Metaphone.process(string);
+            //add to complete conversion
+            messagePhonetics =
+                (messagePhonetics ? messagePhonetics : '') + conversion;
+            //add space (unless its the last word)
+            if (index !== array.length - 1)
+                messagePhonetics = messagePhonetics + ' ';
+            //add to complete conversion without spaces
+            messagePhoneticsNoSpaces =
+                (messagePhoneticsNoSpaces ? messagePhoneticsNoSpaces : '') +
+                conversion;
+        });
+        //compare blacklisted words to words in message using phonetics
+        let status = true;
+        let blacklist = wordFilter.get('blacklist');
+        blacklist.every(phonetic => {
+            //if the message contains a phonetic similar to one of the blacklisted ones, then deny the message
+            if (messagePhoneticsNoSpaces.includes(phonetic)) {
+                status = false;
+                return false;
+            }
+            return true;
+        });
 
-        //check if message contains blacklisted words
-        if (chatFilter.check(message.toLowerCase())) {
+        //message denied
+        if (!status) {
+            //log command
+            let logMessage = utility.timestampString(
+                'PLAYER ID: ' +
+                    this.socket.player.id +
+                    ' (' +
+                    this.socket.player.name +
+                    ')' +
+                    ' Slur Detected > ' +
+                    message
+            );
+
             //log in moderation file
-            logs.logMessage('moderation', message);
+            logs.logMessage('moderation', logMessage);
 
             // //kick
             // moderation.kickClient(
@@ -238,10 +273,21 @@ class Room {
             //     'Please no swear :)'
             // );
 
-            // return;
+            //tell player that the message was denied
+            let denyMessages = [
+                'My dumb robot brain detected a slur in your message, so I denied it.',
+                'Did you just freaking slur? Frick you.',
+                "Plz don't curse thx.",
+                'R u serious right nyow?',
+                '💀 NAHHHHHH',
+            ];
+            this.socket.emit(
+                'payloadServerMessage',
+                denyMessages[utility.getRandomInt(0, denyMessages.length - 1)]
+            );
 
-            //filter message
-            message = chatFilter.clean(message);
+            //cancel
+            return;
         }
 
         //log
@@ -363,4 +409,4 @@ class Room {
     }
 }
 
-module.exports = Room;
+export default Room;
