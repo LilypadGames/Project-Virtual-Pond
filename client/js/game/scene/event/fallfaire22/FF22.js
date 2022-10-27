@@ -19,7 +19,7 @@ class FF22 {
             //music
             scene.load.audio(
                 'frog_caves_fair',
-                'assets/event/ff22/audio/music/frog_caves_fair.mp3'
+                'assets/event/ff22/audio/music/frog_caves_fair.ogg'
             );
         }
     }

@@ -549,4 +549,28 @@ class Client {
             });
         });
     }
+    //get frog order
+    FF22generateFrogOrder() {
+        return new Promise((resolve) => {
+            socket.emit('FF22requestFrogOrder', (data) => {
+                resolve(data);
+            });
+        });
+    }
+    //get hat switching sequence and target
+    FF22requestHatShuffle() {
+        return new Promise((resolve) => {
+            socket.emit('FF22requestHatShuffle', (data) => {
+                resolve(data);
+            });
+        });
+    }
+    //send the index of the hat the player chose
+    FF22requestHatPick(index) {
+        return new Promise((resolve) => {
+            socket.emit('FF22requestHatPick', index, (data) => {
+                resolve(data);
+            });
+        });
+    }
 }

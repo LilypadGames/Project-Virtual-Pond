@@ -1,29 +1,25 @@
 // Connection Events
 
-//file parsing
-const path = require('path');
-const jsonPath = require('jsonpath');
+//imports: file parsing
+import jsonPath from 'jsonpath';
 
-//configs
-const config = require(path.join(__dirname, '../config/config.json'));
-const roomData = require(path.join(__dirname, '../config/roomData.json'));
+//config
+import config from '../config/config.json' assert { type: 'json' };
+import roomData from '../data/roomData.json' assert { type: 'json' };
 
 //modules
-const utility = require(path.join(__dirname, '../utility/Utility.js'));
-const logs = require(path.join(__dirname, '../utility/Logs.js'));
-const chatLogs = require(path.join(__dirname, '../utility/ChatLogs.js'));
-const serverMetrics = require(path.join(
-    __dirname,
-    '../utility/ServerMetrics.js'
-));
-const moderation = require(path.join(__dirname, '../utility/Moderation.js'));
-// const emoteLib = require(path.join(__dirname, '../utility/Emotes.js'));
-const globalData = require(path.join(__dirname, '../utility/GlobalData.js'));
+import utility from '../module/Utility.js';
+import logs from '../module/Logs.js';
+import chatLogs from '../module/ChatLogs.js';
+import serverMetrics from '../module/ServerMetrics.js';
+import moderation from '../module/Moderation.js';
+// import emotes from '../module/Emotes.js';
+import globalData from '../module/GlobalData.js';
 
 //event handlers
-const PlayerData = require(path.join(__dirname, 'PlayerData.js'));
-const Events = require(path.join(__dirname, 'Events.js'));
-const Room = require(path.join(__dirname, 'Room.js'));
+import PlayerData from '../event/PlayerData.js';
+import Events from '../event/Events.js';
+import Room from '../event/Room.js';
 
 class Connection {
     constructor(io, socket) {
@@ -132,17 +128,14 @@ class Connection {
             if (typeof cb === 'function') cb();
         });
 
-        //triggers when client requests emotes
-        // this.socket.on('requestEmotes', () => this.requestEmotes());
-
         //triggers when client requests the players data
-        this.socket.on('requestLoadData', (cb) => {
+        this.socket.on('requestLoadData', async (cb) => {
             var loadData = {};
             loadData['player'] = this.PlayerData.requestParsedPlayerData(
                 this.socket.player,
                 this.socket.player
             );
-            // loadData['emotes'] = emoteLib.getEmotes();
+            // loadData['emotes'] = emotes.getEmotes();
 
             cb(loadData);
         });
@@ -420,4 +413,4 @@ class Connection {
     }
 }
 
-module.exports = Connection;
+export default Connection;

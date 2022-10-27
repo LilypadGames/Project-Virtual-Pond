@@ -1,10 +1,11 @@
 {
     "version": "",
+    "production": false,
+    "logPath": "../logs",
     "server": {
         "hostName": "",
         "port": "",
         "proxy": false,
-        "local": false,
         "bypassAuth": false
     },
     "socketio_admin_dash": {
