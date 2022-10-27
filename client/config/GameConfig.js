@@ -6,7 +6,7 @@ class GameConfig {
 
     //current news
     static news = [
-        "Alpha v0.5.1 - Happy Halloween!\n\nChanges:\n - Halloween Event! Get a free Carved Pumpkin Hat in the forest while the event lasts.\n - New profanity filter being tested.\n - UI changes to match rest of the games art style.\n\nFixes:\n- A ton of background changes to the server and client! Check the Trello for more information.",
+        'Alpha v0.5.1 - Happy Halloween!\n\nChanges:\n - Halloween Event! Get a free Carved Pumpkin Hat in the forest while the event lasts.\n - New profanity filter being tested.\n - UI changes to match rest of the games art style.\n\nFixes:\n- A ton of background changes to the server and client! Check the Trello for more information.',
         // "Alpha v0.5 - Happy Birthday Poke!\n\nChanges:\n - Birthday Event! Get a free Birthday Hat in the forest while the event lasts.\n - Simple accessories mechanic implemented. Frogs can now wear things.\n - New eye types! Now you can be a sad or happy frog.\n - A lot of stats are now collected about your frog. like when you first joined, when the last time you played was, your overall playtime etc. This will eventually be shown on your profile (when that's implemented.)\n - There is now a log-out button in the options menu. finally?\n - Character creator got a visual update.\n - There is now a prompt on mobile to rotate your device when you play- also mobile touch input is now recognized!\n - Fullscreen mode button.\n - A TON of backend stuff that's too boring and long to talk about here.\n\nFixes:\n- Chat messages no longer persist when changing rooms.\n- Fixed a server crash issue. I'm sure a new one will pop up though.\n- Some other small things here and there.",
         // "Alpha v0.4 - Chat Log & New Room!\n\nChanges:\n- New Theatre Room where you can watch Poke's stream with other frogs!\n- Finally implemented a Chat Log so you can see recent messages from other frogs within each room.\n- New ambient sounds for the forest and volume control in the Options menu.\n- A welcome message now shows up the first time you access the site.\n- New site icon matching the newer frog design.\n- The character creator can be accessed at any time by the button on the toolbar.\n- New Donation button on the site. Any donation helps a lot, as I am developing this alone with any time I have!\n\nFixes:\n- Several UI bugs fixed.\n- Movement-based client crash fixed.",
         // "Alpha v0.3 - News, Dark Mode, & Backend Overhaul\n\nChanges:\n- New Dark Mode option on the site. It will take your OS's settings by default, but you can change it and the option you pick persists even if you leave the site.\n- SFX Volume option in the settings.\n- News Board that shows all these changes every update.\n- Loading screen when joining the game and in between scenes.\n- 1 Million Followers Banner. FeelsStrongMan Clap\n\nFixes:\n- Player direction, location, collision, and messages has been fixed so that they\'re synchronized across clients better.",
@@ -60,20 +60,20 @@ class GameConfig {
             event.audio
                 .add(
                     'radio_click',
-                    'room/forest/audio/sfx/object/radio_click.mp3'
+                    'room/forest/audio/sfx/object/radio_click.ogg'
                 )
                 .in(game);
             event.audio
                 .add(
                     'frog_caves_chill_kopie',
-                    'room/forest/audio/music/frog_caves_chill_kopie.mp3'
+                    'room/forest/audio/music/frog_caves_chill_kopie.ogg'
                 )
                 .in(game);
-            event.audio.add('mask', 'room/forest/audio/music/mask.mp3');
+            event.audio.add('mask', 'room/forest/audio/music/mask.ogg');
             event.audio
                 .add(
                     'forest_ambience',
-                    'room/forest/audio/ambience/forest_ambience.mp3'
+                    'room/forest/audio/ambience/forest_ambience.ogg'
                 )
                 .in(game);
 
@@ -133,7 +133,7 @@ class GameConfig {
                 event.audio
                     .add(
                         'frog_caves_fair',
-                        'event/ff22/audio/music/frog_caves_fair.mp3'
+                        'event/ff22/audio/music/frog_caves_fair.ogg'
                     )
                     .in(game);
             } else if (globalData.currentEvents.includes('FF22Dev')) {
@@ -188,6 +188,15 @@ class GameConfig {
                     .in(game);
             }
             if (globalData.currentEvents.includes('Halloween')) {
+                //audio
+                event.audio
+                    .add(
+                        'Play_With_Me_Myuu',
+                        'event/halloween/room/forest/audio/music/play_with_me_myuu.ogg'
+                    )
+                    .in(game);
+
+                //layers
                 event.texture
                     .add(
                         'Forest_JackOLantern',
@@ -195,14 +204,21 @@ class GameConfig {
                     )
                     .in(game);
                 event.texture
-                    .add('Forest_Ghosts', 'event/halloween/room/forest/layers/Ghosts.png')
+                    .add(
+                        'Forest_Ghosts',
+                        'event/halloween/room/forest/layers/Ghosts.png'
+                    )
                     .in(game);
+
+                //objects
                 event.texture
                     .add(
                         'Free_Carved_Pumpkin_Hat_Crate',
                         'event/halloween/room/forest/objects/Free_Carved_Pumpkin_Hat_Crate.png'
                     )
                     .in(game);
+
+                //shaders
                 event.texture
                     .add(
                         'Shader_JackOLantern_Eyes',
@@ -240,6 +256,8 @@ class GameConfig {
             event.option.chatLogSize.set(250).in(game);
             if (globalData.currentEvents.includes('FF22'))
                 event.option.music.set('frog_caves_fair').in(game);
+            else if (globalData.currentEvents.includes('Halloween'))
+                event.option.music.set('Play_With_Me_Myuu').in(game);
             else event.option.music.set('frog_caves_chill_kopie').in(game);
             event.option.ambience.set('forest_ambience').in(game);
 

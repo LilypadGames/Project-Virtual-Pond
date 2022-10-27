@@ -121,11 +121,11 @@ class FF22FrogShuffle extends Phaser.Scene {
                 'Slide_' + i + '_FrogShuffle',
                 'assets/event/ff22/minigame/frogshuffle/audio/sfx/slide_' +
                     i +
-                    '.mp3'
+                    '.ogg'
             );
         }
-        this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
-        this.load.audio('failure', 'assets/audio/sfx/minigame/failure.mp3');
+        this.load.audio('success', 'assets/audio/sfx/minigame/success.ogg');
+        this.load.audio('failure', 'assets/audio/sfx/minigame/failure.ogg');
 
         //layers
         this.load.image(

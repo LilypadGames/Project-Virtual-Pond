@@ -23,7 +23,7 @@ class GlobalUI {
         //sfx
         scene.load.audio(
             'button_click',
-            'assets/audio/sfx/UI/button_click.mp3'
+            'assets/audio/sfx/UI/button_click.ogg'
         );
 
         //UI

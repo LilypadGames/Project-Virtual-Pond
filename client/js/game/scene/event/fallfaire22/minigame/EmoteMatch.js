@@ -85,13 +85,13 @@ class FF22EmoteMatch extends Phaser.Scene {
                 'card_flip_' + i,
                 'assets/event/ff22/minigame/emotematch/audio/sfx/card_flip_' +
                     i +
-                    '.mp3'
+                    '.ogg'
             );
         }
-        this.load.audio('success', 'assets/audio/sfx/minigame/success.mp3');
+        this.load.audio('success', 'assets/audio/sfx/minigame/success.ogg');
         this.load.audio(
             'success_long',
-            'assets/audio/sfx/minigame/success_long.mp3'
+            'assets/audio/sfx/minigame/success_long.ogg'
         );
     }
 
