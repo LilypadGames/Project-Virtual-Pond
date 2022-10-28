@@ -63,7 +63,7 @@ window.onload = function () {
     var config = {
         gameTitle: 'Project Virtual Pond',
         gameVersion: 'InDev v0.0.1',
-        type: Phaser.AUTO,
+        type: Phaser.CANVAS,
         scale: {
             parent: 'game-container',
             fullscreenTarget: 'game-container',
@@ -111,12 +111,6 @@ window.onload = function () {
                     plugin: rexsoundfadeplugin,
                     start: true,
                     mapping: 'rexSoundFade',
-                },
-                {
-                    key: 'rexOutlineFX',
-                    plugin: rexoutlinepipelineplugin,
-                    start: true,
-                    mapping: 'rexOutlineFX',
                 },
                 {
                     key: 'rexInputText',
