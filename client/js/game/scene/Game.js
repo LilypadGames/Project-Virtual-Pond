@@ -841,23 +841,7 @@ class Game extends Phaser.Scene {
                 content: [
                     {
                         type: 'text',
-                        text: 'This game runs smoother with Hardware Acceleration enabled.',
-                        fontSize: 20,
-                    },
-                    {
-                        type: 'button',
-                        text: 'Turn on Hardware Acceleration',
-                        fontSize: 20,
-                        onClick: () => {
-                            window.open(
-                                'https://www.webnots.com/what-is-hardware-acceleration-and-how-to-enable-in-browsers/',
-                                '_blank'
-                            );
-                        },
-                    },
-                    {
-                        type: 'text',
-                        text: 'Find a bug or need support?',
+                        text: 'Want To Keep Up With Development Or Need Help?',
                         fontSize: 20,
                     },
                     {
@@ -873,7 +857,7 @@ class Game extends Phaser.Scene {
                     },
                     {
                         type: 'text',
-                        text: 'This game is free. However, any donations of any amount\n would help a ton with my development and are very much appreciated!',
+                        text: 'Consider Donating To Support Development!',
                         fontSize: 20,
                     },
                     {

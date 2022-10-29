@@ -2,7 +2,7 @@
 
 class GameConfig {
     //version of the welcome message. resends to all players on join when changed.
-    static welcomeMessageVersion = 2;
+    static welcomeMessageVersion = 3;
 
     //current news
     static news = [
