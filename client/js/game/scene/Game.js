@@ -1296,7 +1296,7 @@ class Game extends Phaser.Scene {
         client.playerMoved(x, y, this.getPlayerDirection(clientID));
     }
 
-    //on mouse down
+    //direction changed
     onDirectionChangeAttempt(direction) {
         //if clicking is disabled, cancel
         if (this.disableInput) return;
@@ -1649,6 +1649,7 @@ class Game extends Phaser.Scene {
     //get players current direction
     getPlayerDirection(id) {
         //get player sprite container
+        if (!this.playerCharacter[id]) return;
         var playerSprites = this.playerCharacter[id].list[0];
 
         //player character is facing right
