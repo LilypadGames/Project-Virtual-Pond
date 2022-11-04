@@ -215,7 +215,9 @@ class CharacterCreator extends Phaser.Scene {
                                 .getElement('background')
                                 .setStrokeStyle(3, ColorScheme.White);
                         } else {
-                            button.getElement('background').setStrokeStyle(0);
+                            button
+                                .getElement('background')
+                                .setStrokeStyle(3, ColorScheme.DarkBlue);
                         }
                     }, this);
                 },
@@ -223,13 +225,16 @@ class CharacterCreator extends Phaser.Scene {
             .setDepth(this.depthCharacterUI)
             .setOrigin(0, 0.5)
             .layout();
+
         eye_buttons.forEachButtton((button, thisIndex) => {
             if (this.characterData.eye_type === eyesData[thisIndex].id) {
                 button
                     .getElement('background')
                     .setStrokeStyle(3, ColorScheme.White);
             } else {
-                button.getElement('background').setStrokeStyle(0);
+                button
+                    .getElement('background')
+                    .setStrokeStyle(3, ColorScheme.DarkBlue);
             }
         }, this);
 
@@ -306,7 +311,10 @@ class CharacterCreator extends Phaser.Scene {
                                     } else {
                                         button
                                             .getElement('background')
-                                            .setStrokeStyle(0);
+                                            .setStrokeStyle(
+                                                3,
+                                                ColorScheme.DarkBlue
+                                            );
                                     }
                                 },
                                 this
@@ -325,7 +333,7 @@ class CharacterCreator extends Phaser.Scene {
                 //             .getElement('background')
                 //             .setStrokeStyle(3, ColorScheme.White);
                 //     } else {
-                //         button.getElement('background').setStrokeStyle(0);
+                //         button.getElement('background').setStrokeStyle(3, ColorScheme.DarkBlue);
                 //     }
                 // }, this);
             }
@@ -397,9 +405,13 @@ class CharacterCreator extends Phaser.Scene {
             this.nametag.setStroke(ColorScheme.Black, fontSize / 4);
         }
 
+        //create tinted frog texture from players color
+        let tint = utility.hexIntegerToString(data.color);
+        this.tintFrog(tint);
+
         //player character
         var playerBody = this.add
-            .sprite(0, 0, 'CC_frog_body')
+            .sprite(0, 0, 'CC_frog_body_' + tint)
             .setOrigin(0.5, 1);
         var playerBelly = this.add
             .sprite(0, 0, 'CC_frog_belly')
@@ -436,9 +448,6 @@ class CharacterCreator extends Phaser.Scene {
             playerAccessory,
         ]);
 
-        //update players color
-        this.character.list[0].tint = data.color;
-
         //set character as created
         this.characterCreated = true;
     }
@@ -447,7 +456,9 @@ class CharacterCreator extends Phaser.Scene {
     updateCharacter() {
         if (this.characterCreated) {
             //update players color
-            this.character.list[0].tint = this.characterData.color;
+            let tint = utility.hexIntegerToString(this.characterData.color);
+            this.tintFrog(tint);
+            this.character.list[0].setTexture('CC_frog_body_' + tint);
 
             //update players eye type
             this.character.list[2].setTexture(
@@ -465,5 +476,32 @@ class CharacterCreator extends Phaser.Scene {
                 this.character.list[3].setVisible(false);
             }
         }
+    }
+
+    //create a tinted version of the frog
+    tintFrog(tint) {
+        //check if already created
+        if (this.textures.exists('CC_frog_body_' + tint)) return;
+
+        //get base tintable texture
+        let baseTexture = this.textures.get('CC_frog_body').getSourceImage();
+
+        //init new tinted texture
+        var tintedTexture = this.textures.createCanvas(
+            'CC_frog_body_' + tint,
+            baseTexture.width,
+            baseTexture.height
+        );
+
+        //get tinted texture data
+        var ctx = tintedTexture.context;
+
+        //apply tint
+        ctx.fillStyle = tint;
+        ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.drawImage(baseTexture, 0, 0);
+        ctx.globalCompositeOperation = 'destination-atop';
+        ctx.drawImage(baseTexture, 0, 0);
     }
 }
