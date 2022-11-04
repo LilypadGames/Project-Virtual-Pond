@@ -1296,7 +1296,7 @@ class Game extends Phaser.Scene {
         client.playerMoved(x, y, this.getPlayerDirection(clientID));
     }
 
-    //on mouse down
+    //direction changed
     onDirectionChangeAttempt(direction) {
         //if clicking is disabled, cancel
         if (this.disableInput) return;
@@ -1619,8 +1619,12 @@ class Game extends Phaser.Scene {
                 //get player body sprite
                 var playerBody = this.playerCharacter[data.id].list[0].list[0];
 
+                //get tint
+                let tint = utility.hexIntegerToString(data.character.color);
+                this.tintFrog(tint);
+
                 //update color
-                playerBody.tint = data.character.color;
+                playerBody.setTexture('frog_body_' + tint);
             }
 
             //eye type
@@ -1646,9 +1650,37 @@ class Game extends Phaser.Scene {
         }
     }
 
+    //create a tinted version of the frog
+    tintFrog(tint) {
+        //check if already created
+        if (this.textures.exists('frog_body_' + tint)) return;
+
+        //get base tintable texture
+        let baseTexture = this.textures.get('frog_body').getSourceImage();
+
+        //init new tinted texture
+        var tintedTexture = this.textures.createCanvas(
+            'frog_body_' + tint,
+            baseTexture.width,
+            baseTexture.height
+        );
+
+        //get tinted texture data
+        var ctx = tintedTexture.context;
+
+        //apply tint
+        ctx.fillStyle = tint;
+        ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.drawImage(baseTexture, 0, 0);
+        ctx.globalCompositeOperation = 'destination-atop';
+        ctx.drawImage(baseTexture, 0, 0);
+    }
+
     //get players current direction
     getPlayerDirection(id) {
         //get player sprite container
+        if (!this.playerCharacter[id]) return;
         var playerSprites = this.playerCharacter[id].list[0];
 
         //player character is facing right

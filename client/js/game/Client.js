@@ -454,6 +454,10 @@ class Client {
             if (currentScene.scene.key == 'Game') {
                 //update players in room
                 for (var i = 0; i < data.length; i++) {
+                    //do not update the client player
+                    if (data[i].id === clientID) continue;
+
+                    //update other players state
                     currentScene.updatePlayer(data[i]);
                 }
 
@@ -487,7 +491,8 @@ class Client {
     requestItemPurchase(itemID) {
         socket.emit('requestItemPurchase', itemID, (action) => {
             //title is not provided
-            if (!action.title) action.title = action.status ? 'Success' : 'Oops!';
+            if (!action.title)
+                action.title = action.status ? 'Success' : 'Oops!';
 
             //show response from server to requested item purchase
             globalUI.showDialog(
