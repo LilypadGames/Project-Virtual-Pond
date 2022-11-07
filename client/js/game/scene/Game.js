@@ -1619,12 +1619,8 @@ class Game extends Phaser.Scene {
                 //get player body sprite
                 var playerBody = this.playerCharacter[data.id].list[0].list[0];
 
-                //get tint
-                let tint = utility.hexIntegerToString(data.character.color);
-                this.tintFrog(tint);
-
                 //update color
-                playerBody.setTexture('frog_body_' + tint);
+                playerBody.setTexture(this.getTintedFrogSprite('frog_body', utility.hexIntegerToString(data.character.color)));
             }
 
             //eye type
@@ -1651,30 +1647,33 @@ class Game extends Phaser.Scene {
     }
 
     //create a tinted version of the frog
-    tintFrog(tint) {
-        //check if already created
-        if (this.textures.exists('frog_body_' + tint)) return;
+    getTintedFrogSprite(sprite, tint) {
+        //if texture not created yet
+        if (!this.textures.exists(sprite + '_' + tint)) {
+            //get base tintable texture
+            let baseTexture = this.textures.get(sprite).getSourceImage();
 
-        //get base tintable texture
-        let baseTexture = this.textures.get('frog_body').getSourceImage();
+            //init new tinted texture
+            var tintedTexture = this.textures.createCanvas(
+                sprite + '_' + tint,
+                baseTexture.width,
+                baseTexture.height
+            );
 
-        //init new tinted texture
-        var tintedTexture = this.textures.createCanvas(
-            'frog_body_' + tint,
-            baseTexture.width,
-            baseTexture.height
-        );
+            //get tinted texture data
+            var ctx = tintedTexture.context;
 
-        //get tinted texture data
-        var ctx = tintedTexture.context;
+            //apply tint
+            ctx.fillStyle = tint;
+            ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.drawImage(baseTexture, 0, 0);
+            ctx.globalCompositeOperation = 'destination-atop';
+            ctx.drawImage(baseTexture, 0, 0);
+        }
 
-        //apply tint
-        ctx.fillStyle = tint;
-        ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.drawImage(baseTexture, 0, 0);
-        ctx.globalCompositeOperation = 'destination-atop';
-        ctx.drawImage(baseTexture, 0, 0);
+        //return tinted sprite
+        return sprite + '_' + tint;
     }
 
     //get players current direction
