@@ -227,8 +227,10 @@ class GameConfig {
                     .in(game);
             }
 
-            //Theatre Room
-        } else if (room === 'theatre') {
+        }
+        
+        //Theatre Room
+        else if (room === 'theatre') {
             //textures
             event.texture
                 .add('Theatre_Background', 'room/theatre/layers/Background.png')
