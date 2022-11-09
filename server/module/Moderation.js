@@ -17,7 +17,7 @@ export default {
         kickMessage = 'You have been kicked.'
     ) {
         //log
-        message = utility.timestampString(
+        let message = utility.timestampString(
             'PLAYER ID: ' +
                 player.id +
                 ' (' +
