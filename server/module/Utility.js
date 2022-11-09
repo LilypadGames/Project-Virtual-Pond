@@ -51,4 +51,17 @@ export default {
         }
         return c;
     },
+
+    sanitize: {
+        //strings
+        string: function(input) { return typeof(input) === 'string' && input.trim().length > 0 ? input.trim() : '' },
+        //booleans
+        boolean: function(input) { return typeof(input) === 'boolean' && input === true ? true : false },
+        //arrays
+        array: function(input) { return typeof(input) === 'object' && input instanceof Array ? input : [] },
+        //numbers
+        number: function(input) { return typeof(input) === 'number' && input % 1 === 0 ? input : 0 },
+        //objects
+        object: function(input) { return typeof(input) === 'object' && !(input instanceof Array) && input !== null ? input : {} }
+    }
 };

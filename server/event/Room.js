@@ -44,22 +44,22 @@ class Room {
 
         //triggers when player moves
         this.socket.on('playerMoved', (x, y, direction) =>
-            this.playerMoved(x, y, direction)
+            this.playerMoved(utility.sanitize.number(x), utility.sanitize.number(y), utility.sanitize.string(direction))
         );
 
         //triggers when player changes direction
         this.socket.on('playerChangedDirection', (direction, x, y) =>
-            this.playerChangedDirection(direction, x, y)
+            this.playerChangedDirection(utility.sanitize.string(direction), utility.sanitize.number(x), utility.sanitize.number(y))
         );
 
         //triggers when player sends a message
         this.socket.on('playerSendingMessage', (message) =>
-            this.playerSendingMessage(message)
+            this.playerSendingMessage(utility.sanitize.string(message))
         );
 
         //triggers when player is attempting to interact with an interactable object
         this.socket.on('playerInteractingWithObject', (objectID) =>
-            this.playerInteractingWithObject(objectID)
+            this.playerInteractingWithObject(utility.sanitize.number(objectID))
         );
     }
 
@@ -141,12 +141,6 @@ class Room {
 
     //triggers when player sends a message
     playerSendingMessage(message) {
-        //sanitize message
-        message =
-            typeof message === 'string' && message.trim().length > 0
-                ? message.trim()
-                : '';
-
         //make sure message contains text
         if (message === '' || message === null) return;
 

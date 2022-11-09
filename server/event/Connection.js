@@ -147,7 +147,7 @@ class Connection {
 
         //triggers when client is attempting to join a room
         this.socket.on('requestRoom', async (room, cb) => {
-            cb(await this.requestRoom(room));
+            cb(await this.requestRoom(utility.sanitize.string(room)));
         });
 
         //triggers when client leaves a room
@@ -155,7 +155,7 @@ class Connection {
 
         //triggers when client joins a room
         this.socket.on('joinRoom', async (room, cb) => {
-            cb(await this.joinRoom(room));
+            cb(await this.joinRoom(utility.sanitize.string(room)));
         });
 
         //triggers on connection error
