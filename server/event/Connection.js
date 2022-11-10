@@ -88,6 +88,11 @@ class Connection {
             this.socket.player = {
                 id: this.io.guestID,
                 name: 'Guest',
+                direction: 'left',
+                character: {
+                    eye_type: 'happy',
+                    color: 0
+                },
             };
 
             //register events

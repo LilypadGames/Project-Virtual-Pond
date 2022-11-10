@@ -63,7 +63,12 @@ class FF22Event {
         this.register();
 
         //get players ticket count
-        this.socket.player.internal.tickets = await this.retreiveTicketCount();
+        try {
+            this.socket.player.internal.tickets = await this.retrieveTicketCount();
+        } catch (error) {
+            this.socket.player.internal = {}
+            this.socket.player.internal.tickets = await this.retrieveTicketCount();
+        }
 
         //init spins
         this.dailySpinCheck();
@@ -149,6 +154,11 @@ class FF22Event {
 
     //triggers when client requests the players ticket count
     getTicketCount() {
+        try {
+            return this.socket.player.internal.tickets;
+        } catch (error) {
+            return 0
+        }
     }
 
     //triggers when client requests the daily spin count
