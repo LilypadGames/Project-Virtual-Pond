@@ -40,49 +40,49 @@ class Client {
         socket.on('disconnect', () => {
             this.onDisconnect();
         });
-        //recieve kick reason
+        //receive kick reason
         socket.on('payloadKickReason', (reason) => {
             this.onKickReasonReceived(reason);
         });
 
         //GLOBAL DATA
-        // //recieve global data
+        // //receive global data
         // socket.on('payloadGlobalData', (data) => {
         //     this.onGlobalDataReceived(data);
         // });
-        //recieve global data change
+        //receive global data change
         socket.on('payloadGlobalDataUpdate', (object, value) => {
             this.onGlobalDataUpdate(object, value);
         });
 
         //SCENES
-        //recieve next scene
+        //receive next scene
         socket.on('payloadNewScene', (scene, parameters) => {
             this.onNewSceneReceived(scene, parameters);
         });
 
         // PLAYERS
-        //recieve new player data
+        //receive new player data
         socket.on('payloadNewPlayerData', (data) => {
             this.onNewPlayerDataReceived(data);
         });
-        //recieved removal of player
+        //received removal of player
         socket.on('removePlayer', (id) => {
             this.onPlayerRemoved(id);
         });
-        //recieved player message
+        //received player message
         socket.on('showPlayerMessage', (data) => {
             this.onPlayerMessageUpdate(data);
         });
-        //recieved player message
+        //received player message
         socket.on('removePlayerMessage', (data) => {
             this.onPlayerMessageRemoved(data);
         });
-        //recieved new player character look
+        //received new player character look
         socket.on('updatePlayerCharacter', (data) => {
             this.onPlayerCharacterUpdate(data);
         });
-        //recieved player movement
+        //received player movement
         socket.on('movePlayer', (data) => {
             this.onMovePlayerReceived(data);
         });
@@ -90,21 +90,21 @@ class Client {
         socket.on('updatePlayerDirection', (id, direction) => {
             this.onPlayerDirectionUpdate(id, direction);
         });
-        //recieved player movement changed
+        //received player movement changed
         socket.on('changePlayerMovement', (data) => {
             this.onPlayerMovementUpdate(data);
         });
-        //recieved interactNPC data of player
+        //received interactNPC data of player
         socket.on('setPlayerAttemptingObjectInteraction', (data) => {
             this.onplayerInteractingWithObject(data);
         });
 
         // MISC
-        //recieve server message
+        //receive server message
         socket.on('payloadServerMessage', (message) => {
             this.onServerMessageReceived(message);
         });
-        //recieve stream status
+        //receive stream status
         socket.on('payloadStreamStatus', (status) => {
             this.onStreamStatusReceived(status);
         });
@@ -127,30 +127,30 @@ class Client {
         //disconnect player
         socket.disconnect();
     }
-    //recieve kick reason
+    //receive kick reason
     onKickReasonReceived(reason) {
         kickReason = reason;
     }
 
     //GENERAL DATA
-    //recieve global data change
+    //receive global data change
     onGlobalDataUpdate(object, value) {
         globalData[object] = value;
     }
 
     //SCENES
-    //recieve next scene
+    //receive next scene
     onNewSceneReceived(scene, parameters) {
         currentScene.end();
         currentScene.scene.start(scene, parameters);
     }
 
     // PLAYERS
-    //recieve new player data
+    //receive new player data
     onNewPlayerDataReceived(data) {
         if (currentScene.scene.key == 'Game') currentScene.addNewPlayer(data);
     }
-    //recieved removal of player
+    //received removal of player
     onPlayerRemoved(id) {
         if (currentScene.scene.key == 'Game') {
             //log
@@ -165,7 +165,7 @@ class Client {
             currentScene.removePlayer(id);
         }
     }
-    //recieved player message
+    //received player message
     onPlayerMessageUpdate(data) {
         if (currentScene.scene.key == 'Game') {
             //log
@@ -187,13 +187,13 @@ class Client {
             currentScene.showMessage(data.id, data.messageData);
         }
     }
-    //recieved player message
+    //received player message
     onPlayerMessageRemoved(data) {
         if (currentScene.scene.key == 'Game') {
             currentScene.removeMessage(data.id, data.messageID);
         }
     }
-    //recieved new player character look
+    //received new player character look
     onPlayerCharacterUpdate(data) {
         if (currentScene.scene.key == 'Game') {
             //log
@@ -213,7 +213,7 @@ class Client {
             currentScene.updatePlayer(data);
         }
     }
-    //recieved player movement
+    //received player movement
     onMovePlayerReceived(data) {
         if (currentScene.scene.key == 'Game') {
             //log
@@ -258,7 +258,7 @@ class Client {
             currentScene.setPlayerDirection(id, direction);
         }
     }
-    //recieved player movement changed
+    //received player movement changed
     onPlayerMovementUpdate(data) {
         if (currentScene.scene.key == 'Game') {
             //log
@@ -286,7 +286,7 @@ class Client {
             );
         }
     }
-    //recieved interactNPC data of player
+    //received interactNPC data of player
     onplayerInteractingWithObject(data) {
         if (currentScene.scene.key == 'Game') {
             //log
@@ -318,7 +318,7 @@ class Client {
     //receive stream status
     onStreamStatusReceived(status) {
         // globalUI.showToast(currentScene, 'Stream Status: ' + status);
-        // console.log('STREAM STATUS RECIEVED: ' + status);
+        // console.log('STREAM STATUS received: ' + status);
         // //theatre room
         // if (currentScene.room == 'theatre') {
         //     console.log('UPDATE LIVE/MEDIA STREAM');

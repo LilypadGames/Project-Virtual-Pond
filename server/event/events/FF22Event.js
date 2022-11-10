@@ -127,8 +127,8 @@ class FF22Event {
         }
     }
 
-    //triggers when the players ticket count should be retreived
-    async retreiveTicketCount() {
+    //triggers when the players ticket count should be retrieved
+    async retrieveTicketCount() {
         //get ticket count
         let ticketCount = await this.PlayerData.getSpecificClientPlayerData(
             '/event/ff22/tickets'
@@ -149,7 +149,6 @@ class FF22Event {
 
     //triggers when client requests the players ticket count
     getTicketCount() {
-        return this.socket.player.internal.tickets;
     }
 
     //triggers when client requests the daily spin count

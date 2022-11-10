@@ -315,7 +315,7 @@ class Connection {
         );
 
         //send new player to ONLY OTHER clients in this room
-        let newPlayerData = await this.PlayerData.requestParsedPlayerData(
+        let newPlayerData = this.PlayerData.requestParsedPlayerData(
             this.socket.player
         );
         this.socket

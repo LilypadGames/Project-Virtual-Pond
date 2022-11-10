@@ -226,7 +226,7 @@ class Game extends Phaser.Scene {
             utility.storeLocalStorageArray('gameValues', options);
         }
 
-        //tell server that the client has joined this room and recieve information such as currently connected players to this room
+        //tell server that the client has joined this room and receive information such as currently connected players to this room
         let roomData = await client.joinRoom(this.room);
 
         //add connected players into room
