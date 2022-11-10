@@ -320,26 +320,26 @@ class GlobalUI {
 
     //create outlines on hover
     setOutlineOnHover(scene, sprite) {
-        sprite
-            .on(
-                'pointerover',
-                function () {
-                    // //show outline
-                    // this.rexOutlineFX.add(sprite, {
-                    //     thickness: 3,
-                    //     outlineColor: ColorScheme.White,
-                    // });
-                },
-                scene
-            )
-            .on(
-                'pointerout',
-                function () {
-                    // //remove outline
-                    // this.rexOutlineFX.remove(sprite);
-                },
-                scene
-            );
+        // sprite
+        //     .on(
+        //         'pointerover',
+        //         function () {
+        //             // //show outline
+        //             // this.rexOutlineFX.add(sprite, {
+        //             //     thickness: 3,
+        //             //     outlineColor: ColorScheme.White,
+        //             // });
+        //         },
+        //         scene
+        //     )
+        //     .on(
+        //         'pointerout',
+        //         function () {
+        //             // //remove outline
+        //             // this.rexOutlineFX.remove(sprite);
+        //         },
+        //         scene
+        //     );
     }
 
     //update ping text
