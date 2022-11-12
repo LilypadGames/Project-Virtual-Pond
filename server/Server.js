@@ -404,6 +404,10 @@ if (config.server.bypassAuth) {
     io.guestID = 0;
 }
 
+//init global data
+import globalData from '../server/module/GlobalData.js';
+await globalData.init(io);
+
 //init chat log storage
 import chatLogs from '../server/module/ChatLogs.js';
 chatLogs.init(io);
@@ -417,10 +421,6 @@ chatLogs.init(io);
 // } catch (error) {
 //     console.log(ConsoleColor.Red, utility.timestampString(error));
 // }
-
-//init global data
-import globalData from '../server/module/GlobalData.js';
-globalData.init(io);
 
 //init bad words filter
 import wordFilter from '../server/module/WordFilter.js';

@@ -146,8 +146,9 @@ class Connection {
         });
 
         //triggers when client requests global data
-        this.socket.on('requestGlobalData', (cb) => {
-            cb(globalData.get());
+        this.socket.on('requestGlobalData', async (cb) => {
+            let data = await globalData.get();
+            cb(data);
         });
 
         //triggers when client is attempting to join a room

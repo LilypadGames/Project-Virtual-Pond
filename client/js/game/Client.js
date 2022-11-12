@@ -46,13 +46,9 @@ class Client {
         });
 
         //GLOBAL DATA
-        // //receive global data
-        // socket.on('payloadGlobalData', (data) => {
-        //     this.onGlobalDataReceived(data);
-        // });
         //receive global data change
-        socket.on('payloadGlobalDataUpdate', (object, value) => {
-            this.onGlobalDataUpdate(object, value);
+        socket.on('payloadGlobalDataUpdate', (value) => {
+            this.onGlobalDataUpdate(value);
         });
 
         //SCENES
@@ -134,8 +130,8 @@ class Client {
 
     //GENERAL DATA
     //receive global data change
-    onGlobalDataUpdate(object, value) {
-        globalData[object] = value;
+    onGlobalDataUpdate(value) {
+        globalData = value;
     }
 
     //SCENES

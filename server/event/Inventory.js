@@ -10,9 +10,6 @@ import jsonPath from 'jsonpath';
 //get config values
 import itemData from '../data/itemData.json' assert { type: 'json' };
 
-//modules
-import globalData from '../module/GlobalData.js';
-
 class Inventory {
     constructor(io, socket, playerData) {
         //save socket and socket.io instance
@@ -82,11 +79,8 @@ class Inventory {
             //event conditions
             if (item.conditions.event) {
                 //check if event is one of the current events
-                if (
-                    !globalData
-                        .getObject('currentEvents')
-                        .includes(item.conditions.event)
-                )
+                let data = globalData.getData('/currentEvents');
+                if (!data.includes(item.conditions.event))
                     return {
                         status: false,
                         reason: 'Item is not obtainable at this time.',

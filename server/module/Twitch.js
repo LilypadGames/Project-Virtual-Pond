@@ -106,7 +106,7 @@ export default {
         //online event
         const onLive = await listener.subscribeToStreamOnlineEvents(
             streamerID,
-            (event) => {
+            async (event) => {
                 console.log(
                     ConsoleColor.Cyan,
                     utility.timestampString(
@@ -115,7 +115,7 @@ export default {
                 );
 
                 //set stream live to true
-                this.globalData.set('streamLive', true);
+                await this.globalData.set('streamLive', true);
 
                 //trigger live event
                 twitchEvent.emit('streamLive', true);
@@ -125,7 +125,7 @@ export default {
         //offline event
         const onOffline = await listener.subscribeToStreamOfflineEvents(
             streamerID,
-            (event) => {
+            async (event) => {
                 console.log(
                     ConsoleColor.Cyan,
                     utility.timestampString(
@@ -134,7 +134,7 @@ export default {
                 );
 
                 //set stream live to false
-                this.globalData.set('streamLive', false);
+                await this.globalData.set('streamLive', false);
 
                 //trigger live event
                 twitchEvent.emit('streamLive', false);
