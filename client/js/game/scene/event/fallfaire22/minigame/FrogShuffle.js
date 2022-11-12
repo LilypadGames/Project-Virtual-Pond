@@ -394,17 +394,6 @@ class FF22FrogShuffle extends Phaser.Scene {
         //wait for swapping to finish
         await utility.wait(queueTime + 1000);
 
-        //make hats interactable
-        this.hats.forEach((hat, index) => {
-            hat.setInteractive();
-
-            //remove old listener
-            hat.removeListener('pointerdown');
-
-            //give click listener
-            hat.on('pointerdown', this.hatSelected.bind(this, index));
-        });
-
         //ask player to choose a hat matching the target
         this.targetDisplay = ui
             .createSizer(
@@ -436,11 +425,22 @@ class FF22FrogShuffle extends Phaser.Scene {
             )
             .setOrigin(0.5, 0)
             .layout();
+
+        //make hats interactive
+        this.hats.forEach((hat, index) => {
+            hat.setInteractive();
+
+            //remove old listener
+            hat.removeListener('pointerdown');
+
+            //give click listener
+            hat.on('pointerdown', this.hatSelected.bind(this, index));
+        });
     }
 
     //hat selected
     async hatSelected(index) {
-        //remove interactability from hats
+        //remove interactivity from hats
         this.hats.forEach((hat) => {
             hat.disableInteractive();
         });

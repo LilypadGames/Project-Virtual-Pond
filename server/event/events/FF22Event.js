@@ -5,6 +5,7 @@ import config from '../../config/config.json' assert { type: 'json' };
 
 //modules
 import utility from '../../module/Utility.js';
+import globalData from '../../module/GlobalData.js'
 
 //Daily Spin game data
 let DailySpinData = {
@@ -116,8 +117,8 @@ class FF22Event {
         });
 
         //trigger when client selects a hat
-        this.socket.on('FF22requestHatPick', (index, cb) => {
-            cb(this.pickedHat(index));
+        this.socket.on('FF22requestHatPick', async (index, cb) => {
+            cb(await this.pickedHat(index));
         });
     }
 
@@ -529,13 +530,12 @@ class FF22Event {
         return {
             status: true,
             target: this.frogTarget,
-            sequence: sequence,
-            FINALFROGORDER: this.frogOrder,
+            sequence: sequence
         };
     }
 
     //check if the player chose the correct hat corresponding to the target
-    pickedHat(index) {
+    async pickedHat(index) {
         //wrong state
         if (this.hatShuffleState !== 'picking') {
             return { status: false, reason: 'Wrong State.' };
@@ -573,13 +573,64 @@ class FF22Event {
             this.socket.player.internal.tickets =
                 this.socket.player.internal.tickets + prizeAmount;
 
-            return {
+            let endStatus = {
                 status: false,
                 reason: 'Wrong Frog!',
                 prizeAmount: prizeAmount,
                 frogOrder: this.frogOrder,
             };
+
+            //did player place on leaderboard?
+            if (this.correctPicks > 0 && await this.updateLeaderboard('FrogShuffle', this.socket.player.name, prizeAmount)) {
+                endStatus.leaderboard = await globalData.getPath('leaderboard/FrogShuffle');
+            }
+
+            // console.log(globalData.getObject('leaderboard')['FrogShuffle'])
+
+            return endStatus;
         }
+    }
+
+    //try to update the minigames leaderboard with new score. returns true if player placed on the leaderboard.
+    async updateLeaderboard(minigame, player, score) {
+        //init minigame's leaderboard
+        let leaderboard = {};
+        try {
+            leaderboard = await globalData.getPath('leaderboard/' + minigame);
+        } catch {}
+
+        //player is already on leaderboard and new score is better than the player's current leaderboard score
+        if (player in leaderboard && leaderboard[player] < score) {
+            //replace old score
+            leaderboard[player] = score;
+
+            //re-sort leaderboard
+            leaderboard = utility.sort.object(leaderboard);
+
+            //update leaderboard
+            globalData.set('leaderboard/' + minigame, leaderboard);
+
+            return true
+        }
+
+        //players is not on leaderboard and new score is better than last score in leaderboard or leaderboard is not full
+        if (!(player in leaderboard) && (Object.keys(leaderboard).length < 5 || Object.keys(leaderboard).pop() < score)) {
+                //remove last score in leaderboard if leaderboard is full
+                if (Object.keys(leaderboard).length >= 5) delete leaderboard[Object.keys(leaderboard)[Object.keys(leaderboard).length-1]]
+
+                //add score to leaderboard
+                leaderboard[player] = score;
+
+                //re-sort leaderboard
+                leaderboard = utility.sort.object(leaderboard);
+
+                //update leaderboard
+                globalData.set('leaderboard/' + minigame, leaderboard);
+
+                return true
+        }
+
+        return false
     }
 }
 

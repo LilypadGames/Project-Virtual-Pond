@@ -33,7 +33,7 @@ export default {
         );
     },
 
-    //create directory if doesnt exist
+    //create directory if doesn't exist
     createDirectory: function (dir) {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir);
@@ -52,6 +52,7 @@ export default {
         return c;
     },
 
+    //sanitize variable
     sanitize: {
         //strings
         string: function(input) { return typeof(input) === 'string' && input.trim().length > 0 ? input.trim() : '' },
@@ -63,5 +64,15 @@ export default {
         number: function(input) { return typeof(input) === 'number' && input % 1 === 0 ? input : 0 },
         //objects
         object: function(input) { return typeof(input) === 'object' && !(input instanceof Array) && input !== null ? input : {} }
+    },
+
+    //sort
+    sort: {
+        //object
+        object: function(object, asc=false) {
+            const sortedObject = {};
+            Object.keys(object).sort((a,b) => object[asc?a:b]-object[asc?b:a]).forEach(s => sortedObject[s] = object[s]);
+            return sortedObject
+        }
     }
 };
