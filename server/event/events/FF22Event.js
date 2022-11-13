@@ -403,10 +403,15 @@ class FF22Event {
                     this.socket.player.internal.tickets =
                         this.socket.player.internal.tickets +
                         EmoteMatchData.prizeAmount;
+
+                    //did player place on leaderboard?
+                    if (await this.updateLeaderboard('EmoteMatch', this.socket.player.name, status['time'], true)) {
+                        status['leaderboard'] = await globalData.getPath('leaderboard/EmoteMatch');
+                    }
                 }
             }
 
-            //cards dont match (flip both cards back after a while)
+            //cards don't match (flip both cards back after a while)
             else {
                 //set status to matched
                 status['matched'] = false;
@@ -474,7 +479,7 @@ class FF22Event {
         //init hat switch sequence
         let sequence = [];
 
-        //determine length of sequence (every 5, or multipler, rounds: increase by 1)
+        //determine length of sequence (every 5, or multiplier, rounds: increase by 1)
         let getSequenceLength = () => {
             if (this.correctPicks)
                 return (
@@ -573,7 +578,7 @@ class FF22Event {
             this.socket.player.internal.tickets =
                 this.socket.player.internal.tickets + prizeAmount;
 
-            let endStatus = {
+            let result = {
                 status: false,
                 reason: 'Wrong Frog!',
                 prizeAmount: prizeAmount,
@@ -582,39 +587,57 @@ class FF22Event {
 
             //did player place on leaderboard?
             if (this.correctPicks > 0 && await this.updateLeaderboard('FrogShuffle', this.socket.player.name, prizeAmount)) {
-                endStatus.leaderboard = await globalData.getPath('leaderboard/FrogShuffle');
+                result['leaderboard'] = await globalData.getPath('leaderboard/FrogShuffle');
             }
 
-            // console.log(globalData.getObject('leaderboard')['FrogShuffle'])
-
-            return endStatus;
+            return result;
         }
     }
 
     //try to update the minigames leaderboard with new score. returns true if player placed on the leaderboard.
-    async updateLeaderboard(minigame, player, score) {
+    async updateLeaderboard(minigame, player, score, ascending = false ) {
         //init minigame's leaderboard
         let leaderboard = {};
         try {
             leaderboard = await globalData.getPath('leaderboard/' + minigame);
         } catch {}
 
+        //init placed
+        let playerPlacedOnLeaderboard = false;
+
         //player is already on leaderboard and new score is better than the player's current leaderboard score
-        if (player in leaderboard && leaderboard[player] < score) {
-            //replace old score
-            leaderboard[player] = score;
+        if (player in leaderboard) {
+            if (ascending && leaderboard[player] > score) {
+                playerPlacedOnLeaderboard = true;
+            }
+            if (!ascending && leaderboard[player] < score) {
+                playerPlacedOnLeaderboard = true;
+            }
 
-            //re-sort leaderboard
-            leaderboard = utility.sort.object(leaderboard);
+            if (playerPlacedOnLeaderboard) {
+                //replace old score
+                leaderboard[player] = score;
 
-            //update leaderboard
-            globalData.set('leaderboard/' + minigame, leaderboard);
+                //re-sort leaderboard
+                leaderboard = utility.sort.object(leaderboard, ascending);
 
-            return true
+                //update leaderboard
+                globalData.set('leaderboard/' + minigame, leaderboard);
+
+                return true
+            }
         }
 
         //players is not on leaderboard and new score is better than last score in leaderboard or leaderboard is not full
-        if (!(player in leaderboard) && (Object.keys(leaderboard).length < 5 || Object.keys(leaderboard).pop() < score)) {
+        else {
+            if (ascending && (Object.keys(leaderboard).length < 5 || Object.keys(leaderboard).pop() > score)) {
+                playerPlacedOnLeaderboard = true;
+            }
+            if (!ascending && (Object.keys(leaderboard).length < 5 || Object.keys(leaderboard).pop() < score)) {
+                playerPlacedOnLeaderboard = true;
+            }
+
+            if (playerPlacedOnLeaderboard) {
                 //remove last score in leaderboard if leaderboard is full
                 if (Object.keys(leaderboard).length >= 5) delete leaderboard[Object.keys(leaderboard)[Object.keys(leaderboard).length-1]]
 
@@ -622,12 +645,13 @@ class FF22Event {
                 leaderboard[player] = score;
 
                 //re-sort leaderboard
-                leaderboard = utility.sort.object(leaderboard);
+                leaderboard = utility.sort.object(leaderboard, ascending);
 
                 //update leaderboard
                 globalData.set('leaderboard/' + minigame, leaderboard);
 
                 return true
+            }
         }
 
         return false
