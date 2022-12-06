@@ -355,7 +355,7 @@ process.on('warning', (e) => console.warn(e.stack));
 
 // WEBSOCKETS
 //import: websocket
-import { Server as SocketIOServer} from "socket.io";
+import { Server as SocketIOServer } from 'socket.io';
 
 const io = new SocketIOServer(server);
 import { instrument } from '@socket.io/admin-ui';
@@ -365,10 +365,7 @@ instrument(io, {
     auth: {
         type: config.socketio_admin_dash.auth.type,
         username: config.socketio_admin_dash.auth.username,
-        password: bcrypt.hashSync(
-            config.socketio_admin_dash.auth.password,
-            10
-        ),
+        password: bcrypt.hashSync(config.socketio_admin_dash.auth.password, 10),
     },
 });
 io.use((socket, next) => {
@@ -444,7 +441,7 @@ try {
 }
 
 //import connection event
-import Connection from '../server/event/Connection.js'
+import Connection from '../server/event/Connection.js';
 
 //on new websocket connection
 io.on('connection', async function (socket) {

@@ -9,7 +9,8 @@ class GlobalUI {
         scene.depthUI = 100002;
         scene.depthOverlay = 100001;
         scene.depthLoadingScreen = 999999;
-        scene.depthDebug = 1000000;
+        scene.depthDialog = 1000000;
+        scene.depthDebug = 1000001;
 
         //reset
         delete this.toast;
@@ -41,7 +42,7 @@ class GlobalUI {
     }
 
     create(scene) {
-        //sfxs
+        //sfx
         scene.sfxButtonClick = scene.sound.add('button_click', { volume: 0 });
         scene.sfxButtonClick.setVolume(
             utility.getLocalStorage('gameOptions')[
@@ -252,7 +253,7 @@ class GlobalUI {
 
         //dark background
         scene.rexUI.modalPromise(
-            dialog.setDepth(scene.depthUI),
+            dialog.setDepth(scene.depthDialog),
 
             //config
             {
@@ -293,7 +294,8 @@ class GlobalUI {
         if (options.background === undefined) options.background = {};
         if (options.background.color === undefined)
             options.background.color = ColorScheme.Red;
-        if (options.background.stroke === undefined) options.background.stroke = {};
+        if (options.background.stroke === undefined)
+            options.background.stroke = {};
         if (options.background.stroke.color === undefined)
             options.background.stroke.color = ColorScheme.DarkRed;
         if (options.text === undefined) options.text = message;

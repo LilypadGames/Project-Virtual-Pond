@@ -74,6 +74,20 @@ class Connection {
                 //set up player data
                 this.socket.player = await this.PlayerData.getPlayerData();
 
+                //max player count reached
+                if (
+                    serverMetrics.getPlayerCount() >= config.server.playerLimit
+                ) {
+                    //if player is not a sponsor, then kick them
+                    if (!this.socket.player.isSponsor) {
+                        await moderation.kickSocket(
+                            this.socket,
+                            'Server is Currently Full. Please Try Again Later.'
+                        );
+                        return;
+                    }
+                }
+
                 //register events
                 await this.register();
             }
@@ -91,7 +105,7 @@ class Connection {
                 direction: 'left',
                 character: {
                     eye_type: 'happy',
-                    color: 0
+                    color: 0,
                 },
             };
 

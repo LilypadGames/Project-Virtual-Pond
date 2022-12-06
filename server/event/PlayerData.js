@@ -375,58 +375,6 @@ class PlayerData {
         }
     }
 
-    //triggers when client requests the players data
-    // requestClientPlayerData() {
-    //     //log
-    //     let logMessage = utility.timestampString(
-    //         'PLAYER ID: ' +
-    //             this.socket.player.id +
-    //             ' (' +
-    //             this.socket.player.name +
-    //             ')' +
-    //             ' - Requested Player Data: ' +
-    //             this.socket.player.id +
-    //             ' (' +
-    //             this.socket.player.name +
-    //             ')'
-    //     );
-    //     logs.logMessage('debug', logMessage);
-
-    //     //give ONLY the data the client needs from the server
-    //     let playerData = {
-    //         //ID
-    //         id: this.socket.player.id,
-
-    //         //name
-    //         name: this.socket.player.name,
-
-    //         //direction
-    //         direction: this.socket.player.direction,
-
-    //         //location
-    //         x: this.socket.player.x,
-    //         y: this.socket.player.y,
-
-    //         //character data
-    //         character: this.socket.player.character,
-
-    //         //inventory data
-    //         inventory: this.socket.player.inventory,
-    //     };
-    //     if (this.socket.player.external) playerData.external = this.socket.player.external;
-
-    //     //send last room if available
-    //     if (this.socket.player.stat !== undefined) {
-    //         if (this.socket.player.stat.lastRoom !== undefined) {
-    //             if (playerData.stat === undefined) playerData.stat = {};
-    //             playerData.stat.lastRoom = this.socket.player.stat.lastRoom;
-    //         }
-    //     }
-
-    //     //send this client's player data to ONLY THIS client
-    //     return playerData;
-    // }
-
     //parses data of the provided player to only give the client necessary information about them
     requestParsedPlayerData(player, requester) {
         //persistent data

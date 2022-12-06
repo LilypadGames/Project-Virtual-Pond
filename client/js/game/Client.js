@@ -92,7 +92,7 @@ class Client {
         });
         //received interactNPC data of player
         socket.on('setPlayerAttemptingObjectInteraction', (data) => {
-            this.onplayerInteractingWithObject(data);
+            this.onPlayerInteractingWithObject(data);
         });
 
         // MISC
@@ -114,11 +114,11 @@ class Client {
     //CONNECTION
     //on this client disconnecting
     onDisconnect() {
-        //pause scene
-        if (currentScene.pause) currentScene.pause();
-
         //show disconnect dialog
         globalUI.showRefreshDialog(currentScene, kickReason);
+
+        //pause scene
+        if (currentScene.pause) currentScene.pause();
 
         //disconnect player
         socket.disconnect();
@@ -282,8 +282,8 @@ class Client {
             );
         }
     }
-    //received interactNPC data of player
-    onplayerInteractingWithObject(data) {
+    //received interact NPC data of player
+    onPlayerInteractingWithObject(data) {
         if (currentScene.scene.key == 'Game') {
             //log
             if (debugMode) {
@@ -362,7 +362,7 @@ class Client {
                 //if request wasn't acknowledged yet, request the data
                 if (requestAcknowledged === false) {
                     socket.volatile.emit('requestGlobalData', (data) => {
-                        //request acknowleged
+                        //request acknowledged
                         requestAcknowledged = true;
 
                         //save global data
@@ -383,6 +383,16 @@ class Client {
 
                 //try again in 1 second
                 setTimeout(() => {
+                    //if no longer connected, return
+                    if (!socket.connected) {
+                        //request acknowledged
+                        requestAcknowledged = true;
+
+                        //return
+                        resolve();
+                    }
+
+                    //retry
                     if (requestAcknowledged === false) {
                         attemptRequest(requestAcknowledged);
                     }
