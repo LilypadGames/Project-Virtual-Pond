@@ -96,7 +96,7 @@ OAuth2Strategy.prototype.userProfile = function (accessToken, done) {
                 ) {
                     done(null, response.data);
                 }
-                //response isnt considered json from origin server- force parsing
+                //response isn't considered json from origin server- force parsing
                 else {
                     done(null, JSON.parse(response.data));
                 }
