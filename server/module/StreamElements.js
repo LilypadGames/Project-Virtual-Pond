@@ -90,7 +90,7 @@ export default {
             //parse data and save to database
             .then(async (response) => {
                 //parse through the data to create a compiled donation list by user ID
-                data = await this.parseDonations(response.docs);
+                let data = await this.parseDonations(response.docs);
 
                 try {
                     //save donation list to database
@@ -124,16 +124,16 @@ export default {
         for (var i = 0; i < donations.length; i++) {
             try {
                 //get donation data only
-                donation = donations[i].donation;
+                let donation = donations[i].donation;
 
                 //get username
-                userName = donation.user.username.split('/')[0];
+                let userName = donation.user.username.split('/')[0];
 
                 //get user id from username
-                userID = await twitch.getUserIDByName(userName);
+                let userID = await twitch.getUserIDByName(userName);
 
                 //get amount
-                amount = donation.amount;
+                let amount = donation.amount;
 
                 //combine donations from the same twitch user
                 if (donationList[userID]) {

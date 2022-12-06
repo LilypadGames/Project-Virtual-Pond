@@ -156,7 +156,7 @@ export default {
 
     isStreamLive: async function (streamerName) {
         try {
-            live = (await twitchAPI.streams.getStreamByUserName(streamerName))
+            let live = (await twitchAPI.streams.getStreamByUserName(streamerName))
                 ? true
                 : false;
             console.log(
