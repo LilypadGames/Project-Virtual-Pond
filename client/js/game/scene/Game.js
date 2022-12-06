@@ -1431,13 +1431,25 @@ class Game extends Phaser.Scene {
             height: playerBody.height,
         };
 
-        //player name
+        //init player name config
         var nametagConfig;
+
+        //player name style
         if (data.id == clientID) {
             nametagConfig = this.nametagClientConfig;
         } else {
             nametagConfig = this.nametagConfig;
         }
+
+        //special sponsor player name color
+        if (data.isSponsor) {
+            console.log(data.character.nameColor);
+            nametagConfig.color = data.character.nameColor
+                ? utility.hexIntegerToString(data.character.nameColor)
+                : utility.hexIntegerToString(ColorScheme.Gold);
+        }
+
+        //create player name
         var playerName = this.add
             .text(0, spriteContainer.height, data.name, nametagConfig)
             .setFontSize(this.nametagFontSize)
@@ -1620,7 +1632,12 @@ class Game extends Phaser.Scene {
                 var playerBody = this.playerCharacter[data.id].list[0].list[0];
 
                 //update color
-                playerBody.setTexture(this.getTintedFrogSprite('frog_body', utility.hexIntegerToString(data.character.color)));
+                playerBody.setTexture(
+                    this.getTintedFrogSprite(
+                        'frog_body',
+                        utility.hexIntegerToString(data.character.color)
+                    )
+                );
             }
 
             //eye type

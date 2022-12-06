@@ -69,10 +69,10 @@ class Utility {
 
     // PROMISES
     async wait(duration) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             setTimeout(() => {
-                resolve()
-            }, duration)
-        })
+                resolve();
+            }, duration);
+        });
     }
 }

@@ -193,6 +193,37 @@ class PlayerData {
                 : 0,
         };
 
+        //sponsor
+        if (playerData.isAdmin || playerData.isMod || playerData.isVIP) {
+            playerData.isSponsor = 1;
+        } else {
+            playerData.isSponsor = (await database.getValue(
+                'donations/' +
+                    this.socket.request.user.data[0].id +
+                    '/donatorPerks'
+            ))
+                ? (await database.getValue(
+                      'donations/' +
+                          this.socket.request.user.data[0].id +
+                          '/donatorPerks'
+                  ))
+                    ? 1
+                    : 0
+                : 0;
+        }
+
+        //default name color for sponsors is gold (#ffd700 / 16766720)
+        if (
+            playerData.isSponsor &&
+            !(await database.getValue(
+                'users/' +
+                    this.socket.request.user.data[0].id +
+                    '/character/nameColor'
+            ))
+        ) {
+            playerData.character.nameColor = utility.hex.toDecimal('ffd700');
+        }
+
         //first login stat
         if (
             !(await database.getValue(
@@ -406,6 +437,7 @@ class PlayerData {
             x: player.x,
             y: player.y,
             character: player.character,
+            isSponsor: player.isSponsor,
         };
 
         //if client is requesting
