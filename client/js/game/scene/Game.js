@@ -589,6 +589,101 @@ class Game extends Phaser.Scene {
                     },
                 },
             },
+            particle: {
+                scale: { random: [0.2, 0.45] },
+                alpha: { random: [0.1, 0.7] },
+                rotate: { random: [-90, 90], random: [-90, 90] },
+                frequency: 200,
+                depth: 99999,
+                acceleration: { random: [10, 15] },
+                speed: { x: { min: -20, max: 20 }, y: { min: 50, max: 70 } },
+                quantity: 70,
+                lifespan: { min: 4000, max: 6000 },
+                add: function (textures) {
+                    if (typeof textures === 'string') {
+                        textures = [textures];
+                    }
+                    this.textures = textures;
+                    return this;
+                },
+                setScale: function (scale) {
+                    this.scale = scale;
+                    return;
+                },
+                setSpeed: function (x, y) {
+                    if (typeof x === 'number') {
+                        this.speed['x']['min'] = x;
+                        this.speed['x']['min'] = x;
+                    } else {
+                        this.speed['x']['min'] = x.min;
+                        this.speed['x']['max'] = x.max;
+                    }
+                    if (typeof y === 'number') {
+                        this.speed['y']['min'] = y;
+                        this.speed['y']['max'] = y;
+                    } else {
+                        this.speed['y']['min'] = y.min;
+                        this.speed['y']['max'] = y.max;
+                    }
+                    return this;
+                },
+                setAcceleration: function (acceleration) {
+                    this.acceleration = acceleration;
+                    return this;
+                },
+                setDepth: function (depth) {
+                    this.depth = depth;
+                    return this;
+                },
+                setQuantity: function (quantity) {
+                    this.quantity = quantity;
+                    return this;
+                },
+                setFrequency: function (frequency) {
+                    this.frequency = frequency;
+                    return this;
+                },
+                in: function (instance) {
+                    for (let index = 0; index < this.textures.length; index++) {
+                        const particle = instance.add.particles(
+                            this.textures[index]
+                        );
+
+                        particle.createEmitter({
+                            x: 0,
+                            y: 0,
+
+                            emitZone: {
+                                type: 'random',
+                                source: new Phaser.Geom.Rectangle(
+                                    0,
+                                    0,
+                                    instance.sys.game.canvas.width,
+                                    100
+                                ),
+                                quantity: this.quantity,
+                            },
+
+                            speedX: this.speed['x'],
+                            speedY: this.speed['y'],
+
+                            accelerationY: this.acceleration,
+
+                            // lifespan
+                            lifespan: this.lifespan,
+                            scale: this.scale,
+                            alpha: this.alpha,
+                            gravityY: 10,
+                            frequency: this.frequency,
+                            blendMode: 'ADD',
+
+                            rotate: this.rotate,
+                        });
+
+                        particle.setDepth(this.depth);
+                    }
+                },
+            },
         });
     }
 
@@ -1443,7 +1538,6 @@ class Game extends Phaser.Scene {
 
         //special sponsor player name color
         if (data.isSponsor) {
-            console.log(data.character.nameColor);
             nametagConfig.color = data.character.nameColor
                 ? utility.hexIntegerToString(data.character.nameColor)
                 : utility.hexIntegerToString(ColorScheme.Gold);

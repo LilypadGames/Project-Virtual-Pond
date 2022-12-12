@@ -226,9 +226,28 @@ class GameConfig {
                     )
                     .in(game);
             }
-
+            if (globalData.currentEvents.includes('Winter')) {
+                event.texture
+                    .add(
+                        'Snowflake_0',
+                        'event/winter/particles/snowflake_0.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Snowflake_1',
+                        'event/winter/particles/snowflake_1.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Snowflake_2',
+                        'event/winter/particles/snowflake_2.png'
+                    )
+                    .in(game);
+            }
         }
-        
+
         //Theatre Room
         else if (room === 'theatre') {
             //textures
@@ -418,6 +437,12 @@ class GameConfig {
 
                 //shader
                 event.layer.add('Shader_JackOLantern_Eyes', 'shader').in(game);
+            }
+            if (globalData.currentEvents.includes('Winter')) {
+                //particles
+                event.particle
+                    .add(['Snowflake_0', 'Snowflake_1', 'Snowflake_2'])
+                    .in(game);
             }
 
             //Theatre Room
