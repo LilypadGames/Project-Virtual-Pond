@@ -83,6 +83,6 @@ try {
 //init client connection event
 import Connection from '../server/event/Connection.js';
 websockets.io.on('connection', async function (socket) {
-    const connection = new Connection(websockets.io, socket);
+    const connection = new Connection(websockets.io, socket, webServer.api);
     await connection.init();
 });

@@ -22,10 +22,13 @@ import Events from '../event/Events.js';
 import Room from '../event/Room.js';
 
 class Connection {
-    constructor(io, socket) {
-        //save socket and socket.io instance
+    constructor(io, socket, api) {
+        //store socket and socket.io instance
         this.socket = socket;
         this.io = io;
+
+        //store api
+        this.api = api;
 
         // OVERRIDES
         this.socket.removeListener = function (name) {
@@ -125,7 +128,7 @@ class Connection {
 
     async register() {
         //add 1 to player count
-        serverMetrics.playerJoined();
+        serverMetrics.playerJoined(this.socket.player.id, this.socket.player.name);
 
         //log
         console.log(
@@ -377,7 +380,7 @@ class Connection {
     //on disconnect
     onDisconnect() {
         //remove 1 from playercount
-        serverMetrics.playerLeft();
+        serverMetrics.playerLeft(this.socket.player.id);
 
         //log
         console.log(
