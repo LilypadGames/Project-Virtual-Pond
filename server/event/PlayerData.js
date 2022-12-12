@@ -132,6 +132,7 @@ class PlayerData {
     //initialize player data in database
     async initPlayerData() {
         /////// BUG FIX
+        //if they have the old eye_type, reset their character data
         if (
             typeof (await database.getValue(
                 this.userDataPath +
@@ -146,6 +147,20 @@ class PlayerData {
                 ''
             );
         }
+        //if they have the old lastRoom stat, remove it
+        if (
+            await database.getValue(
+                this.userDataPath +
+                    this.socket.request.user.data[0].id +
+                    '/stat/lastRoom'
+            )
+        ) {
+            await database.removeValue(
+                this.userDataPath +
+                    this.socket.request.user.data[0].id +
+                    '/stat/lastRoom'
+            );
+        }
 
         //set up initial data
         var playerData = {
@@ -154,6 +169,19 @@ class PlayerData {
 
             //get name
             name: this.socket.request.user.data[0].display_name,
+
+            //room
+            room: (await database.getValue(
+                this.userDataPath +
+                    this.socket.request.user.data[0].id +
+                    '/room'
+            ))
+                ? await database.getValue(
+                      this.userDataPath +
+                          this.socket.request.user.data[0].id +
+                          '/room'
+                  )
+                : 'forest',
 
             //generate direction
             direction: utility.randomFromArray(['right', 'left']),
@@ -173,23 +201,17 @@ class PlayerData {
             isAdmin: (await database.getValue(
                 'permissions/admin/' + this.socket.request.user.data[0].id
             ))
-                ? await database.getValue(
-                      'permissions/admin/' + this.socket.request.user.data[0].id
-                  )
+                ? 1
                 : 0,
             isMod: (await database.getValue(
                 'permissions/mod/' + this.socket.request.user.data[0].id
             ))
-                ? await database.getValue(
-                      'permissions/mod/' + this.socket.request.user.data[0].id
-                  )
+                ? 1
                 : 0,
             isVIP: (await database.getValue(
                 'permissions/vip/' + this.socket.request.user.data[0].id
             ))
-                ? await database.getValue(
-                      'permissions/vip/' + this.socket.request.user.data[0].id
-                  )
+                ? 1
                 : 0,
         };
 
@@ -202,13 +224,7 @@ class PlayerData {
                     this.socket.request.user.data[0].id +
                     '/donatorPerks'
             ))
-                ? (await database.getValue(
-                      'donations/' +
-                          this.socket.request.user.data[0].id +
-                          '/donatorPerks'
-                  ))
-                    ? 1
-                    : 0
+                ? 1
                 : 0;
         }
 
@@ -249,6 +265,15 @@ class PlayerData {
                 database.setValue(
                     this.userDataPath + this.socket.player.id + '/name',
                     this.socket.player.name
+                );
+        }
+
+        //character
+        if (this.socket.player.room) {
+            if (this.socket.player.room != undefined)
+                database.setValue(
+                    this.userDataPath + this.socket.player.id + '/room',
+                    this.socket.player.room
                 );
         }
 
@@ -456,13 +481,13 @@ class PlayerData {
                 this.socket.player.name +
                 ')' +
                 ' - Reloaded Room: ' +
-                this.socket.roomID
+                this.socket.player.room
         );
         logs.logMessage('debug', logMessage);
 
         //send current position of all connected players in this room to ONLY THIS client
         const playerData = await this.requestAllParsedPlayerData(
-            this.socket.roomID
+            this.socket.player.room
         );
         return playerData;
     }

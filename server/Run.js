@@ -3,6 +3,7 @@ import util from 'util';
 //server classes
 import WebServer from '../server/setup/WebServer.js';
 import Websockets from '../server/setup/Websockets.js';
+import API from '../server/setup/API.js';
 
 //modules
 import utility from '../server/module/Utility.js';
@@ -36,10 +37,11 @@ let webServer = new WebServer();
 //start websockets
 let websockets = new Websockets(webServer.server, webServer.auth);
 
+//set up API
+let api = new API(webServer.app, websockets.io);
+
 //set up temp user ID if auth mode is disabled
-if (config.server.bypassAuth) {
-    websockets.io.guestID = 0;
-}
+if (config.server.bypassAuth) websockets.io.guestID = 0;
 
 //init global data
 import globalData from '../server/module/GlobalData.js';
@@ -83,6 +85,6 @@ try {
 //init client connection event
 import Connection from '../server/event/Connection.js';
 websockets.io.on('connection', async function (socket) {
-    const connection = new Connection(websockets.io, socket, webServer.api);
+    const connection = new Connection(websockets.io, socket, api);
     await connection.init();
 });

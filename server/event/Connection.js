@@ -128,7 +128,7 @@ class Connection {
 
     async register() {
         //add 1 to player count
-        serverMetrics.playerJoined(this.socket.player.id, this.socket.player.name);
+        serverMetrics.playerJoined(this.socket);
 
         //log
         console.log(
@@ -223,8 +223,8 @@ class Connection {
         //no room provided
         if (!room) {
             //check for last room
-            if (this.socket.player.stat && this.socket.player.stat.lastRoom) {
-                room = this.socket.player.stat.lastRoom;
+            if (this.socket.player.room) {
+                room = this.socket.player.room;
             }
             //otherwise provide default room
             else {
@@ -261,18 +261,13 @@ class Connection {
                     this.socket.player.name +
                     ')' +
                     ' - Left Room: ' +
-                    this.socket.roomID
+                    this.socket.player.room
             )
         );
 
-        //store old room in player data
-        this.PlayerData.updateClientPlayerData({
-            stat: { lastRoom: this.socket.roomID },
-        });
-
         //send the removal of the player for ALL clients in this room
         this.io
-            .in(this.socket.roomID)
+            .in(this.socket.player.room)
             .emit('removePlayer', this.socket.player.id);
 
         //leave rooms
@@ -282,7 +277,7 @@ class Connection {
     //triggers on player loading into new room
     async joinRoom(room) {
         //leave rooms currently in
-        if (this.socket.roomID) this.leaveRoom();
+        if (this.socket.player.room) this.leaveRoom();
 
         //log
         console.log(
@@ -297,14 +292,14 @@ class Connection {
             )
         );
 
-        //auth enabled
+        //add player to room
+        this.joinSocketRoom(room);
+
+        //store player data if authentication is enabled
         if (!config.server.bypassAuth) {
             //store player data in database
             this.PlayerData.storePlayerData();
         }
-
-        //add player to room
-        this.joinSocketRoom(room);
 
         //register room events
         if (!this.roomInstance) {
@@ -342,7 +337,7 @@ class Connection {
             this.socket.player
         );
         this.socket
-            .to(this.socket.roomID)
+            .to(this.socket.player.room)
             .emit('payloadNewPlayerData', newPlayerData);
 
         //init room info
@@ -350,7 +345,7 @@ class Connection {
 
         //send all currently connected players in this room to ONLY THIS client
         roomInfo['players'] = await this.PlayerData.requestAllParsedPlayerData(
-            this.socket.roomID
+            this.socket.player.room
         );
 
         //send chat log of this room to this player
@@ -365,22 +360,22 @@ class Connection {
         this.socket.join(room);
 
         //set as current room
-        this.socket.roomID = room;
+        this.socket.player.room = room;
     }
 
     //remove player from all rooms
     leaveAllSocketRooms() {
         //leave room
-        this.socket.leave(this.socket.roomID);
+        this.socket.leave(this.socket.player.room);
 
         //delete players room ID
-        delete this.socket.roomID;
+        delete this.socket.player.room;
     }
 
     //on disconnect
     onDisconnect() {
-        //remove 1 from playercount
-        serverMetrics.playerLeft(this.socket.player.id);
+        //remove 1 from player count
+        serverMetrics.playerLeft(this.socket);
 
         //log
         console.log(
@@ -415,17 +410,13 @@ class Connection {
             //store last login date
             this.socket.player.stat.lastLogin = Date.now();
 
-            //store players last room
-            if (this.socket.roomID !== undefined)
-                this.socket.player.stat.lastRoom = this.socket.roomID;
-
             //store player data in database
             this.PlayerData.storePlayerData();
         }
 
         //send the removal of the player for ALL clients in this room
         this.io
-            .in(this.socket.roomID)
+            .in(this.socket.player.room)
             .emit('removePlayer', this.socket.player.id);
     }
 

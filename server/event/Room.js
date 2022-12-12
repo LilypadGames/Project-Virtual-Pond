@@ -44,12 +44,20 @@ class Room {
 
         //triggers when player moves
         this.socket.on('playerMoved', (x, y, direction) =>
-            this.playerMoved(utility.sanitize.number(x), utility.sanitize.number(y), utility.sanitize.string(direction))
+            this.playerMoved(
+                utility.sanitize.number(x),
+                utility.sanitize.number(y),
+                utility.sanitize.string(direction)
+            )
         );
 
         //triggers when player changes direction
         this.socket.on('playerChangedDirection', (direction, x, y) =>
-            this.playerChangedDirection(utility.sanitize.string(direction), utility.sanitize.number(x), utility.sanitize.number(y))
+            this.playerChangedDirection(
+                utility.sanitize.string(direction),
+                utility.sanitize.number(x),
+                utility.sanitize.number(y)
+            )
         );
 
         //triggers when player sends a message
@@ -87,7 +95,7 @@ class Room {
 
             //send the players movement to ONLY OTHER players
             this.socket
-                .to(this.socket.roomID)
+                .to(this.socket.player.room)
                 .emit('movePlayer', this.socket.player);
         }
     }
@@ -116,12 +124,14 @@ class Room {
             this.socket.player.y = y;
 
             //send the players location and direction to ONLY OTHER players
-            this.socket.to(this.socket.roomID).emit('changePlayerMovement', {
-                id: this.socket.player.id,
-                x: this.socket.player.x,
-                y: this.socket.player.y,
-                direction: this.socket.player.direction,
-            });
+            this.socket
+                .to(this.socket.player.room)
+                .emit('changePlayerMovement', {
+                    id: this.socket.player.id,
+                    x: this.socket.player.x,
+                    y: this.socket.player.y,
+                    direction: this.socket.player.direction,
+                });
 
             //player standing still
         } else {
@@ -130,7 +140,7 @@ class Room {
 
             //send the players direction to ONLY OTHER players
             this.socket
-                .to(this.socket.roomID)
+                .to(this.socket.player.room)
                 .emit(
                     'updatePlayerDirection',
                     this.socket.player.id,
@@ -296,7 +306,7 @@ class Room {
 
         //add message to room's chat log object array
         chatLogs.logMessage(
-            this.socket.roomID,
+            this.socket.player.room,
             this.socket.player.id,
             this.socket.player.name,
             Date.now(),
@@ -304,7 +314,7 @@ class Room {
         );
 
         //send the player message to ALL clients in this room
-        this.io.in(this.socket.roomID).emit('showPlayerMessage', {
+        this.io.in(this.socket.player.room).emit('showPlayerMessage', {
             id: this.socket.player.id,
             messageData: messageData,
         });
@@ -312,7 +322,7 @@ class Room {
         //queue message for removal
         setTimeout(() => {
             //remove message for all clients
-            this.io.in(this.socket.roomID).emit('removePlayerMessage', {
+            this.io.in(this.socket.player.room).emit('removePlayerMessage', {
                 id: this.socket.player.id,
                 messageID: messageData.id,
             });
@@ -344,7 +354,7 @@ class Room {
 
         //send interacting NPCs ID to ONLY OTHER clients
         this.socket
-            .to(this.socket.roomID)
+            .to(this.socket.player.room)
             .emit('setPlayerAttemptingObjectInteraction', data);
     }
 

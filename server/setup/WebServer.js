@@ -4,7 +4,6 @@ import http from 'http';
 //server classes
 import Authentication from '../setup/Authentication.js';
 import Connections from '../setup/Connections.js';
-import API from '../setup/API.js';
 
 //modules
 import utility from '../module/Utility.js';
@@ -22,9 +21,6 @@ export default class WebServer {
         //init web server
         this.app = express();
         this.server = http.Server(this.app);
-
-        //init api
-        this.api = new API(this.app);
 
         //setup web server
         this.setup();
