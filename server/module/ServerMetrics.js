@@ -4,8 +4,6 @@ export default {
     playerCount: 0,
     playerList: {},
 
-    init: function () {},
-
     playerJoined: function (playerID, playerName) {
         //increase
         this.playerCount = this.playerCount + 1;
