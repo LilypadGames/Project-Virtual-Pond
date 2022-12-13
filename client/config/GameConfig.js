@@ -227,6 +227,15 @@ class GameConfig {
                     .in(game);
             }
             if (globalData.currentEvents.includes('Winter')) {
+                //audio
+                event.audio
+                    .add(
+                        'frog_caves_winter',
+                        'event/winter/audio/music/frog_caves_winter.ogg'
+                    )
+                    .in(game);
+
+                //layers
                 event.texture
                     .add(
                         'Forest_Background_Winter',
@@ -298,6 +307,8 @@ class GameConfig {
                 event.option.music.set('frog_caves_fair').in(game);
             else if (globalData.currentEvents.includes('Halloween'))
                 event.option.music.set('Play_With_Me_Myuu').in(game);
+            else if (globalData.currentEvents.includes('Winter'))
+                event.option.music.set('frog_caves_winter').in(game);
             else event.option.music.set('frog_caves_chill_kopie').in(game);
             event.option.ambience.set('forest_ambience').in(game);
 
@@ -306,26 +317,22 @@ class GameConfig {
                 event.layer
                     .add('Forest_Background_Night', 'background')
                     .in(game);
-            }
-            else if (globalData.currentEvents.includes('Winter')) {
+            } else if (globalData.currentEvents.includes('Winter')) {
                 event.layer
                     .add('Forest_Background_Winter', 'background')
                     .in(game);
-            }
-            else {
+            } else {
                 event.layer.add('Forest_Background', 'background').in(game);
             }
             if (globalData.currentEvents.includes('Winter')) {
                 event.layer.add('Forest_Ground_Winter', 'ground').in(game);
-            }
-            else {
+            } else {
                 event.layer.add('Forest_Ground', 'ground').in(game);
             }
             event.layer.add('Theatre_Sign', 600).in(game);
             if (globalData.currentEvents.includes('Winter')) {
                 event.layer.add('Forest_Tree_3_Winter', 610).in(game);
-            }
-            else {
+            } else {
                 event.layer.add('Forest_Tree_3', 610).in(game);
             }
             // event.layer.add('Forest_Stump_1', 649).in(game);
@@ -368,8 +375,8 @@ class GameConfig {
             //teleports
             event.teleport
                 .room('theatre')
-                .location(142, 601)
-                .size(100, 500)
+                .location(80, 682)
+                .size(160, 250)
                 .in(game);
 
             // //objects

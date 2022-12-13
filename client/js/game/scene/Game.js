@@ -522,11 +522,11 @@ class Game extends Phaser.Scene {
                 },
                 in: function (instance) {
                     //create collider at position
-                    let collider = instance.add.sprite(this.x, this.y);
+                    let collider = instance.add.sprite(this.x, this.y).setOrigin(0.5, 0.5);
 
                     //set collider size
-                    collider.width = this.width;
-                    collider.height = this.height;
+                    collider.displayWidth = this.width;
+                    collider.displayHeight = this.height;
 
                     //enable collisions
                     instance.physics.world.enable(collider);
