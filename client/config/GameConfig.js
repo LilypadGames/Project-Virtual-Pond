@@ -229,6 +229,25 @@ class GameConfig {
             if (globalData.currentEvents.includes('Winter')) {
                 event.texture
                     .add(
+                        'Forest_Background_Winter',
+                        'event/winter/layers/Background.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Forest_Ground_Winter',
+                        'event/winter/layers/Ground.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Forest_Tree_3_Winter',
+                        'event/winter/layers/Tree_3.png'
+                    )
+                    .in(game);
+
+                event.texture
+                    .add(
                         'Snowflake_0',
                         'event/winter/particles/snowflake_0.png'
                     )
@@ -287,15 +306,33 @@ class GameConfig {
                 event.layer
                     .add('Forest_Background_Night', 'background')
                     .in(game);
-            } else {
+            }
+            else if (globalData.currentEvents.includes('Winter')) {
+                event.layer
+                    .add('Forest_Background_Winter', 'background')
+                    .in(game);
+            }
+            else {
                 event.layer.add('Forest_Background', 'background').in(game);
             }
-            event.layer.add('Forest_Ground', 'ground').in(game);
+            if (globalData.currentEvents.includes('Winter')) {
+                event.layer.add('Forest_Ground_Winter', 'ground').in(game);
+            }
+            else {
+                event.layer.add('Forest_Ground', 'ground').in(game);
+            }
             event.layer.add('Theatre_Sign', 600).in(game);
-            event.layer.add('Forest_Tree_3', 610).in(game);
-            event.layer.add('Forest_Rock_1', 629).in(game);
+            if (globalData.currentEvents.includes('Winter')) {
+                event.layer.add('Forest_Tree_3_Winter', 610).in(game);
+            }
+            else {
+                event.layer.add('Forest_Tree_3', 610).in(game);
+            }
             // event.layer.add('Forest_Stump_1', 649).in(game);
-            event.layer.add('Forest_Foreground', 'foreground').in(game);
+            if (!globalData.currentEvents.includes('Winter')) {
+                event.layer.add('Forest_Foreground', 'foreground').in(game);
+                event.layer.add('Forest_Rock_1', 629).in(game);
+            }
 
             //     //npcs
             //     event.npc

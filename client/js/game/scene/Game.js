@@ -592,13 +592,13 @@ class Game extends Phaser.Scene {
             particle: {
                 scale: { random: [0.2, 0.45] },
                 alpha: { random: [0.1, 0.7] },
-                rotate: { random: [-90, 90], random: [-90, 90] },
+                rotate: { random: [-90, 0], random: [0, 90] },
                 frequency: 200,
                 depth: 99999,
                 acceleration: { random: [10, 15] },
                 speed: { x: { min: -20, max: 20 }, y: { min: 50, max: 70 } },
                 quantity: 70,
-                lifespan: { min: 4000, max: 6000 },
+                lifespan: { min: 5000, max: 6500 },
                 add: function (textures) {
                     if (typeof textures === 'string') {
                         textures = [textures];
@@ -657,7 +657,7 @@ class Game extends Phaser.Scene {
                                 type: 'random',
                                 source: new Phaser.Geom.Rectangle(
                                     0,
-                                    0,
+                                    -100,
                                     instance.sys.game.canvas.width,
                                     100
                                 ),
