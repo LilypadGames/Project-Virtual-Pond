@@ -175,38 +175,38 @@ class Game extends Phaser.Scene {
         );
 
         //player direction inputs
-        this.input.keyboard.on(
-            'keydown-' + 'D',
-            () => {
-                if (!this.chatBox.isFocused)
-                    this.onDirectionChangeAttempt('right');
-            },
-            this
-        );
-        this.input.keyboard.on(
-            'keydown-' + 'RIGHT',
-            () => {
-                if (!this.chatBox.isFocused)
-                    this.onDirectionChangeAttempt('right');
-            },
-            this
-        );
-        this.input.keyboard.on(
-            'keydown-' + 'A',
-            () => {
-                if (!this.chatBox.isFocused)
-                    this.onDirectionChangeAttempt('left');
-            },
-            this
-        );
-        this.input.keyboard.on(
-            'keydown-' + 'LEFT',
-            () => {
-                if (!this.chatBox.isFocused)
-                    this.onDirectionChangeAttempt('left');
-            },
-            this
-        );
+        // this.input.keyboard.on(
+        //     'keydown-' + 'D',
+        //     () => {
+        //         if (!this.chatBox.isFocused)
+        //             this.onDirectionChangeAttempt('right');
+        //     },
+        //     this
+        // );
+        // this.input.keyboard.on(
+        //     'keydown-' + 'RIGHT',
+        //     () => {
+        //         if (!this.chatBox.isFocused)
+        //             this.onDirectionChangeAttempt('right');
+        //     },
+        //     this
+        // );
+        // this.input.keyboard.on(
+        //     'keydown-' + 'A',
+        //     () => {
+        //         if (!this.chatBox.isFocused)
+        //             this.onDirectionChangeAttempt('left');
+        //     },
+        //     this
+        // );
+        // this.input.keyboard.on(
+        //     'keydown-' + 'LEFT',
+        //     () => {
+        //         if (!this.chatBox.isFocused)
+        //             this.onDirectionChangeAttempt('left');
+        //     },
+        //     this
+        // );
 
         //build the room
         this.buildRoom(this.room);
@@ -1369,35 +1369,35 @@ class Game extends Phaser.Scene {
     }
 
     //direction changed
-    onDirectionChangeAttempt(direction) {
-        //if clicking is disabled, cancel
-        if (this.disableInput) return;
+    // onDirectionChangeAttempt(direction) {
+    //     //if clicking is disabled, cancel
+    //     if (this.disableInput) return;
 
-        //if direction didnt change, cancel
-        if (direction === this.getPlayerDirection(clientID)) return;
+    //     //if direction didnt change, cancel
+    //     if (direction === this.getPlayerDirection(clientID)) return;
 
-        //if client player is moving, halt player
-        try {
-            if (utility.getObject(this.playerData, clientID).movement)
-                this.haltPlayer(clientID);
-        } catch (error) {
-            console.log(
-                '\x1b[31m%s\x1b[0m',
-                'Game.js onDirectionChangeAttempt - ' + error
-            );
-            return;
-        }
+    //     //if client player is moving, halt player
+    //     try {
+    //         if (utility.getObject(this.playerData, clientID).movement)
+    //             this.haltPlayer(clientID);
+    //     } catch (error) {
+    //         console.log(
+    //             '\x1b[31m%s\x1b[0m',
+    //             'Game.js onDirectionChangeAttempt - ' + error
+    //         );
+    //         return;
+    //     }
 
-        //change client player direction
-        this.setPlayerDirection(clientID, direction);
+    //     //change client player direction
+    //     this.setPlayerDirection(clientID, direction);
 
-        //tell the server that this player is changing direction
-        client.playerChangedDirection(
-            direction,
-            this.playerCharacter[clientID].x,
-            this.playerCharacter[clientID].y
-        );
-    }
+    //     //tell the server that this player is changing direction
+    //     client.playerChangedDirection(
+    //         direction,
+    //         this.playerCharacter[clientID].x,
+    //         this.playerCharacter[clientID].y
+    //     );
+    // }
 
     //check if click location is allowed by navigational map (returns true if click location is allowed by navigation map and false otherwise)
     navigationCheck(x, y, layer) {

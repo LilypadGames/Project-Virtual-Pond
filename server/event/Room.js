@@ -51,14 +51,14 @@ class Room {
             )
         );
 
-        //triggers when player changes direction
-        this.socket.on('playerChangedDirection', (direction, x, y) =>
-            this.playerChangedDirection(
-                utility.sanitize.string(direction),
-                utility.sanitize.number(x),
-                utility.sanitize.number(y)
-            )
-        );
+        // //triggers when player changes direction
+        // this.socket.on('playerChangedDirection', (direction, x, y) =>
+        //     this.playerChangedDirection(
+        //         utility.sanitize.string(direction),
+        //         utility.sanitize.number(x),
+        //         utility.sanitize.number(y)
+        //     )
+        // );
 
         //triggers when player sends a message
         this.socket.on('playerSendingMessage', (message) =>
@@ -100,54 +100,54 @@ class Room {
         }
     }
 
-    playerChangedDirection(direction, x, y) {
-        //if player direction is not new
-        if (direction === this.socket.player.direction) return;
+    // playerChangedDirection(direction, x, y) {
+    //     //if player direction is not new
+    //     if (direction === this.socket.player.direction) return;
 
-        //log
-        let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
-                this.socket.player.id +
-                ' (' +
-                this.socket.player.name +
-                ')' +
-                ' - Changed Direction: ' +
-                direction
-        );
-        logs.logMessage('debug', logMessage);
+    //     //log
+    //     let logMessage = utility.timestampString(
+    //         'PLAYER ID: ' +
+    //             this.socket.player.id +
+    //             ' (' +
+    //             this.socket.player.name +
+    //             ')' +
+    //             ' - Changed Direction: ' +
+    //             direction
+    //     );
+    //     logs.logMessage('debug', logMessage);
 
-        //player was moving
-        if (this.socket.player.x !== x || this.socket.player.y !== y) {
-            //store player direction and location
-            this.socket.player.direction = direction;
-            this.socket.player.x = x;
-            this.socket.player.y = y;
+    //     //player was moving
+    //     if (this.socket.player.x !== x || this.socket.player.y !== y) {
+    //         //store player direction and location
+    //         this.socket.player.direction = direction;
+    //         this.socket.player.x = x;
+    //         this.socket.player.y = y;
 
-            //send the players location and direction to ONLY OTHER players
-            this.socket
-                .to(this.socket.player.room)
-                .emit('changePlayerMovement', {
-                    id: this.socket.player.id,
-                    x: this.socket.player.x,
-                    y: this.socket.player.y,
-                    direction: this.socket.player.direction,
-                });
+    //         //send the players location and direction to ONLY OTHER players
+    //         this.socket
+    //             .to(this.socket.player.room)
+    //             .emit('changePlayerMovement', {
+    //                 id: this.socket.player.id,
+    //                 x: this.socket.player.x,
+    //                 y: this.socket.player.y,
+    //                 direction: this.socket.player.direction,
+    //             });
 
-            //player standing still
-        } else {
-            //store player direction
-            this.socket.player.direction = direction;
+    //         //player standing still
+    //     } else {
+    //         //store player direction
+    //         this.socket.player.direction = direction;
 
-            //send the players direction to ONLY OTHER players
-            this.socket
-                .to(this.socket.player.room)
-                .emit(
-                    'updatePlayerDirection',
-                    this.socket.player.id,
-                    direction
-                );
-        }
-    }
+    //         //send the players direction to ONLY OTHER players
+    //         this.socket
+    //             .to(this.socket.player.room)
+    //             .emit(
+    //                 'updatePlayerDirection',
+    //                 this.socket.player.id,
+    //                 direction
+    //             );
+    //     }
+    // }
 
     //triggers when player sends a message
     playerSendingMessage(message) {
