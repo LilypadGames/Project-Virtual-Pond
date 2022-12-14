@@ -1479,9 +1479,9 @@ class Game extends Phaser.Scene {
         utility.getObject(this.playerData, data.id).name = data.name;
 
         //player character
-        var playerBody = this.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
-        var playerBelly = this.add.sprite(0, 0, 'frog_belly').setOrigin(0.5, 1);
-        var playerEyes = this.add
+        let playerBody = this.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
+        let playerBelly = this.add.sprite(0, 0, 'frog_belly').setOrigin(0.5, 1);
+        let playerEyes = this.add
             .sprite(0, 0, 'frog_eyes_' + data.character.eye_type)
             .setOrigin(0.5, 1);
         //create accessory layer if it exists
@@ -1492,13 +1492,13 @@ class Game extends Phaser.Scene {
         }
 
         //get sprite container size
-        var spriteContainer = {
+        let spriteContainer = {
             width: playerBody.width,
             height: playerBody.height,
         };
 
         //init player name config
-        var nametagConfig;
+        let nametagConfig;
 
         //clients name tag
         if (data.id == clientID) {
@@ -1506,22 +1506,26 @@ class Game extends Phaser.Scene {
             nametagConfig = this.nametagClientConfig;
 
             //special sponsor player name color
-            if (data.isSponsor) {
+            if (data.isSponsor == true) {
                 nametagConfig.color = data.character.nameColor
                     ? utility.hexIntegerToString(data.character.nameColor)
                     : utility.hexIntegerToString(ColorScheme.Gold);
             }
-            //other player name tags
-        } else {
+        }
+        //other player name tags
+        else {
             //default name tag config for other players
             nametagConfig = this.nametagConfig;
 
             //special sponsor player name color
-            if (data.isSponsor) {
+            if (data.isSponsor == true) {
                 nametagConfig.stroke = data.character.nameColor
                     ? utility.hexIntegerToString(data.character.nameColor)
                     : utility.hexIntegerToString(ColorScheme.Gold);
                 nametagConfig.strokeThickness = 6;
+            } else {
+                nametagConfig.stroke = null;
+                nametagConfig.strokeThickness = null;
             }
         }
 
