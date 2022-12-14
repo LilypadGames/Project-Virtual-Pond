@@ -101,6 +101,9 @@ class Game extends Phaser.Scene {
         //set to asset path
         this.load.setPath('assets/');
 
+        //sfx
+        this.load.audio('ribbit', 'audio/sfx/player/ribbit.ogg');
+
         //load character body
         this.load.image('frog_body', 'character/player/body/0.5x/Tintable.png');
         this.load.image(
@@ -147,6 +150,8 @@ class Game extends Phaser.Scene {
             this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
             this.sfxRadioClick.setVolume(store.get('gameOptions.sfx.volume'));
         }
+        this.sfxRibbit = this.sound.add('ribbit', { volume: 0 });
+        this.sfxRibbit.setVolume(store.get('gameOptions.sfx.volume'));
 
         //detect when window is re-focused
         this.game.events.on(Phaser.Core.Events.FOCUS, this.onFocus, this);
@@ -1036,6 +1041,7 @@ class Game extends Phaser.Scene {
                     if (this.sfxButtonClick)
                         this.sfxButtonClick.setVolume(value);
                     if (this.sfxRadioClick) this.sfxRadioClick.setVolume(value);
+                    if (this.sfxRibbit) this.sfxRibbit.setVolume(value);
                 },
             },
         ];
@@ -1505,7 +1511,7 @@ class Game extends Phaser.Scene {
                     ? utility.hexIntegerToString(data.character.nameColor)
                     : utility.hexIntegerToString(ColorScheme.Gold);
             }
-        //other player name tags
+            //other player name tags
         } else {
             //default name tag config for other players
             nametagConfig = this.nametagConfig;
@@ -1513,8 +1519,8 @@ class Game extends Phaser.Scene {
             //special sponsor player name color
             if (data.isSponsor) {
                 nametagConfig.stroke = data.character.nameColor
-                ? utility.hexIntegerToString(data.character.nameColor)
-                : utility.hexIntegerToString(ColorScheme.Gold);
+                    ? utility.hexIntegerToString(data.character.nameColor)
+                    : utility.hexIntegerToString(ColorScheme.Gold);
                 nametagConfig.strokeThickness = 6;
             }
         }
@@ -2097,6 +2103,10 @@ class Game extends Phaser.Scene {
 
         //make sure message is visible
         overlayContainer.list[1].setVisible(true);
+
+        //play sound
+        let pitch = utility.getRandomInt(-600, 200);
+        this.sfxRibbit.setDetune(pitch).play();
 
         //schedule NPCs messages for removal
         if (characterType === 'npc') {

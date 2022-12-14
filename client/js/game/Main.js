@@ -33,7 +33,7 @@ if (store.get('gameOptions.music.volume') === null)
 if (store.get('gameOptions.ambience.volume') === null)
     store.set('gameOptions.ambience.volume', 0.3);
 if (store.get('gameOptions.sfx.volume') === null)
-    store.set('gameOptions.sfx.volume', 0.8);
+    store.set('gameOptions.sfx.volume', 0.5);
 if (store.get('gameOptions.showStreamChat') === null)
     store.set('gameOptions.showStreamChat', true);
 
