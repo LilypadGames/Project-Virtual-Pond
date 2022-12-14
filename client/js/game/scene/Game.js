@@ -145,11 +145,7 @@ class Game extends Phaser.Scene {
         //register sfxs
         if (this.room === 'forest') {
             this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
-            this.sfxRadioClick.setVolume(
-                utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                ].volume
-            );
+            this.sfxRadioClick.setVolume(store.get('gameValues.sfx.volume'));
         }
 
         //detect when window is re-focused
@@ -214,16 +210,34 @@ class Game extends Phaser.Scene {
         this.createToolbar();
 
         //welcome message
-        var options = utility.getLocalStorage('gameValues');
+        let lastWelcomeMessageVersion = store.get(
+            'gameValues.lastWelcomeMessageVersion'
+        );
         if (
-            options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
-                .value !== GameConfig.welcomeMessageVersion
+            lastWelcomeMessageVersion === undefined ||
+            lastWelcomeMessageVersion !== GameConfig.welcomeMessageVersion
         ) {
+            //show welcome message
             this.showWelcomeMessage();
-            options[
-                utility.getLocalStorageArrayIndex('gameValues', 'welcome')
-            ].value = GameConfig.welcomeMessageVersion;
-            utility.storeLocalStorageArray('gameValues', options);
+
+            //store last
+            store.set(
+                'gameValues.lastWelcomeMessageVersion',
+                GameConfig.welcomeMessageVersion
+            );
+        }
+
+        //player has not logged into this version yet
+        let lastVersion = store.get('gameValues.lastGameVersion');
+        if (
+            lastVersion === undefined ||
+            lastVersion !== globalData.gameVersion
+        ) {
+            //show news
+            this.showNews();
+
+            //store last game version
+            store.set('gameValues.lastGameVersion', globalData.gameVersion);
         }
 
         //tell server that the client has joined this room and receive information such as currently connected players to this room
@@ -693,13 +707,7 @@ class Game extends Phaser.Scene {
     addRoomDOMElements() {
         if (this.room == 'theatre') {
             //element variable
-            const chatEnabled =
-                utility.getLocalStorage('gameValues')[
-                    utility.getLocalStorageArrayIndex(
-                        'gameValues',
-                        'show_stream_chat'
-                    )
-                ].value;
+            const chatEnabled = store.get('gameValues.showStreamChat');
             let chatTag = chatEnabled ? ' chat' : '';
 
             //create element
@@ -989,19 +997,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'musicVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
-                ].volume,
+                value: store.get('gameValues.music.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'music'
-                        )
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameValues.music.volume', value);
 
                     //change volume
                     if (this.audioMusic) this.audioMusic.setVolume(value);
@@ -1013,19 +1012,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'ambienceVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
-                ].volume,
+                value: store.get('gameValues.ambience.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'ambience'
-                        )
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameValues.ambience.volume', value);
 
                     //change volume
                     if (this.audioAmbience) this.audioAmbience.setVolume(value);
@@ -1037,16 +1027,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'sfxVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                ].volume,
+                value: store.get('gameValues.sfx.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameValues.sfx.volume', value);
 
                     //change volume
                     if (this.sfxButtonClick)
@@ -1058,30 +1042,15 @@ class Game extends Phaser.Scene {
 
         //additional options per room
         if (this.room === 'theatre') {
-            //get local game options
-            var options = utility.getLocalStorage('gameValues');
-
             //stream chat toggle
             content.push(
                 { type: 'text', text: 'Enable Stream Chat', fontSize: 24 },
                 {
                     type: 'checkbox',
-                    initialValue:
-                        options[
-                            utility.getLocalStorageArrayIndex(
-                                'gameValues',
-                                'show_stream_chat'
-                            )
-                        ].value,
-                    onClick: (state) => {
+                    initialValue: store.get('gameValues.showStreamChat'),
+                    onClick: (value) => {
                         //store new value
-                        options[
-                            utility.getLocalStorageArrayIndex(
-                                'gameValues',
-                                'show_stream_chat'
-                            )
-                        ].value = state;
-                        utility.storeLocalStorageArray('gameValues', options);
+                        store.set('gameValues.showStreamChat', value);
                     },
                 }
             );
@@ -1475,11 +1444,7 @@ class Game extends Phaser.Scene {
         this.audioMusic = this.sound.add(song, this.defaultMusicSettings);
 
         //start music and set volume from localStorage settings
-        this.audioMusic.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'music')
-            ].volume
-        );
+        this.audioMusic.setVolume(store.get('gameValues.music.volume'));
         this.audioMusic.setLoop(true);
         this.audioMusic.play();
         this.sound.pauseOnBlur = false;
@@ -1495,11 +1460,7 @@ class Game extends Phaser.Scene {
         this.audioAmbience = this.sound.add(song, this.defaultAmbienceSettings);
 
         //start ambience and set volume from localStorage settings
-        this.audioAmbience.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
-            ].volume
-        );
+        this.audioAmbience.setVolume(store.get('gameValues.ambience.volume'));
         this.audioMusic.setLoop(true);
         this.audioAmbience.play();
         this.sound.pauseOnBlur = false;

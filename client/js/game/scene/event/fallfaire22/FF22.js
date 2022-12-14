@@ -73,11 +73,7 @@ class FF22 {
             });
 
             //start music and set volume from localStorage settings
-            scene.audioMusic.setVolume(
-                utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
-                ].volume
-            );
+            scene.audioMusic.setVolume(store.get(gameOptions.music.volume));
             scene.audioMusic.play();
         }
     }
@@ -156,23 +152,13 @@ class FF22 {
             {
                 type: 'slider',
                 id: 'musicVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
-                ].volume,
+                value: store.get('gameOptions.music.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'music'
-                        )
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameOptions.music.volume', value);
 
                     //change volume
                     scene.audioMusic.setVolume(value);
-                    // scene.changeVolume('music', value);
                 },
             },
 
@@ -181,16 +167,10 @@ class FF22 {
             {
                 type: 'slider',
                 id: 'sfxVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                ].volume,
+                value: store.get('gameOptions.sfx.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameOptions.sfx.volume', value);
 
                     //change volume
                     scene.sfxButtonClick.setVolume(value);

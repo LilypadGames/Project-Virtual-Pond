@@ -44,11 +44,7 @@ class GlobalUI {
     create(scene) {
         //sfx
         scene.sfxButtonClick = scene.sound.add('button_click', { volume: 0 });
-        scene.sfxButtonClick.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume
-        );
+        scene.sfxButtonClick.setVolume(store.get('gameOptions.sfx.volume'));
 
         //debug
         this.debugCursor = scene.add

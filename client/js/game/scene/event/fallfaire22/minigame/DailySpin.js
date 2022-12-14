@@ -310,10 +310,7 @@ class FF22DailySpin extends Phaser.Scene {
         if (this.dailySpinCount >= 1) this.canSpin = true;
 
         //sound
-        let sfxVolume =
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume;
+        let sfxVolume = store.get('gameOptions.sfx.volume');
         this.audio_wheel_spin = this.sound.add('wheel_spin', {
             mute: false,
             volume: sfxVolume,
@@ -437,11 +434,7 @@ class FF22DailySpin extends Phaser.Scene {
 
             //play wheel spin sound
             this.audio_wheel_spin
-                .setVolume(
-                    utility.getLocalStorage('gameOptions')[
-                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                    ].volume
-                )
+                .setVolume(store.get('gameOptions.sfx.volume'))
                 .play();
 
             //fade out wheel spin sound
