@@ -481,10 +481,10 @@ class Client {
     playerMoved(x, y, direction) {
         socket.emit('playerMoved', x, y, direction);
     }
-    //tell server that the player has changed directions
-    playerChangedDirection(direction, x, y) {
-        socket.emit('playerChangedDirection', direction, x, y);
-    }
+    // //tell server that the player has changed directions
+    // playerChangedDirection(direction, x, y) {
+    //     socket.emit('playerChangedDirection', direction, x, y);
+    // }
     //tell server that client is sending a message
     playerSendingMessage(message) {
         socket.emit('playerSendingMessage', message);
