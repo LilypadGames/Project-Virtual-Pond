@@ -91,6 +91,10 @@ window.onload = function () {
         dom: {
             createContainer: true,
         },
+        audio: {
+            disableWebAudio: true,
+            noAudio: false
+        },
         plugins: {
             scene: [
                 {

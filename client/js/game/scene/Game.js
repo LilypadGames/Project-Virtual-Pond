@@ -522,7 +522,9 @@ class Game extends Phaser.Scene {
                 },
                 in: function (instance) {
                     //create collider at position
-                    let collider = instance.add.sprite(this.x, this.y).setOrigin(0.5, 0.5);
+                    let collider = instance.add
+                        .sprite(this.x, this.y)
+                        .setOrigin(0.5, 0.5);
 
                     //set collider size
                     collider.displayWidth = this.width;
@@ -1478,6 +1480,7 @@ class Game extends Phaser.Scene {
                 utility.getLocalStorageArrayIndex('gameOptions', 'music')
             ].volume
         );
+        this.audioMusic.setLoop(true);
         this.audioMusic.play();
         this.sound.pauseOnBlur = false;
     }
@@ -1497,6 +1500,7 @@ class Game extends Phaser.Scene {
                 utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
             ].volume
         );
+        this.audioMusic.setLoop(true);
         this.audioAmbience.play();
         this.sound.pauseOnBlur = false;
     }
