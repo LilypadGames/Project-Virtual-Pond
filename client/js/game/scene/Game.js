@@ -1494,18 +1494,29 @@ class Game extends Phaser.Scene {
         //init player name config
         var nametagConfig;
 
-        //player name style
+        //clients name tag
         if (data.id == clientID) {
+            //default name tag config for the client
             nametagConfig = this.nametagClientConfig;
-        } else {
-            nametagConfig = this.nametagConfig;
-        }
 
-        //special sponsor player name color
-        if (data.isSponsor) {
-            nametagConfig.color = data.character.nameColor
+            //special sponsor player name color
+            if (data.isSponsor) {
+                nametagConfig.color = data.character.nameColor
+                    ? utility.hexIntegerToString(data.character.nameColor)
+                    : utility.hexIntegerToString(ColorScheme.Gold);
+            }
+        //other player name tags
+        } else {
+            //default name tag config for other players
+            nametagConfig = this.nametagConfig;
+
+            //special sponsor player name color
+            if (data.isSponsor) {
+                nametagConfig.stroke = data.character.nameColor
                 ? utility.hexIntegerToString(data.character.nameColor)
                 : utility.hexIntegerToString(ColorScheme.Gold);
+                nametagConfig.strokeThickness = 6;
+            }
         }
 
         //create player name
