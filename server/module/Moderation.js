@@ -10,14 +10,13 @@ import logs from '../module/Logs.js';
 import utility from '../module/Utility.js';
 
 export default {
-    kickClient: async function (
-        io,
+    kickMessage: function (
         player,
         reason,
         kickMessage = 'You have been kicked.'
     ) {
         //log
-        message = utility.timestampString(
+        let message = utility.timestampString(
             'PLAYER ID: ' +
                 player.id +
                 ' (' +
@@ -31,10 +30,25 @@ export default {
         logs.logMessage('moderation', message);
 
         //create kick message
-        kickMessage =
-            reason !== undefined
-                ? kickMessage + '\n\n' + 'Reason: ' + reason
-                : kickMessage;
+        return reason !== undefined
+            ? kickMessage + '\n\n' + 'Reason: ' + reason
+            : kickMessage;
+    },
+
+    kickSocket: async function (socket, reason, kickMessage) {
+        //kick message
+        kickMessage = this.kickMessage(socket.player, reason, kickMessage);
+
+        //send kick message to this client
+        socket.emit('payloadKickReason', kickMessage);
+
+        //kick
+        socket.disconnect();
+    },
+
+    kickClient: async function (io, player, reason, kickMessage) {
+        //kick message
+        kickMessage = this.kickMessage(player, reason, kickMessage);
 
         //get connected clients
         const connectedClients = await io.fetchSockets();

@@ -41,6 +41,11 @@ export default {
         return value;
     },
 
+    removeValue: async function (path) {
+        //get value in database
+        await database.ref(path).remove();
+    },
+
     //check to see if a path in the database exists
     pathExists: async function (path) {
         return await database

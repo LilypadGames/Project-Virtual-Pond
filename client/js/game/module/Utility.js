@@ -17,28 +17,6 @@ class Utility {
         return array[Math.floor(Math.random() * array.length)];
     }
 
-    // LOCAL STORAGE
-    //get local storage array
-    getLocalStorage(item) {
-        return JSON.parse(localStorage.getItem(item));
-    }
-    //get local storage index for certain ID
-    getLocalStorageArrayIndex(item, id) {
-        return JSON.parse(localStorage.getItem(item)).findIndex(
-            (key) => key.id === id
-        );
-    }
-    //get local storage object for certain ID
-    getLocalStorageObject(item, id) {
-        return JSON.parse(localStorage.getItem(item))[
-            this.getLocalStorageArrayIndex(item, id)
-        ];
-    }
-    //store value
-    storeLocalStorageArray(item, array) {
-        localStorage.setItem(item, JSON.stringify(array));
-    }
-
     // OBJECT ARRAYS
     //get object from object array
     getObject(objectArray, objectID) {
@@ -69,10 +47,10 @@ class Utility {
 
     // PROMISES
     async wait(duration) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             setTimeout(() => {
-                resolve()
-            }, duration)
-        })
+                resolve();
+            }, duration);
+        });
     }
 }

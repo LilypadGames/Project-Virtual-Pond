@@ -11,5 +11,8 @@ package-lock.json
 #configs
 config.json
 
+#localDB
+server/data/globalData.json
+
 #logs
 server/logs

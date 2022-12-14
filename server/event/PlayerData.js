@@ -132,6 +132,7 @@ class PlayerData {
     //initialize player data in database
     async initPlayerData() {
         /////// BUG FIX
+        //if they have the old eye_type, reset their character data
         if (
             typeof (await database.getValue(
                 this.userDataPath +
@@ -146,6 +147,20 @@ class PlayerData {
                 ''
             );
         }
+        //if they have the old lastRoom stat, remove it
+        if (
+            await database.getValue(
+                this.userDataPath +
+                    this.socket.request.user.data[0].id +
+                    '/stat/lastRoom'
+            )
+        ) {
+            await database.removeValue(
+                this.userDataPath +
+                    this.socket.request.user.data[0].id +
+                    '/stat/lastRoom'
+            );
+        }
 
         //set up initial data
         var playerData = {
@@ -154,6 +169,19 @@ class PlayerData {
 
             //get name
             name: this.socket.request.user.data[0].display_name,
+
+            //room
+            room: (await database.getValue(
+                this.userDataPath +
+                    this.socket.request.user.data[0].id +
+                    '/room'
+            ))
+                ? await database.getValue(
+                      this.userDataPath +
+                          this.socket.request.user.data[0].id +
+                          '/room'
+                  )
+                : 'forest',
 
             //generate direction
             direction: utility.randomFromArray(['right', 'left']),
@@ -173,25 +201,44 @@ class PlayerData {
             isAdmin: (await database.getValue(
                 'permissions/admin/' + this.socket.request.user.data[0].id
             ))
-                ? await database.getValue(
-                      'permissions/admin/' + this.socket.request.user.data[0].id
-                  )
+                ? 1
                 : 0,
             isMod: (await database.getValue(
                 'permissions/mod/' + this.socket.request.user.data[0].id
             ))
-                ? await database.getValue(
-                      'permissions/mod/' + this.socket.request.user.data[0].id
-                  )
+                ? 1
                 : 0,
             isVIP: (await database.getValue(
                 'permissions/vip/' + this.socket.request.user.data[0].id
             ))
-                ? await database.getValue(
-                      'permissions/vip/' + this.socket.request.user.data[0].id
-                  )
+                ? 1
                 : 0,
         };
+
+        //sponsor
+        if (playerData.isAdmin || playerData.isMod || playerData.isVIP) {
+            playerData.isSponsor = 1;
+        } else {
+            playerData.isSponsor = (await database.getValue(
+                'donations/' +
+                    this.socket.request.user.data[0].id +
+                    '/donatorPerks'
+            ))
+                ? 1
+                : 0;
+        }
+
+        //default name color for sponsors is gold (#ffd700 / 16766720)
+        if (
+            playerData.isSponsor &&
+            !(await database.getValue(
+                'users/' +
+                    this.socket.request.user.data[0].id +
+                    '/character/nameColor'
+            ))
+        ) {
+            playerData.character.nameColor = utility.hex.toDecimal('ffd700');
+        }
 
         //first login stat
         if (
@@ -218,6 +265,15 @@ class PlayerData {
                 database.setValue(
                     this.userDataPath + this.socket.player.id + '/name',
                     this.socket.player.name
+                );
+        }
+
+        //character
+        if (this.socket.player.room) {
+            if (this.socket.player.room != undefined)
+                database.setValue(
+                    this.userDataPath + this.socket.player.id + '/room',
+                    this.socket.player.room
                 );
         }
 
@@ -344,58 +400,6 @@ class PlayerData {
         }
     }
 
-    //triggers when client requests the players data
-    // requestClientPlayerData() {
-    //     //log
-    //     let logMessage = utility.timestampString(
-    //         'PLAYER ID: ' +
-    //             this.socket.player.id +
-    //             ' (' +
-    //             this.socket.player.name +
-    //             ')' +
-    //             ' - Requested Player Data: ' +
-    //             this.socket.player.id +
-    //             ' (' +
-    //             this.socket.player.name +
-    //             ')'
-    //     );
-    //     logs.logMessage('debug', logMessage);
-
-    //     //give ONLY the data the client needs from the server
-    //     let playerData = {
-    //         //ID
-    //         id: this.socket.player.id,
-
-    //         //name
-    //         name: this.socket.player.name,
-
-    //         //direction
-    //         direction: this.socket.player.direction,
-
-    //         //location
-    //         x: this.socket.player.x,
-    //         y: this.socket.player.y,
-
-    //         //character data
-    //         character: this.socket.player.character,
-
-    //         //inventory data
-    //         inventory: this.socket.player.inventory,
-    //     };
-    //     if (this.socket.player.external) playerData.external = this.socket.player.external;
-
-    //     //send last room if available
-    //     if (this.socket.player.stat !== undefined) {
-    //         if (this.socket.player.stat.lastRoom !== undefined) {
-    //             if (playerData.stat === undefined) playerData.stat = {};
-    //             playerData.stat.lastRoom = this.socket.player.stat.lastRoom;
-    //         }
-    //     }
-
-    //     //send this client's player data to ONLY THIS client
-    //     return playerData;
-    // }
-
     //parses data of the provided player to only give the client necessary information about them
     requestParsedPlayerData(player, requester) {
         //persistent data
@@ -406,6 +410,7 @@ class PlayerData {
             x: player.x,
             y: player.y,
             character: player.character,
+            isSponsor: player.isSponsor,
         };
 
         //if client is requesting
@@ -476,13 +481,13 @@ class PlayerData {
                 this.socket.player.name +
                 ')' +
                 ' - Reloaded Room: ' +
-                this.socket.roomID
+                this.socket.player.room
         );
         logs.logMessage('debug', logMessage);
 
         //send current position of all connected players in this room to ONLY THIS client
         const playerData = await this.requestAllParsedPlayerData(
-            this.socket.roomID
+            this.socket.player.room
         );
         return playerData;
     }

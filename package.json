@@ -5,8 +5,8 @@
   "description": "A Physical Space for Twitch Frogs to Hang and Chat.",
   "main": "server/Server.js",
   "scripts": {
-    "dev": "nodemon server/Server.js",
-    "run": "pm2 start server/Server.js && pm2 monit",
+    "dev": "nodemon server/Run.js",
+    "run": "pm2 start server/Run.js && pm2 monit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -37,6 +37,7 @@
     "jsonpath": "^1.1.1",
     "leo-profanity": "^1.5.1",
     "natural": "^5.2.3",
+    "node-json-db": "^2.1.3",
     "node-streamelements": "^0.1.3",
     "passport": "^0.6.0",
     "passport-oauth": "^1.0.0",
