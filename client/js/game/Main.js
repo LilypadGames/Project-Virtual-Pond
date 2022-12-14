@@ -22,40 +22,20 @@ var debugMode = false;
 var globalData = {};
 
 //game data
-// var roomData = {};
 var itemData = {};
 $.getJSON('../config/itemData.json', function (json) {
     itemData = json;
 });
 
-//cookies
-var gameOptions = JSON.parse(localStorage.getItem('gameOptions'));
-const defaultOptions = [
-    { id: 'music', volume: 0.5 },
-    { id: 'ambience', volume: 0.5 },
-    { id: 'sfx', volume: 1 },
-];
-if (
-    gameOptions === null ||
-    gameOptions.length <= 0 ||
-    gameOptions.length != defaultOptions.length
-) {
-    localStorage.setItem('gameOptions', JSON.stringify(defaultOptions));
-    gameOptions = defaultOptions;
-}
-var gameValues = JSON.parse(localStorage.getItem('gameValues'));
-const defaultValues = [
-    { id: 'welcome', value: 0 },
-    { id: 'show_stream_chat', value: 1 },
-];
-if (
-    gameValues === null ||
-    gameValues.length <= 0 ||
-    gameValues.length != defaultValues.length
-) {
-    localStorage.setItem('gameValues', JSON.stringify(defaultValues));
-    gameValues = defaultValues;
-}
+//local storage default game options
+if (store.get('gameOptions.music.volume') === null)
+    store.set('gameOptions.music.volume', 0.25);
+if (store.get('gameOptions.ambience.volume') === null)
+    store.set('gameOptions.ambience.volume', 0.3);
+if (store.get('gameOptions.sfx.volume') === null)
+    store.set('gameOptions.sfx.volume', 0.8);
+if (store.get('gameOptions.showStreamChat') === null)
+    store.set('gameOptions.showStreamChat', true);
 
 //runs when window loads
 window.onload = function () {
@@ -93,7 +73,7 @@ window.onload = function () {
         },
         audio: {
             disableWebAudio: true,
-            noAudio: false
+            noAudio: false,
         },
         plugins: {
             scene: [

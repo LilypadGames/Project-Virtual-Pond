@@ -145,7 +145,7 @@ class Game extends Phaser.Scene {
         //register sfxs
         if (this.room === 'forest') {
             this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
-            this.sfxRadioClick.setVolume(store.get('gameValues.sfx.volume'));
+            this.sfxRadioClick.setVolume(store.get('gameOptions.sfx.volume'));
         }
 
         //detect when window is re-focused
@@ -707,7 +707,7 @@ class Game extends Phaser.Scene {
     addRoomDOMElements() {
         if (this.room == 'theatre') {
             //element variable
-            const chatEnabled = store.get('gameValues.showStreamChat');
+            const chatEnabled = store.get('gameOptions.showStreamChat');
             let chatTag = chatEnabled ? ' chat' : '';
 
             //create element
@@ -997,10 +997,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'musicVolume',
-                value: store.get('gameValues.music.volume'),
+                value: store.get('gameOptions.music.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    store.set('gameValues.music.volume', value);
+                    store.set('gameOptions.music.volume', value);
 
                     //change volume
                     if (this.audioMusic) this.audioMusic.setVolume(value);
@@ -1012,10 +1012,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'ambienceVolume',
-                value: store.get('gameValues.ambience.volume'),
+                value: store.get('gameOptions.ambience.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    store.set('gameValues.ambience.volume', value);
+                    store.set('gameOptions.ambience.volume', value);
 
                     //change volume
                     if (this.audioAmbience) this.audioAmbience.setVolume(value);
@@ -1027,10 +1027,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'sfxVolume',
-                value: store.get('gameValues.sfx.volume'),
+                value: store.get('gameOptions.sfx.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    store.set('gameValues.sfx.volume', value);
+                    store.set('gameOptions.sfx.volume', value);
 
                     //change volume
                     if (this.sfxButtonClick)
@@ -1047,10 +1047,10 @@ class Game extends Phaser.Scene {
                 { type: 'text', text: 'Enable Stream Chat', fontSize: 24 },
                 {
                     type: 'checkbox',
-                    initialValue: store.get('gameValues.showStreamChat'),
+                    initialValue: store.get('gameOptions.showStreamChat'),
                     onClick: (value) => {
                         //store new value
-                        store.set('gameValues.showStreamChat', value);
+                        store.set('gameOptions.showStreamChat', value);
                     },
                 }
             );
@@ -1444,7 +1444,7 @@ class Game extends Phaser.Scene {
         this.audioMusic = this.sound.add(song, this.defaultMusicSettings);
 
         //start music and set volume from localStorage settings
-        this.audioMusic.setVolume(store.get('gameValues.music.volume'));
+        this.audioMusic.setVolume(store.get('gameOptions.music.volume'));
         this.audioMusic.setLoop(true);
         this.audioMusic.play();
         this.sound.pauseOnBlur = false;
@@ -1460,7 +1460,7 @@ class Game extends Phaser.Scene {
         this.audioAmbience = this.sound.add(song, this.defaultAmbienceSettings);
 
         //start ambience and set volume from localStorage settings
-        this.audioAmbience.setVolume(store.get('gameValues.ambience.volume'));
+        this.audioAmbience.setVolume(store.get('gameOptions.ambience.volume'));
         this.audioMusic.setLoop(true);
         this.audioAmbience.play();
         this.sound.pauseOnBlur = false;
