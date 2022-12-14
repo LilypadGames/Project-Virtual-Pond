@@ -133,13 +133,11 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
-                    ' - Connected' +
-                    ' [Online Players: ' +
+                    ' - Connected [Players Online: ' +
                     serverMetrics.getPlayerCount() +
                     ']'
             )
@@ -185,11 +183,10 @@ class Connection {
         this.socket.on('connect_error', (err) => {
             console.log(
                 utility.timestampString(
-                    'PLAYER ID: ' +
+                    '(' +
                         this.socket.player.id +
-                        ' (' +
+                        ') ' +
                         this.socket.player.name +
-                        ')' +
                         ' - Connection Error: ' +
                         err
                 )
@@ -201,11 +198,10 @@ class Connection {
             //log
             console.log(
                 utility.timestampString(
-                    'PLAYER ID: ' +
+                    '(' +
                         this.socket.player.id +
-                        ' (' +
+                        ') ' +
                         this.socket.player.name +
-                        ')' +
                         ' - Logged Out'
                 )
             );
@@ -234,11 +230,10 @@ class Connection {
 
         //log
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' - Attempting to Join Room: ' +
                 room
         );
@@ -255,11 +250,10 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Left Room: ' +
                     this.socket.player.room
             )
@@ -282,11 +276,10 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Joined Room: ' +
                     room
             )
@@ -380,13 +373,11 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
-                    ' - Disconnected' +
-                    ' [Online Players: ' +
+                    ' - Disconnected [Players Online: ' +
                     serverMetrics.getPlayerCount() +
                     ']'
             )

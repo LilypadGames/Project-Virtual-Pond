@@ -17,11 +17,10 @@ export default {
     ) {
         //log
         let message = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 player.id +
-                ' (' +
+                ') ' +
                 player.name +
-                ')' +
                 ' - KICKED > Reason: ' +
                 reason +
                 ', Message: ' +

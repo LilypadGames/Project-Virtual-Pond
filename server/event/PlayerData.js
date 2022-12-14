@@ -370,11 +370,10 @@ class PlayerData {
     updateClientPlayerData(data) {
         //log
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' - Updated Player Data'
         );
         logs.logMessage('debug', logMessage);
@@ -475,11 +474,10 @@ class PlayerData {
     async requestRoomUpdate() {
         //log
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' - Reloaded Room: ' +
                 this.socket.player.room
         );

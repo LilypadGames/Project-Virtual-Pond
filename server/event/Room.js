@@ -76,11 +76,10 @@ class Room {
         if (this.socket.player.x != x || this.socket.player.y != y) {
             //log
             let logMessage = utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Moving To> x:' +
                     x +
                     ', y:' +
@@ -174,11 +173,10 @@ class Room {
                 //log command
                 console.log(
                     utility.timestampString(
-                        'PLAYER ID: ' +
+                        '(' +
                             this.socket.player.id +
-                            ' (' +
+                            ') ' +
                             this.socket.player.name +
-                            ')' +
                             ' - ' +
                             logMessage +
                             '> ' +
@@ -188,13 +186,11 @@ class Room {
             } else {
                 //log command
                 let logMessage = utility.timestampString(
-                    'PLAYER ID: ' +
+                    '(' +
                         this.socket.player.id +
-                        ' (' +
+                        ') ' +
                         this.socket.player.name +
-                        ')' +
-                        ' - ' +
-                        'Tried to Use Command Without Permission> ' +
+                        ' - Tried to Use Command Without Permission> ' +
                         message
                 );
                 logs.logMessage('moderation', logMessage);
@@ -233,11 +229,10 @@ class Room {
 
             //log command
             let logMessage = utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' Slur Detected > ' +
                     message +
                     ' | Phonetic Version > ' +
@@ -274,21 +269,19 @@ class Room {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Sending Message> ' +
                     message
             )
         );
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' > ' +
                 message
         );
@@ -336,11 +329,10 @@ class Room {
     playerInteractingWithObject(objectID) {
         //log
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' - Interacting With NPC: ' +
                 objectID
         );
