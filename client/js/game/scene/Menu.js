@@ -54,6 +54,11 @@ class Menu extends Phaser.Scene {
         }
     }
 
+    update() {
+        //update global UI
+        globalUI.update(this);
+    }
+
     end() {
         //reset data
         this.registry.destroy();
