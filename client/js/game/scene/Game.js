@@ -145,11 +145,7 @@ class Game extends Phaser.Scene {
         //register sfxs
         if (this.room === 'forest') {
             this.sfxRadioClick = this.sound.add('radio_click', { volume: 0 });
-            this.sfxRadioClick.setVolume(
-                utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                ].volume
-            );
+            this.sfxRadioClick.setVolume(store.get('gameOptions.sfx.volume'));
         }
 
         //detect when window is re-focused
@@ -214,19 +210,37 @@ class Game extends Phaser.Scene {
         this.createToolbar();
 
         //welcome message
-        var options = utility.getLocalStorage('gameValues');
+        let lastWelcomeMessageVersion = store.get(
+            'gameValues.lastWelcomeMessageVersion'
+        );
         if (
-            options[utility.getLocalStorageArrayIndex('gameValues', 'welcome')]
-                .value !== GameConfig.welcomeMessageVersion
+            lastWelcomeMessageVersion === undefined ||
+            lastWelcomeMessageVersion !== GameConfig.welcomeMessageVersion
         ) {
+            //show welcome message
             this.showWelcomeMessage();
-            options[
-                utility.getLocalStorageArrayIndex('gameValues', 'welcome')
-            ].value = GameConfig.welcomeMessageVersion;
-            utility.storeLocalStorageArray('gameValues', options);
+
+            //store last
+            store.set(
+                'gameValues.lastWelcomeMessageVersion',
+                GameConfig.welcomeMessageVersion
+            );
         }
 
-        //tell server that the client has joined this room and recieve information such as currently connected players to this room
+        //player has not logged into this version yet
+        let lastVersion = store.get('gameValues.lastGameVersion');
+        if (
+            lastVersion === undefined ||
+            lastVersion !== globalData.gameVersion
+        ) {
+            //show news
+            this.showNews();
+
+            //store last game version
+            store.set('gameValues.lastGameVersion', globalData.gameVersion);
+        }
+
+        //tell server that the client has joined this room and receive information such as currently connected players to this room
         let roomData = await client.joinRoom(this.room);
 
         //add connected players into room
@@ -522,11 +536,13 @@ class Game extends Phaser.Scene {
                 },
                 in: function (instance) {
                     //create collider at position
-                    let collider = instance.add.sprite(this.x, this.y);
+                    let collider = instance.add
+                        .sprite(this.x, this.y)
+                        .setOrigin(0.5, 0.5);
 
                     //set collider size
-                    collider.width = this.width;
-                    collider.height = this.height;
+                    collider.displayWidth = this.width;
+                    collider.displayHeight = this.height;
 
                     //enable collisions
                     instance.physics.world.enable(collider);
@@ -589,6 +605,101 @@ class Game extends Phaser.Scene {
                     },
                 },
             },
+            particle: {
+                scale: { random: [0.2, 0.45] },
+                alpha: { random: [0.1, 0.7] },
+                rotate: { random: [-90, 0], random: [0, 90] },
+                frequency: 200,
+                depth: 99999,
+                acceleration: { random: [10, 15] },
+                speed: { x: { min: -20, max: 20 }, y: { min: 50, max: 70 } },
+                quantity: 70,
+                lifespan: { min: 5000, max: 6500 },
+                add: function (textures) {
+                    if (typeof textures === 'string') {
+                        textures = [textures];
+                    }
+                    this.textures = textures;
+                    return this;
+                },
+                setScale: function (scale) {
+                    this.scale = scale;
+                    return;
+                },
+                setSpeed: function (x, y) {
+                    if (typeof x === 'number') {
+                        this.speed['x']['min'] = x;
+                        this.speed['x']['min'] = x;
+                    } else {
+                        this.speed['x']['min'] = x.min;
+                        this.speed['x']['max'] = x.max;
+                    }
+                    if (typeof y === 'number') {
+                        this.speed['y']['min'] = y;
+                        this.speed['y']['max'] = y;
+                    } else {
+                        this.speed['y']['min'] = y.min;
+                        this.speed['y']['max'] = y.max;
+                    }
+                    return this;
+                },
+                setAcceleration: function (acceleration) {
+                    this.acceleration = acceleration;
+                    return this;
+                },
+                setDepth: function (depth) {
+                    this.depth = depth;
+                    return this;
+                },
+                setQuantity: function (quantity) {
+                    this.quantity = quantity;
+                    return this;
+                },
+                setFrequency: function (frequency) {
+                    this.frequency = frequency;
+                    return this;
+                },
+                in: function (instance) {
+                    for (let index = 0; index < this.textures.length; index++) {
+                        const particle = instance.add.particles(
+                            this.textures[index]
+                        );
+
+                        particle.createEmitter({
+                            x: 0,
+                            y: 0,
+
+                            emitZone: {
+                                type: 'random',
+                                source: new Phaser.Geom.Rectangle(
+                                    0,
+                                    -100,
+                                    instance.sys.game.canvas.width,
+                                    100
+                                ),
+                                quantity: this.quantity,
+                            },
+
+                            speedX: this.speed['x'],
+                            speedY: this.speed['y'],
+
+                            accelerationY: this.acceleration,
+
+                            // lifespan
+                            lifespan: this.lifespan,
+                            scale: this.scale,
+                            alpha: this.alpha,
+                            gravityY: 10,
+                            frequency: this.frequency,
+                            blendMode: 'ADD',
+
+                            rotate: this.rotate,
+                        });
+
+                        particle.setDepth(this.depth);
+                    }
+                },
+            },
         });
     }
 
@@ -596,13 +707,7 @@ class Game extends Phaser.Scene {
     addRoomDOMElements() {
         if (this.room == 'theatre') {
             //element variable
-            const chatEnabled =
-                utility.getLocalStorage('gameValues')[
-                    utility.getLocalStorageArrayIndex(
-                        'gameValues',
-                        'show_stream_chat'
-                    )
-                ].value;
+            const chatEnabled = store.get('gameOptions.showStreamChat');
             let chatTag = chatEnabled ? ' chat' : '';
 
             //create element
@@ -892,19 +997,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'musicVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'music')
-                ].volume,
+                value: store.get('gameOptions.music.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'music'
-                        )
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameOptions.music.volume', value);
 
                     //change volume
                     if (this.audioMusic) this.audioMusic.setVolume(value);
@@ -916,19 +1012,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'ambienceVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
-                ].volume,
+                value: store.get('gameOptions.ambience.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex(
-                            'gameOptions',
-                            'ambience'
-                        )
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameOptions.ambience.volume', value);
 
                     //change volume
                     if (this.audioAmbience) this.audioAmbience.setVolume(value);
@@ -940,16 +1027,10 @@ class Game extends Phaser.Scene {
             {
                 type: 'slider',
                 id: 'sfxVolume',
-                value: utility.getLocalStorage('gameOptions')[
-                    utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                ].volume,
+                value: store.get('gameOptions.sfx.volume'),
                 onSliderChange: (value) => {
                     //store locally for the user to persist changes between sessions
-                    var options = utility.getLocalStorage('gameOptions');
-                    options[
-                        utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-                    ].volume = value;
-                    utility.storeLocalStorageArray('gameOptions', options);
+                    store.set('gameOptions.sfx.volume', value);
 
                     //change volume
                     if (this.sfxButtonClick)
@@ -961,30 +1042,15 @@ class Game extends Phaser.Scene {
 
         //additional options per room
         if (this.room === 'theatre') {
-            //get local game options
-            var options = utility.getLocalStorage('gameValues');
-
             //stream chat toggle
             content.push(
                 { type: 'text', text: 'Enable Stream Chat', fontSize: 24 },
                 {
                     type: 'checkbox',
-                    initialValue:
-                        options[
-                            utility.getLocalStorageArrayIndex(
-                                'gameValues',
-                                'show_stream_chat'
-                            )
-                        ].value,
-                    onClick: (state) => {
+                    initialValue: store.get('gameOptions.showStreamChat'),
+                    onClick: (value) => {
                         //store new value
-                        options[
-                            utility.getLocalStorageArrayIndex(
-                                'gameValues',
-                                'show_stream_chat'
-                            )
-                        ].value = state;
-                        utility.storeLocalStorageArray('gameValues', options);
+                        store.set('gameOptions.showStreamChat', value);
                     },
                 }
             );
@@ -1378,11 +1444,8 @@ class Game extends Phaser.Scene {
         this.audioMusic = this.sound.add(song, this.defaultMusicSettings);
 
         //start music and set volume from localStorage settings
-        this.audioMusic.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'music')
-            ].volume
-        );
+        this.audioMusic.setVolume(store.get('gameOptions.music.volume'));
+        this.audioMusic.setLoop(true);
         this.audioMusic.play();
         this.sound.pauseOnBlur = false;
     }
@@ -1397,11 +1460,8 @@ class Game extends Phaser.Scene {
         this.audioAmbience = this.sound.add(song, this.defaultAmbienceSettings);
 
         //start ambience and set volume from localStorage settings
-        this.audioAmbience.setVolume(
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'ambience')
-            ].volume
-        );
+        this.audioAmbience.setVolume(store.get('gameOptions.ambience.volume'));
+        this.audioMusic.setLoop(true);
         this.audioAmbience.play();
         this.sound.pauseOnBlur = false;
     }
@@ -1431,13 +1491,24 @@ class Game extends Phaser.Scene {
             height: playerBody.height,
         };
 
-        //player name
+        //init player name config
         var nametagConfig;
+
+        //player name style
         if (data.id == clientID) {
             nametagConfig = this.nametagClientConfig;
         } else {
             nametagConfig = this.nametagConfig;
         }
+
+        //special sponsor player name color
+        if (data.isSponsor) {
+            nametagConfig.color = data.character.nameColor
+                ? utility.hexIntegerToString(data.character.nameColor)
+                : utility.hexIntegerToString(ColorScheme.Gold);
+        }
+
+        //create player name
         var playerName = this.add
             .text(0, spriteContainer.height, data.name, nametagConfig)
             .setFontSize(this.nametagFontSize)
@@ -1619,12 +1690,13 @@ class Game extends Phaser.Scene {
                 //get player body sprite
                 var playerBody = this.playerCharacter[data.id].list[0].list[0];
 
-                //get tint
-                let tint = utility.hexIntegerToString(data.character.color);
-                this.tintFrog(tint);
-
                 //update color
-                playerBody.setTexture('frog_body_' + tint);
+                playerBody.setTexture(
+                    this.getTintedFrogSprite(
+                        'frog_body',
+                        utility.hexIntegerToString(data.character.color)
+                    )
+                );
             }
 
             //eye type
@@ -1651,30 +1723,33 @@ class Game extends Phaser.Scene {
     }
 
     //create a tinted version of the frog
-    tintFrog(tint) {
-        //check if already created
-        if (this.textures.exists('frog_body_' + tint)) return;
+    getTintedFrogSprite(sprite, tint) {
+        //if texture not created yet
+        if (!this.textures.exists(sprite + '_' + tint)) {
+            //get base tintable texture
+            let baseTexture = this.textures.get(sprite).getSourceImage();
 
-        //get base tintable texture
-        let baseTexture = this.textures.get('frog_body').getSourceImage();
+            //init new tinted texture
+            var tintedTexture = this.textures.createCanvas(
+                sprite + '_' + tint,
+                baseTexture.width,
+                baseTexture.height
+            );
 
-        //init new tinted texture
-        var tintedTexture = this.textures.createCanvas(
-            'frog_body_' + tint,
-            baseTexture.width,
-            baseTexture.height
-        );
+            //get tinted texture data
+            var ctx = tintedTexture.context;
 
-        //get tinted texture data
-        var ctx = tintedTexture.context;
+            //apply tint
+            ctx.fillStyle = tint;
+            ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.drawImage(baseTexture, 0, 0);
+            ctx.globalCompositeOperation = 'destination-atop';
+            ctx.drawImage(baseTexture, 0, 0);
+        }
 
-        //apply tint
-        ctx.fillStyle = tint;
-        ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.drawImage(baseTexture, 0, 0);
-        ctx.globalCompositeOperation = 'destination-atop';
-        ctx.drawImage(baseTexture, 0, 0);
+        //return tinted sprite
+        return sprite + '_' + tint;
     }
 
     //get players current direction

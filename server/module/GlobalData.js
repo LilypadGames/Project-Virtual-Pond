@@ -3,36 +3,54 @@
 //config
 import config from '../config/config.json' assert { type: 'json' };
 
-//dependency: twitch API
+//dependencies
 import twitch from '../module/Twitch.js';
+import { JsonDB, Config } from 'node-json-db';
 
 //global data variable
-import globalData from '../data/globalData.json' assert { type: 'json' };
+var globalData = new JsonDB(
+    new Config('server/data/globalData.json', true, true, '/')
+);
 
 export default {
     init: async function (io) {
         //save socket.io instance
         this.io = io;
 
-        //get game version
-        globalData.gameVersion = config.version;
+        //update game version
+        await globalData.push('/gameVersion', config.version);
 
-        //is stream live?
-        globalData.streamLive = await twitch.isStreamLive('pokelawls');
+        //update stream status
+        let streamLive = await twitch.isStreamLive('pokelawls');
+        await globalData.push('/streamLive', streamLive);
+
+        //init paths
+        try {
+            await globalData.getData('/currentEvents');
+        } catch {
+            await globalData.push('/currentEvents', []);
+        }
+
+        try {
+            await globalData.getData('/leaderboard');
+        } catch {
+            await globalData.push('/leaderboard', {});
+        }
     },
 
-    set: function (object, data) {
-        globalData[object] = data;
+    set: async function (path, value) {
+        //set value
+        await globalData.push('/' + path, value);
 
         //update connected clients
-        this.io.emit('payloadGlobalDataUpdate', object, data);
+        this.io.emit('payloadGlobalDataUpdate', await this.get());
     },
 
-    get: function () {
-        return globalData;
+    get: async function () {
+        return await globalData.getData('/');
     },
 
-    getObject: function (object) {
-        return globalData[object];
+    getPath: async function (path) {
+        return await globalData.getData('/' + path);
     },
 };

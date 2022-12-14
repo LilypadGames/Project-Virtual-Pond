@@ -6,7 +6,8 @@
         "hostName": "",
         "port": "",
         "proxy": false,
-        "bypassAuth": false
+        "bypassAuth": false,
+        "playerLimit": 100
     },
     "socketio_admin_dash": {
         "auth": {

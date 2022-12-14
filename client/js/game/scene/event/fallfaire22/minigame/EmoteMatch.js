@@ -106,10 +106,7 @@ class FF22EmoteMatch extends Phaser.Scene {
         await events.create(this);
 
         //sfx
-        let sfxVolume =
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume;
+        let sfxVolume = store.get('gameOptions.sfx.volume');
         this.audio_card_flip = [];
         for (var i = 1; i <= 3; i++) {
             this.audio_card_flip[i - 1] = this.sound
@@ -123,7 +120,11 @@ class FF22EmoteMatch extends Phaser.Scene {
 
         //create background
         this.add
-            .sprite(game.config.width / 2, game.config.height / 2, 'emotematch_background')
+            .sprite(
+                game.config.width / 2,
+                game.config.height / 2,
+                'emotematch_background'
+            )
             .setDepth(this.depthBackgroundUI);
 
         //start game
@@ -266,7 +267,7 @@ class FF22EmoteMatch extends Phaser.Scene {
                 setTimeout(() => {
                     //make sure player is still in the right scene
                     if (currentScene.scene.key !== 'FF22EmoteMatch') return;
-                    
+
                     //success sound
                     this.audio_success.play();
 
@@ -277,10 +278,13 @@ class FF22EmoteMatch extends Phaser.Scene {
                     if (status['completed']) {
                         setTimeout(() => {
                             //make sure player is still in the right scene
-                            if (currentScene.scene.key !== 'FF22EmoteMatch') return;
+                            if (currentScene.scene.key !== 'FF22EmoteMatch')
+                                return;
 
                             //format time
-                            let formattedTime = new Date(status['time'] * 1000).toISOString().slice(14, 19);
+                            let formattedTime = new Date(status['time'] * 1000)
+                                .toISOString()
+                                .slice(14, 19);
 
                             //sfx
                             this.audio_success_long.play();
@@ -298,6 +302,9 @@ class FF22EmoteMatch extends Phaser.Scene {
                                     this.scene.start('FF22EmoteMatch');
                                 }
                             );
+
+                            //player placed on leaderboard
+                            console.log(status);
 
                             //update ticket amount
                             ff22.changeTickets(this, status['prizeAmount']);

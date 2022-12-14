@@ -22,10 +22,13 @@ import Events from '../event/Events.js';
 import Room from '../event/Room.js';
 
 class Connection {
-    constructor(io, socket) {
-        //save socket and socket.io instance
+    constructor(io, socket, api) {
+        //store socket and socket.io instance
         this.socket = socket;
         this.io = io;
+
+        //store api
+        this.api = api;
 
         // OVERRIDES
         this.socket.removeListener = function (name) {
@@ -74,6 +77,20 @@ class Connection {
                 //set up player data
                 this.socket.player = await this.PlayerData.getPlayerData();
 
+                //max player count reached
+                if (
+                    serverMetrics.getPlayerCount() >= config.server.playerLimit
+                ) {
+                    //if player is not a sponsor, then kick them
+                    if (!this.socket.player.isSponsor) {
+                        await moderation.kickSocket(
+                            this.socket,
+                            'Server is Currently Full. Please Try Again Later.'
+                        );
+                        return;
+                    }
+                }
+
                 //register events
                 await this.register();
             }
@@ -88,6 +105,11 @@ class Connection {
             this.socket.player = {
                 id: this.io.guestID,
                 name: 'Guest',
+                direction: 'left',
+                character: {
+                    eye_type: 'happy',
+                    color: 0,
+                },
             };
 
             //register events
@@ -106,7 +128,7 @@ class Connection {
 
     async register() {
         //add 1 to player count
-        serverMetrics.playerJoined();
+        serverMetrics.playerJoined(this.socket);
 
         //log
         console.log(
@@ -141,13 +163,14 @@ class Connection {
         });
 
         //triggers when client requests global data
-        this.socket.on('requestGlobalData', (cb) => {
-            cb(globalData.get());
+        this.socket.on('requestGlobalData', async (cb) => {
+            let data = await globalData.get();
+            cb(data);
         });
 
         //triggers when client is attempting to join a room
         this.socket.on('requestRoom', async (room, cb) => {
-            cb(await this.requestRoom(room));
+            cb(await this.requestRoom(utility.sanitize.string(room)));
         });
 
         //triggers when client leaves a room
@@ -155,7 +178,7 @@ class Connection {
 
         //triggers when client joins a room
         this.socket.on('joinRoom', async (room, cb) => {
-            cb(await this.joinRoom(room));
+            cb(await this.joinRoom(utility.sanitize.string(room)));
         });
 
         //triggers on connection error
@@ -200,8 +223,8 @@ class Connection {
         //no room provided
         if (!room) {
             //check for last room
-            if (this.socket.player.stat && this.socket.player.stat.lastRoom) {
-                room = this.socket.player.stat.lastRoom;
+            if (this.socket.player.room) {
+                room = this.socket.player.room;
             }
             //otherwise provide default room
             else {
@@ -238,18 +261,13 @@ class Connection {
                     this.socket.player.name +
                     ')' +
                     ' - Left Room: ' +
-                    this.socket.roomID
+                    this.socket.player.room
             )
         );
 
-        //store old room in player data
-        this.PlayerData.updateClientPlayerData({
-            stat: { lastRoom: this.socket.roomID },
-        });
-
         //send the removal of the player for ALL clients in this room
         this.io
-            .in(this.socket.roomID)
+            .in(this.socket.player.room)
             .emit('removePlayer', this.socket.player.id);
 
         //leave rooms
@@ -259,7 +277,7 @@ class Connection {
     //triggers on player loading into new room
     async joinRoom(room) {
         //leave rooms currently in
-        if (this.socket.roomID) this.leaveRoom();
+        if (this.socket.player.room) this.leaveRoom();
 
         //log
         console.log(
@@ -274,14 +292,14 @@ class Connection {
             )
         );
 
-        //auth enabled
+        //add player to room
+        this.joinSocketRoom(room);
+
+        //store player data if authentication is enabled
         if (!config.server.bypassAuth) {
             //store player data in database
             this.PlayerData.storePlayerData();
         }
-
-        //add player to room
-        this.joinSocketRoom(room);
 
         //register room events
         if (!this.roomInstance) {
@@ -315,11 +333,11 @@ class Connection {
         );
 
         //send new player to ONLY OTHER clients in this room
-        let newPlayerData = await this.PlayerData.requestParsedPlayerData(
+        let newPlayerData = this.PlayerData.requestParsedPlayerData(
             this.socket.player
         );
         this.socket
-            .to(this.socket.roomID)
+            .to(this.socket.player.room)
             .emit('payloadNewPlayerData', newPlayerData);
 
         //init room info
@@ -327,7 +345,7 @@ class Connection {
 
         //send all currently connected players in this room to ONLY THIS client
         roomInfo['players'] = await this.PlayerData.requestAllParsedPlayerData(
-            this.socket.roomID
+            this.socket.player.room
         );
 
         //send chat log of this room to this player
@@ -342,22 +360,22 @@ class Connection {
         this.socket.join(room);
 
         //set as current room
-        this.socket.roomID = room;
+        this.socket.player.room = room;
     }
 
     //remove player from all rooms
     leaveAllSocketRooms() {
         //leave room
-        this.socket.leave(this.socket.roomID);
+        this.socket.leave(this.socket.player.room);
 
         //delete players room ID
-        delete this.socket.roomID;
+        delete this.socket.player.room;
     }
 
     //on disconnect
     onDisconnect() {
-        //remove 1 from playercount
-        serverMetrics.playerLeft();
+        //remove 1 from player count
+        serverMetrics.playerLeft(this.socket);
 
         //log
         console.log(
@@ -392,17 +410,13 @@ class Connection {
             //store last login date
             this.socket.player.stat.lastLogin = Date.now();
 
-            //store players last room
-            if (this.socket.roomID !== undefined)
-                this.socket.player.stat.lastRoom = this.socket.roomID;
-
             //store player data in database
             this.PlayerData.storePlayerData();
         }
 
         //send the removal of the player for ALL clients in this room
         this.io
-            .in(this.socket.roomID)
+            .in(this.socket.player.room)
             .emit('removePlayer', this.socket.player.id);
     }
 

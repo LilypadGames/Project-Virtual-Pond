@@ -171,10 +171,7 @@ class FF22FrogShuffle extends Phaser.Scene {
     //set up the scene
     async createGame() {
         //sfx
-        let sfxVolume =
-            utility.getLocalStorage('gameOptions')[
-                utility.getLocalStorageArrayIndex('gameOptions', 'sfx')
-            ].volume;
+        let sfxVolume = store.get('gameOptions.sfx.volume');
         this.audio_slide = [];
         for (var i = 1; i <= 3; i++) {
             this.audio_slide[i - 1] = this.sound
@@ -345,19 +342,28 @@ class FF22FrogShuffle extends Phaser.Scene {
         if (this.shuffleRound.status === false) this.quit();
 
         //determine swap speed
-        let swapSpeed = this.gameData.swapSpeedMax - (this.gameData.swapSpeedMultiplier * this.roundNumber) < this.gameData.swapSpeedMin ? this.gameData.swapSpeedMin : this.gameData.swapSpeedMax - (this.gameData.swapSpeedMultiplier * this.roundNumber);
+        let swapSpeed =
+            this.gameData.swapSpeedMax -
+                this.gameData.swapSpeedMultiplier * this.roundNumber <
+            this.gameData.swapSpeedMin
+                ? this.gameData.swapSpeedMin
+                : this.gameData.swapSpeedMax -
+                  this.gameData.swapSpeedMultiplier * this.roundNumber;
 
         //determine swap delay
-        let swapDelay = this.gameData.swapDelayMax - (this.gameData.swapDelayMultiplier * this.roundNumber) < this.gameData.swapDelayMin ? this.gameData.swapDelayMin : this.gameData.swapDelayMax - (this.gameData.swapDelayMultiplier * this.roundNumber);
+        let swapDelay =
+            this.gameData.swapDelayMax -
+                this.gameData.swapDelayMultiplier * this.roundNumber <
+            this.gameData.swapDelayMin
+                ? this.gameData.swapDelayMin
+                : this.gameData.swapDelayMax -
+                  this.gameData.swapDelayMultiplier * this.roundNumber;
 
         //start shuffling
         let queueTime = 0;
         this.shuffleRound.sequence.forEach((sequence, index) => {
             //accumulate queue time
-            if (index > 0)
-                queueTime =
-                    queueTime +
-                    (swapSpeed + swapDelay);
+            if (index > 0) queueTime = queueTime + (swapSpeed + swapDelay);
 
             //queue each swap with a delay that gets bigger with each iteration so that it accounts for the time required for the previous swap in the queue
             setTimeout(
@@ -394,17 +400,6 @@ class FF22FrogShuffle extends Phaser.Scene {
         //wait for swapping to finish
         await utility.wait(queueTime + 1000);
 
-        //make hats interactable
-        this.hats.forEach((hat, index) => {
-            hat.setInteractive();
-
-            //remove old listener
-            hat.removeListener('pointerdown');
-
-            //give click listener
-            hat.on('pointerdown', this.hatSelected.bind(this, index));
-        });
-
         //ask player to choose a hat matching the target
         this.targetDisplay = ui
             .createSizer(
@@ -436,11 +431,22 @@ class FF22FrogShuffle extends Phaser.Scene {
             )
             .setOrigin(0.5, 0)
             .layout();
+
+        //make hats interactive
+        this.hats.forEach((hat, index) => {
+            hat.setInteractive();
+
+            //remove old listener
+            hat.removeListener('pointerdown');
+
+            //give click listener
+            hat.on('pointerdown', this.hatSelected.bind(this, index));
+        });
     }
 
     //hat selected
     async hatSelected(index) {
-        //remove interactability from hats
+        //remove interactivity from hats
         this.hats.forEach((hat) => {
             hat.disableInteractive();
         });
@@ -495,6 +501,9 @@ class FF22FrogShuffle extends Phaser.Scene {
         else {
             //failure sound
             this.audio_failure.play();
+
+            //player placed on leaderboard
+            console.log(hatPick);
 
             //show reward
             globalUI.showDialog(

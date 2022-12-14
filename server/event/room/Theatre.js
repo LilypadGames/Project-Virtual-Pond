@@ -20,12 +20,12 @@ class Theatre {
     }
 
     //initialize
-    init() {
+    async init() {
         //register events
         this.registerEvents();
 
         //update stream status on client
-        this.streamStatusUpdate(globalData.getObject('streamLive'));
+        this.streamStatusUpdate(await globalData.getPath('streamLive'));
 
         //detect when stream goes live or offline
         twitchEvent.on('streamLive', this.streamStatusUpdate);

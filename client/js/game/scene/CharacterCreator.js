@@ -405,13 +405,9 @@ class CharacterCreator extends Phaser.Scene {
             this.nametag.setStroke(ColorScheme.Black, fontSize / 4);
         }
 
-        //create tinted frog texture from players color
-        let tint = utility.hexIntegerToString(data.color);
-        this.tintFrog(tint);
-
-        //player character
+        //player character (with player tint and accessories)
         var playerBody = this.add
-            .sprite(0, 0, 'CC_frog_body_' + tint)
+            .sprite(0, 0, this.getTintedFrogSprite('CC_frog_body', utility.hexIntegerToString(data.color)))
             .setOrigin(0.5, 1);
         var playerBelly = this.add
             .sprite(0, 0, 'CC_frog_belly')
@@ -456,9 +452,7 @@ class CharacterCreator extends Phaser.Scene {
     updateCharacter() {
         if (this.characterCreated) {
             //update players color
-            let tint = utility.hexIntegerToString(this.characterData.color);
-            this.tintFrog(tint);
-            this.character.list[0].setTexture('CC_frog_body_' + tint);
+            this.character.list[0].setTexture(this.getTintedFrogSprite('CC_frog_body', utility.hexIntegerToString(this.characterData.color)));
 
             //update players eye type
             this.character.list[2].setTexture(
@@ -479,29 +473,32 @@ class CharacterCreator extends Phaser.Scene {
     }
 
     //create a tinted version of the frog
-    tintFrog(tint) {
-        //check if already created
-        if (this.textures.exists('CC_frog_body_' + tint)) return;
+    getTintedFrogSprite(sprite, tint) {
+        //if texture not created yet
+        if (!this.textures.exists(sprite + '_' + tint)) {
+            //get base tintable texture
+            let baseTexture = this.textures.get(sprite).getSourceImage();
 
-        //get base tintable texture
-        let baseTexture = this.textures.get('CC_frog_body').getSourceImage();
+            //init new tinted texture
+            var tintedTexture = this.textures.createCanvas(
+                sprite + '_' + tint,
+                baseTexture.width,
+                baseTexture.height
+            );
 
-        //init new tinted texture
-        var tintedTexture = this.textures.createCanvas(
-            'CC_frog_body_' + tint,
-            baseTexture.width,
-            baseTexture.height
-        );
+            //get tinted texture data
+            var ctx = tintedTexture.context;
 
-        //get tinted texture data
-        var ctx = tintedTexture.context;
+            //apply tint
+            ctx.fillStyle = tint;
+            ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
+            ctx.globalCompositeOperation = 'multiply';
+            ctx.drawImage(baseTexture, 0, 0);
+            ctx.globalCompositeOperation = 'destination-atop';
+            ctx.drawImage(baseTexture, 0, 0);
+        }
 
-        //apply tint
-        ctx.fillStyle = tint;
-        ctx.fillRect(0, 0, baseTexture.width, baseTexture.height);
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.drawImage(baseTexture, 0, 0);
-        ctx.globalCompositeOperation = 'destination-atop';
-        ctx.drawImage(baseTexture, 0, 0);
+        //return tinted sprite
+        return sprite + '_' + tint;
     }
 }

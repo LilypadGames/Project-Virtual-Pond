@@ -6,7 +6,8 @@ class GameConfig {
 
     //current news
     static news = [
-        'Alpha v0.5.1 - Happy Halloween!\n\nChanges:\n - Halloween Event! Get a free Carved Pumpkin Hat in the forest while the event lasts.\n - New profanity filter being tested.\n - UI changes to match rest of the games art style.\n\nFixes:\n- A ton of background changes to the server and client! Check the Trello for more information.',
+        'Alpha v0.5.3 - Winter Wonderland\n\nChanges:\n- Snow is falling!\n- Max player limit of 100 players is now in effect.\n- Sponsors  (those who donated $4.20 or more) and VIPs (such as streamers) now have some perks like a colored name and bypassing the player limit.\n- A developer API has been implemented letting third party interface developers access information like the current player count, current players online, as well as some limited player information like what a Frog is wearing or what they own. Please reach out on Discord if you\'d like to learn more!\n- MP3 files have been converted to OGG to save on bandwidth.\n\nFixes:\n- Audio now loops correctly instead of ending after the second playback.\n- Authentication errors should no longer halt the server.',
+        // 'Alpha v0.5.1 - Happy Halloween!\n\nChanges:\n - Halloween Event! Get a free Carved Pumpkin Hat in the forest while the event lasts.\n - New profanity filter being tested.\n - UI changes to match rest of the games art style.\n\nFixes:\n- A ton of background changes to the server and client! Check the Trello for more information.',
         // "Alpha v0.5 - Happy Birthday Poke!\n\nChanges:\n - Birthday Event! Get a free Birthday Hat in the forest while the event lasts.\n - Simple accessories mechanic implemented. Frogs can now wear things.\n - New eye types! Now you can be a sad or happy frog.\n - A lot of stats are now collected about your frog. like when you first joined, when the last time you played was, your overall playtime etc. This will eventually be shown on your profile (when that's implemented.)\n - There is now a log-out button in the options menu. finally?\n - Character creator got a visual update.\n - There is now a prompt on mobile to rotate your device when you play- also mobile touch input is now recognized!\n - Fullscreen mode button.\n - A TON of backend stuff that's too boring and long to talk about here.\n\nFixes:\n- Chat messages no longer persist when changing rooms.\n- Fixed a server crash issue. I'm sure a new one will pop up though.\n- Some other small things here and there.",
         // "Alpha v0.4 - Chat Log & New Room!\n\nChanges:\n- New Theatre Room where you can watch Poke's stream with other frogs!\n- Finally implemented a Chat Log so you can see recent messages from other frogs within each room.\n- New ambient sounds for the forest and volume control in the Options menu.\n- A welcome message now shows up the first time you access the site.\n- New site icon matching the newer frog design.\n- The character creator can be accessed at any time by the button on the toolbar.\n- New Donation button on the site. Any donation helps a lot, as I am developing this alone with any time I have!\n\nFixes:\n- Several UI bugs fixed.\n- Movement-based client crash fixed.",
         // "Alpha v0.3 - News, Dark Mode, & Backend Overhaul\n\nChanges:\n- New Dark Mode option on the site. It will take your OS's settings by default, but you can change it and the option you pick persists even if you leave the site.\n- SFX Volume option in the settings.\n- News Board that shows all these changes every update.\n- Loading screen when joining the game and in between scenes.\n- 1 Million Followers Banner. FeelsStrongMan Clap\n\nFixes:\n- Player direction, location, collision, and messages has been fixed so that they\'re synchronized across clients better.",
@@ -226,9 +227,58 @@ class GameConfig {
                     )
                     .in(game);
             }
+            if (globalData.currentEvents.includes('Winter')) {
+                //audio
+                event.audio
+                    .add(
+                        'frog_caves_winter',
+                        'event/winter/audio/music/frog_caves_winter.ogg'
+                    )
+                    .in(game);
 
-            //Theatre Room
-        } else if (room === 'theatre') {
+                //layers
+                event.texture
+                    .add(
+                        'Forest_Background_Winter',
+                        'event/winter/layers/Background.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Forest_Ground_Winter',
+                        'event/winter/layers/Ground.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Forest_Tree_3_Winter',
+                        'event/winter/layers/Tree_3.png'
+                    )
+                    .in(game);
+
+                event.texture
+                    .add(
+                        'Snowflake_0',
+                        'event/winter/particles/snowflake_0.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Snowflake_1',
+                        'event/winter/particles/snowflake_1.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Snowflake_2',
+                        'event/winter/particles/snowflake_2.png'
+                    )
+                    .in(game);
+            }
+        }
+
+        //Theatre Room
+        else if (room === 'theatre') {
             //textures
             event.texture
                 .add('Theatre_Background', 'room/theatre/layers/Background.png')
@@ -258,6 +308,8 @@ class GameConfig {
                 event.option.music.set('frog_caves_fair').in(game);
             else if (globalData.currentEvents.includes('Halloween'))
                 event.option.music.set('Play_With_Me_Myuu').in(game);
+            else if (globalData.currentEvents.includes('Winter'))
+                event.option.music.set('frog_caves_winter').in(game);
             else event.option.music.set('frog_caves_chill_kopie').in(game);
             event.option.ambience.set('forest_ambience').in(game);
 
@@ -266,15 +318,29 @@ class GameConfig {
                 event.layer
                     .add('Forest_Background_Night', 'background')
                     .in(game);
+            } else if (globalData.currentEvents.includes('Winter')) {
+                event.layer
+                    .add('Forest_Background_Winter', 'background')
+                    .in(game);
             } else {
                 event.layer.add('Forest_Background', 'background').in(game);
             }
-            event.layer.add('Forest_Ground', 'ground').in(game);
+            if (globalData.currentEvents.includes('Winter')) {
+                event.layer.add('Forest_Ground_Winter', 'ground').in(game);
+            } else {
+                event.layer.add('Forest_Ground', 'ground').in(game);
+            }
             event.layer.add('Theatre_Sign', 600).in(game);
-            event.layer.add('Forest_Tree_3', 610).in(game);
-            event.layer.add('Forest_Rock_1', 629).in(game);
+            if (globalData.currentEvents.includes('Winter')) {
+                event.layer.add('Forest_Tree_3_Winter', 610).in(game);
+            } else {
+                event.layer.add('Forest_Tree_3', 610).in(game);
+            }
             // event.layer.add('Forest_Stump_1', 649).in(game);
-            event.layer.add('Forest_Foreground', 'foreground').in(game);
+            if (!globalData.currentEvents.includes('Winter')) {
+                event.layer.add('Forest_Foreground', 'foreground').in(game);
+                event.layer.add('Forest_Rock_1', 629).in(game);
+            }
 
             //     //npcs
             //     event.npc
@@ -310,8 +376,8 @@ class GameConfig {
             //teleports
             event.teleport
                 .room('theatre')
-                .location(142, 601)
-                .size(100, 500)
+                .location(80, 682)
+                .size(160, 250)
                 .in(game);
 
             // //objects
@@ -416,6 +482,12 @@ class GameConfig {
 
                 //shader
                 event.layer.add('Shader_JackOLantern_Eyes', 'shader').in(game);
+            }
+            if (globalData.currentEvents.includes('Winter')) {
+                //particles
+                event.particle
+                    .add(['Snowflake_0', 'Snowflake_1', 'Snowflake_2'])
+                    .in(game);
             }
 
             //Theatre Room
