@@ -83,9 +83,7 @@ export default class API {
                     response['isSponsor'] = 1;
                 } else {
                     response['isSponsor'] = (await database.getValue(
-                        'donations/' +
-                            this.socket.request.user.data[0].id +
-                            '/donatorPerks'
+                        'donations/' + playerID + '/donatorPerks'
                     ))
                         ? 1
                         : 0;
