@@ -121,7 +121,7 @@ class Inventory {
             await this.PlayerData.getSpecificClientPlayerData('/inventory');
 
         //return status of transaction
-        return { status: true, reason: 'You now own the ' + item.name + '.' };
+        return { status: true, reason: 'You now own the ' + item.name + '.', item: itemID };
     }
 }
 
