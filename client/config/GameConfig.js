@@ -6,7 +6,7 @@ class GameConfig {
 
     //current news
     static news = [
-        'Alpha v0.5.3 - Winter Wonderland\n\nChanges:\n- Snow is falling!\n- Max player limit of 100 players is now in effect.\n- Sponsors  (those who donated $4.20 or more) and VIPs (such as streamers) now have some perks like a colored name and bypassing the player limit.\n- A developer API has been implemented letting third party interface developers access information like the current player count, current players online, as well as some limited player information like what a Frog is wearing or what they own. Please reach out on Discord if you\'d like to learn more!\n- MP3 files have been converted to OGG to save on bandwidth.\n\nFixes:\n- Audio now loops correctly instead of ending after the second playback.\n- Authentication errors should no longer halt the server.',
+        "Alpha v0.5.3 - Winter Wonderland\n\nChanges:\n- Snow is falling!\n- Max player limit of 100 players is now in effect.\n- Sponsors  (those who donated $4.20 or more) and VIPs (such as streamers) now have some perks like a colored name and bypassing the player limit.\n- A developer API has been implemented letting third party interface developers access information like the current player count, current players online, as well as some limited player information like what a Frog is wearing or what they own. Please reach out on Discord if you'd like to learn more!\n- MP3 files have been converted to OGG to save on bandwidth.\n\nFixes:\n- Audio now loops correctly instead of ending after the second playback.\n- Authentication errors should no longer halt the server.",
         // 'Alpha v0.5.1 - Happy Halloween!\n\nChanges:\n - Halloween Event! Get a free Carved Pumpkin Hat in the forest while the event lasts.\n - New profanity filter being tested.\n - UI changes to match rest of the games art style.\n\nFixes:\n- A ton of background changes to the server and client! Check the Trello for more information.',
         // "Alpha v0.5 - Happy Birthday Poke!\n\nChanges:\n - Birthday Event! Get a free Birthday Hat in the forest while the event lasts.\n - Simple accessories mechanic implemented. Frogs can now wear things.\n - New eye types! Now you can be a sad or happy frog.\n - A lot of stats are now collected about your frog. like when you first joined, when the last time you played was, your overall playtime etc. This will eventually be shown on your profile (when that's implemented.)\n - There is now a log-out button in the options menu. finally?\n - Character creator got a visual update.\n - There is now a prompt on mobile to rotate your device when you play- also mobile touch input is now recognized!\n - Fullscreen mode button.\n - A TON of backend stuff that's too boring and long to talk about here.\n\nFixes:\n- Chat messages no longer persist when changing rooms.\n- Fixed a server crash issue. I'm sure a new one will pop up though.\n- Some other small things here and there.",
         // "Alpha v0.4 - Chat Log & New Room!\n\nChanges:\n- New Theatre Room where you can watch Poke's stream with other frogs!\n- Finally implemented a Chat Log so you can see recent messages from other frogs within each room.\n- New ambient sounds for the forest and volume control in the Options menu.\n- A welcome message now shows up the first time you access the site.\n- New site icon matching the newer frog design.\n- The character creator can be accessed at any time by the button on the toolbar.\n- New Donation button on the site. Any donation helps a lot, as I am developing this alone with any time I have!\n\nFixes:\n- Several UI bugs fixed.\n- Movement-based client crash fixed.",
@@ -275,6 +275,41 @@ class GameConfig {
                     )
                     .in(game);
             }
+            if (globalData.currentEvents.includes('Holiday')) {
+                //layers
+                event.texture
+                    .add(
+                        'Holiday_Tree',
+                        'event/holiday/layers/Holiday_Tree.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Holiday_Tree_Stump',
+                        'event/holiday/layers/Holiday_Tree_Stump.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Holiday_Shadows',
+                        'event/holiday/layers/Holiday_Shadows.png'
+                    )
+                    .in(game);
+
+                //objects
+                event.texture
+                    .add(
+                        'Free_Santa_Hat_Crate',
+                        'event/holiday/objects/Free_Santa_Hat_Crate.png'
+                    )
+                    .in(game);
+                event.texture
+                    .add(
+                        'Holiday_Present',
+                        'event/holiday/objects/Holiday_Present.png'
+                    )
+                    .in(game);
+            }
         }
 
         //Theatre Room
@@ -485,8 +520,42 @@ class GameConfig {
             }
             if (globalData.currentEvents.includes('Winter')) {
                 //particles
+                if (!globalData.currentEvents.includes('Holiday')) {
+                    event.particle
+                        .add(['Snowflake_0', 'Snowflake_1', 'Snowflake_2'])
+                        .in(game);
+                }
+            }
+            if (globalData.currentEvents.includes('Holiday')) {
+                //layers
+                event.layer.add('Holiday_Tree', 600).in(game);
+                event.layer.add('Holiday_Tree_Stump', 588).in(game);
+                event.layer.add('Holiday_Tree_Shadows', 2).in(game);
+
+                //objects
+                event.object.interactable
+                    .name('Free_Santa_Hat_Crate')
+                    .location(938.8, 568)
+                    .depth(605)
+                    .onInteraction(() => {
+                        //get free santa hat
+                        client.requestItemPurchase('santa_hat');
+                    })
+                    .in(game);
+                event.object.interactable
+                    .name('Holiday_Present')
+                    .location(543.5, 590.8)
+                    .depth(615)
+                    .onInteraction(() => {
+                        //secret holiday hat
+                        client.requestItemPurchase('reindeer_antlers');
+                    })
+                    .in(game);
+
+                //particles
                 event.particle
                     .add(['Snowflake_0', 'Snowflake_1', 'Snowflake_2'])
+                    .setFrequency(35)
                     .in(game);
             }
 

@@ -62,14 +62,14 @@
         "type": "accessory",
         "name": "Santa Hat",
         "conditions": {
-            "event": "Christmas"
+            "event": "Holiday"
         }
     },
     "reindeer_antlers": {
         "type": "accessory",
         "name": "Reindeer Antlers",
         "conditions": {
-            "event": "Christmas"
+            "event": "Holiday"
         }
     }
 }
