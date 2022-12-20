@@ -23,6 +23,9 @@ class GameConfig {
 
     //preload room data
     static preloadRoom(game, room, event) {
+        //get current events
+        let currentEvents = globalData.currentEvents;
+
         //Forest Room
         if (room === 'forest') {
             //textures
@@ -79,7 +82,7 @@ class GameConfig {
                 .in(game);
 
             //overrides
-            if (globalData.currentEvents.includes('FF22')) {
+            if (currentEvents.includes('FF22')) {
                 //layers
                 event.texture
                     .add(
@@ -137,7 +140,7 @@ class GameConfig {
                         'event/ff22/audio/music/frog_caves_fair.ogg'
                     )
                     .in(game);
-            } else if (globalData.currentEvents.includes('FF22Dev')) {
+            } else if (currentEvents.includes('FF22Dev')) {
                 event.texture
                     .add(
                         'Daily_Spin_Tent',
@@ -163,7 +166,7 @@ class GameConfig {
                     )
                     .in(game);
             }
-            if (globalData.currentEvents.includes('Birthday_Party')) {
+            if (currentEvents.includes('Birthday_Party')) {
                 event.texture
                     .add(
                         'Birthday_Cake',
@@ -177,18 +180,32 @@ class GameConfig {
                     )
                     .in(game);
             }
-            if (globalData.currentEvents.includes('Night')) {
-                event.texture
-                    .add(
-                        'Forest_Background_Night',
-                        'room/forest/layers/Background_Night.png'
-                    )
-                    .in(game);
+            if (currentEvents.includes('Night')) {
+                //winter background
+                if (currentEvents.includes('Holiday')) {
+                    event.texture
+                        .add(
+                            'Holiday_Background_Night',
+                            'event/holiday/room/forest/layers/Holiday_Background_Night.png'
+                        )
+                        .in(game);
+                }
+                //normal forest background
+                else {
+                    event.texture
+                        .add(
+                            'Forest_Background_Night',
+                            'room/forest/layers/Background_Night.png'
+                        )
+                        .in(game);
+                }
+
+                //night shader
                 event.texture
                     .add('Shader_Night', 'room/forest/shaders/Night.png')
                     .in(game);
             }
-            if (globalData.currentEvents.includes('Halloween')) {
+            if (currentEvents.includes('Halloween')) {
                 //audio
                 event.audio
                     .add(
@@ -227,7 +244,7 @@ class GameConfig {
                     )
                     .in(game);
             }
-            if (globalData.currentEvents.includes('Winter')) {
+            if (currentEvents.includes('Winter')) {
                 //audio
                 event.audio
                     .add(
@@ -240,22 +257,23 @@ class GameConfig {
                 event.texture
                     .add(
                         'Forest_Background_Winter',
-                        'event/winter/layers/Background.png'
+                        'event/winter/room/forest/layers/Background.png'
                     )
                     .in(game);
                 event.texture
                     .add(
                         'Forest_Ground_Winter',
-                        'event/winter/layers/Ground.png'
+                        'event/winter/room/forest/layers/Ground.png'
                     )
                     .in(game);
                 event.texture
                     .add(
                         'Forest_Tree_3_Winter',
-                        'event/winter/layers/Tree_3.png'
+                        'event/winter/room/forest/layers/Tree_3.png'
                     )
                     .in(game);
 
+                //particles
                 event.texture
                     .add(
                         'Snowflake_0',
@@ -275,24 +293,24 @@ class GameConfig {
                     )
                     .in(game);
             }
-            if (globalData.currentEvents.includes('Holiday')) {
+            if (currentEvents.includes('Holiday')) {
                 //layers
                 event.texture
                     .add(
                         'Holiday_Tree',
-                        'event/holiday/layers/Holiday_Tree.png'
+                        'event/holiday/room/forest/layers/Holiday_Tree.png'
                     )
                     .in(game);
                 event.texture
                     .add(
                         'Holiday_Tree_Stump',
-                        'event/holiday/layers/Holiday_Tree_Stump.png'
+                        'event/holiday/room/forest/layers/Holiday_Tree_Stump.png'
                     )
                     .in(game);
                 event.texture
                     .add(
                         'Holiday_Shadows',
-                        'event/holiday/layers/Holiday_Shadows.png'
+                        'event/holiday/room/forest/layers/Holiday_Shadows.png'
                     )
                     .in(game);
 
@@ -300,13 +318,21 @@ class GameConfig {
                 event.texture
                     .add(
                         'Free_Santa_Hat_Crate',
-                        'event/holiday/objects/Free_Santa_Hat_Crate.png'
+                        'event/holiday/room/forest/objects/Free_Santa_Hat_Crate.png'
                     )
                     .in(game);
                 event.texture
                     .add(
                         'Holiday_Present',
-                        'event/holiday/objects/Holiday_Present.png'
+                        'event/holiday/room/forest/objects/Holiday_Present.png'
+                    )
+                    .in(game);
+
+                //shaders
+                event.texture
+                    .add(
+                        'Shader_Holiday_Lights',
+                        'event/holiday/room/forest/shaders/Holiday_Lights.png'
                     )
                     .in(game);
             }
@@ -335,44 +361,52 @@ class GameConfig {
 
     //build the room
     static buildRoom(game, room, event) {
+        //get current events
+        let currentEvents = globalData.currentEvents;
+
         //Forest Room
         if (room === 'forest') {
             //options
             event.option.chatLogSize.set(250).in(game);
-            if (globalData.currentEvents.includes('FF22'))
+            if (currentEvents.includes('FF22'))
                 event.option.music.set('frog_caves_fair').in(game);
-            else if (globalData.currentEvents.includes('Halloween'))
+            else if (currentEvents.includes('Halloween'))
                 event.option.music.set('Play_With_Me_Myuu').in(game);
-            else if (globalData.currentEvents.includes('Winter'))
+            else if (currentEvents.includes('Winter'))
                 event.option.music.set('frog_caves_winter').in(game);
             else event.option.music.set('frog_caves_chill_kopie').in(game);
             event.option.ambience.set('forest_ambience').in(game);
 
             //layers
-            if (globalData.currentEvents.includes('Night')) {
-                event.layer
-                    .add('Forest_Background_Night', 'background')
-                    .in(game);
-            } else if (globalData.currentEvents.includes('Winter')) {
-                event.layer
-                    .add('Forest_Background_Winter', 'background')
-                    .in(game);
+            if (currentEvents.includes('Night')) {
+                //holiday night background
+                if (currentEvents.includes('Holiday')) {
+                    event.layer
+                        .add('Holiday_Background_Night', 'background')
+                        .in(game);
+                }
+                //normal forest night background
+                else {
+                    event.layer
+                        .add('Forest_Background_Night', 'background')
+                        .in(game);
+                }
             } else {
                 event.layer.add('Forest_Background', 'background').in(game);
             }
-            if (globalData.currentEvents.includes('Winter')) {
+            if (currentEvents.includes('Winter')) {
                 event.layer.add('Forest_Ground_Winter', 'ground').in(game);
             } else {
                 event.layer.add('Forest_Ground', 'ground').in(game);
             }
             event.layer.add('Theatre_Sign', 600).in(game);
-            if (globalData.currentEvents.includes('Winter')) {
+            if (currentEvents.includes('Winter')) {
                 event.layer.add('Forest_Tree_3_Winter', 610).in(game);
             } else {
                 event.layer.add('Forest_Tree_3', 610).in(game);
             }
             // event.layer.add('Forest_Stump_1', 649).in(game);
-            if (!globalData.currentEvents.includes('Winter')) {
+            if (!currentEvents.includes('Winter')) {
                 event.layer.add('Forest_Foreground', 'foreground').in(game);
                 event.layer.add('Forest_Rock_1', 629).in(game);
             }
@@ -434,7 +468,7 @@ class GameConfig {
             //     .in(game);
 
             //overrides
-            if (globalData.currentEvents.includes('FF22')) {
+            if (currentEvents.includes('FF22')) {
                 //layers
                 event.layer.add('Daily_Spin_Tent_Background', 560).in(game);
                 event.layer.add('Daily_Spin_Tent', 610).in(game);
@@ -473,14 +507,14 @@ class GameConfig {
                         game.scene.start('FF22FrogShuffle');
                     })
                     .in(game);
-            } else if (globalData.currentEvents.includes('FF22Dev')) {
+            } else if (currentEvents.includes('FF22Dev')) {
                 //layers
                 event.layer.add('Daily_Spin_Tent_Background', 560).in(game);
                 event.layer.add('Daily_Spin_Tent', 610).in(game);
                 event.layer.add('Frog_Shuffle_Tent_Background', 555).in(game);
                 event.layer.add('Frog_Shuffle_Tent', 605).in(game);
             }
-            if (globalData.currentEvents.includes('Birthday_Party')) {
+            if (currentEvents.includes('Birthday_Party')) {
                 //layers
                 event.layer.add('Birthday_Cake', 580).in(game);
 
@@ -495,11 +529,11 @@ class GameConfig {
                     })
                     .in(game);
             }
-            if (globalData.currentEvents.includes('Night')) {
+            if (currentEvents.includes('Night')) {
                 //shader
                 event.layer.add('Shader_Night', 'shader').in(game);
             }
-            if (globalData.currentEvents.includes('Halloween')) {
+            if (currentEvents.includes('Halloween')) {
                 //layers
                 event.layer.add('Forest_JackOLantern', 550).in(game);
                 event.layer.add('Forest_Ghosts', 'foreground').in(game);
@@ -518,15 +552,15 @@ class GameConfig {
                 //shader
                 event.layer.add('Shader_JackOLantern_Eyes', 'shader').in(game);
             }
-            if (globalData.currentEvents.includes('Winter')) {
+            if (currentEvents.includes('Winter')) {
                 //particles
-                if (!globalData.currentEvents.includes('Holiday')) {
+                if (!currentEvents.includes('Holiday')) {
                     event.particle
                         .add(['Snowflake_0', 'Snowflake_1', 'Snowflake_2'])
                         .in(game);
                 }
             }
-            if (globalData.currentEvents.includes('Holiday')) {
+            if (currentEvents.includes('Holiday')) {
                 //layers
                 event.layer.add('Holiday_Tree', 600).in(game);
                 event.layer.add('Holiday_Tree_Stump', 588).in(game);
@@ -557,6 +591,9 @@ class GameConfig {
                     .add(['Snowflake_0', 'Snowflake_1', 'Snowflake_2'])
                     .setFrequency(35)
                     .in(game);
+
+                //shader
+                event.layer.add('Shader_Holiday_Lights', 'shader').in(game);
             }
 
             //Theatre Room
