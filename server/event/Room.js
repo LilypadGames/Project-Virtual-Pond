@@ -62,8 +62,12 @@ class Room {
         // );
 
         //triggers when player sends a message
-        this.socket.on('playerSendingMessage', (message) =>
-            this.playerSendingMessage(utility.sanitize.string(message))
+        this.socket.on(
+            'playerSendingMessage',
+            async (message) =>
+                await this.playerSendingMessage(
+                    utility.sanitize.string(message)
+                )
         );
 
         //triggers when player is attempting to interact with an interactable object
@@ -150,7 +154,7 @@ class Room {
     // }
 
     //triggers when player sends a message
-    playerSendingMessage(message) {
+    async playerSendingMessage(message) {
         //make sure message contains text
         if (message === '' || message === null) return;
 
@@ -210,7 +214,13 @@ class Room {
 
         //message is one word
         if (/^[a-zA-Z]+$/.test(message)) {
-            console.log('one word')
+            //check if word is emote and get its cached file path
+            let emotePath = await emotes.getEmote(message);
+
+            //emote exists
+            if (emotePath !== false) {
+                //
+            }
         }
 
         //kick if larger than allowed max length

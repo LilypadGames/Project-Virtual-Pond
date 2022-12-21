@@ -1,34 +1,91 @@
-//import
+//file parsing
+import fs from 'fs';
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
+
+//imports
+import axios from 'axios';
 import emoteParser from 'tmi-emote-parse';
 
 //modules
 import ConsoleColor from '../module/ConsoleColor.js';
 import utility from '../module/Utility.js';
 
+//config
+import config from '../config/config.json' assert { type: 'json' };
+
 //lists
+let twitchCredentials = {};
 let emotes = [];
 let emoteLengthIndex = [];
 let cachedEmotes = [];
 let notEmotes = [];
 
+//cached emote path
+let cachedEmotePath = '../../' + config.paths.cache + '/';
+utility.createDirectory(path.join(__dirname, cachedEmotePath));
+cachedEmotePath = cachedEmotePath + 'emotes/';
+utility.createDirectory(path.join(__dirname, cachedEmotePath));
+
+//clear cache
+fs.readdir(path.join(__dirname, cachedEmotePath), (err, files) => {
+    if (err) throw err;
+
+    for (const file of files) {
+        fs.unlink(
+            path.join(path.join(__dirname, cachedEmotePath), file),
+            (err) => {
+                if (err) throw err;
+            }
+        );
+    }
+});
+
 // DEBUG
-// emoteParser.events.on("error", e => {
-//     console.log("Error:", e);
-// })
+emoteParser.setDebug(true);
 
 export default {
     init: async function (streamer) {
+        //get OAuth Token
+        await axios
+            .post('https://id.twitch.tv/oauth2/token', {
+                client_id: config.twitch.clientID,
+                client_secret: config.twitch.clientSecret,
+                grant_type: 'client_credentials',
+            })
+            .then(function (response) {
+                //save access token
+                twitchCredentials = response.data;
+            })
+            .catch(function (error) {
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString(
+                        'ERROR ' +
+                            error.response.status +
+                            ': ' +
+                            error.response.data.error
+                    )
+                );
+            });
+
         //first fetch emotes
         await this.fetchEmotes(streamer);
 
         //then index the emote lengths so they can be searched through more efficiently
         this.indexEmotes(emoteLengthIndex);
-
-        console.log(emote);
     },
 
     //fetch 7tv, BTTV, and FFZ emotes from a specified twitch streamer
     fetchEmotes: async function (streamer) {
+        //set credentials
+        emoteParser.setTwitchCredentials(
+            config.twitch.clientID,
+            twitchCredentials.access_token
+        );
+
         //request emotes for given streamer from api
         return new Promise((resolve) => {
             //load twitch channels assets
@@ -115,29 +172,111 @@ export default {
         return false;
     },
 
+    //download and save emote image, properly converting between webp to png/gif
+    cacheEmote: async function (emoteName, emoteURL) {
+        //determine image type
+        let urlExtension = emoteURL.split('.').pop();
+        let fileExtension = 'png';
+        if (['webp', 'png', 'gif'].includes(urlExtension)) {
+            switch (urlExtension) {
+                case 'webp':
+                    emoteURL = urlExtension.join() + '.' + 'png';
+                    console.log(emoteURL);
+                    break;
+                case 'png':
+                    emoteURL = urlExtension.join() + '.' + 'png';
+                    console.log(emoteURL);
+                    break;
+                case 'gif':
+                    emoteURL = urlExtension.join() + '.' + 'gif';
+                    console.log(emoteURL);
+                    break;
+            }
+        }
+
+        //determine file path
+        const filePath = path.resolve(
+            __dirname,
+            cachedEmotePath,
+            emoteName + '.' + fileExtension
+        );
+
+        //init write stream (to write the file)
+        const writer = fs.createWriteStream(filePath);
+
+        //run axios http request to CDN
+        await axios({
+            url: emoteURL,
+            method: 'GET',
+            responseType: 'stream',
+        }).then(
+            (response) => {
+                //tie response to write stream
+                response.data.pipe(writer);
+            },
+            (error) => {
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString(
+                        'ERROR ' +
+                            error.response.status +
+                            ': ' +
+                            error.response.data.error
+                    )
+                );
+            }
+        );
+
+        //wait for http request to resolve
+        return new Promise((resolve, reject) => {
+            //emote cached
+            writer.on('finish', () => {
+                //add emote to cache
+                cachedEmotes[emoteName] = filePath;
+
+                //return cached emote path
+                resolve(filePath);
+            });
+
+            //emote had issue caching
+            writer.on('error', () => {
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString('ERROR: ' + reject)
+                );
+
+                //reject
+                reject(reject);
+            });
+        });
+    },
+
     //checks if input is an emote or not, and caches it if so returning the path to the cached emote
     getEmote: async function (input) {
         //check list of words that are NOT emotes
-        if (notEmotes.includes(input)) {
-            return false;
-        }
+        if (notEmotes.includes(input)) return false;
 
         //check if emote has already been cached
-        if (cachedEmotes.includes(input)) {
-            // return emotes
-        }
+        if (cachedEmotes[input]) return cachedEmotes[input];
 
-        //check the list if the emote exists and get its index
-        let emoteIndex = isEmote(input, true);
+        //check if emote exists and get its index
+        let emoteIndex = this.isEmote(input, true);
 
         //if emote exists, cache it
         if (emoteIndex !== false) {
-            console.log(emotes[index]);
-            //return emote path
-            // return emotes[index];
+            //get emote info
+            const emote = emotes[emoteIndex];
 
-            //emote does not exist
-        } else {
+            //get and cache emote
+            let emotePath = await this.cacheEmote(emote.name, emote.img);
+
+            //return cached emote path
+            return emotePath;
+        }
+        //emote does not exist
+        else {
             //add word to list of words that are NOT emotes
             notEmotes.push(input);
             return false;
