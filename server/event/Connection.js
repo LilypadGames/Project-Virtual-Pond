@@ -13,7 +13,6 @@ import logs from '../module/Logs.js';
 import chatLogs from '../module/ChatLogs.js';
 import serverMetrics from '../module/ServerMetrics.js';
 import moderation from '../module/Moderation.js';
-// import emotes from '../module/Emotes.js';
 import globalData from '../module/GlobalData.js';
 
 //event handlers
@@ -155,7 +154,6 @@ class Connection {
                 this.socket.player,
                 this.socket.player
             );
-            // loadData['emotes'] = emotes.getEmotes();
 
             cb(loadData);
         });
@@ -409,12 +407,6 @@ class Connection {
         this.io
             .in(this.socket.player.room)
             .emit('removePlayer', this.socket.player.id);
-    }
-
-    //triggers when client requests emotes
-    requestEmotes() {
-        //send emotes to this client
-        this.socket.emit('payloadEmotes', this.socket.player);
     }
 }
 

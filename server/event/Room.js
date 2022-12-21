@@ -5,7 +5,7 @@ import config from '../config/config.json' assert { type: 'json' };
 
 //imports
 import natural from 'natural';
-const { Metaphone } = natural;
+// const { Metaphone } = natural;
 
 //modules
 import utility from '../module/Utility.js';
@@ -14,6 +14,7 @@ import chatLogs from '../module/ChatLogs.js';
 import moderation from '../module/Moderation.js';
 import commands from '../module/Commands.js';
 import wordFilter from '../module/WordFilter.js';
+import emotes from '../module/Emotes.js';
 
 //event handlers
 import roomTheatre from '../event/room/Theatre.js';
@@ -153,9 +154,9 @@ class Room {
         //make sure message contains text
         if (message === '' || message === null) return;
 
-        //check if its a message instead of a command
+        //message is a command
         if (message.startsWith('/')) {
-            //check if player is an admin/mod OR no auth mode is on
+            //player is an admin/mod OR no auth mode is on
             if (
                 this.socket.player.isAdmin ||
                 this.socket.player.isMod ||
@@ -183,7 +184,10 @@ class Room {
                             message
                     )
                 );
-            } else {
+            }
+
+            //player is not an admin/mod
+            else {
                 //log command
                 let logMessage = utility.timestampString(
                     '(' +
@@ -202,6 +206,11 @@ class Room {
                 );
             }
             return;
+        }
+
+        //message is one word
+        if (/^[a-zA-Z]+$/.test(message)) {
+            console.log('one word')
         }
 
         //kick if larger than allowed max length
