@@ -1,10 +1,5 @@
 // Moderation functions
 
-//imports: file parsing
-import path from 'path';
-import * as url from 'url';
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-
 //imports
 import logs from '../module/Logs.js';
 import utility from '../module/Utility.js';

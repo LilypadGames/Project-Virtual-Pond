@@ -1,10 +1,6 @@
 // Inventory Events
 
 //imports: file parsing
-import fs from 'fs';
-import path from 'path';
-import * as url from 'url';
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 import jsonPath from 'jsonpath';
 
 //modules
