@@ -94,7 +94,10 @@ export default class Connections {
                     console.log(
                         ConsoleColor.Red,
                         utility.timestampString(
-                            'ERROR ' + error.response.data.message
+                            'ERROR ' +
+                                error.response.status +
+                                ': ' +
+                                error.response.data.error
                         )
                     );
                 }
@@ -118,10 +121,14 @@ export default class Connections {
             .catch((error) => {
                 if (error.response) {
                     //log error
+                    //log error
                     console.log(
                         ConsoleColor.Red,
                         utility.timestampString(
-                            'ERROR ' + error.response.data.message
+                            'ERROR ' +
+                                error.response.status +
+                                ': ' +
+                                error.response.data.error
                         )
                     );
                 }
