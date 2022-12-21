@@ -185,7 +185,7 @@ class GameConfig {
                 if (currentEvents.includes('Holiday')) {
                     event.texture
                         .add(
-                            'Holiday_Background_Night',
+                            'Holiday_Forest_Background_Night',
                             'event/holiday/room/forest/layers/Holiday_Background_Night.png'
                         )
                         .in(game);
@@ -256,7 +256,7 @@ class GameConfig {
                 //layers
                 event.texture
                     .add(
-                        'Forest_Background_Winter',
+                        'Winter_Forest_Background',
                         'event/winter/room/forest/layers/Background.png'
                     )
                     .in(game);
@@ -382,7 +382,7 @@ class GameConfig {
                 //holiday night background
                 if (currentEvents.includes('Holiday')) {
                     event.layer
-                        .add('Holiday_Background_Night', 'background')
+                        .add('Holiday_Forest_Background_Night', 'background')
                         .in(game);
                 }
                 //normal forest night background
@@ -391,7 +391,15 @@ class GameConfig {
                         .add('Forest_Background_Night', 'background')
                         .in(game);
                 }
-            } else {
+            }
+            //winter forest background
+            else if (currentEvents.includes('Winter')) {
+                event.layer
+                    .add('Winter_Forest_Background', 'background')
+                    .in(game);
+            }
+            //default forest background
+            else {
                 event.layer.add('Forest_Background', 'background').in(game);
             }
             if (currentEvents.includes('Winter')) {
