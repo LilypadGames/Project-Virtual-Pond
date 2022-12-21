@@ -16,3 +16,6 @@ server/data/globalData.json
 
 #logs
 server/logs
+
+#cache
+cache/

@@ -1,3 +1,4 @@
+//imports
 import express from 'express';
 import http from 'http';
 
@@ -9,12 +10,11 @@ import Connections from '../setup/Connections.js';
 import utility from '../module/Utility.js';
 import ConsoleColor from '../module/ConsoleColor.js';
 
-//directory name
-import * as url from 'url';
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-
 //config
 import config from '../config/config.json' assert { type: 'json' };
+
+//paths
+let htmlPath = config.paths.client + '/html';
 
 export default class WebServer {
     constructor() {
@@ -31,7 +31,7 @@ export default class WebServer {
         this.app.set('trust proxy', config.server.proxy);
 
         //serve client files (html/css/js/assets)
-        this.app.use('/', express.static(__dirname + '/../../client'));
+        this.app.use('/', express.static(config.paths.client));
 
         //setup authentication rules
         this.auth = new Authentication(this.app);
@@ -45,12 +45,12 @@ export default class WebServer {
                     req.session.passport.user) ||
                 config.server.bypassAuth
             ) {
-                res.sendFile('game.html', { root: 'client/html' });
+                res.sendFile('game.html', { root: htmlPath });
             }
 
             //request authentication
             else {
-                res.sendFile('auth.html', { root: 'client/html' });
+                res.sendFile('auth.html', { root: htmlPath });
             }
         });
 
