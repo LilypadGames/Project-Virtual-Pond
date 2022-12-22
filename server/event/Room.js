@@ -212,16 +212,16 @@ class Room {
             return;
         }
 
-        //message is one word
-        if (/^[a-zA-Z]+$/.test(message)) {
-            //check if word is emote and get its cached file path
-            let emotePath = await emotes.getEmote(message);
+        // //message is one word
+        // if (/^[a-zA-Z]+$/.test(message)) {
+        //     //check if word is emote and get its cached file path
+        //     let emotePath = await emotes.getEmote(message);
 
-            //emote exists
-            if (emotePath !== false) {
-                //
-            }
-        }
+        //     //emote exists
+        //     if (emotePath !== false) {
+        //         //
+        //     }
+        // }
 
         //kick if larger than allowed max length
         if (message.length > 80) {
