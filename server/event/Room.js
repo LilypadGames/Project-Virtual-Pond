@@ -18,7 +18,6 @@ import emotes from '../module/Emotes.js';
 
 //event handlers
 import roomTheatre from '../event/room/Theatre.js';
-import { DataManager } from 'discord.js';
 
 class Room {
     constructor(io, socket, playerData, room) {
