@@ -1,5 +1,8 @@
 //file parsing
 import fs from 'fs';
+import { promisify } from 'util';
+const fileCheck = promisify(fs.stat);
+const fileDelete = promisify(fs.unlink);
 import path from 'path';
 import * as url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -174,64 +177,101 @@ export default {
 
     //download and save emote image, properly converting between webp to png/gif
     cacheEmote: async function (emoteName, emoteURL) {
-        //determine image type
-        let urlExtension = emoteURL.split('.').pop();
-        let fileExtension = 'png';
-        if (['webp', 'png', 'gif'].includes(urlExtension)) {
-            switch (urlExtension) {
-                case 'webp':
-                    emoteURL = urlExtension.join() + '.' + 'png';
-                    console.log(emoteURL);
-                    break;
-                case 'png':
-                    emoteURL = urlExtension.join() + '.' + 'png';
-                    console.log(emoteURL);
-                    break;
-                case 'gif':
-                    emoteURL = urlExtension.join() + '.' + 'gif';
-                    console.log(emoteURL);
-                    break;
+        //image type check function
+        let fileTypeCheck = async function (url, logError = true) {
+            let type = await axios
+            .get(url)
+            .then(function (response) {
+                switch (response.headers['content-type']) {
+                    case 'image/webp':
+                        return 'webp';
+                    case 'image/png':
+                        return 'png';
+                    case 'image/gif':
+                        return 'gif';
+                    default:
+                        return 'png';
+                }
+            })
+            .catch(function (error) {
+                if (logError) {
+                    //log error
+                    console.log(
+                        ConsoleColor.Red,
+                        utility.timestampString('ERROR: ' + error)
+                    );
+                }
+                else {
+                    return false
+                }
+                
+            });
+
+            return type;
+        }
+
+        //first image check
+        let fileType = await fileTypeCheck(emoteURL);
+
+        //change url path if webp
+        if (fileType === 'webp') {
+            let emoteURLWithoutExtension = emoteURL.split('.').slice(0, -1).join('.')
+
+            //check if png
+            if (await fileTypeCheck(emoteURLWithoutExtension + '.png', false) === 'png') {
+                //set new file type
+                fileType = 'png';
+                emoteURL = emoteURLWithoutExtension + '.' + fileType;
+            }
+
+            //check if gif
+            else if (await fileTypeCheck(emoteURLWithoutExtension + '.gif', false) === 'gif') {
+                //set new file type
+                fileType = 'gif';
+                emoteURL = emoteURLWithoutExtension + '.' + fileType;
+            }
+
+            //unknown 
+            else {
+                //log error
+                console.log(
+                    ConsoleColor.Red,
+                    utility.timestampString('ERROR: ' + 'Unknown Emote File Type- ' + emoteName + ' ' + emoteURL)
+                );
+                return;
             }
         }
 
         //determine file path
-        const filePath = path.resolve(
+        let filePath = path.resolve(
             __dirname,
             cachedEmotePath,
-            emoteName + '.' + fileExtension
+            emoteName + '.' + fileType
         );
 
-        //init write stream (to write the file)
-        const writer = fs.createWriteStream(filePath);
+        //init writer
+        let writeStream = fs.createWriteStream(filePath);
 
-        //run axios http request to CDN
-        await axios({
-            url: emoteURL,
-            method: 'GET',
-            responseType: 'stream',
-        }).then(
-            (response) => {
-                //tie response to write stream
-                response.data.pipe(writer);
-            },
-            (error) => {
+        //download image
+        await axios
+            .get(emoteURL, {
+                responseType: 'stream',
+            })
+            .then(function (response) {
+                response.data.pipe(writeStream);
+            })
+            .catch(function (error) {
                 //log error
                 console.log(
                     ConsoleColor.Red,
-                    utility.timestampString(
-                        'ERROR ' +
-                            error.response.status +
-                            ': ' +
-                            error.response.data.error
-                    )
+                    utility.timestampString('ERROR: ' + error)
                 );
-            }
-        );
+            });
 
-        //wait for http request to resolve
+        //wait for write stream to finish writing file to cache
         return new Promise((resolve, reject) => {
             //emote cached
-            writer.on('finish', () => {
+            writeStream.on('finish', () => {
                 //add emote to cache
                 cachedEmotes[emoteName] = filePath;
 
@@ -240,7 +280,7 @@ export default {
             });
 
             //emote had issue caching
-            writer.on('error', () => {
+            writeStream.on('error', () => {
                 //log error
                 console.log(
                     ConsoleColor.Red,
