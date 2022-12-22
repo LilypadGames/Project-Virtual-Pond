@@ -12,12 +12,16 @@ class GlobalUI {
         scene.depthDialog = 1000000;
         scene.depthDebug = 1000001;
 
+        //debug
+        if (debugMode) {
+            this.enableDebug(scene);
+        } else {
+            scene.physics.world.drawDebug = false;
+            scene.physics.world.debugGraphic.clear();
+        }
+
         //reset
         delete this.toast;
-        // delete this.debugCursor;
-        // delete this.debugPing;
-        // delete this.debugModeListener;
-        // delete this.debugCursorListener;
     }
 
     preload(scene) {
@@ -47,34 +51,24 @@ class GlobalUI {
         scene.sfxButtonClick.setVolume(store.get('gameOptions.sfx.volume'));
 
         //debug
-        this.debugCursor = scene.add
-            .image(8, 8, 'target')
-            .setDepth(scene.depthDebug);
-        scene.input.on(
-            'pointermove',
-            function (pointer) {
-                if (debugMode) {
-                    this.debugCursor.copyPosition(pointer);
-                }
-            },
-            this
-        );
-        this.debugPing = scene.add
-            .text(0, 0, 'Ping: Waiting...')
-            .setDepth(scene.depthDebug);
-        if (!debugMode) {
-            this.debugCursor.setVisible(false);
-            this.debugPing.setVisible(false);
-        }
         scene.input.keyboard.on(
             'keydown-' + 'SHIFT',
             () => {
                 if (scene.scene.key === 'Game') {
                     if (!scene.chatBox.isFocused) {
-                        // this.toggleDebugMode();
+                        this.toggleDebugMode(scene);
                     }
                 } else {
-                    // this.toggleDebugMode();
+                    this.toggleDebugMode(scene);
+                }
+            },
+            scene
+        );
+        scene.input.on(
+            'pointermove',
+            (pointer) => {
+                if (debugMode) {
+                    this.debugCursor.copyPosition(pointer);
                 }
             },
             scene
@@ -146,6 +140,13 @@ class GlobalUI {
 
             //init orientation
             orientationChanged();
+        }
+    }
+
+    update(scene) {
+        //update debug info
+        if (debugMode) {
+            this.updateDebugInfo(scene);
         }
     }
 
@@ -349,23 +350,80 @@ class GlobalUI {
     }
 
     //toggle console logging
-    toggleDebugMode() {
+    toggleDebugMode(scene) {
+        //prevent double-clicking
+        if (
+            this.debugToggleTime !== undefined &&
+            Date.now() - this.debugToggleTime <= 200
+        )
+            return;
+        this.debugToggleTime = Date.now();
+
         //off
         if (debugMode) {
-            console.log(utility.timestampString('[DEBUG MODE: OFF]'));
-            debugMode = false;
-
-            this.debugCursor.setVisible(false);
-            this.debugPing.setVisible(false);
+            this.disableDebug(scene);
         }
 
         //on
         else if (!debugMode) {
-            console.log(utility.timestampString('[DEBUG MODE: ON]'));
-            debugMode = true;
-
-            this.debugCursor.setVisible(true);
-            this.debugPing.setVisible(true);
+            this.enableDebug(scene);
         }
+    }
+
+    //enable debug mode
+    enableDebug(scene) {
+        //log
+        console.log(utility.timestampString('[DEBUG MODE: ON]'));
+
+        //set debug mode to true
+        debugMode = true;
+
+        //enable debug collision boxes
+        scene.physics.world.drawDebug = true;
+
+        //add debug cursor
+        this.debugCursor = scene.add
+            .image(8, 8, 'target')
+            .setDepth(scene.depthDebug);
+        this.debugCursor.copyPosition(scene.input.mousePointer);
+
+        //add debug ping info
+        this.debugPing = scene.add
+            .text(0, 0, 'Ping: Waiting...')
+            .setDepth(scene.depthDebug);
+
+        //add debug info
+        this.debugInfo = scene.add.text(0, 14).setDepth(scene.depthDebug);
+        this.updateDebugInfo(scene);
+    }
+
+    //disable debug mode
+    disableDebug(scene) {
+        //log
+        console.log(utility.timestampString('[DEBUG MODE: OFF]'));
+
+        //disable debug collision boxes
+        scene.physics.world.drawDebug = false;
+        scene.physics.world.debugGraphic.clear();
+
+        //set debug mode to false
+        debugMode = false;
+
+        //remove debug cursor
+        this.debugCursor.destroy();
+
+        //remove debug ping info
+        this.debugPing.destroy();
+
+        //remove debug info
+        this.debugInfo.destroy();
+    }
+
+    //update debug info
+    updateDebugInfo(scene) {
+        this.debugInfo.setText(
+            'x: ' + scene.input.activePointer.x + '\n' +
+            'y: ' + scene.input.activePointer.y
+        );
     }
 }

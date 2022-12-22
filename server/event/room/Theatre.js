@@ -1,10 +1,5 @@
 // Theatre room events
 
-//imports: file parsing
-import path from 'path';
-import * as url from 'url';
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
-
 //modules
 import twitch from '../../module/Twitch.js';
 import mediaShare from '../../module/MediaShare.js';

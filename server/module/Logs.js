@@ -14,7 +14,8 @@ import utility from '../module/Utility.js';
 
 //init logging
 var currentDay = utility.getCurrentDay();
-utility.createDirectory(path.join(__dirname, config.logPath + '/'));
+let logPath = '../../' + config.paths.logs + '/'
+utility.createDirectory(path.join(__dirname, logPath));
 var logFile = [];
 
 export default {
@@ -31,7 +32,7 @@ export default {
             //get path
             const filePath = path.join(
                 __dirname,
-                config.logPath + '/',
+                logPath,
                 logType,
                 '/',
                 date + '.txt'
@@ -56,7 +57,7 @@ export default {
             //get path
             const filePath = path.join(
                 __dirname,
-                config.logPath + '/',
+                logPath,
                 logType,
                 '/',
                 date + '.txt'
@@ -79,10 +80,10 @@ export default {
     logMessage: function (logType, message) {
         //make log type directory if it doesn't exist
         if (
-            !fs.existsSync(path.join(__dirname, config.logPath + '/', logType))
+            !fs.existsSync(path.join(__dirname, logPath, logType))
         ) {
             utility.createDirectory(
-                path.join(__dirname, config.logPath + '/', logType)
+                path.join(__dirname, logPath, logType)
             );
         }
 

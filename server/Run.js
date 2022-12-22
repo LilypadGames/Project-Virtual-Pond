@@ -51,15 +51,15 @@ await globalData.init(websockets.io);
 import chatLogs from '../server/module/ChatLogs.js';
 chatLogs.init(websockets.io);
 
-//init emotes
-// const emotes from '/module/Emotes.js';
-// try {
-//     (async () => {
-//         await emotes.init('pokelawls');
-//     })();
-// } catch (error) {
-//     console.log(ConsoleColor.Red, utility.timestampString(error));
-// }
+// init emotes
+import emotes from '../server/module/Emotes.js';
+try {
+    (async () => {
+        await emotes.init('pokelawls');
+    })();
+} catch (error) {
+    console.log(ConsoleColor.Red, utility.timestampString(error));
+}
 
 //init bad words filter
 import wordFilter from '../server/module/WordFilter.js';

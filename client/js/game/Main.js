@@ -63,9 +63,9 @@ window.onload = function () {
             antialiasGL: false,
         },
         physics: {
-            // arcade: {
-            //     debug: true
-            // },
+            arcade: {
+                debug: true
+            },
             default: 'arcade',
         },
         dom: {

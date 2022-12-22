@@ -1,11 +1,10 @@
 // Inventory Events
 
 //imports: file parsing
-import fs from 'fs';
-import path from 'path';
-import * as url from 'url';
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
 import jsonPath from 'jsonpath';
+
+//modules
+import globalData from '../module/GlobalData.js';
 
 //get config values
 import itemData from '../data/itemData.json' assert { type: 'json' };
@@ -79,7 +78,7 @@ class Inventory {
             //event conditions
             if (item.conditions.event) {
                 //check if event is one of the current events
-                let data = globalData.getData('/currentEvents');
+                let data = await globalData.getPath('currentEvents');
                 if (!data.includes(item.conditions.event))
                     return {
                         status: false,
@@ -121,7 +120,11 @@ class Inventory {
             await this.PlayerData.getSpecificClientPlayerData('/inventory');
 
         //return status of transaction
-        return { status: true, reason: 'You now own the ' + item.name + '.' };
+        return {
+            status: true,
+            reason: 'You now own the ' + item.name + '.',
+            item: itemID,
+        };
     }
 }
 

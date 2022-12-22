@@ -5,7 +5,7 @@ import config from '../config/config.json' assert { type: 'json' };
 
 //imports
 import natural from 'natural';
-const { Metaphone } = natural;
+// const { Metaphone } = natural;
 
 //modules
 import utility from '../module/Utility.js';
@@ -14,6 +14,7 @@ import chatLogs from '../module/ChatLogs.js';
 import moderation from '../module/Moderation.js';
 import commands from '../module/Commands.js';
 import wordFilter from '../module/WordFilter.js';
+import emotes from '../module/Emotes.js';
 
 //event handlers
 import roomTheatre from '../event/room/Theatre.js';
@@ -61,8 +62,12 @@ class Room {
         // );
 
         //triggers when player sends a message
-        this.socket.on('playerSendingMessage', (message) =>
-            this.playerSendingMessage(utility.sanitize.string(message))
+        this.socket.on(
+            'playerSendingMessage',
+            async (message) =>
+                await this.playerSendingMessage(
+                    utility.sanitize.string(message)
+                )
         );
 
         //triggers when player is attempting to interact with an interactable object
@@ -76,11 +81,10 @@ class Room {
         if (this.socket.player.x != x || this.socket.player.y != y) {
             //log
             let logMessage = utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Moving To> x:' +
                     x +
                     ', y:' +
@@ -150,13 +154,13 @@ class Room {
     // }
 
     //triggers when player sends a message
-    playerSendingMessage(message) {
+    async playerSendingMessage(message) {
         //make sure message contains text
         if (message === '' || message === null) return;
 
-        //check if its a message instead of a command
+        //message is a command
         if (message.startsWith('/')) {
-            //check if player is an admin/mod OR no auth mode is on
+            //player is an admin/mod OR no auth mode is on
             if (
                 this.socket.player.isAdmin ||
                 this.socket.player.isMod ||
@@ -174,27 +178,27 @@ class Room {
                 //log command
                 console.log(
                     utility.timestampString(
-                        'PLAYER ID: ' +
+                        '(' +
                             this.socket.player.id +
-                            ' (' +
+                            ') ' +
                             this.socket.player.name +
-                            ')' +
                             ' - ' +
                             logMessage +
                             '> ' +
                             message
                     )
                 );
-            } else {
+            }
+
+            //player is not an admin/mod
+            else {
                 //log command
                 let logMessage = utility.timestampString(
-                    'PLAYER ID: ' +
+                    '(' +
                         this.socket.player.id +
-                        ' (' +
+                        ') ' +
                         this.socket.player.name +
-                        ')' +
-                        ' - ' +
-                        'Tried to Use Command Without Permission> ' +
+                        ' - Tried to Use Command Without Permission> ' +
                         message
                 );
                 logs.logMessage('moderation', logMessage);
@@ -207,6 +211,17 @@ class Room {
             }
             return;
         }
+
+        // //message is one word
+        // if (/^[a-zA-Z]+$/.test(message)) {
+        //     //check if word is emote and get its cached file path
+        //     let emotePath = await emotes.getEmote(message);
+
+        //     //emote exists
+        //     if (emotePath !== false) {
+        //         //
+        //     }
+        // }
 
         //kick if larger than allowed max length
         if (message.length > 80) {
@@ -233,11 +248,10 @@ class Room {
 
             //log command
             let logMessage = utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' Slur Detected > ' +
                     message +
                     ' | Phonetic Version > ' +
@@ -274,21 +288,19 @@ class Room {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Sending Message> ' +
                     message
             )
         );
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' > ' +
                 message
         );
@@ -336,11 +348,10 @@ class Room {
     playerInteractingWithObject(objectID) {
         //log
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' - Interacting With NPC: ' +
                 objectID
         );
