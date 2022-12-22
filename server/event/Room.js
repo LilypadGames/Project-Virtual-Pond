@@ -18,6 +18,7 @@ import emotes from '../module/Emotes.js';
 
 //event handlers
 import roomTheatre from '../event/room/Theatre.js';
+import { DataManager } from 'discord.js';
 
 class Room {
     constructor(io, socket, playerData, room) {
@@ -155,9 +156,9 @@ class Room {
 
     //triggers when player sends a message
     async playerSendingMessage(message) {
-        //make sure message contains text
-        if (message === '' || message === null) return;
-
+        //init last message logging
+        if (!this.socket.lastMessage) this.socket.lastMessage = {};
+        
         //message is a command
         if (message.startsWith('/')) {
             //player is an admin/mod OR no auth mode is on
@@ -211,6 +212,65 @@ class Room {
             }
             return;
         }
+
+        //rate limit
+        if (this.socket.lastMessage['time']) {
+            //check if last message was sent recently
+            if (Math.abs(this.socket.lastMessage['time'] - Date.now()) < 800) {
+                //log command
+                let logMessage = utility.timestampString(
+                    '(' +
+                        this.socket.player.id +
+                        ') ' +
+                        this.socket.player.name +
+                        ' - Tried To Send Message Too Fast: ' +
+                        message
+                );
+                logs.logMessage('moderation', logMessage);
+
+                //server message
+                this.socket.emit(
+                    'payloadServerMessage',
+                    'You\'re Sending Messages Too Quickly :/'
+                );
+
+                //cancel message
+                return;
+            }
+        }
+
+        //spam limit
+        if (this.socket.lastMessage['message']) {
+            //check if last message is similar to current message
+            if (this.socket.lastMessage['message'] == message) {
+                //log command
+                let logMessage = utility.timestampString(
+                    '(' +
+                        this.socket.player.id +
+                        ') ' +
+                        this.socket.player.name +
+                        ' - Tried To Send The Same Message Twice: ' +
+                        message
+                );
+                logs.logMessage('moderation', logMessage);
+
+                //server message
+                this.socket.emit(
+                    'payloadServerMessage',
+                    'Please Don\'t Spam :)'
+                );
+
+                //cancel message
+                return;
+            }
+        }
+
+        //save last message time
+        this.socket.lastMessage['message'] = message;
+        this.socket.lastMessage['time'] = Date.now();
+
+        //make sure message contains text
+        if (message === '' || message === null) return;
 
         // //message is one word
         // if (/^[a-zA-Z]+$/.test(message)) {
