@@ -13,7 +13,6 @@ import logs from '../module/Logs.js';
 import chatLogs from '../module/ChatLogs.js';
 import serverMetrics from '../module/ServerMetrics.js';
 import moderation from '../module/Moderation.js';
-// import emotes from '../module/Emotes.js';
 import globalData from '../module/GlobalData.js';
 
 //event handlers
@@ -133,13 +132,11 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
-                    ' - Connected' +
-                    ' [Online Players: ' +
+                    ' - Connected [Players Online: ' +
                     serverMetrics.getPlayerCount() +
                     ']'
             )
@@ -157,7 +154,6 @@ class Connection {
                 this.socket.player,
                 this.socket.player
             );
-            // loadData['emotes'] = emotes.getEmotes();
 
             cb(loadData);
         });
@@ -185,11 +181,10 @@ class Connection {
         this.socket.on('connect_error', (err) => {
             console.log(
                 utility.timestampString(
-                    'PLAYER ID: ' +
+                    '(' +
                         this.socket.player.id +
-                        ' (' +
+                        ') ' +
                         this.socket.player.name +
-                        ')' +
                         ' - Connection Error: ' +
                         err
                 )
@@ -201,11 +196,10 @@ class Connection {
             //log
             console.log(
                 utility.timestampString(
-                    'PLAYER ID: ' +
+                    '(' +
                         this.socket.player.id +
-                        ' (' +
+                        ') ' +
                         this.socket.player.name +
-                        ')' +
                         ' - Logged Out'
                 )
             );
@@ -234,11 +228,10 @@ class Connection {
 
         //log
         let logMessage = utility.timestampString(
-            'PLAYER ID: ' +
+            '(' +
                 this.socket.player.id +
-                ' (' +
+                ') ' +
                 this.socket.player.name +
-                ')' +
                 ' - Attempting to Join Room: ' +
                 room
         );
@@ -255,11 +248,10 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Left Room: ' +
                     this.socket.player.room
             )
@@ -282,11 +274,10 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
                     ' - Joined Room: ' +
                     room
             )
@@ -380,13 +371,11 @@ class Connection {
         //log
         console.log(
             utility.timestampString(
-                'PLAYER ID: ' +
+                '(' +
                     this.socket.player.id +
-                    ' (' +
+                    ') ' +
                     this.socket.player.name +
-                    ')' +
-                    ' - Disconnected' +
-                    ' [Online Players: ' +
+                    ' - Disconnected [Players Online: ' +
                     serverMetrics.getPlayerCount() +
                     ']'
             )
@@ -418,12 +407,6 @@ class Connection {
         this.io
             .in(this.socket.player.room)
             .emit('removePlayer', this.socket.player.id);
-    }
-
-    //triggers when client requests emotes
-    requestEmotes() {
-        //send emotes to this client
-        this.socket.emit('payloadEmotes', this.socket.player);
     }
 }
 

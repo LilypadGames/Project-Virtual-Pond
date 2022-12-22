@@ -84,6 +84,11 @@ class CharacterCreator extends Phaser.Scene {
         this.parseClientPlayerData(await client.requestClientPlayerData());
     }
 
+    update() {
+        //update global UI
+        globalUI.update(this);
+    }
+
     end() {
         //reset data
         delete this.inventoryData;

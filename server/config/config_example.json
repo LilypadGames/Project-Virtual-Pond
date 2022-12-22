@@ -1,13 +1,22 @@
 {
     "version": "",
     "production": false,
-    "logPath": "../logs",
+    "paths": {
+        "client": "client",
+        "logs": "server/logs",
+        "cache": "cache"
+    },
     "server": {
         "hostName": "",
         "port": "",
         "proxy": false,
         "bypassAuth": false,
         "playerLimit": 100
+    },
+    "discord": {
+        "clientID": "",
+        "clientSecret": "",
+        "redirectURI": ""
     },
     "socketio_admin_dash": {
         "auth": {

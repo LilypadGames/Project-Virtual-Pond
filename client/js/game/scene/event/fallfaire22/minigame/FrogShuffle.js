@@ -76,6 +76,11 @@ class FF22FrogShuffle extends Phaser.Scene {
         loadingScreen.endWaitScreen(this);
     }
 
+    update() {
+        //update global UI
+        globalUI.update(this);
+    }
+
     end() {
         //end event data
         events.end(this);

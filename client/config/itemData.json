@@ -27,20 +27,28 @@
             "name": "Carved Pumpkin Hat"
         },
         {
-            "id": "green_balloon",
-            "name": "Green Balloon"
-        },
-        {
-            "id": "clown_nose",
-            "name": "Clown Nose"
-        },
-        {
             "id": "cowboy_hat",
             "name": "Cowboy Hat"
         },
         {
             "id": "yellow_sunglasses",
             "name": "Yellow Sunglasses"
+        },
+        {
+            "id": "clown_nose",
+            "name": "Clown Nose"
+        },
+        {
+            "id": "green_balloon",
+            "name": "Green Balloon"
+        },
+        {
+            "id": "santa_hat",
+            "name": "Santa Hat"
+        },
+        {
+            "id": "reindeer_antlers",
+            "name": "Reindeer Antlers"
         }
     ]
 }

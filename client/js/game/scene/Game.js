@@ -264,6 +264,9 @@ class Game extends Phaser.Scene {
     }
 
     update() {
+        //update global UI
+        globalUI.update(this);
+        
         //handle all players
         Object.keys(this.playerCharacter).forEach((playerID) => {
             //handle collisions between this player and all interactable objects

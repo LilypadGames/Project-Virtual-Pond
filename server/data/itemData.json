@@ -57,5 +57,19 @@
         "conditions": {
             "event": "FF22"
         }
+    },
+    "santa_hat": {
+        "type": "accessory",
+        "name": "Santa Hat",
+        "conditions": {
+            "event": "Holiday"
+        }
+    },
+    "reindeer_antlers": {
+        "type": "accessory",
+        "name": "Reindeer Antlers",
+        "conditions": {
+            "event": "Holiday"
+        }
     }
 }
