@@ -129,7 +129,7 @@ class CharacterCreator extends Phaser.Scene {
     async createCharacterCreatorMenu() {
         //defaults
         let labelIndent = 565;
-        let interactableIndent = 575;
+        let interactiveIndent = 575;
 
         //background
         this.cameras.main.setBackgroundColor(ColorScheme.DarkerBlue);
@@ -157,7 +157,7 @@ class CharacterCreator extends Phaser.Scene {
 
         //selector: Color
         ui.createColorPicker(this, {
-            x: interactableIndent,
+            x: interactiveIndent,
             y: 230,
             width: 400,
             height: 30,
@@ -209,7 +209,7 @@ class CharacterCreator extends Phaser.Scene {
         }
         let eye_buttons = ui
             .createButtons(this, {
-                x: interactableIndent,
+                x: interactiveIndent,
                 y: 410,
                 buttons: eyeTypes,
                 onClick: (index) => {
@@ -295,7 +295,7 @@ class CharacterCreator extends Phaser.Scene {
             if (accessoryTypes.length > 0) {
                 let accessory_buttons = ui
                     .createButtons(this, {
-                        x: interactableIndent,
+                        x: interactiveIndent,
                         y: 590,
                         buttons: accessoryTypes,
                         onClick: (index) => {

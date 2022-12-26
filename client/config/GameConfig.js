@@ -11,7 +11,7 @@ class GameConfig {
         // "Alpha v0.5 - Happy Birthday Poke!\n\nChanges:\n - Birthday Event! Get a free Birthday Hat in the forest while the event lasts.\n - Simple accessories mechanic implemented. Frogs can now wear things.\n - New eye types! Now you can be a sad or happy frog.\n - A lot of stats are now collected about your frog. like when you first joined, when the last time you played was, your overall playtime etc. This will eventually be shown on your profile (when that's implemented.)\n - There is now a log-out button in the options menu. finally?\n - Character creator got a visual update.\n - There is now a prompt on mobile to rotate your device when you play- also mobile touch input is now recognized!\n - Fullscreen mode button.\n - A TON of backend stuff that's too boring and long to talk about here.\n\nFixes:\n- Chat messages no longer persist when changing rooms.\n- Fixed a server crash issue. I'm sure a new one will pop up though.\n- Some other small things here and there.",
         // "Alpha v0.4 - Chat Log & New Room!\n\nChanges:\n- New Theatre Room where you can watch Poke's stream with other frogs!\n- Finally implemented a Chat Log so you can see recent messages from other frogs within each room.\n- New ambient sounds for the forest and volume control in the Options menu.\n- A welcome message now shows up the first time you access the site.\n- New site icon matching the newer frog design.\n- The character creator can be accessed at any time by the button on the toolbar.\n- New Donation button on the site. Any donation helps a lot, as I am developing this alone with any time I have!\n\nFixes:\n- Several UI bugs fixed.\n- Movement-based client crash fixed.",
         // "Alpha v0.3 - News, Dark Mode, & Backend Overhaul\n\nChanges:\n- New Dark Mode option on the site. It will take your OS's settings by default, but you can change it and the option you pick persists even if you leave the site.\n- SFX Volume option in the settings.\n- News Board that shows all these changes every update.\n- Loading screen when joining the game and in between scenes.\n- 1 Million Followers Banner. FeelsStrongMan Clap\n\nFixes:\n- Player direction, location, collision, and messages has been fixed so that they\'re synchronized across clients better.",
-        // "Alpha v0.2.3 - New Font, Interactable Object Outlines, My Player Indication\n\nChanges:\n- The entire site now has its own font.\n- Interactable objects/NPCs will now show a white outline when being hovered over.\n- Your player will now have a nametag distinguishable from other players. It will be white with a black outline, while other players will not have any outline and just a black nametag.",
+        // "Alpha v0.2.3 - New Font, Interactive Object Outlines, My Player Indication\n\nChanges:\n- The entire site now has its own font.\n- Interactive objects/NPCs will now show a white outline when being hovered over.\n- Your player will now have a nametag distinguishable from other players. It will be white with a black outline, while other players will not have any outline and just a black nametag.",
         // "Alpha v0.2.2 - Character Creator, Button SFX\n\nChanges:\n- There is now a Character Creator menu. Players will access it when they first log in. (You can also access it at any time by pressing the 'C' key on your keyboard)\n- UI Buttons now have a sound effect.\n- Backend changes like setting up individual rooms and a menu scene that determines if you go to the game, character creation screen, or whatever rooms we add in the future.",
         // "Alpha v0.2.1 - Bug Fixes\n\nFixes:\n- You can no longer open the option menu if you already have it open.\n- Clicking on NPCs now try to check the navigational map before allowing the player to move.",
         // "Alpha v0.2 - New World & Character Design, Options Menu with Music Volume Slider\n\nChanges:\n- The Character and World design has been overhauled, replacing the pixel art look.\n- New Options menu accessed by the Options button next to the chat bar. It can be dragged around the screen. It has a volume slider to change the volume of the game music. This setting persists across sessions as long as you do not clear the cookies for this site.\n- Totally new navigational map that handles where players can move.\n- Player and World depth handle what renders on top of what. You can walk around certain trees on the map but will always render behind UI/Foreground. Depending on how far up you are, you can render behind or in front of other players/npcs as well.",
@@ -458,7 +458,7 @@ class GameConfig {
                 .in(game);
 
             // //objects
-            // event.object.interactable
+            // event.object.interactive
             //     .name('Radio')
             //     .location(294, 625)
             //     .depth(649)
@@ -485,7 +485,7 @@ class GameConfig {
                 event.layer.add('Emote_Match_Sign', 735).in(game);
 
                 //objects
-                event.object.interactable
+                event.object.interactive
                     .name('Daily_Spin_Wheel')
                     .location(318, 532.3)
                     .depth(570)
@@ -495,7 +495,7 @@ class GameConfig {
                         game.scene.start('FF22DailySpin');
                     })
                     .in(game);
-                event.object.interactable
+                event.object.interactive
                     .name('Emote_Match_Table')
                     .location(899.6, 720.8)
                     .depth(745)
@@ -505,7 +505,7 @@ class GameConfig {
                         game.scene.start('FF22EmoteMatch');
                     })
                     .in(game);
-                event.object.interactable
+                event.object.interactive
                     .name('Frog_Shuffle_Table')
                     .location(1111, 567.6)
                     .depth(590)
@@ -527,7 +527,7 @@ class GameConfig {
                 event.layer.add('Birthday_Cake', 580).in(game);
 
                 //objects
-                event.object.interactable
+                event.object.interactive
                     .name('Free_Birthday_Hats_Crate')
                     .location(886, 578.7)
                     .depth(615)
@@ -547,7 +547,7 @@ class GameConfig {
                 event.layer.add('Forest_Ghosts', 'foreground').in(game);
 
                 //objects
-                event.object.interactable
+                event.object.interactive
                     .name('Free_Carved_Pumpkin_Hat_Crate')
                     .location(850, 535.7)
                     .depth(580)
@@ -575,7 +575,7 @@ class GameConfig {
                 event.layer.add('Holiday_Tree_Shadows', 2).in(game);
 
                 //objects
-                event.object.interactable
+                event.object.interactive
                     .name('Free_Santa_Hat_Crate')
                     .location(938.8, 568)
                     .depth(605)
@@ -584,7 +584,7 @@ class GameConfig {
                         client.requestItemPurchase('santa_hat');
                     })
                     .in(game);
-                event.object.interactable
+                event.object.interactive
                     .name('Holiday_Present')
                     .location(543.5, 590.8)
                     .depth(615)

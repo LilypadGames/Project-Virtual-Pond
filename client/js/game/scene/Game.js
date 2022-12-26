@@ -55,8 +55,8 @@ class Game extends Phaser.Scene {
         this.playerData = [];
 
         //object variables
-        this.interactableObjects = [];
-        this.interactableObjectFunction = [];
+        this.interactiveObjects = [];
+        this.interactiveObjectFunction = [];
         this.npcData = [];
         this.npcList = {};
 
@@ -269,16 +269,16 @@ class Game extends Phaser.Scene {
         
         //handle all players
         Object.keys(this.playerCharacter).forEach((playerID) => {
-            //handle collisions between this player and all interactable objects
+            //handle collisions between this player and all interactive objects
             for (
                 var objectID = 0;
-                objectID < this.interactableObjects.length;
+                objectID < this.interactiveObjects.length;
                 objectID++
             ) {
-                //check this interactable object and the player for a collision
+                //check this interactive object and the player for a collision
                 this.physics.world.collide(
                     this.playerCharacter[playerID],
-                    this.interactableObjects[objectID],
+                    this.interactiveObjects[objectID],
                     () => {
                         //get object player last clicked
                         let attemptedObjectInteract = utility.getObject(
@@ -292,16 +292,16 @@ class Game extends Phaser.Scene {
                             delete utility.getObject(this.playerData, playerID)
                                 .attemptedObjectInteract;
 
-                            //stop player when colliding with interactable object
+                            //stop player when colliding with interactive object
                             this.haltPlayer(
                                 playerID,
                                 this.playerCharacter[playerID].x,
                                 this.playerCharacter[playerID].y
                             );
 
-                            //run interactable objects function
-                            if (this.interactableObjectFunction[objectID])
-                                this.interactableObjectFunction[objectID](
+                            //run interactive objects function
+                            if (this.interactiveObjectFunction[objectID])
+                                this.interactiveObjectFunction[objectID](
                                     objectID,
                                     playerID
                                 );
@@ -367,7 +367,7 @@ class Game extends Phaser.Scene {
         //delete data
         this.playerCharacter = {};
         this.playerData = [];
-        this.interactableObjects = [];
+        this.interactiveObjects = [];
         this.npcData = [];
 
         //stop music
@@ -564,7 +564,7 @@ class Game extends Phaser.Scene {
                 },
             },
             object: {
-                interactable: {
+                interactive: {
                     objectName: undefined,
                     x: undefined,
                     y: undefined,
@@ -588,23 +588,23 @@ class Game extends Phaser.Scene {
                         return this;
                     },
                     in: function (instance) {
-                        instance.addNewInteractableObject(
+                        instance.addNewInteractiveObject(
                             //set up object
                             (id) => {
                                 //create sprite
-                                instance.interactableObjects[id] = instance.add
+                                instance.interactiveObjects[id] = instance.add
                                     .image(this.x, this.y, this.objectName)
                                     .setDepth(this.depthValue);
                             },
 
                             //set physics object
                             (id) => {
-                                return instance.interactableObjects[id];
+                                return instance.interactiveObjects[id];
                             },
 
-                            //set interactable sprite
+                            //set interactive sprite
                             (id) => {
-                                return instance.interactableObjects[id];
+                                return instance.interactiveObjects[id];
                             },
 
                             //final interaction callback
@@ -1860,16 +1860,16 @@ class Game extends Phaser.Scene {
         }
     }
 
-    //adds new interactable object that must be moved to and reach to interact with
-    addNewInteractableObject(
+    //adds new interactive object that must be moved to and reach to interact with
+    addNewInteractiveObject(
         objectSetup,
         physicsObject,
-        interactableSprite,
+        interactiveSprite,
         finalInteractionCallback,
         firstInteractionCallback
     ) {
         //get ID
-        let id = 0 + this.interactableObjects.length;
+        let id = 0 + this.interactiveObjects.length;
 
         //set up object
         objectSetup(id);
@@ -1880,10 +1880,10 @@ class Game extends Phaser.Scene {
         object.body.setCollideWorldBounds(true);
 
         //set up hover outline effect
-        globalUI.setOutlineOnHover(this, interactableSprite(id));
+        globalUI.setOutlineOnHover(this, interactiveSprite(id));
 
         //set up interaction
-        let sprite = interactableSprite(id);
+        let sprite = interactiveSprite(id);
         sprite.setInteractive().on(
             'pointerup',
             (pointer) => {
@@ -1910,7 +1910,7 @@ class Game extends Phaser.Scene {
         );
 
         //set final interaction callback
-        this.interactableObjectFunction[id] = finalInteractionCallback;
+        this.interactiveObjectFunction[id] = finalInteractionCallback;
     }
 
     //adds NPC character to the game
@@ -1933,42 +1933,42 @@ class Game extends Phaser.Scene {
             .setFontSize(this.nametagFontSize)
             .setOrigin(0.5, 1);
 
-        //set up interactable object
-        this.addNewInteractableObject(
+        //set up interactive object
+        this.addNewInteractiveObject(
             //object set up
             (id) => {
                 //create npc container
-                this.interactableObjects[id] = this.add
+                this.interactiveObjects[id] = this.add
                     .container(x, y)
                     .setSize(spriteContainer.width, spriteContainer.height);
 
                 //create npc sprite container
-                this.interactableObjects[id].add(
+                this.interactiveObjects[id].add(
                     this.add
                         .container(0, 0)
                         .setSize(spriteContainer.width, spriteContainer.height)
                 );
 
                 //add npc sprites to npc sprite container
-                this.interactableObjects[id].list[0].add([npcSprite]);
+                this.interactiveObjects[id].list[0].add([npcSprite]);
 
                 //create npc overlay container
-                this.interactableObjects[id].add(
+                this.interactiveObjects[id].add(
                     this.add
                         .container(0, 0)
                         .setSize(spriteContainer.width, spriteContainer.height)
                 );
 
                 //add npc name to npc overlay container
-                this.interactableObjects[id].list[1].add([npcName]);
+                this.interactiveObjects[id].list[1].add([npcName]);
 
                 //set direction of NPC
                 if (direction === 'left') {
-                    this.interactableObjects[id].list[0].list[0].scaleX *= -1;
+                    this.interactiveObjects[id].list[0].list[0].scaleX *= -1;
                 }
 
                 //set depth
-                this.interactableObjects[id].setDepth(y);
+                this.interactiveObjects[id].setDepth(y);
 
                 //store object ID of NPC
                 this.npcList[name].objectID = id;
@@ -1976,12 +1976,12 @@ class Game extends Phaser.Scene {
 
             //set physics object
             (id) => {
-                return this.interactableObjects[id];
+                return this.interactiveObjects[id];
             },
 
-            //set interactable sprite
+            //set interactive sprite
             (id) => {
-                return this.interactableObjects[id].list[0];
+                return this.interactiveObjects[id].list[0];
             },
 
             //final interaction callback
@@ -2049,10 +2049,10 @@ class Game extends Phaser.Scene {
         //npc message
         else if (characterType === 'npc') {
             //get npc overlay container
-            var overlayContainer = this.interactableObjects[id].list[1];
+            var overlayContainer = this.interactiveObjects[id].list[1];
 
             //get player sprite container
-            var spriteContainer = this.interactableObjects[id].list[0];
+            var spriteContainer = this.interactiveObjects[id].list[0];
 
             //store message data
             utility.getObject(this.npcData, id).message = messageData;
@@ -2149,7 +2149,7 @@ class Game extends Phaser.Scene {
         //npc message
         else if (characterType === 'npc') {
             //get npc overlay container
-            var overlayContainer = this.interactableObjects[id].list[1];
+            var overlayContainer = this.interactiveObjects[id].list[1];
 
             //get message id
             currentID = utility.getObject(this.npcData, id).message.id;

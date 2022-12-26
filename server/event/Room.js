@@ -70,7 +70,7 @@ class Room {
                 )
         );
 
-        //triggers when player is attempting to interact with an interactable object
+        //triggers when player is attempting to interact with an interactive object
         this.socket.on('playerInteractingWithObject', (objectID) =>
             this.playerInteractingWithObject(utility.sanitize.number(objectID))
         );
@@ -411,7 +411,7 @@ class Room {
                 this.socket.player.id +
                 ') ' +
                 this.socket.player.name +
-                ' - Interacting With NPC: ' +
+                ' - Interacting With Interactive Object: ' +
                 objectID
         );
         logs.logMessage('debug', logMessage);
