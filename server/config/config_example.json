@@ -1,6 +1,7 @@
 {
     "version": "",
     "production": false,
+    "debug": true,
     "paths": {
         "client": "client",
         "logs": "server/logs",

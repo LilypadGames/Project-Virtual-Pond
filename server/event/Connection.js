@@ -203,11 +203,9 @@ class Connection {
         }
 
         //log
-        log.socketAction(
-            this.socket,
-            'Attempting to Join Room: ' + room,
-            {file: 'debug'}
-        );
+        log.socketAction(this.socket, 'Attempting to Join Room: ' + room, {
+            file: 'debug',
+        });
 
         //determine whether player can join this room
 
@@ -218,10 +216,7 @@ class Connection {
     //triggers when client leaves a room
     leaveRoom() {
         //log
-        log.socketAction(
-            this.socket,
-            'Left Room: ' + this.socket.player.room
-        );
+        log.socketAction(this.socket, 'Left Room: ' + this.socket.player.room);
 
         //send the removal of the player for ALL clients in this room
         this.io

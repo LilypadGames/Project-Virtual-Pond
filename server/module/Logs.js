@@ -1,6 +1,7 @@
 // Logging Functions
 
-//imports: file parsing
+//imports
+import util from 'util';
 import fs from 'fs';
 import path from 'path';
 import * as url from 'url';
@@ -13,75 +14,115 @@ import config from '../config/config.json' assert { type: 'json' };
 import utility from '../module/Utility.js';
 import ConsoleColor from '../module/ConsoleColor.js';
 
-//init logging
-var currentDay = utility.getCurrentDay();
-let logPath = '../../' + config.paths.logs + '/';
-utility.createDirectory(path.join(__dirname, logPath));
-var logFile = [];
-
 export default {
+    //initialize logging
+    initLogs: function () {
+        //get current day
+        this.currentDay = utility.getCurrentDay();
+
+        //init log directory
+        this.logPath = '../../' + config.paths.logs + '/';
+        utility.createDirectory(path.join(__dirname, this.logPath));
+
+        //init log file write stream list
+        this.logFile = [];
+    },
+
     //get log file
     getLog: function (logType) {
         //get current day
         const date = utility.getCurrentDay();
 
         //if its a new day, refresh stored write streams
-        if (currentDay !== date) {
+        if (this.currentDay !== date) {
             //end every stored write stream
-            var index = logFile.length;
+            var index = this.logFile.length;
             while (index--) {
                 //end write stream
-                logFile[index - 1].end();
+                this.logFile[index - 1].end();
             }
 
             //reset stored write streams
-            logFile = [];
+            this.logFile = [];
 
             //store new day
-            currentDay = date;
+            this.currentDay = date;
         }
 
         //create log file write stream if it does not already exist
-        if (!logFile[logType]) {
+        if (!this.logFile[logType]) {
             //get path
             const filePath = path.join(
                 __dirname,
-                logPath,
+                this.logPath,
                 logType,
                 '/',
                 date + '.txt'
             );
 
             //make log directory if it doesn't exist
-            if (!fs.existsSync(path.join(__dirname, logPath, logType))) {
-                utility.createDirectory(path.join(__dirname, logPath, logType));
+            if (!fs.existsSync(path.join(__dirname, this.logPath, logType))) {
+                utility.createDirectory(
+                    path.join(__dirname, this.logPath, logType)
+                );
             }
 
             //store log file stream
-            logFile[logType] = fs.createWriteStream(filePath, { flags: 'a' });
+            this.logFile[logType] = fs.createWriteStream(filePath, {
+                flags: 'a',
+            });
 
-            // DEBUG
-            console.log('New Write Stream');
+            //log debug
+            this.debug('New Write Stream: ' + logType);
         }
 
         //return log file
-        return logFile[logType];
+        return this.logFile[logType];
     },
 
-    message: function (message, options = { file: undefined, color: '' }) {
-        //defaults
-        if (!options.file) options.file = undefined;
-        if (!options.color) options.color = '';
+    message: function (
+        message,
+        options = { file: null, console: true, color: ConsoleColor.White }
+    ) {
+        //init options
+        if (!options) options = {};
 
-        //apply timestamp
-        message = utility.getTimestamp() + ' | ' + message;
+        //if file is specified but console is not, prevent logging to console
+        if (options.file && !options.console) options.console = false;
+
+        //if file is not specified, prevent logging to file
+        if (!options.file) options.file = null;
+
+        //if color is not specified, default to white
+        if (!options.color) options.color = ConsoleColor.White;
+
+        //custom message
+        if (typeof message === 'function') {
+            message = message();
+            if (typeof message !== 'string') {
+                throw new TypeError(
+                    'Invalid return value of function parameter "message" | Must return a String'
+                );
+            }
+        }
+        //apply prefix
+        else if (typeof message === 'string') {
+            message = utility.getTimestamp() + ' | ' + message;
+        }
+        //non accepted variable
+        else {
+            throw new TypeError(
+                'Invalid assignment to parameter "message" | Must be a Function or String'
+            );
+        }
 
         //log message to log files
         if (options.file) {
             //one log file -> array with single file
             if (typeof options.file === 'string') {
-                this.logMessage(options.file, message);
-                options.file === [options.file];
+                const file = options.file;
+                options.file = [];
+                options.file.push(file);
             }
 
             //log to files
@@ -95,15 +136,27 @@ export default {
             }
         }
 
-        //log message to console
-        else {
-            console.log(options.color, message);
+        //log message to console and server/debug log file
+        if (options.console) {
+            //log to console
+            process.stdout.write(
+                util.format.apply(null, [options.color, message]) + '\n'
+            );
+
+            //log to server/debug file
+            this.message(
+                () => {
+                    return message;
+                },
+                { file: ['server', 'debug'] }
+            );
         }
     },
 
     error: function (message, options) {
         //init options
-        if (!options) options = { file: undefined, color: ConsoleColor.Red };
+        if (!options)
+            options = { file: null, console: true, color: ConsoleColor.Red };
         else options.color = ConsoleColor.Red;
 
         //log error
@@ -112,7 +165,8 @@ export default {
 
     info: function (message, options) {
         //init options
-        if (!options) options = { file: undefined, color: ConsoleColor.Cyan };
+        if (!options)
+            options = { file: null, console: true, color: ConsoleColor.Cyan };
         else options.color = ConsoleColor.Cyan;
 
         //log info
@@ -121,7 +175,8 @@ export default {
 
     warn: function (message, options) {
         //init options
-        if (!options) options = { file: undefined, color: ConsoleColor.Yellow };
+        if (!options)
+            options = { file: null, console: true, color: ConsoleColor.Yellow };
         else options.color = ConsoleColor.Yellow;
 
         //log warn
@@ -131,11 +186,22 @@ export default {
     debug: function (message, options) {
         //init options
         if (!options)
-            options = { file: undefined, color: ConsoleColor.Magenta };
+            options = {
+                file: null,
+                console: true,
+                color: ConsoleColor.Magenta,
+            };
         else options.color = ConsoleColor.Magenta;
 
-        //log debug
-        this.message(message, options);
+        //log to console AND debug file
+        if (config.debug === true) this.message(message, options);
+        //log to debug file ONLY
+        else
+            this.message(message, {
+                file: 'debug',
+                console: false,
+                color: options.color,
+            });
     },
 
     socketAction: function (socket, message, options) {
@@ -147,10 +213,10 @@ export default {
             socket.player.room +
             '] ' +
             socket.player.name +
-            ' - ';
-        message;
+            ' - ' +
+            message;
 
         //log message
-        this.logMessage(message, options);
+        this.message(message, options);
     },
 };

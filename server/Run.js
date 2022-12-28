@@ -1,3 +1,4 @@
+//imports
 import util from 'util';
 
 //server classes
@@ -13,6 +14,9 @@ import config from '../server/config/config.json' assert { type: 'json' };
 
 //environment settings
 process.env.NODE_ENV = config.production ? 'production' : 'development';
+
+//init logging
+log.initLogs();
 
 //send console logs to server log file
 console.log = function () {
