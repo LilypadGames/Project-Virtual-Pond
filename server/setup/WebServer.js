@@ -7,7 +7,6 @@ import Authentication from '../setup/Authentication.js';
 import Connections from '../setup/Connections.js';
 
 //modules
-import utility from '../module/Utility.js';
 import log from '../module/Logs.js';
 
 //config

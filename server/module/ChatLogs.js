@@ -7,7 +7,6 @@ import jsonPath from 'jsonpath';
 import roomData from '../data/roomData.json' assert { type: 'json' };
 
 //modules
-import utility from '../module/Utility.js';
 import log from '../module/Logs.js';
 
 export default {

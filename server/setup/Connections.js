@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 //modules
-import utility from '../module/Utility.js';
 import log from '../module/Logs.js';
 
 //config

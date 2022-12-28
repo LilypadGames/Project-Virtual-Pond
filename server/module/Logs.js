@@ -56,7 +56,6 @@ export default {
             if (!fs.existsSync(path.join(__dirname, logPath, logType))) {
                 utility.createDirectory(path.join(__dirname, logPath, logType));
             }
-            
 
             //store log file stream
             logFile[logType] = fs.createWriteStream(filePath, { flags: 'a' });

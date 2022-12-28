@@ -119,7 +119,7 @@ export default {
             streamerID,
             async (event) => {
                 //log
-                log.info(event.broadcasterDisplayName + ' just went offline.')
+                log.info(event.broadcasterDisplayName + ' just went offline.');
 
                 //set stream live to false
                 await this.globalData.set('streamLive', false);
@@ -146,10 +146,12 @@ export default {
             ))
                 ? true
                 : false;
-            log.info('(' + streamerName + ') Stream Live: ' + live)
+            log.info('(' + streamerName + ') Stream Live: ' + live);
             return live;
         } catch (error) {
-            log.error('(' + streamerName + ') Fetching Stream Status -> ' + error)
+            log.error(
+                '(' + streamerName + ') Fetching Stream Status -> ' + error
+            );
         }
     },
 

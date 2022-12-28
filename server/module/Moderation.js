@@ -12,7 +12,10 @@ export default {
         //log
         log.socketAction(
             socket,
-            'Has Been Kicked For: ' + reason + ' > Client Facing Message: ' + kickMessage,
+            'Has Been Kicked For: ' +
+                reason +
+                ' > Client Facing Message: ' +
+                kickMessage,
             { file: 'moderation' }
         );
 
