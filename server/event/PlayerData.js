@@ -369,7 +369,10 @@ class PlayerData {
     //triggers when client changes their player data and may want to go to next scene only AFTER the data has been updated
     updateClientPlayerData(data) {
         //log
-        log.socketAction(this.socket, 'Updated Player Data', { file: 'debug' });
+        log.socketAction(this.socket, 'Updated Player Data', {
+            debug: true,
+            console: false,
+        });
 
         //update character
         if (!this.socket.player.character && data.character)
@@ -469,7 +472,7 @@ class PlayerData {
         log.socketAction(
             this.socket,
             'Reloaded Room: ' + this.socket.player.room,
-            { file: 'debug' }
+            { debug: true, console: false }
         );
 
         //send current position of all connected players in this room to ONLY THIS client

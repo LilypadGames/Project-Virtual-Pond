@@ -85,16 +85,17 @@ export default {
         options = { file: null, console: true, color: ConsoleColor.White }
     ) {
         //init options
-        if (!options) options = {};
+        if (options === undefined) options = {};
 
         //if file is specified but console is not, prevent logging to console
-        if (options.file && !options.console) options.console = false;
+        if (options.file && options.console === undefined)
+            options.console = false;
 
         //if file is not specified, prevent logging to file
-        if (!options.file) options.file = null;
+        if (options.file === undefined) options.file = null;
 
         //if color is not specified, default to white
-        if (!options.color) options.color = ConsoleColor.White;
+        if (options.color === undefined) options.color = ConsoleColor.White;
 
         //custom message
         if (typeof message === 'function') {
@@ -143,12 +144,22 @@ export default {
                 util.format.apply(null, [options.color, message]) + '\n'
             );
 
+            //determine files to send to
+            var files = [];
+            //files were already accessed
+            if (options.file) {
+                if (!options.file.includes('server')) files.push('server');
+                if (!options.file.includes('debug')) files.push('debug');
+            }
+            //files were not already accessed
+            else files = ['server', 'debug'];
+
             //log to server/debug file
             this.message(
                 () => {
                     return message;
                 },
-                { file: ['server', 'debug'] }
+                { file: files }
             );
         }
     },
@@ -185,26 +196,23 @@ export default {
 
     debug: function (message, options) {
         //init options
-        if (!options)
-            options = {
-                file: null,
-                console: true,
-                color: ConsoleColor.Magenta,
-            };
-        else options.color = ConsoleColor.Magenta;
+        if (options === undefined) options = {};
 
-        //log to console AND debug file
-        if (config.debug === true) this.message(message, options);
-        //log to debug file ONLY
-        else
-            this.message(message, {
-                file: 'debug',
-                console: false,
-                color: options.color,
-            });
+        //log to debug file
+        if (options.file === undefined) options.file = 'debug';
+
+        //if debug in server config is true (and console option is not set), log to console as well
+        if (config.debug === true && options.console === undefined)
+            options.console = true;
+
+        //set to debug color
+        if (options.color === undefined) options.color = ConsoleColor.Magenta;
+
+        //log debug
+        this.message(message, options);
     },
 
-    socketAction: function (socket, message, options) {
+    socketAction: function (socket, message, options = { debug: false }) {
         //apply socket prefix
         message =
             '(' +
@@ -217,6 +225,10 @@ export default {
             message;
 
         //log message
-        this.message(message, options);
+        if (!options.debug) this.message(message, options);
+        //debug message
+        else {
+            this.debug(message, options);
+        }
     },
 };

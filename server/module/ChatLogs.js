@@ -23,7 +23,7 @@ export default {
                         this.chatLogs[room] = [];
 
                         //log
-                        log.info('Room Chat Log Initialized: ' + room);
+                        log.debug('Room Chat Log Initialized: ' + room);
                     }
                 }
             } catch (error) {

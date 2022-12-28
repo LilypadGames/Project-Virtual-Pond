@@ -80,11 +80,10 @@ class Room {
     playerMoved(x, y, direction) {
         if (this.socket.player.x != x || this.socket.player.y != y) {
             //log
-            log.socketAction(
-                this.socket,
-                'Moving To> x:' + x + ', y:' + y,
-                { file: 'debug' }
-            );
+            log.socketAction(this.socket, 'Moving To> x:' + x + ', y:' + y, {
+                debug: true,
+                console: false,
+            });
 
             //store player location and direction
             this.socket.player.x = x;
@@ -287,9 +286,10 @@ class Room {
             //log command
             log.socketAction(
                 this.socket,
-                'Slur Detected > ' + message +
-                ' | Phonetic Version > ' +
-                messagePhonetics,
+                'Slur Detected > ' +
+                    message +
+                    ' | Phonetic Version > ' +
+                    messagePhonetics,
                 { file: 'moderation' }
             );
 
@@ -318,11 +318,10 @@ class Room {
         }
 
         //log
-        log.socketAction(
-            this.socket,
-            'Sending Message> ' + message,
-            { file: 'chat' }
-        );
+        log.socketAction(this.socket, 'Sending Message> ' + message, {
+            file: 'chat',
+            console: true,
+        });
 
         //create message data
         let messageData = {
@@ -368,7 +367,7 @@ class Room {
         log.socketAction(
             this.socket,
             'Interacting With Interactive Object: ' + objectID,
-            { file: 'debug' }
+            { debug: true, console: false }
         );
 
         //merge player ID and npc ID
