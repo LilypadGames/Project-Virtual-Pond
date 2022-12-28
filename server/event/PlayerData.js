@@ -6,7 +6,7 @@ import config from '../config/config.json' assert { type: 'json' };
 //imports
 import utility from '../module/Utility.js';
 import database from '../module/Database.js';
-import logs from '../module/Logs.js';
+import log from '../module/Logs.js';
 
 //event handlers
 import Inventory from '../event/Inventory.js';
@@ -369,14 +369,7 @@ class PlayerData {
     //triggers when client changes their player data and may want to go to next scene only AFTER the data has been updated
     updateClientPlayerData(data) {
         //log
-        let logMessage = utility.timestampString(
-            '(' +
-                this.socket.player.id +
-                ') ' +
-                this.socket.player.name +
-                ' - Updated Player Data'
-        );
-        logs.logMessage('debug', logMessage);
+        log.socketAction(this.socket, 'Updated Player Data', {file:'debug'});
 
         //update character
         if (!this.socket.player.character && data.character)
@@ -473,15 +466,11 @@ class PlayerData {
     //triggers when player reloads their client and requests current player data
     async requestRoomUpdate() {
         //log
-        let logMessage = utility.timestampString(
-            '(' +
-                this.socket.player.id +
-                ') ' +
-                this.socket.player.name +
-                ' - Reloaded Room: ' +
-                this.socket.player.room
+        log.socketAction(
+            this.socket,
+            'Reloaded Room: ' + this.socket.player.room,
+            {file:'debug'}
         );
-        logs.logMessage('debug', logMessage);
 
         //send current position of all connected players in this room to ONLY THIS client
         const playerData = await this.requestAllParsedPlayerData(

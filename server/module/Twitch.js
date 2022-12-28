@@ -7,8 +7,7 @@ import events from 'events';
 import config from '../config/config.json' assert { type: 'json' };
 
 //imports
-import utility from '../module/Utility.js';
-import ConsoleColor from '../module/ConsoleColor.js';
+import log from '../module/Logs.js';
 
 //twitch api
 import { ClientCredentialsAuthProvider } from '@twurple/auth';
@@ -16,8 +15,7 @@ import { ClientCredentialsAuthProvider } from '@twurple/auth';
 import { ApiClient } from '@twurple/api';
 import { EventSubListener, EventSubMiddleware } from '@twurple/eventsub';
 if (!config.production) {
-    import('@twurple/eventsub-ngrok')
-    .then((exports) => {});
+    import('@twurple/eventsub-ngrok').then((exports) => {});
 }
 const authProvider = new ClientCredentialsAuthProvider(
     config.twitch.clientID,
@@ -90,16 +88,14 @@ export default {
 
         //verify event subscriptions
         listener.onVerify((success, subscription) =>
-            console.log(
-                ConsoleColor.Cyan,
-                utility.timestampString(
-                    'Stream Event: (' +
-                        streamerName +
-                        ') ' +
-                        subscription._cliName +
-                        ' | Verified: ' +
-                        success
-                )
+            //log
+            log.info(
+                'Stream Event: (' +
+                    streamerName +
+                    ') ' +
+                    subscription._cliName +
+                    ' | Verified: ' +
+                    success
             )
         );
 
@@ -107,12 +103,8 @@ export default {
         const onLive = await listener.subscribeToStreamOnlineEvents(
             streamerID,
             async (event) => {
-                console.log(
-                    ConsoleColor.Cyan,
-                    utility.timestampString(
-                        `${event.broadcasterDisplayName} just went live!`
-                    )
-                );
+                //log
+                log.info(event.broadcasterDisplayName + ' just went live!');
 
                 //set stream live to true
                 await this.globalData.set('streamLive', true);
@@ -126,12 +118,8 @@ export default {
         const onOffline = await listener.subscribeToStreamOfflineEvents(
             streamerID,
             async (event) => {
-                console.log(
-                    ConsoleColor.Cyan,
-                    utility.timestampString(
-                        `${event.broadcasterDisplayName} just went offline.`
-                    )
-                );
+                //log
+                log.info(event.broadcasterDisplayName + ' just went offline.')
 
                 //set stream live to false
                 await this.globalData.set('streamLive', false);
@@ -146,33 +134,22 @@ export default {
         //DEBUG
         // await listener.subscribeToChannelFollowEvents(streamerID, async (event) => {
         //     let user = await (await event.getUser()).displayName;
-        //     console.log(
-        //         utility.timestampString(
-        //             `${event.broadcasterDisplayName} just got a follower: ${user}`
-        //         )
-        //     );
+        //     //log
+        //     log.info(event.broadcasterDisplayName + ' just got a follower:' + user)
         // });
     },
 
     isStreamLive: async function (streamerName) {
         try {
-            let live = (await twitchAPI.streams.getStreamByUserName(streamerName))
+            let live = (await twitchAPI.streams.getStreamByUserName(
+                streamerName
+            ))
                 ? true
                 : false;
-            console.log(
-                ConsoleColor.Cyan,
-                utility.timestampString(
-                    'Stream Live: (' + streamerName + ') ' + live
-                )
-            );
+            log.info('(' + streamerName + ') Stream Live: ' + live)
             return live;
         } catch (error) {
-            console.log(
-                ConsoleColor.Red,
-                utility.timestampString(
-                    'Fetch Stream Status (' + streamerName + ') - ' + error
-                )
-            );
+            log.error('(' + streamerName + ') Fetching Stream Status -> ' + error)
         }
     },
 

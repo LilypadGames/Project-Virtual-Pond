@@ -9,7 +9,7 @@ import roomData from '../data/roomData.json' assert { type: 'json' };
 
 //modules
 import utility from '../module/Utility.js';
-import logs from '../module/Logs.js';
+import log from '../module/Logs.js';
 import chatLogs from '../module/ChatLogs.js';
 import serverMetrics from '../module/ServerMetrics.js';
 import moderation from '../module/Moderation.js';
@@ -130,16 +130,9 @@ class Connection {
         serverMetrics.playerJoined(this.socket);
 
         //log
-        console.log(
-            utility.timestampString(
-                '(' +
-                    this.socket.player.id +
-                    ') ' +
-                    this.socket.player.name +
-                    ' - Connected [Players Online: ' +
-                    serverMetrics.getPlayerCount() +
-                    ']'
-            )
+        log.socketAction(
+            this.socket,
+            'Connected [Players Online: ' + serverMetrics.getPlayerCount() + ']'
         );
 
         //latency calculation
@@ -179,30 +172,13 @@ class Connection {
 
         //triggers on connection error
         this.socket.on('connect_error', (err) => {
-            console.log(
-                utility.timestampString(
-                    '(' +
-                        this.socket.player.id +
-                        ') ' +
-                        this.socket.player.name +
-                        ' - Connection Error: ' +
-                        err
-                )
-            );
+            log.socketAction(this.socket, 'Connection Error: ' + err);
         });
 
         //logout
         this.socket.on('logout', () => {
             //log
-            console.log(
-                utility.timestampString(
-                    '(' +
-                        this.socket.player.id +
-                        ') ' +
-                        this.socket.player.name +
-                        ' - Logged Out'
-                )
-            );
+            log.socketAction(this.socket, 'Logged Out');
 
             //disconnect
             this.socket.disconnect();
@@ -227,15 +203,11 @@ class Connection {
         }
 
         //log
-        let logMessage = utility.timestampString(
-            '(' +
-                this.socket.player.id +
-                ') ' +
-                this.socket.player.name +
-                ' - Attempting to Join Room: ' +
-                room
+        log.socketAction(
+            this.socket,
+            'Attempting to Join Room: ' + room,
+            {file: 'debug'}
         );
-        logs.logMessage('debug', logMessage);
 
         //determine whether player can join this room
 
@@ -246,15 +218,9 @@ class Connection {
     //triggers when client leaves a room
     leaveRoom() {
         //log
-        console.log(
-            utility.timestampString(
-                '(' +
-                    this.socket.player.id +
-                    ') ' +
-                    this.socket.player.name +
-                    ' - Left Room: ' +
-                    this.socket.player.room
-            )
+        log.socketAction(
+            this.socket,
+            'Left Room: ' + this.socket.player.room
         );
 
         //send the removal of the player for ALL clients in this room
@@ -272,16 +238,7 @@ class Connection {
         if (this.socket.player.room) this.leaveRoom();
 
         //log
-        console.log(
-            utility.timestampString(
-                '(' +
-                    this.socket.player.id +
-                    ') ' +
-                    this.socket.player.name +
-                    ' - Joined Room: ' +
-                    room
-            )
-        );
+        log.socketAction(this.socket, 'Joined Room: ' + room);
 
         //add player to room
         this.joinSocketRoom(room);
@@ -369,16 +326,11 @@ class Connection {
         serverMetrics.playerLeft(this.socket);
 
         //log
-        console.log(
-            utility.timestampString(
-                '(' +
-                    this.socket.player.id +
-                    ') ' +
-                    this.socket.player.name +
-                    ' - Disconnected [Players Online: ' +
-                    serverMetrics.getPlayerCount() +
-                    ']'
-            )
+        log.socketAction(
+            this.socket,
+            'Disconnected [Players Online: ' +
+                serverMetrics.getPlayerCount() +
+                ']'
         );
 
         //pass disconnect to other classes

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 //modules
 import utility from '../module/Utility.js';
-import ConsoleColor from '../module/ConsoleColor.js';
+import log from '../module/Logs.js';
 
 //config
 import config from '../config/config.json' assert { type: 'json' };
@@ -57,15 +57,12 @@ export default class Connections {
                 // NOTE: An unauthorized token will not throw an error
                 // response.status will be 401
                 if (error.response) {
-                    //log error
-                    console.log(
-                        ConsoleColor.Red,
-                        utility.timestampString(
-                            'ERROR ' +
-                                error.response.status +
-                                ': ' +
-                                error.response.data.error
-                        )
+                    //log
+                    log.error(
+                        'Fetching Access Token For Discord User -> ' +
+                            error.response.status +
+                            ': ' +
+                            error.response.data.error
                     );
                 }
             });
@@ -82,7 +79,7 @@ export default class Connections {
                 responseType: 'json',
             })
 
-            //successfully got discord user's connections
+            //successfully got discord user's data
             .then((response) => {
                 return response.data;
             })
@@ -90,15 +87,12 @@ export default class Connections {
             //error
             .catch((error) => {
                 if (error.response) {
-                    //log error
-                    console.log(
-                        ConsoleColor.Red,
-                        utility.timestampString(
-                            'ERROR ' +
-                                error.response.status +
-                                ': ' +
-                                error.response.data.error
-                        )
+                    //log
+                    log.error(
+                        'Fetching Discord Users Data -> ' +
+                            error.response.status +
+                            ': ' +
+                            error.response.data.error
                     );
                 }
             });
@@ -120,16 +114,12 @@ export default class Connections {
             //error
             .catch((error) => {
                 if (error.response) {
-                    //log error
-                    //log error
-                    console.log(
-                        ConsoleColor.Red,
-                        utility.timestampString(
-                            'ERROR ' +
-                                error.response.status +
-                                ': ' +
-                                error.response.data.error
-                        )
+                    //log
+                    log.error(
+                        'Fetching Discord Users Connections -> ' +
+                            error.response.status +
+                            ': ' +
+                            error.response.data.error
                     );
                 }
             });
@@ -160,12 +150,12 @@ export default class Connections {
             let twitchID = userConnections.find(
                 (property) => property.type === 'twitch'
             ).id;
-            console.log(twitchID);
+            // console.log(twitchID);
         }
 
         //discord user does not have a twitch connection
         else {
-            console.log('No Twitch Connection');
+            // console.log('No Twitch Connection');
         }
 
         //give response page to authorization

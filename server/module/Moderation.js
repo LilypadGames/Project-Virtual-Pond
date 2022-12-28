@@ -1,27 +1,20 @@
 // Moderation functions
 
-//imports
-import logs from '../module/Logs.js';
-import utility from '../module/Utility.js';
+//modules
+import log from '../module/Logs.js';
 
 export default {
     kickMessage: function (
-        player,
+        socket,
         reason,
         kickMessage = 'You have been kicked.'
     ) {
         //log
-        let message = utility.timestampString(
-            '(' +
-                player.id +
-                ') ' +
-                player.name +
-                ' - KICKED > Reason: ' +
-                reason +
-                ', Message: ' +
-                kickMessage
+        log.socketAction(
+            socket,
+            'Has Been Kicked For: ' + reason + ' > Client Facing Message: ' + kickMessage,
+            { file: 'moderation' }
         );
-        logs.logMessage('moderation', message);
 
         //create kick message
         return reason !== undefined
@@ -31,7 +24,7 @@ export default {
 
     kickSocket: async function (socket, reason, kickMessage) {
         //kick message
-        kickMessage = this.kickMessage(socket.player, reason, kickMessage);
+        kickMessage = this.kickMessage(socket, reason, kickMessage);
 
         //send kick message to this client
         socket.emit('payloadKickReason', kickMessage);

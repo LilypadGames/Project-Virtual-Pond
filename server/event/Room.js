@@ -3,18 +3,18 @@
 //config
 import config from '../config/config.json' assert { type: 'json' };
 
-//imports
-import natural from 'natural';
-// const { Metaphone } = natural;
+// //imports
+// import natural from 'natural';
+// // const { Metaphone } = natural;
 
 //modules
 import utility from '../module/Utility.js';
-import logs from '../module/Logs.js';
+import log from '../module/Logs.js';
 import chatLogs from '../module/ChatLogs.js';
 import moderation from '../module/Moderation.js';
 import commands from '../module/Commands.js';
 import wordFilter from '../module/WordFilter.js';
-import emotes from '../module/Emotes.js';
+// import emotes from '../module/Emotes.js';
 
 //event handlers
 import roomTheatre from '../event/room/Theatre.js';
@@ -80,17 +80,11 @@ class Room {
     playerMoved(x, y, direction) {
         if (this.socket.player.x != x || this.socket.player.y != y) {
             //log
-            let logMessage = utility.timestampString(
-                '(' +
-                    this.socket.player.id +
-                    ') ' +
-                    this.socket.player.name +
-                    ' - Moving To> x:' +
-                    x +
-                    ', y:' +
-                    y
+            log.socketAction(
+                this.socket,
+                'Moving To> x:' + x + ', y:' + y,
+                { file: 'debug' }
             );
-            logs.logMessage('debug', logMessage);
 
             //store player location and direction
             this.socket.player.x = x;
@@ -118,7 +112,7 @@ class Room {
     //             ' - Changed Direction: ' +
     //             direction
     //     );
-    //     logs.logMessage('debug', logMessage);
+    //     log.message('debug', logMessage);
 
     //     //player was moving
     //     if (this.socket.player.x !== x || this.socket.player.y !== y) {
@@ -157,7 +151,7 @@ class Room {
     async playerSendingMessage(message) {
         //init last message logging
         if (!this.socket.lastMessage) this.socket.lastMessage = {};
-        
+
         //message is a command
         if (message.startsWith('/')) {
             //player is an admin/mod OR no auth mode is on
@@ -171,37 +165,30 @@ class Room {
                 command = command.split(' ');
 
                 //attempt to run command
-                let logMessage = commands.runCommand(this.socket, command)
-                    ? 'Used Command'
-                    : 'Tried to use Command';
+                let commandRunStatus = commands.runCommand(
+                    this.socket,
+                    command
+                );
 
                 //log command
-                console.log(
-                    utility.timestampString(
-                        '(' +
-                            this.socket.player.id +
-                            ') ' +
-                            this.socket.player.name +
-                            ' - ' +
-                            logMessage +
-                            '> ' +
-                            message
-                    )
+                log.socketAction(
+                    this.socket,
+                    (commandRunStatus
+                        ? 'Used Command'
+                        : 'Tried to use Command') +
+                        '> ' +
+                        message
                 );
             }
 
             //player is not an admin/mod
             else {
                 //log command
-                let logMessage = utility.timestampString(
-                    '(' +
-                        this.socket.player.id +
-                        ') ' +
-                        this.socket.player.name +
-                        ' - Tried to Use Command Without Permission> ' +
-                        message
+                log.socketAction(
+                    this.socket,
+                    'Tried to Use Command Without Permission> ' + message,
+                    { file: 'moderation' }
                 );
-                logs.logMessage('moderation', logMessage);
 
                 //server message
                 this.socket.emit(
@@ -217,20 +204,16 @@ class Room {
             //check if last message was sent recently
             if (Math.abs(this.socket.lastMessage['time'] - Date.now()) < 800) {
                 //log command
-                let logMessage = utility.timestampString(
-                    '(' +
-                        this.socket.player.id +
-                        ') ' +
-                        this.socket.player.name +
-                        ' - Tried To Send Message Too Fast: ' +
-                        message
+                log.socketAction(
+                    this.socket,
+                    'Tried To Send Message Too Fast: ' + message,
+                    { file: 'moderation' }
                 );
-                logs.logMessage('moderation', logMessage);
 
                 //server message
                 this.socket.emit(
                     'payloadServerMessage',
-                    'You\'re Sending Messages Too Quickly :/'
+                    "You're Sending Messages Too Quickly :/"
                 );
 
                 //cancel message
@@ -243,20 +226,16 @@ class Room {
             //check if last message is similar to current message
             if (this.socket.lastMessage['message'] == message) {
                 //log command
-                let logMessage = utility.timestampString(
-                    '(' +
-                        this.socket.player.id +
-                        ') ' +
-                        this.socket.player.name +
-                        ' - Tried To Send The Same Message Twice: ' +
-                        message
+                log.socketAction(
+                    this.socket,
+                    'Tried To Send The Same Message Twice: ' + message,
+                    { file: 'moderation' }
                 );
-                logs.logMessage('moderation', logMessage);
 
                 //server message
                 this.socket.emit(
                     'payloadServerMessage',
-                    'Please Don\'t Spam :)'
+                    "Please Don't Spam :)"
                 );
 
                 //cancel message
@@ -306,19 +285,13 @@ class Room {
             let messagePhonetics = wordFilter.convertMessage(message, false);
 
             //log command
-            let logMessage = utility.timestampString(
-                '(' +
-                    this.socket.player.id +
-                    ') ' +
-                    this.socket.player.name +
-                    ' Slur Detected > ' +
-                    message +
-                    ' | Phonetic Version > ' +
-                    messagePhonetics
+            log.socketAction(
+                this.socket,
+                'Slur Detected > ' + message +
+                ' | Phonetic Version > ' +
+                messagePhonetics,
+                { file: 'moderation' }
             );
-
-            //log in moderation file
-            logs.logMessage('moderation', logMessage);
 
             // //kick
             // moderation.kickClient(
@@ -345,25 +318,11 @@ class Room {
         }
 
         //log
-        console.log(
-            utility.timestampString(
-                '(' +
-                    this.socket.player.id +
-                    ') ' +
-                    this.socket.player.name +
-                    ' - Sending Message> ' +
-                    message
-            )
+        log.socketAction(
+            this.socket,
+            'Sending Message> ' + message,
+            { file: 'chat' }
         );
-        let logMessage = utility.timestampString(
-            '(' +
-                this.socket.player.id +
-                ') ' +
-                this.socket.player.name +
-                ' > ' +
-                message
-        );
-        logs.logMessage('chat', logMessage);
 
         //create message data
         let messageData = {
@@ -406,15 +365,11 @@ class Room {
     //triggers when player interacts with NPC
     playerInteractingWithObject(objectID) {
         //log
-        let logMessage = utility.timestampString(
-            '(' +
-                this.socket.player.id +
-                ') ' +
-                this.socket.player.name +
-                ' - Interacting With Interactive Object: ' +
-                objectID
+        log.socketAction(
+            this.socket,
+            'Interacting With Interactive Object: ' + objectID,
+            { file: 'debug' }
         );
-        logs.logMessage('debug', logMessage);
 
         //merge player ID and npc ID
         let data = {

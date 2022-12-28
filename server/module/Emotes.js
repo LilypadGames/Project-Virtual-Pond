@@ -1,8 +1,5 @@
 //file parsing
 import fs from 'fs';
-import { promisify } from 'util';
-const fileCheck = promisify(fs.stat);
-const fileDelete = promisify(fs.unlink);
 import path from 'path';
 import * as url from 'url';
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url));
@@ -12,8 +9,8 @@ import axios from 'axios';
 import emoteParser from 'tmi-emote-parse';
 
 //modules
-import ConsoleColor from '../module/ConsoleColor.js';
 import utility from '../module/Utility.js';
+import log from '../module/Logs.js';
 
 //config
 import config from '../config/config.json' assert { type: 'json' };
@@ -62,15 +59,12 @@ export default {
                 twitchCredentials = response.data;
             })
             .catch(function (error) {
-                //log error
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString(
-                        'ERROR ' +
-                            error.response.status +
-                            ': ' +
-                            error.response.data.error
-                    )
+                //log
+                log.error(
+                    'Twitch Auth For Emote Fetching -> ' +
+                        error.response.status +
+                        ': ' +
+                        error.response.data.error
                 );
             });
 
@@ -97,11 +91,11 @@ export default {
             //catch errors
             emoteParser.events.on('error', (error) => {
                 //log
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString(
-                        'Emote Parser (' + streamer + ') - ' + error.error
-                    )
+                log.error(
+                    'Fetching Emotes For Channel: ' +
+                        streamer +
+                        ' -> ' +
+                        error.error
                 );
             });
 
@@ -111,12 +105,7 @@ export default {
                 emotes = emoteParser.getAllEmotes(event.channel);
 
                 //log
-                console.log(
-                    ConsoleColor.Cyan,
-                    utility.timestampString(
-                        'Fetched Emotes For Channel: ' + streamer
-                    )
-                );
+                log.info('(' + streamer + ') Fetched Emotes');
 
                 //resolved
                 resolve(resolve);
@@ -180,63 +169,73 @@ export default {
         //image type check function
         let fileTypeCheck = async function (url, logError = true) {
             let type = await axios
-            .get(url)
-            .then(function (response) {
-                switch (response.headers['content-type']) {
-                    case 'image/webp':
-                        return 'webp';
-                    case 'image/png':
-                        return 'png';
-                    case 'image/gif':
-                        return 'gif';
-                    default:
-                        return 'png';
-                }
-            })
-            .catch(function (error) {
-                if (logError) {
-                    //log error
-                    console.log(
-                        ConsoleColor.Red,
-                        utility.timestampString('ERROR: ' + error)
-                    );
-                }
-                else {
-                    return false
-                }
-                
-            });
+                .get(url)
+                .then(function (response) {
+                    switch (response.headers['content-type']) {
+                        case 'image/webp':
+                            return 'webp';
+                        case 'image/png':
+                            return 'png';
+                        case 'image/gif':
+                            return 'gif';
+                        default:
+                            return 'png';
+                    }
+                })
+                .catch(function (error) {
+                    if (logError) {
+                        //log error
+                        log.error('Checking Emote File Type -> ' + error);
+                    } else {
+                        return false;
+                    }
+                });
 
             return type;
-        }
+        };
 
         //first image check
         let fileType = await fileTypeCheck(emoteURL);
 
         //change url path if webp
         if (fileType === 'webp') {
-            let emoteURLWithoutExtension = emoteURL.split('.').slice(0, -1).join('.')
+            let emoteURLWithoutExtension = emoteURL
+                .split('.')
+                .slice(0, -1)
+                .join('.');
 
             //check if png
-            if (await fileTypeCheck(emoteURLWithoutExtension + '.png', false) === 'png') {
+            if (
+                (await fileTypeCheck(
+                    emoteURLWithoutExtension + '.png',
+                    false
+                )) === 'png'
+            ) {
                 //set new file type
                 fileType = 'png';
                 emoteURL = emoteURLWithoutExtension + '.' + fileType;
             }
 
             //check if gif
-            else if (await fileTypeCheck(emoteURLWithoutExtension + '.gif', false) === 'gif') {
+            else if (
+                (await fileTypeCheck(
+                    emoteURLWithoutExtension + '.gif',
+                    false
+                )) === 'gif'
+            ) {
                 //set new file type
                 fileType = 'gif';
                 emoteURL = emoteURLWithoutExtension + '.' + fileType;
             }
 
-            //unknown 
+            //unknown
             else {
-                //log error
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString('ERROR: ' + 'Unknown Emote File Type- ' + emoteName + ' ' + emoteURL)
+                //log
+                log.error(
+                    'Unknown Emote File Type For: ' +
+                        emoteName +
+                        ' URL: ' +
+                        emoteURL
                 );
                 return;
             }
@@ -261,11 +260,8 @@ export default {
                 response.data.pipe(writeStream);
             })
             .catch(function (error) {
-                //log error
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString('ERROR: ' + error)
-                );
+                //log
+                log.error('Downloading Emote -> ');
             });
 
         //wait for write stream to finish writing file to cache
@@ -281,11 +277,8 @@ export default {
 
             //emote had issue caching
             writeStream.on('error', () => {
-                //log error
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString('ERROR: ' + reject)
-                );
+                //log
+                log.error('Caching Emote -> ' + error);
 
                 //reject
                 reject(reject);

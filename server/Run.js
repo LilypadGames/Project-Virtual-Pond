@@ -6,9 +6,7 @@ import Websockets from '../server/setup/Websockets.js';
 import API from '../server/setup/API.js';
 
 //modules
-import utility from '../server/module/Utility.js';
-import ConsoleColor from '../server/module/ConsoleColor.js';
-import logs from '../server/module/Logs.js';
+import log from '../server/module/Logs.js';
 
 //config
 import config from '../server/config/config.json' assert { type: 'json' };
@@ -21,9 +19,12 @@ console.log = function () {
     //format message
     const message = util.format.apply(null, arguments);
 
-    //write to log
-    logs.logMessage('server', message);
-    logs.logMessage('debug', message);
+    //log to file
+    log.message(message, {
+        file: ['server', 'debug'],
+    });
+
+    //log to console
     process.stdout.write(message + '\n');
 };
 console.error = console.log;
@@ -58,7 +59,7 @@ try {
         await emotes.init('pokelawls');
     })();
 } catch (error) {
-    console.log(ConsoleColor.Red, utility.timestampString(error));
+    log.error(error);
 }
 
 //init bad words filter
@@ -70,7 +71,7 @@ wordFilter.init();
 // try {
 //     twitch.init('pokelawls', app, globalData);
 // } catch (error) {
-//     console.log(ConsoleColor.Red, utility.timestampString(error));
+//     log.error(error);
 // }
 
 //init donations
@@ -79,7 +80,7 @@ try {
     // streamElements.init();
     streamElements.updateDonations();
 } catch (error) {
-    console.log(ConsoleColor.Red, utility.timestampString(error));
+    log.error(error);
 }
 
 //init client connection event

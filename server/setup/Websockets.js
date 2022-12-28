@@ -1,8 +1,7 @@
 import { Server as SocketIOServer } from 'socket.io';
 
 //modules
-import utility from '../module/Utility.js';
-import ConsoleColor from '../module/ConsoleColor.js';
+import log from '../module/Logs.js';
 
 //config
 import config from '../config/config.json' assert { type: 'json' };
@@ -24,12 +23,9 @@ export default class Websockets {
         this.auth.websocketAuthentication(this.io);
 
         //log
-        console.log(
-            ConsoleColor.Blue,
-            utility.timestampString(
-                'Websockets Initialized> Authentication: ' +
-                    (config.server.bypassAuth ? 'DISABLED' : 'ENABLED')
-            )
+        log.info(
+            'Websockets Initialized - Authentication: ' +
+                (config.server.bypassAuth ? 'DISABLED' : 'ENABLED')
         );
     }
 }

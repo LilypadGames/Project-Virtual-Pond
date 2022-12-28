@@ -7,10 +7,9 @@ import config from '../config/config.json' assert { type: 'json' };
 import io from 'socket.io-client';
 
 //modules
-import utility from '../module/Utility.js';
-import ConsoleColor from '../module/ConsoleColor.js';
 import database from '../module/Database.js';
 import twitch from '../module/Twitch.js';
+import log from '../module/Logs.js';
 
 //stream elements donation api
 import StreamElements from 'node-streamelements';
@@ -30,30 +29,25 @@ export default {
 
         //handle low level events
         let onConnect = () => {
-            console.log(
-                ConsoleColor.Cyan,
-                utility.timestampString('StreamElements Events> Connected.')
-            );
+            //log
+            log.info('StreamElements Events - Connected.');
+
+            //authenticate
             socket.emit('authenticate', {
                 method: 'jwt',
                 token: config.streamelements.JWTToken,
             });
         };
         let onDisconnect = () => {
-            console.log(
-                ConsoleColor.Red,
-                utility.timestampString('StreamElements Events> Disconnected.')
-            );
+            //log
+            log.warn('StreamElements Events - Disconnected.');
             // Reconnect
         };
         let onAuthenticated = (data) => {
-            const { channelId } = data;
-            console.log(
-                ConsoleColor.Cyan,
-                utility.timestampString(
-                    'StreamElements Events> Connected to Channel ID: ' +
-                        channelId
-                )
+            //log
+            log.info(
+                'StreamElements Events - Connected to Channel ID: ' +
+                    data.channelId
             );
         };
 
@@ -65,19 +59,19 @@ export default {
 
         //register events
         socket.on('event:test', (data) => {
-            console.log(utility.timestampString(data));
+            log.debug(data);
             // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-event
         });
         socket.on('event', (data) => {
-            console.log(utility.timestampString(data));
+            log.debug(data);
             // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-event
         });
         socket.on('event:update', (data) => {
-            console.log(utility.timestampString(data));
+            log.debug(data);
             // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
         });
         socket.on('event:reset', (data) => {
-            console.log(utility.timestampString(data));
+            log.debug(data);
             // Structure as on https://github.com/StreamElements/widgets/blob/master/CustomCode.md#on-session-update
         });
     },
@@ -97,22 +91,15 @@ export default {
                     database.setValue('donations', data);
 
                     //log
-                    console.log(
-                        ConsoleColor.Cyan,
-                        utility.timestampString('Fetched Donation Data')
-                    );
+                    log.info('Fetched Donation Data');
                 } catch (error) {
-                    console.log(
-                        ConsoleColor.Red,
-                        utility.timestampString('Save Donation Data - ' + error)
-                    );
+                    //log
+                    log.error('Saving Donation Data -> ' + error);
                 }
             })
             .catch((error) => {
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString('Fetch Donation Data - ' + error)
-                );
+                //log
+                log.error('Fetch Donation Data -> ' + error);
             });
     },
 
@@ -156,10 +143,8 @@ export default {
                     };
                 }
             } catch (error) {
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString('Parse Donation Data - ' + error)
-                );
+                //log
+                log.error('Parsing Donation Data -> ' + error);
             }
         }
 

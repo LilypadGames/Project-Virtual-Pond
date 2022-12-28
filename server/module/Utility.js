@@ -14,10 +14,10 @@ export default {
         return array[Math.floor(Math.random() * array.length)];
     },
 
-    //return timestamped string
-    timestampString: function (string) {
+    //return timestamp
+    getTimestamp: function () {
         var timestamp = new Date(Date.now()).toLocaleString();
-        return timestamp + ' | ' + string;
+        return timestamp;
     },
 
     //get todays date

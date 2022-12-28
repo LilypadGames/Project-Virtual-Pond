@@ -6,9 +6,9 @@ import jsonPath from 'jsonpath';
 //config
 import roomData from '../data/roomData.json' assert { type: 'json' };
 
-//imports
+//modules
 import utility from '../module/Utility.js';
-import ConsoleColor from '../module/ConsoleColor.js';
+import log from '../module/Logs.js';
 
 export default {
     chatLogs: {},
@@ -24,12 +24,7 @@ export default {
                         this.chatLogs[room] = [];
 
                         //log
-                        console.log(
-                            ConsoleColor.Cyan,
-                            utility.timestampString(
-                                'Room Chat Log Initialized: ' + room
-                            )
-                        );
+                        log.info('Room Chat Log Initialized: ' + room);
                     }
                 }
             } catch (error) {
@@ -45,10 +40,9 @@ export default {
                         )
                 )
                     return;
-                console.log(
-                    ConsoleColor.Red,
-                    utility.timestampString('Chat Log Init - ' + error)
-                );
+
+                //log
+                log.error('Chat Log Init -> ' + error);
             }
         });
     },

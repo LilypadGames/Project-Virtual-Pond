@@ -8,7 +8,7 @@ import Connections from '../setup/Connections.js';
 
 //modules
 import utility from '../module/Utility.js';
-import ConsoleColor from '../module/ConsoleColor.js';
+import log from '../module/Logs.js';
 
 //config
 import config from '../config/config.json' assert { type: 'json' };
@@ -69,12 +69,9 @@ export default class WebServer {
 
         //start web server
         this.server.listen(process.env.PORT || config.server.port, () => {
-            console.log(
-                ConsoleColor.Blue,
-                utility.timestampString(
-                    'Web Server Initialized> Port: ' +
-                        this.server.address().port
-                )
+            //log
+            log.info(
+                'Web Server Initialized On Port: ' + this.server.address().port
             );
         });
     }

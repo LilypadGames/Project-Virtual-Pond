@@ -9,9 +9,8 @@ const cookieParse = cookieParseFactory();
 import { instrument } from '@socket.io/admin-ui';
 
 //modules
-import utility from '../module/Utility.js';
-import ConsoleColor from '../module/ConsoleColor.js';
 import database from '../module/Database.js';
+import log from '../module/Logs.js';
 
 //config
 import config from '../config/config.json' assert { type: 'json' };
@@ -71,15 +70,12 @@ export default class Authentication {
                 })
                 .catch((error) => {
                     if (error.response) {
-                        //log error
-                        console.log(
-                            ConsoleColor.Red,
-                            utility.timestampString(
-                                'ERROR ' +
-                                    error.response.status +
-                                    ': ' +
-                                    error.response.data
-                            )
+                        //log
+                        log.error(
+                            'Fetching Twitch User Profile -> ' +
+                                error.response.status +
+                                ': ' +
+                                error.response.data
                         );
                     }
                 });
