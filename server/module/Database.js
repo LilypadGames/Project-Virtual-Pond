@@ -1,10 +1,13 @@
 // Database Functions
 
-//get config values
-import config from '../config/config.json' assert { type: 'json' };
-
-//dependency: database
+//imports
 import firebase from 'firebase-admin';
+
+//modules
+import log from '../module/Logs.js';
+
+//config
+import config from '../config/config.json' assert { type: 'json' };
 
 //init database
 firebase.initializeApp({
@@ -16,12 +19,22 @@ const database = firebase.database();
 export default {
     //set value in database
     setValue: function (path, value) {
-        database.ref(path).set(value);
+        try {
+            database.ref(path).set(value);
+        } catch (error) {
+            //log
+            log.error('Database Set Value -> ' + error);
+        }
     },
 
     //update value in database (merges instead of overwriting object for example)
     updateValue: function (path, value) {
-        database.ref(path).update(value);
+        try {
+            database.ref(path).update(value);
+        } catch (error) {
+            //log
+            log.error('Database Update Value -> ' + error);
+        }
     },
 
     //get value in database
@@ -30,12 +43,17 @@ export default {
         var value;
 
         //get value in database
-        await database
-            .ref(path)
-            .orderByKey()
-            .once('value', async (data) => {
-                value = await data.val();
-            });
+        try {
+            await database
+                .ref(path)
+                .orderByKey()
+                .once('value', async (data) => {
+                    value = await data.val();
+                });
+        } catch (error) {
+            //log
+            log.error('Database Get Value -> ' + error);
+        }
 
         //return the found or set value
         return value;
@@ -43,16 +61,26 @@ export default {
 
     removeValue: async function (path) {
         //get value in database
-        await database.ref(path).remove();
+        try {
+            await database.ref(path).remove();
+        } catch (error) {
+            //log
+            log.error('Database Remove Value -> ' + error);
+        }
     },
 
     //check to see if a path in the database exists
     pathExists: async function (path) {
-        return await database
-            .ref(path)
-            .orderByKey()
-            .limitToFirst(1)
-            .once('value')
-            .then((res) => res.exists());
+        try {
+            return await database
+                .ref(path)
+                .orderByKey()
+                .limitToFirst(1)
+                .once('value')
+                .then((res) => res.exists());
+        } catch (error) {
+            //log
+            log.error('Database Path Exists -> ' + error);
+        }
     },
 };

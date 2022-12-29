@@ -4,20 +4,13 @@
 import config from '../config/config.json' assert { type: 'json' };
 
 //imports
+import axios from 'axios';
 import io from 'socket.io-client';
 
 //modules
 import database from '../module/Database.js';
 import twitch from '../module/Twitch.js';
 import log from '../module/Logs.js';
-
-//stream elements donation api
-import StreamElements from 'node-streamelements';
-
-const seInstance = new StreamElements({
-    token: config.streamelements.JWTToken,
-    accountId: config.streamelements.accountId,
-});
 
 export default {
     //initialize websocket events from stream elements
@@ -77,37 +70,32 @@ export default {
     },
 
     updateDonations: async function () {
-        seInstance
-            //get tips from stream elements api
-            .getTips()
-
-            //parse data and save to database
-            .then(async (response) => {
-                //parse through the data to create a compiled donation list by user ID
-                let data = await this.parseDonations(response.docs);
-
-                try {
-                    //save donation list to database
-                    database.setValue('donations', data);
-
-                    //log
-                    log.info('Fetched Donation Data');
-                } catch (error) {
-                    //log
-                    log.error('Saving Donation Data -> ' + error);
+        //get tips from stream elements api
+        let donations = await axios
+            .get(
+                'https://api.streamelements.com/kappa/v2/tips/' +
+                    config.streamelements.accountId,
+                {
+                    params: { limit: '100' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization:
+                            'Bearer ' + config.streamelements.JWTToken,
+                    },
                 }
+            )
+            .then(function (response) {
+                return response.data.docs;
             })
-            .catch((error) => {
+            .catch(function (error) {
                 //log
                 log.error('Fetch Donation Data -> ' + error);
             });
-    },
 
-    parseDonations: async function (donations) {
         //init list of donations
         let donationList = [];
 
-        //loop through all donations
+        //parse donations into usable list
         for (var i = 0; i < donations.length; i++) {
             try {
                 //get donation data only
@@ -148,7 +136,16 @@ export default {
             }
         }
 
-        return donationList;
+        //save donation list to database
+        try {
+            database.setValue('donations', donationList);
+
+            //log
+            log.info('Fetched Donation Data');
+        } catch (error) {
+            //log
+            log.error('Saving Donation Data -> ' + error);
+        }
     },
 
     hasPerks: function (amount) {
