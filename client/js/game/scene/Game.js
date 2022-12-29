@@ -1778,12 +1778,10 @@ class Game extends Phaser.Scene {
         //message
         if (data.message) {
             //show message
-            this.showMessage(data.id, data.message);
-        } else if (this.playerData[data.id].message) {
+            this.showMessage(data.id, data.message, { playSound: false });
+        } else {
             //remove message
-            this.removeMessage(data.id, {
-                messageID: this.playerData[id].message.id,
-            });
+            this.removeMessage(data.id);
         }
     }
 
@@ -2032,7 +2030,7 @@ class Game extends Phaser.Scene {
                             ),
                             endTime: Date.now() + 5000,
                         },
-                        'npc'
+                        { characterType: 'npc' }
                     );
             }
         );
@@ -2074,12 +2072,24 @@ class Game extends Phaser.Scene {
     }
 
     //display player message
-    showMessage(id, messageData, characterType = 'player') {
+    showMessage(
+        id,
+        messageData,
+        data = {
+            characterType: 'player',
+            playSound: true,
+        }
+    ) {
+        //defaults
+        if (data === undefined) data = {};
+        if (data.playSound === undefined) data.playSound = true;
+        if (data.characterType === undefined) data.characterType = 'player';
+
         //remove older messages
         this.removeMessage(id);
 
         //player
-        if (characterType === 'player') {
+        if (data.characterType === 'player') {
             //get character
             let character = this.playerCharacter[id];
 
@@ -2100,7 +2110,7 @@ class Game extends Phaser.Scene {
         }
 
         //npc
-        else if (characterType === 'npc') {
+        else if (data.characterType === 'npc') {
             //get character
             let character = this.interactiveObjects[id];
 
@@ -2170,17 +2180,22 @@ class Game extends Phaser.Scene {
         messageContainer.list[1].setVisible(true);
 
         //play sound
-        let pitch = utility.getRandomInt(-600, 200);
-        this.sfxRibbit.setDetune(pitch).play();
+        if (data.playSound) {
+            let pitch = utility.getRandomInt(-600, 200);
+            this.sfxRibbit.setDetune(pitch).play();
+        }
 
         //schedule NPCs messages for removal
-        if (characterType === 'npc') {
+        if (data.characterType === 'npc') {
             this.time.delayedCall(
                 5000,
                 this.removeMessage,
                 [
                     id,
-                    { messageID: messageData.id, characterType: characterType },
+                    {
+                        messageID: messageData.id,
+                        characterType: data.characterType,
+                    },
                 ],
                 this
             );
@@ -2190,15 +2205,14 @@ class Game extends Phaser.Scene {
     //remove player message
     removeMessage(
         id,
-        options = { messageID: undefined, characterType: 'player' }
+        data = { messageID: undefined, characterType: 'player' }
     ) {
         //defaults
-        if (options === undefined) options = {};
-        if (options.characterType === undefined)
-            options.characterType = 'player';
+        if (data === undefined) data = {};
+        if (data.characterType === undefined) data.characterType = 'player';
 
         //player message
-        if (options.characterType === 'player') {
+        if (data.characterType === 'player') {
             //check that player is still connected
             if (!this.playerData[id]) return;
 
@@ -2210,7 +2224,7 @@ class Game extends Phaser.Scene {
                 var currentID = this.playerData[id].message.id;
         }
         //npc message
-        else if (options.characterType === 'npc') {
+        else if (data.characterType === 'npc') {
             //check that the message exists
             if (!this.npcMessage[id]) return;
 
@@ -2220,12 +2234,9 @@ class Game extends Phaser.Scene {
         }
 
         //message attempting to be removed is still being shown (or if queuedID is not provided, remove it anyway)
-        if (
-            options.messageID === undefined ||
-            options.messageID === currentID
-        ) {
+        if (data.messageID === undefined || data.messageID === currentID) {
             //remove message from player character
-            if (options.characterType === 'player') {
+            if (data.characterType === 'player') {
                 //reset chat data
                 delete this.playerData[id].message;
 
@@ -2238,7 +2249,7 @@ class Game extends Phaser.Scene {
             }
 
             //npc message
-            else if (options.characterType === 'npc') {
+            else if (data.characterType === 'npc') {
                 //reset chat data
                 delete this.npcData[id].message;
 

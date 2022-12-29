@@ -403,6 +403,7 @@ class PlayerData {
             character: player.character,
             isSponsor: player.isSponsor,
             isVIP: player.isVIP,
+            message: player.message,
         };
 
         //if client is requesting
