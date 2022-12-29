@@ -186,7 +186,7 @@ class Client {
     //received player message
     onPlayerMessageRemoved(data) {
         if (currentScene.scene.key == 'Game') {
-            currentScene.removeMessage(data.id, data.messageID);
+            currentScene.removeMessage(data.id, { messageID: data.messageID });
         }
     }
     //received new player character look
@@ -298,10 +298,7 @@ class Client {
             }
 
             //set data
-            utility.getObject(
-                currentScene.playerData,
-                data.playerID
-            ).interactNPC = data.objectID;
+            currentScene.playerData[data.playerID].interactNPC = data.objectID;
         }
     }
 

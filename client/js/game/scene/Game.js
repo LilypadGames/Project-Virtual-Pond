@@ -24,6 +24,7 @@ class Game extends Phaser.Scene {
         this.depthGround = 1;
         this.depthForeground = 100000;
         this.depthShader = 100001;
+        this.depthInfo = 100002;
 
         //audio
         this.defaultMusicSettings = {
@@ -52,17 +53,23 @@ class Game extends Phaser.Scene {
 
         //player variables
         this.playerCharacter = {};
-        this.playerData = [];
+        this.playerNametag = {};
+        this.playerMessage = {};
+        this.playerData = {};
 
         //object variables
-        this.interactiveObjects = [];
-        this.interactiveObjectFunction = [];
-        this.npcData = [];
+        this.interactiveObjects = {};
+        this.interactiveObjectFunction = {};
+        this.npcMessage = {};
+        this.npcData = {};
         this.npcList = {};
 
         //UI
-        this.overlayPadding = 8;
+        this.messagePadding = 12;
         this.nametagFontSize = 14;
+        this.characterOverlayVerticalOffset = (height) => {
+            return height / 2;
+        };
         this.nametagClientConfig = {
             fontFamily: 'Burbin',
             color: utility.hexIntegerToString(ColorScheme.White),
@@ -281,15 +288,13 @@ class Game extends Phaser.Scene {
                     this.interactiveObjects[objectID],
                     () => {
                         //get object player last clicked
-                        let attemptedObjectInteract = utility.getObject(
-                            this.playerData,
-                            playerID
-                        ).attemptedObjectInteract;
+                        let attemptedObjectInteract =
+                            this.playerData[playerID].attemptedObjectInteract;
 
                         //if player is trying to interact with this object
                         if (attemptedObjectInteract === objectID) {
                             //reset attemptedObjectInteract player data
-                            delete utility.getObject(this.playerData, playerID)
+                            delete this.playerData[playerID]
                                 .attemptedObjectInteract;
 
                             //stop player when colliding with interactive object
@@ -366,9 +371,14 @@ class Game extends Phaser.Scene {
 
         //delete data
         this.playerCharacter = {};
-        this.playerData = [];
-        this.interactiveObjects = [];
-        this.npcData = [];
+        this.playerNametag = {};
+        this.playerMessage = {};
+        this.playerData = {};
+        this.interactiveObjects = {};
+        this.interactiveObjectFunction = {};
+        this.npcMessage = {};
+        this.npcData = {};
+        this.npcList = {};
 
         //stop music
         if (this.audioMusic) this.audioMusic.stop();
@@ -1478,8 +1488,11 @@ class Game extends Phaser.Scene {
     // PLAYER/NPC
     //add player character to game at specific coordinates
     addNewPlayer(data) {
+        //init player data
+        if (!this.playerData[data.id]) this.playerData[data.id] = {};
+
         //save player data
-        utility.getObject(this.playerData, data.id).name = data.name;
+        this.playerData[data.id].name = data.name;
 
         //player character
         let playerBody = this.add.sprite(0, 0, 'frog_body').setOrigin(0.5, 1);
@@ -1542,26 +1555,13 @@ class Game extends Phaser.Scene {
             }
         }
 
-        //create player name
-        var playerName = this.add
-            .text(0, spriteContainer.height, data.name, nametagConfig)
-            .setFontSize(this.nametagFontSize)
-            .setOrigin(0.5, 1);
-
-        //create player container
+        //create player character container
         this.playerCharacter[data.id] = this.add
             .container(data.x, data.y)
             .setSize(spriteContainer.width, spriteContainer.height);
 
-        //create player sprite container
-        this.playerCharacter[data.id].add(
-            this.add
-                .container(0, 0)
-                .setSize(spriteContainer.width, spriteContainer.height)
-        );
-
         //add player sprites to player sprite container
-        this.playerCharacter[data.id].list[0].add([
+        this.playerCharacter[data.id].add([
             playerBody,
             playerBelly,
             playerEyes,
@@ -1569,17 +1569,26 @@ class Game extends Phaser.Scene {
 
         //add accessory to player container
         if (data.character.accessory)
-            this.playerCharacter[data.id].list[0].add(playerAccessory);
+            this.playerCharacter[data.id].add(playerAccessory);
 
-        //create player overlay container
-        this.playerCharacter[data.id].add(
-            this.add
-                .container(0, (spriteContainer.height / 2) * -1)
-                .setSize(spriteContainer.width, spriteContainer.height)
-        );
+        //create player nametag container
+        this.playerNametag[data.id] = this.add
+            .container(data.x, data.y)
+            .setSize(spriteContainer.width, spriteContainer.height)
+            .setDepth(this.depthInfo);
 
         //add player name to player overlay container
-        this.playerCharacter[data.id].list[1].add([playerName]);
+        this.playerNametag[data.id].add([
+            this.add
+                .text(
+                    0,
+                    this.characterOverlayVerticalOffset(spriteContainer.height),
+                    data.name,
+                    nametagConfig
+                )
+                .setFontSize(this.nametagFontSize)
+                .setOrigin(0.5, 1),
+        ]);
 
         //enable physics on player character
         this.physics.world.enable(this.playerCharacter[data.id]);
@@ -1588,17 +1597,20 @@ class Game extends Phaser.Scene {
         //set depth
         this.playerCharacter[data.id].setDepth(data.y);
 
-        // [IMPORTANT] - playerCharacter is an array of nested Phaser3 containers
+        // [IMPORTANT] - There are 3 individual object lists that represent player characters
         //
-        // playerCharacter[<Player ID>] = Player Container
+        // playerCharacter[<Player ID>] = Player Character Container
+        // playerCharacter[<Player ID>].list[0] = frog_body Sprite
+        // playerCharacter[<Player ID>].list[1] = frog_belly Sprite
+        // playerCharacter[<Player ID>].list[2] = frog_eyes Sprite
         //
-        // playerCharacter[<Player ID>].list[0] = Player Sprite Container
-        // playerCharacter[<Player ID>].list[0].list[0] = frog_body Sprite
-        // playerCharacter[<Player ID>].list[0].list[1] = frog_belly Sprite
-        // playerCharacter[<Player ID>].list[0].list[2] = frog_eyes Sprite
+        // playerNametag[<Player ID>] = Player Nametag Container
+        // playerNametag[<Player ID>].list[0] = player name Text
         //
-        // playerCharacter[<Player ID>].list[1] = Player Overlay Container
-        // playerCharacter[<Player ID>].list[1].list[0] = playerName Text
+        // playerMessage[<Player ID>] = Player Message Container
+        // playerMessage[<Player ID>].list[0] = player message Background
+        // playerMessage[<Player ID>].list[1] = player message Text
+        //
         //
         // This was done so that everything in the Player Sprite Container can be altered/transformed without altering stuff
         // that should remain untouched like the Player Overlay Container's player name. However, they all stay together when
@@ -1613,27 +1625,38 @@ class Game extends Phaser.Scene {
         //update player direction
         this.updatePlayerDirection(id, x, y);
 
-        //get player's character
-        var player = this.playerCharacter[id];
+        //get player
+        let playerCharacter = this.playerCharacter[id];
+        let playerNametag = this.playerNametag[id];
+        let playerMessage = this.playerMessage[id];
 
         //cancel if player not found
-        if (!player) {
-            return;
+        if (!playerCharacter || !playerNametag) {
+            throw new Error('Player Character or Nametag not found.');
         }
+
+        //determine targets to move
+        let targets = [playerCharacter, playerNametag];
+        if (playerMessage) targets.push(playerMessage);
 
         //move player (and store it for alteration later)
         try {
             //stop current movement
-            if (utility.getObject(this.playerData, id).movement)
-                utility.getObject(this.playerData, id).movement.stop();
+            if (this.playerData[id].movement)
+                this.playerData[id].movement.stop();
 
             //new movement
-            utility.getObject(this.playerData, id).movement = this.add.tween({
-                targets: player,
+            this.playerData[id].movement = this.add.tween({
+                targets: targets,
                 x: x,
                 y: y,
                 duration:
-                    Phaser.Math.Distance.Between(player.x, player.y, x, y) * 4,
+                    Phaser.Math.Distance.Between(
+                        playerCharacter.x,
+                        playerCharacter.y,
+                        x,
+                        y
+                    ) * 4,
             });
         } catch (error) {
             console.log('\x1b[31m%s\x1b[0m', 'Game.js movePlayer - ' + error);
@@ -1648,8 +1671,8 @@ class Game extends Phaser.Scene {
     ) {
         //stop movement
         try {
-            if (utility.getObject(this.playerData, id).movement)
-                utility.getObject(this.playerData, id).movement.stop();
+            if (this.playerData[id].movement)
+                this.playerData[id].movement.stop();
         } catch (error) {
             console.log('\x1b[31m%s\x1b[0m', 'Game.js haltPlayer - ' + error);
             return;
@@ -1666,12 +1689,14 @@ class Game extends Phaser.Scene {
 
     //change a players movement location
     changePlayerMovement(id, newX, newY, newDirection) {
-        //get player's character
-        var player = this.playerCharacter[id];
+        //get player
+        let playerCharacter = this.playerCharacter[id];
+        let playerNametag = this.playerNametag[id];
+        let playerMessage = this.playerMessage[id];
 
         //cancel if player not found
-        if (!player) {
-            return;
+        if (!playerCharacter || !playerNametag) {
+            throw new Error('Player Character or Nametag not found.');
         }
 
         //get duration of movement
@@ -1679,19 +1704,20 @@ class Game extends Phaser.Scene {
             Phaser.Math.Distance.Between(player.x, player.y, newX, newY) * 5;
 
         //change x
-        utility
-            .getObject(this.playerData, id)
-            .movement.updateTo('x', newX, true);
+        playerCharacter.movement.updateTo('x', newX, true);
+        playerNametag.movement.updateTo('x', newX, true);
+        if (playerMessage) playerMessage.movement.updateTo('x', newX, true);
 
         //change y
-        utility
-            .getObject(this.playerData, id)
-            .movement.updateTo('y', newY, true);
+        playerCharacter.movement.updateTo('y', newY, true);
+        playerNametag.movement.updateTo('y', newY, true);
+        if (playerMessage) playerMessage.movement.updateTo('y', newY, true);
 
         //change duration
-        utility
-            .getObject(this.playerData, id)
-            .movement.updateTo('duration', newDuration, true);
+        playerCharacter.movement.updateTo('duration', newDuration, true);
+        playerNametag.movement.updateTo('duration', newDuration, true);
+        if (playerMessage)
+            playerMessage.movement.updateTo('duration', newDuration, true);
 
         //change direction
         if (newDirection) {
@@ -1701,17 +1727,23 @@ class Game extends Phaser.Scene {
 
     //place a player at a specific coordinate
     updatePlayer(data) {
-        //get player container
-        var player = this.playerCharacter[data.id];
+        //get player
+        let playerCharacter = this.playerCharacter[data.id];
+        let playerNametag = this.playerNametag[data.id];
+        let playerMessage = this.playerMessage[data.id];
 
         //place x
         if (data.x) {
-            player.x = data.x;
+            playerCharacter.x = data.x;
+            playerNametag.x = data.x;
+            if (playerMessage) playerMessage.x = data.x;
         }
 
         //place y
         if (data.y) {
-            player.y = data.y;
+            playerCharacter.y = data.y;
+            playerNametag.y = data.y;
+            if (playerMessage) playerMessage.y = data.y;
         }
 
         //direction
@@ -1722,7 +1754,7 @@ class Game extends Phaser.Scene {
             //color
             if (data.character.color) {
                 //get player body sprite
-                var playerBody = this.playerCharacter[data.id].list[0].list[0];
+                var playerBody = playerCharacter.list[0];
 
                 //update color
                 playerBody.setTexture(
@@ -1736,7 +1768,7 @@ class Game extends Phaser.Scene {
             //eye type
             if (data.character.eye_type) {
                 //get player eyes sprite
-                var playerEyes = this.playerCharacter[data.id].list[0].list[2];
+                var playerEyes = playerCharacter.list[2];
 
                 //update eye type
                 playerEyes.setTexture('frog_eyes_' + data.character.eye_type);
@@ -1747,12 +1779,11 @@ class Game extends Phaser.Scene {
         if (data.message) {
             //show message
             this.showMessage(data.id, data.message);
-        } else if (utility.getObject(this.playerData, data.id).message) {
+        } else if (this.playerData[data.id].message) {
             //remove message
-            this.removeMessage(
-                data.id,
-                utility.getObject(this.playerData, data.id).message.id
-            );
+            this.removeMessage(data.id, {
+                messageID: this.playerData[id].message.id,
+            });
         }
     }
 
@@ -1790,15 +1821,15 @@ class Game extends Phaser.Scene {
     getPlayerDirection(id) {
         //get player sprite container
         if (!this.playerCharacter[id]) return;
-        var playerSprites = this.playerCharacter[id].list[0];
+        var playerCharacter = this.playerCharacter[id];
 
         //player character is facing right
-        if (playerSprites.scaleX > 0) {
+        if (playerCharacter.scaleX > 0) {
             return 'right';
         }
 
         //player character is facing left
-        else if (playerSprites.scaleX < 0) {
+        else if (playerCharacter.scaleX < 0) {
             return 'left';
         }
     }
@@ -1806,22 +1837,19 @@ class Game extends Phaser.Scene {
     //update a players look direction
     updatePlayerDirection(id, newX, newY) {
         //get player container
-        var player = this.playerCharacter[id];
+        var playerCharacter = this.playerCharacter[id];
 
         //cancel if player not found
-        if (!player) {
+        if (!playerCharacter) {
             return;
         }
-
-        //get player sprite container
-        var playerSprites = player.list[0];
 
         //get players current direction
         var currentDirection = this.getPlayerDirection(id);
 
         //get players current location
-        var currentX = player.x;
-        var currentY = player.y;
+        var currentX = playerCharacter.x;
+        var currentY = playerCharacter.y;
 
         //init newDirection
         var newDirection;
@@ -1850,23 +1878,23 @@ class Game extends Phaser.Scene {
             (newDirection === 'right' && currentDirection === 'left') ||
             (newDirection === 'left' && currentDirection === 'right')
         ) {
-            playerSprites.scaleX *= -1;
+            playerCharacter.scaleX *= -1;
         }
     }
 
     //set a players look direction
     setPlayerDirection(id, direction) {
         //get player sprite container
-        var playerSprites = this.playerCharacter[id].list[0];
+        var playerCharacter = this.playerCharacter[id];
 
         //left
-        if (direction == 'left' && playerSprites.scaleX > 0) {
-            playerSprites.scaleX *= -1;
+        if (direction == 'left' && playerCharacter.scaleX > 0) {
+            playerCharacter.scaleX *= -1;
         }
 
         //right
-        else if (direction == 'right' && playerSprites.scaleX < 0) {
-            playerSprites.scaleX *= -1;
+        else if (direction == 'right' && playerCharacter.scaleX < 0) {
+            playerCharacter.scaleX *= -1;
         }
     }
 
@@ -1902,10 +1930,7 @@ class Game extends Phaser.Scene {
                 // }
 
                 //set player as attempting to interact with this object
-                utility.getObject(
-                    this.playerData,
-                    clientID
-                ).attemptedObjectInteract = id;
+                this.playerData[clientID].attemptedObjectInteract = id;
 
                 //tell server that the player is attempting to interact with an object
                 client.playerInteractingWithObject(id);
@@ -1960,7 +1985,7 @@ class Game extends Phaser.Scene {
                 );
 
                 //add npc sprites to npc sprite container
-                this.interactiveObjects[id].list[0].add([npcSprite]);
+                this.interactiveObjects[id].add([npcSprite]);
 
                 //create npc overlay container
                 this.interactiveObjects[id].add(
@@ -1970,11 +1995,11 @@ class Game extends Phaser.Scene {
                 );
 
                 //add npc name to npc overlay container
-                this.interactiveObjects[id].list[1].add([npcName]);
+                this.interactiveObjects[id].add([npcName]);
 
                 //set direction of NPC
                 if (direction === 'left') {
-                    this.interactiveObjects[id].list[0].list[0].scaleX *= -1;
+                    this.interactiveObjects[id].list[0].scaleX *= -1;
                 }
 
                 //set depth
@@ -2020,18 +2045,24 @@ class Game extends Phaser.Scene {
             this.playerCharacter[id].destroy();
             delete this.playerCharacter[id];
         }
+        if (this.playerNametag[id]) {
+            this.playerNametag.destroy();
+            delete this.playerNametag[id];
+        }
+        if (this.playerMessage[id]) {
+            this.playerMessage.destroy();
+            delete this.playerMessage[id];
+        }
 
         //remove player data
-        this.playerData = utility.removeObject(this.playerData, id);
+        delete this.playerData[id];
     }
 
     // MESSAGES
     //store message in chat log
     logMessage(id, message) {
         //store message in chat log
-        this.chatLog.push(
-            utility.getObject(this.playerData, id).name + ': ' + message
-        );
+        this.chatLog.push(this.playerData[id].name + ': ' + message);
 
         //delete older entries if over max
         if (this.chatLog.length > 30) {
@@ -2044,82 +2075,99 @@ class Game extends Phaser.Scene {
 
     //display player message
     showMessage(id, messageData, characterType = 'player') {
-        //player message
+        //remove older messages
+        this.removeMessage(id);
+
+        //player
         if (characterType === 'player') {
-            //get player overlay container
-            var overlayContainer = this.playerCharacter[id].list[1];
+            //get character
+            let character = this.playerCharacter[id];
 
-            //get player sprite container
-            var spriteContainer = this.playerCharacter[id].list[0];
+            //get character container
+            var characterContainer = this.playerCharacter[id];
 
-            //store message data
-            utility.getObject(this.playerData, id).message = messageData;
+            //create message container
+            this.playerMessage[id] = this.add
+                .container(character.x, character.y)
+                .setSize(characterContainer.width, characterContainer.height)
+                .setDepth(this.depthInfo);
+
+            //get message container
+            var messageContainer = this.playerMessage[id];
+
+            //set message data
+            this.playerData[id].message = messageData;
         }
 
-        //npc message
+        //npc
         else if (characterType === 'npc') {
-            //get npc overlay container
-            var overlayContainer = this.interactiveObjects[id].list[1];
+            //get character
+            let character = this.interactiveObjects[id];
 
-            //get player sprite container
-            var spriteContainer = this.interactiveObjects[id].list[0];
+            //get character container
+            var characterContainer = this.interactiveObjects[id];
 
-            //store message data
-            utility.getObject(this.npcData, id).message = messageData;
+            //create message container
+            this.npcMessage[id] = this.add
+                .container(character.x, character.y)
+                .setSize(characterContainer.width, characterContainer.height)
+                .setDepth(this.depthInfo);
+
+            //get message container
+            var messageContainer = this.npcMessage[id];
+
+            //set message data
+            this.npcData[id].message = messageData;
         }
 
-        //check if message contains an emote
-        // if (emoteData.inclu)
+        //determine message position
+        let messagePosition = {
+            x: 0,
+            y:
+                (characterContainer.height +
+                    this.characterOverlayVerticalOffset(
+                        characterContainer.height
+                    ) +
+                    this.messagePadding) *
+                -1,
+        };
 
-        //format message
+        //create message text
         var messageFormatted = this.add
-            .text(0, 0, messageData.text, this.messageConfig)
+            .text(
+                messagePosition['x'],
+                messagePosition['y'],
+                messageData.text,
+                this.messageConfig
+            )
             .setFontSize(this.messageFontSize)
             .setOrigin(0.5, 0);
-
-        //remove older messages
-        if (overlayContainer.list[1]) {
-            overlayContainer.list[1].setVisible(false);
-        }
-        if (overlayContainer.list[2]) {
-            overlayContainer.list[2].destroy();
-        }
-
-        //calculate size of message
-        var messageWidth = (messageFormatted.width / 2) * -1;
-        var messageHeight =
-            messageFormatted.height * -1 -
-            (spriteContainer.height / 2 + this.overlayPadding);
-
-        //reposition text
-        messageFormatted.setY(messageHeight);
 
         //create background for message
         var backgroundFormatted = this.add
             .graphics()
             .fillStyle(ColorScheme.White, 0.8)
             .fillRoundedRect(
-                messageWidth,
-                messageHeight,
+                (messageFormatted.width / 2) * -1,
+                messagePosition['y'],
                 messageFormatted.width,
                 messageFormatted.height,
                 8
             )
             .lineStyle(1, ColorScheme.LightGray, 1)
             .strokeRoundedRect(
-                messageWidth,
-                messageHeight,
+                (messageFormatted.width / 2) * -1,
+                messagePosition['y'],
                 messageFormatted.width,
                 messageFormatted.height,
                 8
             );
 
         //add message to player overlay container
-        overlayContainer.addAt([backgroundFormatted], 1);
-        overlayContainer.addAt([messageFormatted], 2);
+        messageContainer.add([backgroundFormatted, messageFormatted]);
 
         //make sure message is visible
-        overlayContainer.list[1].setVisible(true);
+        messageContainer.list[1].setVisible(true);
 
         //play sound
         let pitch = utility.getRandomInt(-600, 200);
@@ -2130,54 +2178,80 @@ class Game extends Phaser.Scene {
             this.time.delayedCall(
                 5000,
                 this.removeMessage,
-                [id, messageData.id, characterType],
+                [
+                    id,
+                    { messageID: messageData.id, characterType: characterType },
+                ],
                 this
             );
         }
     }
 
     //remove player message
-    removeMessage(id, queuedID, characterType = 'player') {
-        //init message ID
-        var currentID;
+    removeMessage(
+        id,
+        options = { messageID: undefined, characterType: 'player' }
+    ) {
+        //defaults
+        if (options === undefined) options = {};
+        if (options.characterType === undefined)
+            options.characterType = 'player';
 
         //player message
-        if (characterType === 'player') {
-            //check if player is still connected to the current scene
-            if (!this.playerCharacter[id]) return;
+        if (options.characterType === 'player') {
+            //check that player is still connected
+            if (!this.playerData[id]) return;
 
-            //get player overlay container
-            var overlayContainer = this.playerCharacter[id].list[1];
-
-            //check if the message still exists
-            if (!utility.getObject(this.playerData, id).message) return;
+            //check that the message exists
+            if (!this.playerMessage[id]) return;
 
             //get message id
-            currentID = utility.getObject(this.playerData, id).message.id;
+            if (this.playerData[id].message)
+                var currentID = this.playerData[id].message.id;
         }
-
         //npc message
-        else if (characterType === 'npc') {
-            //get npc overlay container
-            var overlayContainer = this.interactiveObjects[id].list[1];
+        else if (options.characterType === 'npc') {
+            //check that the message exists
+            if (!this.npcMessage[id]) return;
 
             //get message id
-            currentID = utility.getObject(this.npcData, id).message.id;
+            if (this.npcData[id].message)
+                var currentID = this.npcData[id].message.id;
         }
 
-        //check if the message queued for removal is the same as the characters current message shown
-        if (queuedID === currentID) {
-            //reset chat data
-            if (characterType === 'player') {
-                delete utility.getObject(this.playerData, id).message;
-            } else if (characterType === 'npc') {
-                delete utility.getObject(this.npcData, id).message;
+        //message attempting to be removed is still being shown (or if queuedID is not provided, remove it anyway)
+        if (
+            options.messageID === undefined ||
+            options.messageID === currentID
+        ) {
+            //remove message from player character
+            if (options.characterType === 'player') {
+                //reset chat data
+                delete this.playerData[id].message;
+
+                //destroy message
+                this.playerMessage[id].list[1].destroy();
+                this.playerMessage[id].list[0].destroy();
+
+                //delete message
+                delete this.playerMessage[id];
             }
 
-            //remove message from player character
-            overlayContainer.list[1].setVisible(false);
-            overlayContainer.list[2].destroy();
-        } else {
+            //npc message
+            else if (options.characterType === 'npc') {
+                //reset chat data
+                delete this.npcData[id].message;
+
+                //destroy message
+                this.npcMessage[id].list[1].destroy();
+                this.npcMessage[id].list[0].destroy();
+
+                //delete message
+                delete this.npcMessage[id];
+            }
+        }
+        //player/npc has sent a new message
+        else {
             return;
         }
     }

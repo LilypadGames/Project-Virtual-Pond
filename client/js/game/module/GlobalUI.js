@@ -6,8 +6,8 @@ class GlobalUI {
         currentScene = scene;
 
         //depth
-        scene.depthUI = 100002;
-        scene.depthOverlay = 100001;
+        scene.depthOverlay = 999997;
+        scene.depthUI = 999998;
         scene.depthLoadingScreen = 999999;
         scene.depthDialog = 1000000;
         scene.depthDebug = 1000001;
@@ -422,8 +422,11 @@ class GlobalUI {
     //update debug info
     updateDebugInfo(scene) {
         this.debugInfo.setText(
-            'x: ' + scene.input.activePointer.x + '\n' +
-            'y: ' + scene.input.activePointer.y
+            'x: ' +
+                scene.input.activePointer.x +
+                '\n' +
+                'y: ' +
+                scene.input.activePointer.y
         );
     }
 }
