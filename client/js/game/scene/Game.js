@@ -266,7 +266,7 @@ class Game extends Phaser.Scene {
     update() {
         //update global UI
         globalUI.update(this);
-        
+
         //handle all players
         Object.keys(this.playerCharacter).forEach((playerID) => {
             //handle collisions between this player and all interactive objects
@@ -1508,11 +1508,16 @@ class Game extends Phaser.Scene {
             //default name tag config for the client
             nametagConfig = this.nametagClientConfig;
 
-            //special sponsor player name color
-            if (data.isSponsor == true) {
-                nametagConfig.color = data.character.nameColor
-                    ? utility.hexIntegerToString(data.character.nameColor)
-                    : utility.hexIntegerToString(ColorScheme.Gold);
+            //special player name colors
+            if (
+                data.isSponsor == true ||
+                data.isVIP == true ||
+                data.isAdmin == true ||
+                data.isMod == true
+            ) {
+                nametagConfig.color = utility.hexIntegerToString(
+                    data.character.nameColor
+                );
             }
         }
         //other player name tags
@@ -1520,11 +1525,16 @@ class Game extends Phaser.Scene {
             //default name tag config for other players
             nametagConfig = this.nametagConfig;
 
-            //special sponsor player name color
-            if (data.isSponsor == true) {
-                nametagConfig.stroke = data.character.nameColor
-                    ? utility.hexIntegerToString(data.character.nameColor)
-                    : utility.hexIntegerToString(ColorScheme.Gold);
+            //special player name colors
+            if (
+                data.isSponsor == true ||
+                data.isVIP == true ||
+                data.isAdmin == true ||
+                data.isMod == true
+            ) {
+                nametagConfig.color = utility.hexIntegerToString(
+                    data.character.nameColor
+                );
                 nametagConfig.strokeThickness = 6;
             } else {
                 nametagConfig.stroke = null;

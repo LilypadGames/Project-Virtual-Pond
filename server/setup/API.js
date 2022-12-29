@@ -73,21 +73,11 @@ export default class API {
                 ))
                     ? 1
                     : 0;
-                if (
-                    (await database.getValue(
-                        'permissions/admin/' + playerID
-                    )) ||
-                    (await database.getValue('permissions/mod/' + playerID)) ||
-                    (await database.getValue('permissions/vip/' + playerID))
-                ) {
-                    response['isSponsor'] = 1;
-                } else {
-                    response['isSponsor'] = (await database.getValue(
-                        'donations/' + playerID + '/donatorPerks'
-                    ))
-                        ? 1
-                        : 0;
-                }
+                response['isSponsor'] = (await database.getValue(
+                    'donations/' + playerID + '/donatorPerks'
+                ))
+                    ? 1
+                    : 0;
             }
 
             //player does not exist

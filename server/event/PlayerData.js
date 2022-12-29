@@ -2,6 +2,7 @@
 
 //config
 import config from '../config/config.json' assert { type: 'json' };
+import rankData from '../data/rankData.json' assert { type: 'json' };
 
 //imports
 import utility from '../module/Utility.js';
@@ -213,31 +214,26 @@ class PlayerData {
             ))
                 ? 1
                 : 0,
-        };
-
-        //sponsor
-        if (playerData.isAdmin || playerData.isMod || playerData.isVIP) {
-            playerData.isSponsor = 1;
-        } else {
-            playerData.isSponsor = (await database.getValue(
+            isSponsor: (await database.getValue(
                 'donations/' +
                     this.socket.request.user.data[0].id +
                     '/donatorPerks'
             ))
                 ? 1
-                : 0;
-        }
+                : 0,
+        };
 
-        //default name color for sponsors is gold (#ffd700 / 16766720)
-        if (
-            playerData.isSponsor &&
-            !(await database.getValue(
-                'users/' +
-                    this.socket.request.user.data[0].id +
-                    '/character/nameColor'
-            ))
-        ) {
-            playerData.character.nameColor = utility.hex.toDecimal('ffd700');
+        //vip name color
+        if (playerData.isVIP) {
+            playerData.character.nameColor = utility.hex.toDecimal(
+                rankData.vip.nametag.color
+            );
+        }
+        //sponsor name color
+        else if (playerData.isSponsor) {
+            playerData.character.nameColor = utility.hex.toDecimal(
+                rankData.sponsor.nametag.color
+            );
         }
 
         //first login stat
@@ -406,6 +402,7 @@ class PlayerData {
             y: player.y,
             character: player.character,
             isSponsor: player.isSponsor,
+            isVIP: player.isVIP,
         };
 
         //if client is requesting

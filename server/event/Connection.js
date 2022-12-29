@@ -80,8 +80,13 @@ class Connection {
                 if (
                     serverMetrics.getPlayerCount() >= config.server.playerLimit
                 ) {
-                    //if player is not a sponsor, then kick them
-                    if (!this.socket.player.isSponsor) {
+                    //if player is not a sponsor, admin, mod, or vip, then kick them
+                    if (
+                        !this.socket.player.isSponsor ||
+                        !this.socket.player.isVIP ||
+                        !this.socket.player.isAdmin ||
+                        !this.socket.player.isMod
+                    ) {
                         await moderation.kickSocket(
                             this.socket,
                             'Server is Currently Full. Please Try Again Later.'
