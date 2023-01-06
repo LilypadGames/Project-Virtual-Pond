@@ -1,5 +1,6 @@
 #vscode
 .vscode
+.hintrc
 
 #node files
 node_modules

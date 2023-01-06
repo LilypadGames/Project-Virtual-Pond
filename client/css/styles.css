@@ -4,21 +4,6 @@
   src: url('../assets/site/font/burbin_casual_nc.woff2');
 }
 
-/* Global */
-html, body {
-  height: 100%;
-}
-
-/* Cancel Scrolling, Determine Font, and Create Background */
-body {
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
-  font-family:Burbin;
-  color: #FFFFFF;
-  overflow: hidden;
-}
-
 /* Improve Rendering Across Different Browsers */
 html, body, #game-container {
   image-rendering: optimizeSpeed;              /* Older versions of FF */
@@ -28,6 +13,25 @@ html, body, #game-container {
   image-rendering: crisp-edges;                /* Possible future browsers. */
   -ms-interpolation-mode: nearest-neighbor;    /* IE (non standard naming) */
   image-rendering: pixelated;                  /* Chrome 41 */
+}
+
+/* Cancel Scrolling, Determine Font, and Create Background */
+body {
+  /* Visual */
+  background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
+  font-family: Burbin;
+  color: #FFFFFF;
+
+  /* No Scrolling */
+  overflow: hidden;
+
+  /* Alignment */
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  display: flex;
+  justify-content: center;
 }
 
 /* Game Style */

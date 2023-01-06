@@ -44,6 +44,24 @@ export default class WebServer {
                     req.session.passport.user) ||
                 config.server.bypassAuth
             ) {
+                res.sendFile('main.html', { root: htmlPath });
+            }
+
+            //request authentication
+            else {
+                res.sendFile('auth.html', { root: htmlPath });
+            }
+        });
+
+        //full screen game
+        this.app.get('/game', function (req, res) {
+            //successfully authenticated
+            if (
+                (req.session &&
+                    req.session.passport &&
+                    req.session.passport.user) ||
+                config.server.bypassAuth
+            ) {
                 res.sendFile('game.html', { root: htmlPath });
             }
 
