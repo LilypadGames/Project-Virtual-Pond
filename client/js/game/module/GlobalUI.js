@@ -52,8 +52,12 @@ class GlobalUI {
 
         //debug
         scene.input.keyboard.on(
-            'keydown-' + 'SHIFT',
-            () => {
+            'keyup',
+            (event) => {
+                //left shift key only
+                if (event.code !== 'ShiftLeft') return;
+
+                //enable/disable debug mode if the current scene is the game
                 if (scene.scene.key === 'Game') {
                     if (!scene.chatBox.isFocused) {
                         this.toggleDebugMode(scene);
@@ -61,6 +65,9 @@ class GlobalUI {
                 } else {
                     this.toggleDebugMode(scene);
                 }
+
+                //stops an issue where any button becomes the left shift key after... for some reason
+                event.stopPropagation();
             },
             scene
         );
