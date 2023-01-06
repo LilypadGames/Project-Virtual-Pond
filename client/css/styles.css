@@ -34,6 +34,10 @@ body {
   justify-content: center;
 }
 
+#game-container {
+  height: 50%;
+}
+
 /* Game Style */
 #game-container > canvas {
   border-radius: 8px;

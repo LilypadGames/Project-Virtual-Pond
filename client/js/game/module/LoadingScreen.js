@@ -56,8 +56,8 @@ class LoadingScreen {
             .rectangle(
                 scene.sys.game.canvas.width / 2,
                 scene.sys.game.canvas.height / 2,
-                gameWidth,
-                gameHeight,
+                DEFAULT_WIDTH,
+                DEFAULT_HEIGHT,
                 ColorScheme.Blue
             )
             .setDepth(scene.depthLoadingScreen);

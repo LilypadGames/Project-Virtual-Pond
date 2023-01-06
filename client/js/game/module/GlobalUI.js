@@ -5,6 +5,10 @@ class GlobalUI {
         //save current scene for the client class
         currentScene = scene;
 
+        // //scale keeping aspect ratio
+        // scene.scale.displaySize.setAspectRatio(DEFAULT_WIDTH / DEFAULT_HEIGHT);
+        // scene.scale.refresh();
+
         //depth
         scene.depthOverlay = 999997;
         scene.depthUI = 999998;

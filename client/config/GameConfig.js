@@ -268,8 +268,8 @@ class GameConfig {
                     .in(game);
                 event.texture
                     .add(
-                        'Forest_Tree_3_Winter',
-                        'event/winter/room/forest/layers/Tree_3.png'
+                        'Forest_Tree_Winter',
+                        'event/winter/room/forest/layers/Tree.png'
                     )
                     .in(game);
 
@@ -409,7 +409,7 @@ class GameConfig {
             }
             event.layer.add('Theatre_Sign', 600).in(game);
             if (currentEvents.includes('Winter')) {
-                event.layer.add('Forest_Tree_3_Winter', 610).in(game);
+                event.layer.add('Forest_Tree_Winter', 610).in(game);
             } else {
                 event.layer.add('Forest_Tree_3', 610).in(game);
             }
