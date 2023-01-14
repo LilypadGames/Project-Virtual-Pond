@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <b>A Social Virtual World for Twitch Frogs to Hang and Chat.</b>
+    <b>🐸 A Social Virtual World for Twitch Frogs to Hang and Chat.</b>
 </p>
 
 <p align="center">
