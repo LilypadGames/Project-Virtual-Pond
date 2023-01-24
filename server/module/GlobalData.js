@@ -21,8 +21,10 @@ export default {
         await globalData.push('/gameVersion', config.version);
 
         //update stream status
-        let streamLive = await twitch.isStreamLive('pokelawls');
-        await globalData.push('/streamLive', streamLive);
+        if (config.server.online) {
+            let streamLive = await twitch.isStreamLive('pokelawls');
+            await globalData.push('/streamLive', streamLive);
+        }
 
         //init paths
         try {

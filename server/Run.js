@@ -58,12 +58,14 @@ chatLogs.init(websockets.io);
 
 // init emotes
 import emotes from '../server/module/Emotes.js';
-try {
-    (async () => {
-        await emotes.init('pokelawls');
-    })();
-} catch (error) {
-    log.error(error);
+if (config.server.online) {
+    try {
+        (async () => {
+            await emotes.init('pokelawls');
+        })();
+    } catch (error) {
+        log.error(error);
+    }
 }
 
 //init bad words filter
@@ -80,11 +82,13 @@ wordFilter.init();
 
 //init donations
 import streamElements from '../server/module/StreamElements.js';
-try {
-    // streamElements.init();
-    streamElements.updateDonations();
-} catch (error) {
-    log.error(error);
+if (config.server.online) {
+    try {
+        // streamElements.init();
+        streamElements.updateDonations();
+    } catch (error) {
+        log.error(error);
+    }
 }
 
 //init client connection event
