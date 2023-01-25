@@ -1577,7 +1577,7 @@ class Game extends Phaser.Scene {
             .setSize(spriteContainer.width, spriteContainer.height)
             .setDepth(this.depthInfo);
 
-        //add player name to player overlay container
+        //add player name to player nametag container
         this.playerNametag[data.id].add([
             this.add
                 .text(
@@ -1593,6 +1593,10 @@ class Game extends Phaser.Scene {
         //enable physics on player character
         this.physics.world.enable(this.playerCharacter[data.id]);
         this.playerCharacter[data.id].body.setCollideWorldBounds(true);
+
+        //enable physics on player nametag container
+        this.physics.world.enable(this.playerNametag[data.id]);
+        this.playerNametag[data.id].body.setCollideWorldBounds(true);
 
         //set depth
         this.playerCharacter[data.id].setDepth(data.y);
@@ -1817,17 +1821,19 @@ class Game extends Phaser.Scene {
 
     //get players current direction
     getPlayerDirection(id) {
-        //get player sprite container
+        //cancel if no player found with this ID
         if (!this.playerCharacter[id]) return;
+
+        //get player sprite container
         var playerCharacter = this.playerCharacter[id];
 
         //player character is facing right
-        if (playerCharacter.scaleX > 0) {
+        if (playerCharacter.list[0].scaleX > 0) {
             return 'right';
         }
 
         //player character is facing left
-        else if (playerCharacter.scaleX < 0) {
+        else if (playerCharacter.list[0].scaleX < 0) {
             return 'left';
         }
     }
@@ -1838,9 +1844,7 @@ class Game extends Phaser.Scene {
         var playerCharacter = this.playerCharacter[id];
 
         //cancel if player not found
-        if (!playerCharacter) {
-            return;
-        }
+        if (!playerCharacter) return;
 
         //get players current direction
         var currentDirection = this.getPlayerDirection(id);
@@ -1876,7 +1880,9 @@ class Game extends Phaser.Scene {
             (newDirection === 'right' && currentDirection === 'left') ||
             (newDirection === 'left' && currentDirection === 'right')
         ) {
-            playerCharacter.scaleX *= -1;
+            playerCharacter.list[0].scaleX *= -1;
+            playerCharacter.list[1].scaleX *= -1;
+            playerCharacter.list[2].scaleX *= -1;
         }
     }
 
@@ -1885,14 +1891,14 @@ class Game extends Phaser.Scene {
         //get player sprite container
         var playerCharacter = this.playerCharacter[id];
 
-        //left
-        if (direction == 'left' && playerCharacter.scaleX > 0) {
-            playerCharacter.scaleX *= -1;
-        }
-
-        //right
-        else if (direction == 'right' && playerCharacter.scaleX < 0) {
-            playerCharacter.scaleX *= -1;
+        //if specified direction is different from current direction, change the players direction
+        if (
+            (direction == 'left' && playerCharacter.list[0].scaleX > 0) || 
+            (direction == 'right' && playerCharacter.list[0].scaleX < 0)
+        ) {
+            playerCharacter.list[0].scaleX *= -1;
+            playerCharacter.list[1].scaleX *= -1;
+            playerCharacter.list[2].scaleX *= -1;
         }
     }
 
