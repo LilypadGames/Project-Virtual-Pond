@@ -2108,6 +2108,10 @@ class Game extends Phaser.Scene {
                 .setSize(characterContainer.width, characterContainer.height)
                 .setDepth(this.depthInfo);
 
+            //enable physics on player message
+            this.physics.world.enable(this.playerMessage[id]);
+            this.playerMessage[id].body.setCollideWorldBounds(true);
+
             //get message container
             var messageContainer = this.playerMessage[id];
 
