@@ -335,10 +335,10 @@ class Game extends Phaser.Scene {
             if (!this.playerCharacter[playerID]) return;
 
             //handle client player only
-            if (playerID === clientID) {
+            if (playerID == clientID) {
                 //handle collision between this client player and all teleporters in room
                 for (
-                    var teleporterID = 0;
+                    let teleporterID = 0;
                     teleporterID < this.teleportList.length;
                     teleporterID++
                 ) {
