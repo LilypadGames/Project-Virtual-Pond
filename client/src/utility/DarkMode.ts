@@ -1,0 +1,80 @@
+import $ from "jquery";
+
+//init dark mode value
+if (
+	localStorage.getItem("dark-mode") === null &&
+	window.matchMedia &&
+	window.matchMedia("(prefers-color-scheme: dark)").matches
+) {
+	//enable dark mode
+	enableDarkMode();
+
+	//set dark mode switch to on
+	$("#dark-mode-switch").prop("checked", true);
+}
+
+//get dark mode value
+else if (localStorage.getItem("dark-mode") === "true") {
+	//enable dark mode css
+	enableStylesheet(document.getElementById("dark-stylesheet") as HTMLElement);
+
+	//add dark class to body
+	$("body").addClass("dark");
+
+	//set dark mode switch to on
+	$("#dark-mode-switch").prop("checked", true);
+}
+
+//detect dark mode toggle
+$("#dark-mode-switch").change(() => {
+	let $body = $("body");
+
+	//toggle off
+	if ($body.hasClass("dark")) {
+		disableDarkMode();
+	}
+
+	//toggle on
+	else {
+		enableDarkMode();
+	}
+});
+
+//enable/disable stylesheets
+function enableStylesheet(node: HTMLElement) {
+	if (node === null) return;
+	(node as any).rel = "stylesheet";
+}
+function disableStylesheet(node: HTMLElement) {
+	if (node === null) return;
+	(node as any).rel = "alternate stylesheet";
+}
+
+//enable dark mode
+function enableDarkMode() {
+	//store dark mode value
+	localStorage.setItem("dark-mode", "true");
+
+	//disable dark mode css
+	enableStylesheet(document.getElementById("dark-stylesheet") as HTMLElement);
+
+	//add dark class to body
+	$("body").addClass("dark");
+}
+
+//disable dark mode
+function disableDarkMode() {
+	//get body
+	let $body = $("body");
+
+	//store dark mode value
+	localStorage.setItem("dark-mode", "false");
+
+	//disable dark mode css
+	disableStylesheet(
+		document.getElementById("dark-stylesheet") as HTMLElement
+	);
+
+	//remove dark class from body
+	$body.removeClass("dark");
+}

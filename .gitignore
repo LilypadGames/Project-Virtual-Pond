@@ -1,0 +1,12 @@
+# MacOS
+.DS_Store
+
+# Node
+/node_modules
+
+# Logs
+logs/
+*.log
+
+# Cache
+public/cache
