@@ -6,6 +6,6 @@ export default defineConfig({
 	},
 	root: "./client",
 	plugins: [],
-	server: { open: "index.html", host: "0.0.0.0", port: 8000 },
+	server: { open: "/src/page/index.html", host: "0.0.0.0", port: 8000 },
 	clearScreen: false,
 });
