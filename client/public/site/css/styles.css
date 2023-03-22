@@ -1,138 +1,180 @@
 /* Fonts */
 @font-face {
-  font-family:Burbin;
-  src: url('/site/font/burbin_casual_nc.woff2');
+	font-family: Burbin;
+	src: url("/site/font/burbin_casual_nc.woff2");
 }
 
 /* Global */
-html, body {
-  height: 100%;
+html,
+body {
+	height: 100%;
 }
 
 /* Cancel Scrolling, Determine Font, and Create Background */
 body {
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
-  font-family:Burbin;
-  color: #FFFFFF;
-  overflow: hidden;
+	margin: 0;
+	padding: 0;
+	background: linear-gradient(
+		180deg,
+		#64beff -50%,
+		#6e96ff 69.71%,
+		#2a65ff 150%
+	);
+	font-family: Burbin;
+	color: #ffffff;
+	overflow: hidden;
 }
 
 /* Improve Rendering Across Different Browsers */
-html, body, #game-container {
-  image-rendering: optimizeSpeed;              /* Older versions of FF */
-  image-rendering: -moz-crisp-edges;           /* FF 6.0+ */
-  image-rendering: -webkit-optimize-contrast;  /* Webkit (non standard naming) */
-  image-rendering: -o-crisp-edges;             /* OS X & Windows Opera (12.02+) */
-  image-rendering: crisp-edges;                /* Possible future browsers. */
-  -ms-interpolation-mode: nearest-neighbor;    /* IE (non standard naming) */
-  image-rendering: pixelated;                  /* Chrome 41 */
+html,
+body,
+#game-container {
+	image-rendering: optimizeSpeed; /* Older versions of FF */
+	image-rendering: -moz-crisp-edges; /* FF 6.0+ */
+	image-rendering: -webkit-optimize-contrast; /* Webkit (non standard naming) */
+	image-rendering: -o-crisp-edges; /* OS X & Windows Opera (12.02+) */
+	image-rendering: crisp-edges; /* Possible future browsers. */
+	-ms-interpolation-mode: nearest-neighbor; /* IE (non standard naming) */
+	image-rendering: pixelated; /* Chrome 41 */
 }
 
 /* Game Style */
 #game-container > canvas {
-  border-radius: 8px;
+	border-radius: 8px;
 }
 #chat-box {
-  color: #000;
+	color: #000;
 }
 
 /* Centered Logo */
 .navbar-brand {
-  transform: translateX(-50%);
-  left: 50%;
-  position: absolute;
-  width: 30%;
-  height: 100%;
-  padding-top: 2%;
-  padding-bottom: 2%;
+	transform: translateX(-50%);
+	left: 50%;
+	position: absolute;
+	width: 30%;
+	height: 100%;
+	padding-top: 2%;
+	padding-bottom: 2%;
 }
 
 /* Icons */
 .bi {
-  color: #fff;
+	color: #fff;
 }
 .bi:hover {
-  color: #d0d0d0;
+	color: #d0d0d0;
 }
 a.btn .bi {
-  color: #fff;
+	color: #fff;
 }
 a.btn .bi:hover {
-  color: #b6b6b6;
+	color: #b6b6b6;
 }
 
 /* Twitch Button */
-.btn-twitch { 
-  color: #FFFFFF; 
-  background-color: #6441A5;
-  font-family:'Source Sans Pro', sans-serif;
+.btn-twitch {
+	color: #ffffff;
+	background-color: #6441a5;
+	font-family: "Source Sans Pro", sans-serif;
 }
-.btn-twitch:hover, .btn-twitch:focus, .btn-twitch:active, .btn-twitch.active, .open .dropdown-toggle.btn-twitch {
-  color: #FFFFFF;
-  background-color: #472e75;
+.btn-twitch:hover,
+.btn-twitch:focus,
+.btn-twitch:active,
+.btn-twitch.active,
+.open .dropdown-toggle.btn-twitch {
+	color: #ffffff;
+	background-color: #472e75;
 }
-.btn-twitch:active, .btn-twitch.active, .open .dropdown-toggle.btn-twitch {
-  background-image: none;
+.btn-twitch:active,
+.btn-twitch.active,
+.open .dropdown-toggle.btn-twitch {
+	background-image: none;
 }
-.btn-twitch.disabled, .btn-twitch[disabled], fieldset[disabled] .btn-twitch, .btn-twitch.disabled:hover, .btn-twitch[disabled]:hover, fieldset[disabled] .btn-twitch:hover, .btn-twitch.disabled:focus, .btn-twitch[disabled]:focus, fieldset[disabled] .btn-twitch:focus, .btn-twitch.disabled:active, .btn-twitch[disabled]:active, fieldset[disabled] .btn-twitch:active, .btn-twitch.disabled.active, .btn-twitch[disabled].active, fieldset[disabled] .btn-twitch.active {
-  background-color: #6441A5;
+.btn-twitch.disabled,
+.btn-twitch[disabled],
+fieldset[disabled] .btn-twitch,
+.btn-twitch.disabled:hover,
+.btn-twitch[disabled]:hover,
+fieldset[disabled] .btn-twitch:hover,
+.btn-twitch.disabled:focus,
+.btn-twitch[disabled]:focus,
+fieldset[disabled] .btn-twitch:focus,
+.btn-twitch.disabled:active,
+.btn-twitch[disabled]:active,
+fieldset[disabled] .btn-twitch:active,
+.btn-twitch.disabled.active,
+.btn-twitch[disabled].active,
+fieldset[disabled] .btn-twitch.active {
+	background-color: #6441a5;
 }
 .btn-twitch .badge {
-  color: #6441A5;
-  background-color: #FFFFFF;
+	color: #6441a5;
+	background-color: #ffffff;
 }
 
 /* Credit Links */
-.credit-link, .credit-link:link, .credit-link:active, .credit-link:visited {
-  color: #ffffff;
-  font-weight: bold;
-  text-decoration: none;
+.credit-link,
+.credit-link:link,
+.credit-link:active,
+.credit-link:visited {
+	color: #ffffff;
+	font-weight: bold;
+	text-decoration: none;
 }
 .credit-link:hover {
-  color: #00ff1a;
+	color: #00ff1a;
 }
 
 /* Toggler */
 .hide {
-  display: none;
+	display: none;
 }
 
 /* Dark Mode */
 /* Body */
 body.dark {
-  background: linear-gradient(180deg, #102121 -50%, #111623 69.71%, #02091b 150%);
-  color: #b6b6b6;
+	background: linear-gradient(
+		180deg,
+		#102121 -50%,
+		#111623 69.71%,
+		#02091b 150%
+	);
+	color: #b6b6b6;
 }
 
 /* Button */
-body.dark button { 
-  color: #b6b6b6;
+body.dark button {
+	color: #b6b6b6;
 }
-body.dark button:hover, button:focus, button:active, button.active, .open .dropdown-toggle.button {
-  color: #b6b6b6;
+body.dark button:hover,
+button:focus,
+button:active,
+button.active,
+.open .dropdown-toggle.button {
+	color: #b6b6b6;
 }
-
 
 /* Icons */
 body.dark .bi {
-  color: #b6b6b6;
+	color: #b6b6b6;
 }
 body.dark .bi:hover {
-  color: #828282;
+	color: #828282;
 }
 body.dark a.btn .bi {
-  color: #b6b6b6;
+	color: #b6b6b6;
 }
 body.dark a.btn .bi:hover {
-  color: #353535;
+	color: #353535;
 }
 
 /* Credit Links */
-body.dark .credit-link, body.dark .credit-link:link, body.dark.credit-link:active, body.dark .credit-link:visited {
-  color: #b6b6b6;
+body.dark .credit-link,
+body.dark .credit-link:link,
+body.dark.credit-link:active,
+body.dark .credit-link:visited {
+	color: #b6b6b6;
 }
 body.dark .credit-link:hover {
-  color: #00ff1a;
+	color: #00ff1a;
 }

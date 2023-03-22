@@ -1,0 +1,54 @@
+{
+    "eyes": [
+        {
+            "id": "normal"
+        },
+        {
+            "id": "sassy"
+        },
+        {
+            "id": "sad"
+        },
+        {
+            "id": "happy"
+        }
+    ],
+    "accessories": [
+        {
+            "id": "white_round_sunglasses",
+            "name": "White Round Sunglasses"
+        },
+        {
+            "id": "birthday_hat",
+            "name": "Birthday Hat"
+        },
+        {
+            "id": "carved_pumpkin_hat",
+            "name": "Carved Pumpkin Hat"
+        },
+        {
+            "id": "cowboy_hat",
+            "name": "Cowboy Hat"
+        },
+        {
+            "id": "yellow_sunglasses",
+            "name": "Yellow Sunglasses"
+        },
+        {
+            "id": "clown_nose",
+            "name": "Clown Nose"
+        },
+        {
+            "id": "green_balloon",
+            "name": "Green Balloon"
+        },
+        {
+            "id": "santa_hat",
+            "name": "Santa Hat"
+        },
+        {
+            "id": "reindeer_antlers",
+            "name": "Reindeer Antlers"
+        }
+    ]
+}
