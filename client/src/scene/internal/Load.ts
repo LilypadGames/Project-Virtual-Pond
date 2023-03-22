@@ -13,6 +13,16 @@ export default class Load extends Phaser.Scene {
 				files: [
 					{
 						type: "json",
+						key: "textureData",
+						url: "/data/texture.json",
+					},
+					{
+						type: "json",
+						key: "playerData",
+						url: "/data/player.json",
+					},
+					{
+						type: "json",
 						key: "itemData",
 						url: "/data/item.json",
 					},
@@ -22,6 +32,9 @@ export default class Load extends Phaser.Scene {
 	}
 
 	preload() {
+		// load textures
+		
+
 		// load font
 		WebFont.load({
 			custom: {

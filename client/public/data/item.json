@@ -1,54 +1,93 @@
 {
     "eyes": [
         {
-            "id": "normal"
+            "id": "normal",
+            "texture": "player_eyes_normal",
+            "texture_CC": "player_eyes_normal_CC",
+            "texture_UI": "player_eyes_normal_UI"
         },
         {
-            "id": "sassy"
+            "id": "sassy",
+            "texture": "player_eyes_sassy",
+            "texture_CC": "player_eyes_sassy_CC",
+            "texture_UI": "player_eyes_sassy_UI"
         },
         {
-            "id": "sad"
+            "id": "sad",
+            "texture": "player_eyes_sad",
+            "texture_CC": "player_eyes_sad_CC",
+            "texture_UI": "player_eyes_sad_UI"
         },
         {
-            "id": "happy"
+            "id": "happy",
+            "texture": "player_eyes_happy",
+            "texture_CC": "player_eyes_happy_CC",
+            "texture_UI": "player_eyes_happy_UI"
         }
     ],
     "accessories": [
         {
             "id": "white_round_sunglasses",
-            "name": "White Round Sunglasses"
+            "name": "White Round Sunglasses",
+            "texture": "player_accessory_white_round_sunglasses",
+            "texture_CC": "player_accessory_white_round_sunglasses_CC",
+            "texture_UI": "player_accessory_white_round_sunglasses_UI"
         },
         {
             "id": "birthday_hat",
-            "name": "Birthday Hat"
+            "name": "Birthday Hat",
+            "texture": "player_accessory_birthday_hat",
+            "texture_CC": "player_accessory_birthday_hat_CC",
+            "texture_UI": "player_accessory_birthday_hat_UI"
         },
         {
             "id": "carved_pumpkin_hat",
-            "name": "Carved Pumpkin Hat"
+            "name": "Carved Pumpkin Hat",
+            "texture": "player_accessory_carved_pumpkin_hat",
+            "texture_CC": "player_accessory_carved_pumpkin_hat_CC",
+            "texture_UI": "player_accessory_carved_pumpkin_hat_UI"
         },
         {
             "id": "cowboy_hat",
-            "name": "Cowboy Hat"
+            "name": "Cowboy Hat",
+            "texture": "player_accessory_cowboy_hat",
+            "texture_CC": "player_accessory_cowboy_hat_CC",
+            "texture_UI": "player_accessory_cowboy_hat_UI"
         },
         {
             "id": "yellow_sunglasses",
-            "name": "Yellow Sunglasses"
+            "name": "Yellow Sunglasses",
+            "texture": "player_accessory_yellow_sunglasses",
+            "texture_CC": "player_accessory_yellow_sunglasses_CC",
+            "texture_UI": "player_accessory_yellow_sunglasses_UI"
         },
         {
             "id": "clown_nose",
-            "name": "Clown Nose"
+            "name": "Clown Nose",
+            "texture": "player_accessory_clown_nose",
+            "texture_CC": "player_accessory_clown_nose_CC",
+            "texture_UI": "player_accessory_clown_nose_UI"
         },
         {
             "id": "green_balloon",
-            "name": "Green Balloon"
+            "name": "Green Balloon",
+            "texture": "player_accessory_green_balloon",
+            "texture_CC": "player_accessory_green_balloon_CC",
+            "texture_UI": "player_accessory_green_balloon_UI"
         },
         {
             "id": "santa_hat",
-            "name": "Santa Hat"
+            "name": "Santa Hat",
+            "texture": "player_accessory_santa_hat",
+            "texture_CC": "player_accessory_santa_hat_CC",
+            "texture_UI": "player_accessory_santa_hat_UI"
         },
         {
             "id": "reindeer_antlers",
-            "name": "Reindeer Antlers"
+            "name": "Reindeer Antlers",
+            "texture": "player_accessory_reindeer_antlers",
+            "texture_CC": "player_accessory_reindeer_antlers_CC",
+            "texture_UI": "player_accessory_reindeer_antlers_UI"
         }
     ]
 }
