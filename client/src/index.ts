@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import config from "./config";
+import Game from "./scene/Game";
 import Boot from "./scene/internal/Boot";
 import Load from "./scene/internal/Load";
 
@@ -9,6 +10,6 @@ import Load from "./scene/internal/Load";
 
 export default new Phaser.Game(
 	Object.assign(config, {
-		scene: [Boot, Load],
+		scene: [Boot, Load, Game],
 	})
 );

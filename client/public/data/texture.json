@@ -43,5 +43,11 @@
     "player_accessory_santa_hat_UI": "/assets/entity/player/accessories/santa_hat_UI.png",
     "player_accessory_reindeer_antlers": "/assets/entity/player/accessories/reindeer_antlers_x0.5.png",
     "player_accessory_reindeer_antlers_CC": "/assets/entity/player/accessories/reindeer_antlers_x2.5.png",
-    "player_accessory_reindeer_antlers_UI": "/assets/entity/player/accessories/reindeer_antlers_UI.png"
+    "player_accessory_reindeer_antlers_UI": "/assets/entity/player/accessories/reindeer_antlers_UI.png",
+    "loading_icon": {
+        "type": "spritesheet",
+        "frameWidth": 64,
+        "frameHeight": 64,
+        "texture": "/assets/ui/loading.png"
+    }
 }

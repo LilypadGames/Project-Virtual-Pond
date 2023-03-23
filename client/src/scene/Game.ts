@@ -6,8 +6,10 @@ export default class Game extends Core {
 	}
 
 	preload() {
+		this.core.preload(this);
 	}
 
 	create() {
+		this.core.create();
 	}
 }
