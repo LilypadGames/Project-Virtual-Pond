@@ -1,0 +1,26 @@
+{
+    "music": "",
+    "layers": [
+        {
+            "texture": {
+                "key": "room_pond_layer_background",
+                "path": "assets/room/pond/Background.png"
+            },
+            "depth": "background"
+        },
+        {
+            "texture": {
+                "key": "room_pond_layer_ground",
+                "path": "assets/room/pond/Ground.png"
+            },
+            "depth": "ground"
+        },
+        {
+            "texture": {
+                "key": "room_pond_layer_pond",
+                "path": "assets/room/pond/Pond.png"
+            },
+            "depth": 2
+        }
+    ]
+}

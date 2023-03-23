@@ -50,5 +50,9 @@ export default {
 	hideBanner: true,
 	depth: {
 		loadingScreen: 10000000,
+		background: 0,
+		ground: 1,
+		foreground: 100000,
+		shader: 100001,
 	},
 };
