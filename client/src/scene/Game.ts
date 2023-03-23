@@ -24,6 +24,7 @@ export default class Game extends Core {
 
 		// default room
 		if (!room) room = "pond";
+		if (room === undefined) room = "pond";
 
 		// save room
 		this.room = room;

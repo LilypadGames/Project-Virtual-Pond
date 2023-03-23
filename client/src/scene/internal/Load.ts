@@ -11,6 +11,7 @@ import $ from "jquery";
 let roomData: {
 	[room: string]: roomInfo;
 } = {};
+let doneRoomLoad: boolean;
 
 // types
 interface roomInfo {
@@ -50,12 +51,17 @@ export default class Load extends Phaser.Scene {
 						key: "eventDefaultData",
 						url: "/data/event/default.json",
 					},
+					{
+						type: "json",
+						key: "lang_en_us",
+						url: "/lang/en_us.json",
+					},
 				],
 			},
 		});
 	}
 
-	async preload() {
+	preload() {
 		// begin loading screen
 		this.runLoadingScreen(this);
 
@@ -79,26 +85,7 @@ export default class Load extends Phaser.Scene {
 		});
 
 		// load room
-		const roomsDefaultData = this.cache.json.get("eventDefaultData").rooms;
-		Object.keys(roomsDefaultData).forEach(async (room) => {
-			// get room data
-			await $.getJSON("../../" + roomsDefaultData[room]).then(
-				(roomInfo: roomInfo) => {
-					// save room data
-					roomData[room] = roomInfo;
-
-					// load room textures
-					Object.keys(roomInfo.layers).forEach((layer) => {
-						this.load.image(
-							roomInfo.layers[layer as any].texture.key,
-							"../../" +
-								roomInfo.layers[layer as any].texture.path
-						);
-					});
-				}
-			);
-		});
-		this.registry.set("roomData", roomData);
+		this.runRoomLoad();
 
 		// load font
 		WebFont.load({
@@ -109,9 +96,48 @@ export default class Load extends Phaser.Scene {
 		});
 	}
 
-	create() {
-		// Menu
-		this.scene.start("Game");
+	update() {
+		if (doneRoomLoad)
+			// end
+			this.endLoadingScreen();
+	}
+
+	runRoomLoad() {
+		// load room
+		const roomsDefaultData = this.cache.json.get("eventDefaultData").rooms;
+		const lastRoom = Object.keys(roomsDefaultData).slice(-1).toString();
+		Object.keys(roomsDefaultData).forEach((room) => {
+			// get room data
+			$.getJSON("../../" + roomsDefaultData[room]).then(
+				(roomInfo: roomInfo) => {
+					// add to room data
+					roomData[room] = roomInfo;
+
+					// load room textures
+					Object.keys(roomInfo.layers).forEach((layer) => {
+						this.load.image(
+							roomInfo.layers[layer as any].texture.key,
+							"../../" +
+								roomInfo.layers[layer as any].texture.path
+						);
+					});
+
+					// load textures
+					if (room === lastRoom) {
+						this.load.on("complete", this.endRoomLoad, this);
+						this.load.start();
+					}
+				}
+			);
+		});
+	}
+
+	endRoomLoad() {
+		// save room data to registry
+		this.registry.set("roomData", roomData);
+
+		// done room load
+		doneRoomLoad = true;
 	}
 
 	runLoadingScreen(scene: Phaser.Scene) {
@@ -152,5 +178,10 @@ export default class Load extends Phaser.Scene {
 			progressBar.destroy();
 			progressBox.destroy();
 		});
+	}
+
+	endLoadingScreen() {
+		// Menu
+		this.scene.start("Game");
 	}
 }
