@@ -33,7 +33,10 @@ export default class Load extends Phaser.Scene {
 
 	preload() {
 		// load textures
-		
+		const textureData = this.cache.json.get("textureData");
+		Object.keys(textureData).forEach((key) => {
+			this.load.image(key, textureData[key]);
+		});
 
 		// load font
 		WebFont.load({
