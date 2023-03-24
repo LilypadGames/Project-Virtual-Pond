@@ -1,6 +1,5 @@
 {
     "texture": {
-        "base": "player_base",
         "overlay": "player_overlay",
         "tint": "player_tint"
     }

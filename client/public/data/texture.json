@@ -1,6 +1,4 @@
 {
-    "player_base": "/assets/entity/player/body/Base_x0.5.png",
-    "player_base_CC": "/assets/entity/player/body/Base_x2.5.png",
     "player_overlay": "/assets/entity/player/body/Overlay_x0.5.png",
     "player_overlay_CC": "/assets/entity/player/body/Overlay_x2.5.png",
     "player_tint": "/assets/entity/player/body/Tint_x0.5.png",

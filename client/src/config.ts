@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import ColorScheme from "./utility/ColorScheme";
+import Utility from "./utility/Utility";
 
 // constants
 const gameWidth = 1280;
@@ -49,10 +50,22 @@ export default {
 	hidePhaser: true,
 	hideBanner: true,
 	depth: {
-		loadingScreen: 10000000,
-		background: 0,
-		ground: 1,
-		foreground: 100000,
-		shader: 100001,
+		background: 0 - 2,
+		ground: 0 - 1,
+		foreground: gameHeight + 1,
+		shader: gameHeight + 2,
+		info: gameHeight + 3,
+		loadingScreen: gameHeight + 4,
 	},
+	nametagClientConfig: {
+		fontFamily: "Burbin",
+		color: Utility.hexIntegerToString(ColorScheme.White),
+		stroke: Utility.hexIntegerToString(ColorScheme.Black),
+		strokeThickness: 6,
+	},
+	nametagConfig: {
+		fontFamily: "Burbin",
+		color: Utility.hexIntegerToString(ColorScheme.Black),
+	},
+	nametagFontSize: 14,
 };

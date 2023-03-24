@@ -1,0 +1,4 @@
+{
+    "error_player_movement": "Game.js movePlayer",
+    "error_player_halt": "Game.js haltPlayer"
+}

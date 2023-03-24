@@ -27,9 +27,6 @@ export default class Core extends Phaser.Scene {
 		create: () => {
 			// disable right-click context menu
 			this.input.mouse.disableContextMenu();
-
-			// wait screen
-			this.endWaitScreen();
 		},
 		// restart game
 		restart: () => {
