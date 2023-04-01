@@ -1,0 +1,22 @@
+{
+    "vip": {
+        "nametag": {
+            "color": "ADD8E6"
+        }
+    },
+    "admin": {
+        "nametag": {
+            "color": "FFFFFF"
+        }
+    },
+    "mod": {
+        "nametag": {
+            "color": "FFFFFF"
+        }
+    },
+    "sponsor": {
+        "nametag": {
+            "color": "FFD700"
+        }
+    }
+}

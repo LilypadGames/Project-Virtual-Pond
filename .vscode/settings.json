@@ -9,6 +9,7 @@
 		"spritesheet",
 		"storejs",
 		"tilemap",
-		"unwalkable"
+		"unwalkable",
+		"Websockets"
 	]
 }

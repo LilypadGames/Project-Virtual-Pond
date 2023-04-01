@@ -1,0 +1,75 @@
+{
+    "white_round_sunglasses": {
+        "type": "accessory",
+        "name": "White Round Sunglasses",
+        "purchasable": false
+    },
+    "birthday_hat": {
+        "type": "accessory",
+        "name": "Birthday Hat",
+        "conditions": {
+            "event": "Birthday_Party"
+        }
+    },
+    "carved_pumpkin_hat": {
+        "type": "accessory",
+        "name": "Carved Pumpkin Hat",
+        "conditions": {
+            "event": "Halloween"
+        }
+    },
+    "cowboy_hat": {
+        "type": "accessory",
+        "name": "Cowboy Hat",
+        "cost": {
+            "tickets": 1000
+        },
+        "conditions": {
+            "event": "FF22"
+        }
+    },
+    "yellow_sunglasses": {
+        "type": "accessory",
+        "name": "Yellow Sunglasses",
+        "cost": {
+            "tickets": 1000
+        },
+        "conditions": {
+            "event": "FF22"
+        }
+    },
+    "clown_nose": {
+        "type": "accessory",
+        "name": "Clown Nose",
+        "cost": {
+            "tickets": 500
+        },
+        "conditions": {
+            "event": "FF22"
+        }
+    },
+    "green_balloon": {
+        "type": "accessory",
+        "name": "Green Balloon",
+        "cost": {
+            "tickets": 500
+        },
+        "conditions": {
+            "event": "FF22"
+        }
+    },
+    "santa_hat": {
+        "type": "accessory",
+        "name": "Santa Hat",
+        "conditions": {
+            "event": "Holiday"
+        }
+    },
+    "reindeer_antlers": {
+        "type": "accessory",
+        "name": "Reindeer Antlers",
+        "conditions": {
+            "event": "Holiday"
+        }
+    }
+}

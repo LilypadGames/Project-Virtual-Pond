@@ -1,0 +1,54 @@
+{
+    "version": "",
+    "production": false,
+    "debug": true,
+    "paths": {
+        "client": "client",
+        "logs": "server/logs",
+        "cache": "client/public/cache"
+    },
+    "server": {
+        "online": true,
+        "hostName": "",
+        "port": "",
+        "proxy": false,
+        "bypassAuth": false,
+        "playerLimit": 100
+    },
+    "discord": {
+        "clientID": "",
+        "clientSecret": "",
+        "redirectURI": ""
+    },
+    "socketio_admin_dash": {
+        "auth": {
+            "type": "",
+            "username": "",
+            "password": ""
+        }
+    },
+    "twitch": {
+        "clientID": "",
+        "clientSecret": "",
+        "callbackURL": ""
+    },
+    "streamelements": {
+        "JWTToken": "",
+        "accountId": ""
+    },
+    "database": {
+        "databaseURL": ""
+    },
+    "firebase": {
+        "type": "",
+        "project_id": "",
+        "private_key_id": "",
+        "private_key": "",
+        "client_email": "",
+        "client_id": "",
+        "auth_uri": "",
+        "token_uri": "",
+        "auth_provider_x509_cert_url": "",
+        "client_x509_cert_url": ""
+    }
+}
