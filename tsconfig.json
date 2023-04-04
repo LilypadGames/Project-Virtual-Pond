@@ -17,5 +17,6 @@
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true
 	},
-	"include": ["client/src", "server/src"]
+	"include": ["client/src", "server/src"],
+	"typeRoots": ["/server/src/typings"]
 }

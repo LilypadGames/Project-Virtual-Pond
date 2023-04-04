@@ -15,10 +15,9 @@ import log from "../module/Logs.js";
 import config from "../../config.json" assert { type: "json" };
 
 // html path
-let htmlPath =
-	process.env.NODE_ENV === "production"
-		? config.paths.production.html
-		: config.paths.development.html;
+let htmlPath = config.production
+	? config.paths.production.html
+	: config.paths.development.html;
 
 export default class WebServer {
 	app: ExpressServer;
@@ -28,7 +27,9 @@ export default class WebServer {
 	constructor() {
 		//init web server
 		this.app = express();
-		ViteExpress.config({ mode: process.env.NODE_ENV });
+		ViteExpress.config({
+			mode: config.production ? "production" : "development",
+		});
 
 		//proxy setting
 		this.app.set("trust proxy", config.server.proxy);
@@ -36,7 +37,7 @@ export default class WebServer {
 		//serve client files (html/css/js/assets)
 		this.app.use(
 			"/",
-			express.static(config.paths[process.env.NODE_ENV].client)
+			express.static(config.paths[config.production ? "production" : "development"].client)
 		);
 
 		//setup authentication rules
