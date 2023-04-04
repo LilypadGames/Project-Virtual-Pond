@@ -21,7 +21,8 @@
 			"env": {
 				"NODE_ENV": "production"
 			},
-			"console": "integratedTerminal"
+			"console": "integratedTerminal",
+			"preLaunchTask": "Build Client"
 		}
 	]
 }

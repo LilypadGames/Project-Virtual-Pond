@@ -23,7 +23,7 @@ let cachedEmotes = [];
 let notEmotes = [];
 
 //cached emote path
-let cachedEmotePath = '../../' + config.paths.cache + '/';
+let cachedEmotePath = '../../../' + config.paths.cache + '/';
 utility.createDirectory(path.join(__dirname, cachedEmotePath));
 cachedEmotePath = cachedEmotePath + 'emotes/';
 utility.createDirectory(path.join(__dirname, cachedEmotePath));

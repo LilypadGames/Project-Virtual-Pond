@@ -13,3 +13,6 @@ public/cache
 
 # Config
 config.json
+
+# Builds
+dist

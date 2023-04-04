@@ -3,6 +3,11 @@ import { defineConfig } from "vite";
 export default defineConfig({
 	build: {
 		outDir: "./dist",
+		rollupOptions: {
+			input: {
+				app: "/src/page/index.html",
+			},
+		},
 	},
 	root: "./client",
 	plugins: [],

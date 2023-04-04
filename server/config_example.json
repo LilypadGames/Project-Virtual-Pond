@@ -3,10 +3,16 @@
     "production": false,
     "debug": true,
     "paths": {
-        "client": "../client",
-        "html": "../client/src/page/",
-        "logs": "./logs",
-        "cache": "../client/public/cache"
+        "production": {
+            "client": "client/dist",
+            "html": "client/dist/src/page"
+        },
+        "development": {
+            "client": "client",
+            "html": "client/src/page"
+        },
+        "logs": "server/logs",
+        "cache": "client/public/cache"
     },
     "server": {
         "online": true,

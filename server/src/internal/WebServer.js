@@ -13,8 +13,11 @@ import log from "../module/Logs.js";
 //config
 import config from "../../config.json" assert { type: "json" };
 
-//paths
-let htmlPath = config.paths.html;
+// html path
+let htmlPath =
+	process.env.NODE_ENV === "production"
+		? config.paths.production.html
+		: config.paths.development.html;
 
 export default class WebServer {
 	constructor() {
@@ -31,7 +34,10 @@ export default class WebServer {
 		this.app.set("trust proxy", config.server.proxy);
 
 		//serve client files (html/css/js/assets)
-		this.app.use("/", express.static(config.paths.client));
+		this.app.use(
+			"/",
+			express.static(config.paths[process.env.NODE_ENV].client)
+		);
 
 		//setup authentication rules
 		this.auth = new Authentication(this.app);
@@ -45,12 +51,14 @@ export default class WebServer {
 					req.session.passport.user) ||
 				config.server.bypassAuth
 			) {
-				res.sendFile("main.html", { root: htmlPath });
+				// res.sendFile("./index.html", { root: htmlPath });
+				res.sendFile("index.html", { root: htmlPath });
 			}
 
 			//request authentication
 			else {
-				res.sendFile("auth.html", { root: htmlPath });
+				// res.sendFile("auth.html", { root: htmlPath });
+				res.sendFile("index.html", { root: htmlPath });
 			}
 		});
 
@@ -87,16 +95,9 @@ export default class WebServer {
 
 		//start web server
 		this.httpServer = http.createServer(this.app);
-		ViteExpress.listen(
-			this.app,
-			process.env.PORT || config.server.port,
-			() => {
-				//log
-				log.info(
-					"Web Server Initialized On Port: " + process.env.PORT ||
-						config.server.port
-				);
-			}
-		);
+		ViteExpress.listen(this.app, config.server.port, () => {
+			//log
+			log.info("Web Server Initialized On Port: " + config.server.port);
+		});
 	}
 }
