@@ -9,21 +9,19 @@
 		"preview": "vite preview"
 	},
 	"devDependencies": {
+		"@twurple/eventsub-ngrok": "^5.1.8",
+		"@types/express": "^4.17.17",
+		"@types/express-session": "^1.17.7",
 		"@types/jquery": "^3.5.16",
+		"@types/passport": "^1.0.12",
 		"@types/webfontloader": "^1.6.35",
 		"@typescript-eslint/eslint-plugin": "^5.40.0",
 		"@typescript-eslint/parser": "^5.40.0",
 		"eslint": "^8.25.0",
 		"typescript": "^4.6.4",
-		"vite": "^4.0.0",
-		"@twurple/eventsub-ngrok": "^5.1.8"
+		"vite": "^4.0.0"
 	},
 	"dependencies": {
-		"express": "^4.18.2",
-		"jquery": "^3.6.4",
-		"phaser": "^3.55.2",
-		"vite-express": "^0.5.1",
-		"webfontloader": "^1.6.28",
 		"@socket.io/admin-ui": "^0.4.0",
 		"@twurple/api": "^5.1.8",
 		"@twurple/auth": "^5.1.8",
@@ -32,9 +30,11 @@
 		"cookie-parser": "^1.4.6",
 		"cors": "^2.8.5",
 		"crypto": "^1.0.1",
+		"express": "^4.18.2",
 		"express-session": "^1.17.3",
 		"firebase-admin": "^11.0.0",
 		"fs": "0.0.1-security",
+		"jquery": "^3.6.4",
 		"jsonpath": "^1.1.1",
 		"leo-profanity": "^1.5.1",
 		"natural": "^5.2.3",
@@ -42,9 +42,12 @@
 		"passport": "^0.6.0",
 		"passport-oauth": "^1.0.0",
 		"path": "^0.12.7",
+		"phaser": "^3.55.2",
 		"request": "^2.88.2",
 		"socket.io": "^4.5.0",
 		"socket.io-client": "^4.5.2",
-		"tmi-emote-parse": "^2.0.0"
+		"tmi-emote-parse": "^2.0.0",
+		"vite-express": "^0.5.1",
+		"webfontloader": "^1.6.28"
 	}
 }

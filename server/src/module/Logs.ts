@@ -2,7 +2,7 @@
 
 //imports
 import util from "util";
-import fs from "fs";
+import fs, { WriteStream } from "fs";
 import path from "path";
 import * as url from "url";
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
@@ -14,37 +14,42 @@ import config from "../../config.json" assert { type: "json" };
 import utility from "./Utility.js";
 import ConsoleColor from "./ConsoleColor.js";
 
+// types
+type logMessage = string | Function;
+interface logOptions {
+	file?: string | string[] | null;
+	console?: boolean;
+	color?: string;
+}
+interface debugLogOptions extends logOptions {
+	debug?: boolean;
+}
+
 export default {
+	currentDay: utility.getCurrentDay(),
+	logPath: "../../../" + config.paths.logs + "/",
+	logFile: {} as { [key: string]: WriteStream },
+
 	//initialize logging
 	initLogs: function () {
-		//get current day
-		this.currentDay = utility.getCurrentDay();
-
 		//init log directory
-		this.logPath = "../../../" + config.paths.logs + "/";
 		utility.createDirectory(path.join(__dirname, this.logPath));
-		console.log(process.cwd());
-
-		//init log file write stream list
-		this.logFile = [];
 	},
 
 	//get log file
-	getLog: function (logType) {
+	getLog: function (logType: string) {
 		//get current day
 		const date = utility.getCurrentDay();
 
 		//if its a new day, refresh stored write streams
 		if (this.currentDay !== date) {
 			//end every stored write stream
-			var index = this.logFile.length;
-			while (index--) {
-				//end write stream
-				this.logFile[index - 1].end();
+			for (const key in this.logFile) {
+				this.logFile[key as keyof WriteStream].end();
 			}
 
 			//reset stored write streams
-			this.logFile = [];
+			this.logFile = {};
 
 			//store new day
 			this.currentDay = date;
@@ -69,9 +74,12 @@ export default {
 			}
 
 			//store log file stream
-			this.logFile[logType] = fs.createWriteStream(filePath, {
-				flags: "a",
-			});
+			this.logFile[logType as keyof WriteStream] = fs.createWriteStream(
+				filePath,
+				{
+					flags: "a",
+				}
+			);
 
 			//log debug
 			this.debug("New Write Stream: " + logType);
@@ -82,14 +90,15 @@ export default {
 	},
 
 	message: function (
-		message,
-		options = { file: null, console: true, color: ConsoleColor.White }
+		message: logMessage,
+		options: logOptions | undefined = {
+			file: null,
+			console: true,
+			color: ConsoleColor.White,
+		}
 	) {
-		//init options
-		if (options === undefined) options = {};
-
 		//if file is specified but console is not, prevent logging to console
-		if (options.file && options.console === undefined)
+		if (options.file !== undefined && options.console === undefined)
 			options.console = false;
 
 		//if file is not specified, prevent logging to file
@@ -160,12 +169,12 @@ export default {
 				() => {
 					return message;
 				},
-				{ file: files }
+				{ file: files, console: undefined, color: undefined }
 			);
 		}
 	},
 
-	error: function (message, options) {
+	error: function (message: logMessage, options?: logOptions) {
 		//init options
 		if (!options)
 			options = { file: null, console: true, color: ConsoleColor.Red };
@@ -175,7 +184,7 @@ export default {
 		this.message(message, options);
 	},
 
-	info: function (message, options) {
+	info: function (message: logMessage, options?: logOptions) {
 		//init options
 		if (!options)
 			options = { file: null, console: true, color: ConsoleColor.Cyan };
@@ -185,7 +194,7 @@ export default {
 		this.message(message, options);
 	},
 
-	warn: function (message, options) {
+	warn: function (message: logMessage, options?: logOptions) {
 		//init options
 		if (!options)
 			options = { file: null, console: true, color: ConsoleColor.Yellow };
@@ -195,7 +204,7 @@ export default {
 		this.message(message, options);
 	},
 
-	debug: function (message, options) {
+	debug: function (message: logMessage, options?: logOptions) {
 		//init options
 		if (options === undefined) options = {};
 
@@ -213,7 +222,11 @@ export default {
 		this.message(message, options);
 	},
 
-	socketAction: function (socket, message, options = { debug: false }) {
+	socketAction: function (
+		socket: any,
+		message: string,
+		options: debugLogOptions | undefined = { debug: false }
+	) {
 		//apply socket prefix
 		message =
 			"(" +

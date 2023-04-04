@@ -1,11 +1,12 @@
 //imports
 import express from "express";
+import { Express as ExpressServer } from "express";
 import ViteExpress from "vite-express";
 import http from "http";
 
 //server classes
-import Authentication from "../internal/Authentication.js";
-import Connections from "../internal/Connections.js";
+import Authentication from "./Authentication.js";
+import Connections from "./Connections.js";
 
 //modules
 import log from "../module/Logs.js";
@@ -20,16 +21,15 @@ let htmlPath =
 		: config.paths.development.html;
 
 export default class WebServer {
+	app: ExpressServer;
+	httpServer: http.Server;
+	auth: Authentication;
+
 	constructor() {
 		//init web server
 		this.app = express();
 		ViteExpress.config({ mode: process.env.NODE_ENV });
 
-		//setup web server
-		this.setup();
-	}
-
-	setup() {
 		//proxy setting
 		this.app.set("trust proxy", config.server.proxy);
 
@@ -95,7 +95,7 @@ export default class WebServer {
 
 		//start web server
 		this.httpServer = http.createServer(this.app);
-		ViteExpress.listen(this.app, config.server.port, () => {
+		ViteExpress.listen(this.app, Number(config.server.port), () => {
 			//log
 			log.info("Web Server Initialized On Port: " + config.server.port);
 		});

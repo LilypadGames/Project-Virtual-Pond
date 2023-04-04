@@ -16,9 +16,9 @@ import config from "../config.json" assert { type: "json" };
 log.initLogs();
 
 //send console logs to server log file
-console.log = function () {
+console.log = function (args) {
 	//format message
-	const message = util.format.apply(null, arguments);
+	const message = util.format.apply(null, args);
 
 	//log to file
 	log.message(message, {
@@ -41,7 +41,7 @@ if (!process.env.NODE_ENV)
 let webServer = new WebServer();
 
 //start websockets
-let websockets = new Websockets(webServer.server, webServer.auth);
+let websockets = new Websockets(webServer.httpServer, webServer.auth);
 
 //set up API
 let api = new API(webServer.app, websockets.io);
@@ -64,8 +64,8 @@ if (config.server.online) {
 		(async () => {
 			await emotes.init("pokelawls");
 		})();
-	} catch (error) {
-		log.error(error);
+	} catch (error: any) {
+		log.error(error as string);
 	}
 }
 
@@ -87,8 +87,8 @@ if (config.server.online) {
 	try {
 		// streamElements.init();
 		streamElements.updateDonations();
-	} catch (error) {
-		log.error(error);
+	} catch (error: any) {
+		log.error(error as string);
 	}
 }
 
