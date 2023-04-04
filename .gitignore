@@ -10,3 +10,6 @@ logs/
 
 # Cache
 public/cache
+
+# Config
+config.json
