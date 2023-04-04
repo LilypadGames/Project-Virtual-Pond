@@ -5,10 +5,23 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Start",
-			"command": "npm run start",
+			"name": "Dev",
+			"type": "node",
 			"request": "launch",
-			"type": "node-terminal"
+			"skipFiles": ["<node_internals>/**"],
+			"program": "${workspaceFolder}/server/src/Run.js",
+			"console": "integratedTerminal"
+		},
+		{
+			"name": "Run",
+			"type": "node",
+			"request": "launch",
+			"skipFiles": ["<node_internals>/**"],
+			"program": "${workspaceFolder}/server/src/Run.js",
+			"env": {
+				"NODE_ENV": "production"
+			},
+			"console": "integratedTerminal"
 		}
 	]
 }
