@@ -1,3 +1,6 @@
 {
-    "gameVersion": "Alpha-v0.5"
+    "gameVersion": "Alpha-v0.5",
+    "streamLive": false,
+    "currentEvents": [],
+    "leaderboard": {}
 }

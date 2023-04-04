@@ -20,8 +20,7 @@ export default class WebServer {
 	constructor() {
 		//init web server
 		this.app = express();
-        ViteExpress.config({ mode: process.env.NODE_ENV })
-		// this.server = http.Server(this.app);
+		ViteExpress.config({ mode: process.env.NODE_ENV });
 
 		//setup web server
 		this.setup();
@@ -88,17 +87,16 @@ export default class WebServer {
 
 		//start web server
 		this.httpServer = http.createServer(this.app);
-		ViteExpress.listen(this.app, process.env.PORT || config.server.port, () => {
-			//log
-			log.info(
-				"Web Server Initialized On Port: " + this.httpServer.address().port
-			);
-		});
-		// this.server.listen(process.env.PORT || config.server.port, () => {
-		// 	//log
-		// 	log.info(
-		// 		"Web Server Initialized On Port: " + this.server.address().port
-		// 	);
-		// });
+		ViteExpress.listen(
+			this.app,
+			process.env.PORT || config.server.port,
+			() => {
+				//log
+				log.info(
+					"Web Server Initialized On Port: " + process.env.PORT ||
+						config.server.port
+				);
+			}
+		);
 	}
 }

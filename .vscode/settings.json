@@ -6,10 +6,12 @@
 		"Colyseus",
 		"loaderror",
 		"nametag",
+		"resave",
 		"spritesheet",
 		"storejs",
 		"tilemap",
 		"unwalkable",
-		"Websockets"
+		"Websockets",
+		"socketio"
 	]
 }

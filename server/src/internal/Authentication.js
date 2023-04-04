@@ -6,7 +6,6 @@ import { OAuth2Strategy } from 'passport-oauth';
 import axios from 'axios';
 import cookieParseFactory from 'cookie-parser';
 const cookieParse = cookieParseFactory();
-import { instrument } from '@socket.io/admin-ui';
 
 //modules
 import database from '../module/Database.js';
@@ -137,16 +136,16 @@ export default class Authentication {
     //websocket authentication rules
     websocketAuthentication(io) {
         //authentication
-        instrument(io, {
-            auth: {
-                type: config.socketio_admin_dash.auth.type,
-                username: config.socketio_admin_dash.auth.username,
-                password: bcrypt.hashSync(
-                    config.socketio_admin_dash.auth.password,
-                    10
-                ),
-            },
-        });
+        // instrument(io, {
+        //     auth: {
+        //         type: config.socketio_admin_dash.auth.type,
+        //         username: config.socketio_admin_dash.auth.username,
+        //         password: bcrypt.hashSync(
+        //             config.socketio_admin_dash.auth.password,
+        //             10
+        //         ),
+        //     },
+        // });
         io.use((socket, next) => {
             socket.client.request.originalUrl = socket.client.request.url;
             cookieParse(socket.client.request, socket.client.request.res, next);

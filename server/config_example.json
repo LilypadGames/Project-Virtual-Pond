@@ -3,9 +3,10 @@
     "production": false,
     "debug": true,
     "paths": {
-        "client": "client",
-        "logs": "server/logs",
-        "cache": "client/public/cache"
+        "client": "../client",
+        "html": "../client/src/page/",
+        "logs": "./logs",
+        "cache": "../client/public/cache"
     },
     "server": {
         "online": true,
