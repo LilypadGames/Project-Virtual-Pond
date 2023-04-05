@@ -1,6 +1,5 @@
 //imports
-import express from "express";
-import { Express as ExpressServer } from "express";
+import express, { Express, Request, Response } from 'express';
 import ViteExpress from "vite-express";
 import http from "http";
 
@@ -14,13 +13,16 @@ import log from "../module/Logs.js";
 //config
 import config from "../../config.json" assert { type: "json" };
 
-// html path
+// paths
 let htmlPath = config.production
 	? config.paths.production.html
 	: config.paths.development.html;
+let assetPath = config.production
+	? config.paths.production.client
+	: config.paths.development.client;
 
 export default class WebServer {
-	app: ExpressServer;
+	app: Express;
 	httpServer: http.Server;
 	auth: Authentication;
 
@@ -35,16 +37,13 @@ export default class WebServer {
 		this.app.set("trust proxy", config.server.proxy);
 
 		//serve client files (html/css/js/assets)
-		this.app.use(
-			"/",
-			express.static(config.paths[config.production ? "production" : "development"].client)
-		);
+		this.app.use("/", express.static(assetPath));
 
 		//setup authentication rules
 		this.auth = new Authentication(this.app);
 
 		//detect authentication and serve game page
-		this.app.get("/", function (req, res) {
+		this.app.get("/", function (req: Request, res: Response) {
 			//successfully authenticated
 			if (
 				(req.session &&
@@ -83,7 +82,7 @@ export default class WebServer {
 
 		//logout
 		this.app.get("/logout", function (req, res) {
-			req.logout(function (err) {
+			req.logout(function (err: any) {
 				if (err) {
 					return next(err);
 				}

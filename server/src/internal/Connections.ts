@@ -1,3 +1,7 @@
+// typings
+import { Express as ExpressServer } from "express";
+
+// imports
 import axios from 'axios';
 
 //modules
@@ -7,7 +11,9 @@ import log from '../module/Logs.js';
 import config from '../../config.json' assert { type: 'json' };
 
 export default class Connections {
-    constructor(app) {
+    app;
+
+    constructor(app: ExpressServer) {
         //store web server
         this.app = app;
 
@@ -21,8 +27,9 @@ export default class Connections {
             //get discords user access token and verify their connections
             if (req.query && req.query.code) {
                 this.getDiscordUsersAccessToken(
-                    req.query.code,
-                    (page, root) => {
+                    req.query.code as string,
+                    // callback, which sends a page to the user after this is all done
+                    (page: string, root: string) => {
                         res.sendFile(page, { root: root });
                     }
                 );
@@ -31,7 +38,7 @@ export default class Connections {
     }
 
     //use auth code to get access token
-    getDiscordUsersAccessToken(code, pageCallback) {
+    getDiscordUsersAccessToken(code: string, pageCallback: Function) {
         axios
             .post(
                 'https://discord.com/api/oauth2/token',
@@ -50,7 +57,7 @@ export default class Connections {
                 }
             )
             .then((response) => {
-                getDiscordUsersData(response.data, pageCallback);
+                this.getDiscordUsersData(response.data, pageCallback);
             })
             .catch((error) => {
                 // NOTE: An unauthorized token will not throw an error
@@ -68,7 +75,7 @@ export default class Connections {
     }
 
     //get discord users connection using access token
-    async getDiscordUsersData(data, pageCallback) {
+    async getDiscordUsersData(data: {token_type:string, access_token:string}, pageCallback: Function) {
         //get user data
         let userData = await axios
             .get('https://discord.com/api/users/@me', {
@@ -124,7 +131,7 @@ export default class Connections {
             });
 
         //tie this Discord user to their Twitch Account
-        connectDiscordAccountToTwitchAccount(
+        this.connectDiscordAccountToTwitchAccount(
             userData,
             userConnections,
             pageCallback
@@ -133,13 +140,13 @@ export default class Connections {
 
     //get discord users twitch account from connections data
     connectDiscordAccountToTwitchAccount(
-        userData,
-        userConnections,
-        pageCallback
+        userData: any,
+        userConnections: any,
+        pageCallback: Function
     ) {
-        // //get discord users ID
-        // let discordID = userData.id;
-        // console.log(discordID);
+        //get discord users ID
+        let discordID = userData.id;
+        console.log(discordID);
 
         //discord user has a twitch connection
         if (
@@ -149,7 +156,7 @@ export default class Connections {
             let twitchID = userConnections.find(
                 (property) => property.type === 'twitch'
             ).id;
-            // console.log(twitchID);
+            console.log(twitchID);
         }
 
         //discord user does not have a twitch connection

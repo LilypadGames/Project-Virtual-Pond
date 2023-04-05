@@ -1,9 +1,15 @@
+import { Express, Request, Response } from 'express';
+import { Server as SocketIOServer } from 'socket.io';
+
 //modules
 import serverMetrics from '../module/ServerMetrics.js';
 import database from '../module/Database.js';
 
 export default class API {
-    constructor(app, io) {
+    app: Express;
+    io: SocketIOServer;
+
+    constructor(app: Express, io: SocketIOServer) {
         //store web server
         this.app = app;
 
@@ -16,7 +22,7 @@ export default class API {
 
     setup() {
         //online player count
-        this.app.get('/api/v1/players/online/count', (req, res) => {
+        this.app.get('/api/v1/players/online/count', (_req: Request, res: Response) => {
             //response
             let response = {
                 value: serverMetrics.getPlayerCount(),
@@ -27,7 +33,7 @@ export default class API {
         });
 
         //online players
-        this.app.get('/api/v1/players/online', (req, res) => {
+        this.app.get('/api/v1/players/online', (_req: Request, res: Response) => {
             //response
             let response = serverMetrics.getPlayers();
 
@@ -36,7 +42,7 @@ export default class API {
         });
 
         //player information
-        this.app.get('/api/v1/player/:id', async (req, res) => {
+        this.app.get('/api/v1/player/:id', async (req: Request, res: Response) => {
             //parameters
             let playerID = req.params.id;
 

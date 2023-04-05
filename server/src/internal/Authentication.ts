@@ -10,7 +10,7 @@ declare module "http" {
         res: any;
 	}
 }
-import { Express as ExpressServer, NextFunction, Request } from "express";
+import { Express, NextFunction, Request } from 'express';
 import { Server as SocketIOServer } from 'socket.io';
 
 // imports
@@ -41,9 +41,9 @@ const passportInit = passport.initialize();
 const passportSession = passport.session();
 
 export default class Authentication {
-    app: ExpressServer;
+    app: Express;
 
-	constructor(app: ExpressServer) {
+	constructor(app: Express) {
 		//store web server
 		this.app = app;
 
@@ -98,11 +98,11 @@ export default class Authentication {
 				});
 		};
 
-		passport.serializeUser(function (user: Express.User, done) {
+		passport.serializeUser(function (user: Express.User, done: Function) {
 			done(null, user);
 		});
 
-		passport.deserializeUser(function (user: Express.User, done) {
+		passport.deserializeUser(function (user: Express.User, done: Function) {
 			done(null, user);
 		});
 
