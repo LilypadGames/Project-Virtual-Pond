@@ -1,5 +1,11 @@
-{
-    "forest": {
+// rooms
+import Pond from "../room/Pond.ts";
+import Theatre from "../room/Theatre.ts";
+
+// setup room data
+export default {
+    "pond": {
+        "class": Pond,
         "spawnpoint": {
             "minX": 281,
             "maxX": 975,
@@ -11,6 +17,7 @@
         ]
     },
     "theatre": {
+        "class": Theatre,
         "spawnpoint": {
             "minX": 172,
             "maxX": 1078,

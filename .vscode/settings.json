@@ -11,11 +11,13 @@
 		"pokelawls",
 		"resave",
 		"socketio",
+		"spawnpoint",
 		"spritesheet",
 		"storejs",
 		"tilemap",
 		"twitchtv",
 		"unwalkable",
+		"webfontloader",
 		"Websockets"
 	]
 }
