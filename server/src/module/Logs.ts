@@ -6,8 +6,8 @@ import * as url from "url";
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
 // modules
-import utility from "./Utility.js";
-import ConsoleColor from "./ConsoleColor.js";
+import utility from "./Utility.ts";
+import ConsoleColor from "./ConsoleColor.ts";
 
 // config
 import config from "../../config.json" assert { type: "json" };
@@ -34,28 +34,28 @@ export default {
 		utility.createDirectory(path.join(__dirname, this.logPath));
 
 		// override default console logging
-		let formatArgs = function (args: any) {
-			return util.format.apply(
-				util.format,
-				Array.prototype.slice.call(args)
-			);
-		};
-		console.log = () => {
-			let message = formatArgs(arguments);
-			this.message(message);
-		};
-		console.info = () => {
-			let message = formatArgs(arguments);
-			this.info(message);
-		};
-		console.warn = () => {
-			let message = formatArgs(arguments);
-			this.warn(message);
-		};
-		console.error = () => {
-			let message = formatArgs(arguments);
-			this.error(message);
-		};
+		// let formatArgs = function (args: any) {
+		// 	return util.format.apply(
+		// 		util.format,
+		// 		Array.prototype.slice.call(args)
+		// 	);
+		// };
+		// console.log = () => {
+		// 	let message = formatArgs(arguments);
+		// 	this.message(message);
+		// };
+		// console.info = () => {
+		// 	let message = formatArgs(arguments);
+		// 	this.info(message);
+		// };
+		// console.warn = () => {
+		// 	let message = formatArgs(arguments);
+		// 	this.warn(message);
+		// };
+		// console.error = () => {
+		// 	let message = formatArgs(arguments);
+		// 	this.error(message);
+		// };
 		// DEBUG
 		process.on("warning", (error) => this.warn(error.stack as string));
 	},

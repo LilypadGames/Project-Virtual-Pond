@@ -6,7 +6,7 @@
 			"group": "build",
 			"problemMatcher": [],
 			"label": "Build Client",
-			"detail": "tsc && vite build"
+			"detail": "Builds the client for this project, done before starting the server in production"
 		},
 		{
 			"type": "npm",
@@ -14,7 +14,7 @@
 			"group": "none",
 			"problemMatcher": [],
 			"label": "Install Dependencies",
-			"detail": "install dependencies from package"
+			"detail": "Install necessary dependencies for this project"
 		}
 	]
 }

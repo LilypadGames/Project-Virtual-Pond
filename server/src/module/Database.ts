@@ -2,7 +2,7 @@
 import firebase, { ServiceAccount } from "firebase-admin";
 
 // modules
-import log from "./Logs.js";
+import log from "./Logs.ts";
 
 // config
 import config from "../../config.json" assert { type: "json" };

@@ -8,20 +8,24 @@
 			"name": "Dev",
 			"type": "node",
 			"request": "launch",
-			"skipFiles": ["<node_internals>/**"],
-			"program": "${workspaceFolder}/server/src/Run.js",
-			"console": "integratedTerminal"
+			"runtimeExecutable": "node",
+			"runtimeArgs": ["--no-warnings", "--loader", "ts-node/esm"],
+			"args": ["${workspaceFolder}/server/src/Run.ts"],
+			"console": "integratedTerminal",
+			"skipFiles": ["<node_internals>/**", "node_modules/**"]
 		},
 		{
 			"name": "Run",
 			"type": "node",
 			"request": "launch",
-			"skipFiles": ["<node_internals>/**"],
-			"program": "${workspaceFolder}/server/src/Run.js",
+			"runtimeExecutable": "node",
+			"runtimeArgs": ["--no-warnings", "--loader", "ts-node/esm"],
+			"args": ["${workspaceFolder}/server/src/Run.ts"],
+			"console": "integratedTerminal",
+			"skipFiles": ["<node_internals>/**", "node_modules/**"],
 			"env": {
 				"NODE_ENV": "production"
 			},
-			"console": "integratedTerminal",
 			"preLaunchTask": "Build Client"
 		}
 	]
