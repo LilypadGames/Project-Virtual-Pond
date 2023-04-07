@@ -1,119 +1,140 @@
-// Utility Functions
-
-//dependency: file parsing
-import fs from 'fs';
+// imports
+import fs from "fs";
 
 export default {
-    //get a random integer
-    getRandomInt: function (min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
+	// random
+	random: {
+		// get a random integer (inclusive of both min and max)
+		int: function (min: number = 1, max: number = 100) {
+			return Math.floor(Math.random() * (max - min + 1) + min);
+		},
 
-    //get random from array
-    randomFromArray: function (array) {
-        return array[Math.floor(Math.random() * array.length)];
-    },
+		// get random entry from provided array
+		fromArray: function (array: Array<any>) {
+			return array[Math.floor(Math.random() * array.length)];
+		},
+	},
 
-    //return timestamp
-    getTimestamp: function () {
-        var timestamp = new Date(Date.now()).toLocaleString();
-        return timestamp;
-    },
+	// time
+	time: {
+		// get current timestamp
+		currentTimestamp: function () {
+			var timestamp = new Date(Date.now()).toLocaleString();
+			return timestamp;
+		},
 
-    //get todays date
-    getCurrentDay: function () {
-        const today = new Date();
-        return this.getDate(today);
-    },
+		// get todays date
+		currentDate: function () {
+			const today = new Date();
+			return this.formatDate(today);
+		},
 
-    //get formatted date from unix timestamp
-    getDate: function (day) {
-        return (
-            day.getFullYear() + '-' + (day.getMonth() + 1) + '-' + day.getDate()
-        );
-    },
+		// format date
+		formatDate: function (day: Date) {
+			return (
+				day.getFullYear() +
+				"-" +
+				(day.getMonth() + 1) +
+				"-" +
+				day.getDate()
+			);
+		},
+	},
 
-    //create directory if doesn't exist
-    createDirectory: function (dir) {
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
-    },
+	// convert hex color codes
+	hex: {
+		// from number to string
+		toString(hexColor: number) {
+			return "#" + hexColor.toString(16);
+		},
 
-    //merge two objects, overwriting first one with second one
-    mergeObjects: function (a, b) {
-        var c = {};
-        for (var idx in a) {
-            c[idx] = a[idx];
-        }
-        for (var idx in b) {
-            c[idx] = b[idx];
-        }
-        return c;
-    },
+		// from string to number
+		toDecimal(hexColor: string) {
+			return parseInt(hexColor, 16);
+		},
 
-    hex: {
-        toString(hexColor) {
-            return '#' + hexColor.toString(16);
-        },
+		// from hex to rgb
+		toRGB(hexColor: string) {
+			const result = String(
+				/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexColor)
+			);
+			return {
+				r: this.toDecimal(result[1]),
+				g: this.toDecimal(result[2]),
+				b: this.toDecimal(result[3]),
+			};
+		},
+	},
 
-        toDecimal(hexColor) {
-            return parseInt(hexColor, 16);
-        },
+	// sanitize
+	sanitize: {
+		// strings
+		string: function (input: string) {
+			return typeof input === "string" && input.trim().length > 0
+				? input.trim()
+				: "";
+		},
+		// booleans
+		boolean: function (input: boolean) {
+			return typeof input === "boolean" && input === true ? true : false;
+		},
+		// arrays
+		array: function (input: Array<any>) {
+			return typeof input === "object" && input instanceof Array
+				? input
+				: [];
+		},
+		// numbers
+		number: function (input: number) {
+			return typeof input === "number" && input % 1 === 0 ? input : 0;
+		},
+		// objects
+		object: function (input: Record<string, any>) {
+			return typeof input === "object" &&
+				!(input instanceof Array) &&
+				input !== null
+				? input
+				: {};
+		},
+	},
 
-        toRGB(hexColor) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(
-                hexColor
-            );
-            return {
-                r: this.hex.toDecimal(result[1]),
-                g: this.hex.toDecimal(result[2]),
-                b: this.hex.toDecimal(result[3]),
-            };
-        },
-    },
+	// sort
+	sort: {
+		// object
+		object: function (object: Record<string, any>, asc: boolean = false) {
+			const sortedObject: Record<string, any> = {};
+			Object.keys(object)
+				.sort((a, b) => object[asc ? a : b] - object[asc ? b : a])
+				.forEach((s) => (sortedObject[s] = object[s]));
+			return sortedObject;
+		},
+	},
 
-    //sanitize variable
-    sanitize: {
-        //strings
-        string: function (input) {
-            return typeof input === 'string' && input.trim().length > 0
-                ? input.trim()
-                : '';
-        },
-        //booleans
-        boolean: function (input) {
-            return typeof input === 'boolean' && input === true ? true : false;
-        },
-        //arrays
-        array: function (input) {
-            return typeof input === 'object' && input instanceof Array
-                ? input
-                : [];
-        },
-        //numbers
-        number: function (input) {
-            return typeof input === 'number' && input % 1 === 0 ? input : 0;
-        },
-        //objects
-        object: function (input) {
-            return typeof input === 'object' &&
-                !(input instanceof Array) &&
-                input !== null
-                ? input
-                : {};
-        },
-    },
+	// create a directory if doesn't exist
+	createDirectory: function (dir: string) {
+		if (!fs.existsSync(dir)) {
+			fs.mkdirSync(dir);
+		}
+	},
 
-    //sort
-    sort: {
-        //object
-        object: function (object, asc = false) {
-            const sortedObject = {};
-            Object.keys(object)
-                .sort((a, b) => object[asc ? a : b] - object[asc ? b : a])
-                .forEach((s) => (sortedObject[s] = object[s]));
-            return sortedObject;
-        },
-    },
+	// merge two objects, overwriting first one with second one
+	mergeObjects: function (
+		arrayA: Record<string, any>,
+		arrayB: Record<string, any>
+	) {
+		// init new merged array
+		var mergedArray: Record<string, any> = {};
+
+		// merge provided arrays into new array
+		let key: keyof typeof arrayA;
+		for (key in arrayA) {
+			mergedArray[key] = arrayA[key];
+		}
+		for (key in arrayB) {
+			mergedArray[key] = arrayB[key];
+		}
+
+		// return new merged array
+		return mergedArray;
+	},
 };
