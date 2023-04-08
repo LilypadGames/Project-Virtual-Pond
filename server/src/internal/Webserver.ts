@@ -1,6 +1,7 @@
 // imports
 import { createServer as createHTTPServer } from "http";
 import express, { Request, Response } from "express";
+import cors from "cors";
 import ViteExpress from "vite-express";
 
 // internal
@@ -25,6 +26,8 @@ let htmlPath =
 
 // setup express
 export let app = express();
+app.use(cors());
+app.use(express.json());
 export let webserver = createHTTPServer(app);
 
 export default {
@@ -51,6 +54,6 @@ export default {
 		);
 
 		// setup Colyseus server
-		Colyseus.init(webserver);
+		Colyseus.init(webserver, app);
 	},
 };
