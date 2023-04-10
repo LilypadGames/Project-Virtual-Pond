@@ -49,11 +49,11 @@ export default {
 		});
 
 		// setup server
-		ViteExpress.listen(app, Number(config.server.port), () =>
+		let viteServer = ViteExpress.listen(app, Number(config.server.port), () =>
 			log.message("Server initialized with port " + config.server.port)
 		);
 
 		// setup Colyseus server
-		Colyseus.init(webserver, app);
+		Colyseus.init(viteServer, app);
 	},
 };

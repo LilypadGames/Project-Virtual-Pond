@@ -1,6 +1,7 @@
 import Core from "./internal/Core";
 import config from "../config";
 import Player from "../script/Player";
+import { server } from "../index";
 
 interface roomInfo {
 	music: string | undefined;
@@ -43,9 +44,12 @@ export default class Game extends Core {
 		this.roomData = this.registry.get("roomData")[this.room];
 	}
 
-	create() {
+	async create() {
 		// core
 		this.core.create();
+
+		// connect to room
+		await server.joinRoom(this.room);
 
 		// generate room
 		this.generateRoom();
@@ -62,6 +66,9 @@ export default class Game extends Core {
 				eyeType: "happy",
 			}
 		);
+
+		// register events
+		this.registerEvents();
 
 		// end wait screen
 		this.endWaitScreen();
@@ -132,6 +139,29 @@ export default class Game extends Core {
 				this.unwalkableLayer.push(layer);
 			}
 		});
+	}
+
+	// register events
+	registerEvents() {
+		// player joined
+		server.events.on(
+			"playerJoined",
+			() => {
+				// DEBUG
+				console.log("Player Joined Game");
+			},
+			this
+		);
+
+		// player left
+		server.events.on(
+			"playerLeft",
+			() => {
+				// DEBUG
+				console.log("Player Left Game");
+			},
+			this
+		);
 	}
 
 	//check if click location is allowed by navigational map (returns true if click location is allowed by navigation map and false otherwise)

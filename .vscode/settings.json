@@ -19,5 +19,6 @@
 		"unwalkable",
 		"webfontloader",
 		"Websockets"
-	]
+	],
+	"typescript.tsdk": "node_modules\\typescript\\lib"
 }

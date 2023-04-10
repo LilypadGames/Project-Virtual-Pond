@@ -13,7 +13,7 @@ export let server: ColyseusServer;
 function createServer(webserver: HTTPServer) {
 	return new ColyseusServer({
 		transport: new WebSocketTransport({
-			server: webserver,
+			server: webserver
 		}),
 	});
 }
@@ -31,7 +31,7 @@ export default {
 			);
 		}
 
-		// register colyseus monitor
+		// start colyseus monitor
 		app.use("/colyseus", monitor());
 	},
 };
