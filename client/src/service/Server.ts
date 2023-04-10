@@ -1,10 +1,10 @@
 import { Client, Room } from "colyseus.js";
 import Phaser from "phaser";
-import { Player } from "../../../server/src/state/WorldState";
+import WorldState, { Player } from "../../../server/src/state/WorldState";
 
 export default class Server {
 	private client: Client;
-	private room?: Room;
+	private room?: Room<WorldState>;
 
 	events: Phaser.Events.EventEmitter;
 
@@ -21,6 +21,9 @@ export default class Server {
 		try {
 			// connect to room
 			this.room = await this.client.joinOrCreate(room);
+
+			// DEBUG
+			console.log("CONNECTED!!");
 		} catch (e) {
 			// DEBUG
 			console.error(e);
@@ -28,24 +31,25 @@ export default class Server {
 		}
 
 		// event: player joined
-		this.room.state.players.onAdd((player: Player, sessionId: string) => {
+		this.room.state.players.onAdd = (player: Player, sessionID: string) => {
 			//DEBUG
-			console.log("Player Joined: ", sessionId);
+			console.log("Player Joined: ", sessionID);
 
 			// emit event
 			this.events.emit("playerJoined", player);
-		});
+		};
 
 		// event: player left
-		this.room.state.players.onRemove(
-			(player: Player, sessionId: string) => {
-				//DEBUG
-				console.log("Player Left: ", sessionId);
+		this.room.state.players.onRemove = (
+			player: Player,
+			sessionId: string
+		) => {
+			//DEBUG
+			console.log("Player Left: ", sessionId);
 
-				// emit event
-				this.events.emit("playerLeft", player);
-			}
-		);
+			// emit event
+			this.events.emit("playerLeft", player);
+		};
 	}
 
 	// leave room on server

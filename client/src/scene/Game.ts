@@ -21,8 +21,8 @@ export default class Game extends Core {
 	walkableLayer: Array<Phaser.GameObjects.Image> = [];
 	unwalkableLayer: Array<Phaser.GameObjects.Image> = [];
 	clientPlayer!: Player;
-	player!: {
-		[id: number]: Player;
+	players!: {
+		[id: string]: Player;
 	};
 
 	constructor(data: { room: string }) {
@@ -48,27 +48,27 @@ export default class Game extends Core {
 		// core
 		this.core.create();
 
+		// register events
+		this.registerEvents();
+
 		// connect to room
 		await server.joinRoom(this.room);
 
 		// generate room
 		this.generateRoom();
 
-		// place client player
-		this.clientPlayer = new Player(
-			this,
-			this.sys.canvas.width / 2,
-			this.sys.canvas.height / 2,
-			0,
-			"Guest",
-			{
-				tint: 0,
-				eyeType: "happy",
-			}
-		);
-
-		// register events
-		this.registerEvents();
+		// // place client player
+		// this.clientPlayer = new Player(
+		// 	this,
+		// 	this.sys.canvas.width / 2,
+		// 	this.sys.canvas.height / 2,
+		// 	0,
+		// 	"Guest",
+		// 	{
+		// 		tint: 0,
+		// 		eyeType: "happy",
+		// 	}
+		// );
 
 		// end wait screen
 		this.endWaitScreen();
