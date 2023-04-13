@@ -2,27 +2,22 @@
 import { createServer as createHTTPServer } from "http";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import ViteExpress from "vite-express";
-
-// internal
-import Colyseus from "../internal/Colyseus.ts";
 
 // modules
 import log from "../module/Logs.ts";
 
+// internal
+import Colyseus from "../internal/Colyseus.ts";
+
 // config
 import config from "../../config.json" assert { type: "json" };
 
-// set up vite-express config
-ViteExpress.config({
-	mode: process.env.NODE_ENV as "production" | "development",
-});
-
 // get html path
 let htmlPath =
-	process.env.NODE_ENV === "production"
+	"../" +
+	(process.env.NODE_ENV === "production"
 		? config.paths.production.html
-		: config.paths.development.html;
+		: config.paths.development.html);
 
 // setup express
 export let app = express();
@@ -37,9 +32,10 @@ export default {
 		app.use(
 			"/",
 			express.static(
-				config.paths[
-					process.env.NODE_ENV as "production" | "development"
-				].client
+				"../" +
+					config.paths[
+						process.env.NODE_ENV as "production" | "development"
+					].client
 			)
 		);
 		app.get("/", function (_: Request, res: Response) {
@@ -48,12 +44,12 @@ export default {
 			});
 		});
 
-		// setup server
-		let viteServer = ViteExpress.listen(app, Number(config.server.port), () =>
-			log.message("Server initialized with port " + config.server.port)
-		);
+		//start web server
+		webserver.listen(Number(config.server.port), () => {
+			log.info("Web Server Initialized> Port: " + config.server.port);
+		});
 
 		// setup Colyseus server
-		Colyseus.init(viteServer, app);
+		Colyseus.init(webserver, app);
 	},
 };
