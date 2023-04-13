@@ -39,7 +39,6 @@
   },
   "dependencies": {
     "colyseus.js": "^0.14.13",
-    "firebase-admin": "^11.0.0",
     "jquery": "^3.6.4",
     "phaser": "^3.55.2",
     "webfontloader": "^1.6.28"
