@@ -26,7 +26,7 @@ export default class Core extends Phaser.Scene {
 		},
 		create: () => {
 			// disable right-click context menu
-			this.input.mouse.disableContextMenu();
+			(this.input.mouse as Phaser.Input.Mouse.MouseManager).disableContextMenu();
 		},
 		// restart game
 		restart: () => {
