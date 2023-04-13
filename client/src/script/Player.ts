@@ -318,11 +318,11 @@ export default class Player extends Phaser.GameObjects.Container {
 			let baseTexture = this.scene.textures.get(sprite).getSourceImage();
 
 			//init new tinted texture
-			var tintedTexture = this.scene.textures.createCanvas(
+			var tintedTexture: Phaser.Textures.CanvasTexture = this.scene.textures.createCanvas(
 				sprite + "_" + tint,
 				baseTexture.width,
 				baseTexture.height
-			);
+			) as Phaser.Textures.CanvasTexture;
 
 			//get tinted texture data
 			var ctx = tintedTexture.context;
