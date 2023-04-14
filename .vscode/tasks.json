@@ -1,20 +1,71 @@
 {
+	"version": "2.0.0",
 	"tasks": [
 		{
 			"type": "npm",
 			"script": "build",
 			"group": "build",
 			"problemMatcher": [],
-			"label": "Build Client",
-			"detail": "Builds the client for this project, done before starting the server in production"
+			"label": "Client: Build",
+			"detail": "Builds the client for this project, done before starting the server in production",
+			"options": {
+				"cwd": "${workspaceFolder}/client/"
+			}
 		},
 		{
 			"type": "npm",
 			"script": "install",
 			"group": "none",
 			"problemMatcher": [],
-			"label": "Install Dependencies",
-			"detail": "Install necessary dependencies for this project"
+			"label": "Client: Install Dependencies",
+			"detail": "Install necessary dependencies",
+			"options": {
+				"cwd": "${workspaceFolder}/client/"
+			}
+		},
+		{
+			"type": "npm",
+			"script": "prune",
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Client: Prune",
+			"detail": "Prunes unused dependencies",
+			"options": {
+				"cwd": "${workspaceFolder}/client/"
+			}
+		},
+		{
+			"type": "npm",
+			"script": "clean",
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Client: Clean",
+			"detail": "Deletes the clients previously built files and makes a new empty dist directory",
+			"options": {
+				"cwd": "${workspaceFolder}/client/"
+			}
+		},
+		{
+			"type": "npm",
+			"script": "install",
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Server: Install Dependencies",
+			"detail": "Install necessary dependencies",
+			"options": {
+				"cwd": "${workspaceFolder}/server/"
+			}
+		},
+		{
+			"type": "npm",
+			"script": "prune",
+			"group": "none",
+			"problemMatcher": [],
+			"label": "Server: Prune",
+			"detail": "Prunes unused dependencies",
+			"options": {
+				"cwd": "${workspaceFolder}/server/"
+			}
 		}
 	]
 }

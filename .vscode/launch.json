@@ -5,17 +5,18 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Dev",
+			"name": "Server: Dev",
 			"type": "node",
 			"request": "launch",
-			"runtimeExecutable": "node",
-			"runtimeArgs": ["--no-warnings", "--loader", "ts-node/esm"],
+			"runtimeExecutable": "nodemon",
+			"runtimeArgs": ["--exec", "npx", "ts-node", "--esm"],
 			"args": ["${workspaceFolder}/server/src/Run.ts"],
 			"console": "integratedTerminal",
-			"skipFiles": ["<node_internals>/**", "node_modules/**"]
+			"skipFiles": ["<node_internals>/**", "node_modules/**"],
+			"cwd": "${workspaceFolder}/server"
 		},
 		{
-			"name": "Run",
+			"name": "Server: Prod",
 			"type": "node",
 			"request": "launch",
 			"runtimeExecutable": "node",
@@ -26,7 +27,18 @@
 			"env": {
 				"NODE_ENV": "production"
 			},
-			"preLaunchTask": "Build Client"
+			"preLaunchTask": "Client: Build",
+			"cwd": "${workspaceFolder}/server"
+		},
+		{
+			"name": "Client: Dev",
+			"type": "node",
+			"request": "launch",
+			"runtimeExecutable": "npm",
+			"runtimeArgs": ["run", "dev"],
+			"console": "integratedTerminal",
+			"skipFiles": ["<node_internals>/**", "node_modules/**"],
+			"cwd": "${workspaceFolder}/client"
 		}
 	]
 }
