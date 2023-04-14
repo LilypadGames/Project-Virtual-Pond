@@ -23,6 +23,11 @@ export default class Pond extends Room<WorldState> {
 		// DEBUG
 		log.debug("Pond (" + this.roomId + ")> Room Created");
 
+		// latency check
+		setInterval(() => {
+			this.broadcast("ping", Date.now());
+		}, 1000);
+
 		// player movement
 		this.onMessage("player.move", (client: Client, data: any) => {
 			// get reference to the player who sent the message

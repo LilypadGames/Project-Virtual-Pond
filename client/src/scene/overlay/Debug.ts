@@ -1,10 +1,12 @@
 import Player from "../../script/Player";
 import World from "../World";
+import { Server } from "../../index.ts";
 
 export default class Debug extends Phaser.Scene {
 	world!: World;
 	player!: Player;
 	debugText!: Phaser.GameObjects.Text;
+	latency: number | string = "Calculating...";
 
 	constructor() {
 		super({ key: "Debug" });
@@ -26,6 +28,12 @@ export default class Debug extends Phaser.Scene {
 
 		// enable debug lines
 		this.world.physics.world.drawDebug = true;
+
+		// latency calc
+		Server.events.on("ping", (sentTime: number) => {
+			// calc
+			this.latency = String(Date.now() - sentTime) + "ms";
+		});
 	}
 
 	update() {
@@ -35,6 +43,8 @@ export default class Debug extends Phaser.Scene {
 		// update debug
 		this.debugText.setText([
 			"FPS: " + this.game.loop.actualFps,
+			"",
+			"Latency: " + this.latency,
 			"",
 			"Player Pos: (" + this.player.x + ", " + this.player.y + ")",
 			"",

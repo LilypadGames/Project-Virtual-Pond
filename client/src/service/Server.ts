@@ -27,6 +27,12 @@ export class Server {
 			return false;
 		}
 
+		// event: ping
+		this.room.onMessage("ping", (sentTime: number) => {
+			// emit player left event
+			this.events.emit("ping", sentTime);
+		});
+
 		// event: player joined
 		this.room.state.players.onAdd = (player: Player, sessionID: string) => {
 			// emit player join event
