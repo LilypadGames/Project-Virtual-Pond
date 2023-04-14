@@ -1,7 +1,8 @@
 import Core from "./internal/Core";
 import config from "../config";
 import Player from "../script/Player";
-import { server } from "../index";
+import { Server } from "../index";
+import { Player as PlayerState } from "../../../server/src/state/WorldState";
 
 interface roomInfo {
 	music: string | undefined;
@@ -52,7 +53,7 @@ export default class World extends Core {
 		this.registerEvents();
 
 		// connect to room
-		await server.joinRoom(this.room);
+		await Server.joinRoom(this.room);
 
 		// generate room
 		this.generateRoom();
@@ -144,21 +145,21 @@ export default class World extends Core {
 	// register events
 	registerEvents() {
 		// player joined
-		server.events.on(
+		Server.events.on(
 			"playerJoined",
-			() => {
+			(player: PlayerState, sessionID: string) => {
 				// DEBUG
-				console.log("Player Joined Game");
+				console.log(JSON.stringify(player.toJSON()) + " " + sessionID);
 			},
 			this
 		);
 
 		// player left
-		server.events.on(
+		Server.events.on(
 			"playerLeft",
-			() => {
+			(player: PlayerState, sessionID: string) => {
 				// DEBUG
-				console.log("Player Left Game");
+				console.log(JSON.stringify(player.toJSON()) + " " + sessionID);
 			},
 			this
 		);
@@ -188,11 +189,6 @@ export default class World extends Core {
 				}
 			}
 		}
-
-		// //check if the place clicked is a walkable layer
-		// if (layer && !this.walkableLayer.includes(layer)) {
-		// 	return true;
-		// }
 
 		// check if clicked spot is on a walkable layer
 		for (let i = 0; i < this.walkableLayer.length; i++) {

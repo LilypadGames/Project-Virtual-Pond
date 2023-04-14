@@ -3,7 +3,7 @@ import config from "./config";
 import World from "./scene/World";
 import Boot from "./scene/internal/Boot";
 import Load from "./scene/internal/Load";
-import Server from "./service/Server";
+import { Server as ServerConnection } from "./service/Server";
 
 //
 // These are the scenes that are included in the game itself. The game is initialized here, and the config info is brought in from a separate file: config.ts
@@ -15,4 +15,4 @@ export default new Phaser.Game(
 	})
 );
 
-export let server = new Server();
+export let Server = new ServerConnection();
