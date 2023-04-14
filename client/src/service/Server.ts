@@ -4,7 +4,7 @@ import WorldState, { Player } from "../../../server/src/state/WorldState";
 
 export class Server {
 	private client: Client;
-	private room?: Room<WorldState>;
+	room?: Room<WorldState>;
 
 	events: Phaser.Events.EventEmitter;
 
@@ -29,13 +29,23 @@ export class Server {
 
 		// event: player joined
 		this.room.state.players.onAdd = (player: Player, sessionID: string) => {
-			// emit event
+			// emit player join event
 			this.events.emit(
-				"playerJoined",
+				"player.join",
 				player,
 				sessionID,
 				this.room?.sessionId === sessionID
 			);
+
+			// emit player change event
+			player.onChange = () => {
+				this.events.emit(
+					"player.change",
+					player,
+					sessionID,
+					this.room?.sessionId === sessionID
+				);
+			};
 		};
 
 		// event: player left
@@ -43,8 +53,8 @@ export class Server {
 			player: Player,
 			sessionID: string
 		) => {
-			// emit event
-			this.events.emit("playerLeft", player, sessionID);
+			// emit player left event
+			this.events.emit("player.leave", player, sessionID);
 		};
 
 		return true;

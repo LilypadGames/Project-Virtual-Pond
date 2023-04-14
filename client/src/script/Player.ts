@@ -1,6 +1,7 @@
 import Game from "../scene/World";
 import Utility from "../utility/Utility";
 import Nametag from "./Nametag";
+import WorldLogic from "./WorldLogic";
 
 interface playerData {
 	tint: number;
@@ -14,21 +15,23 @@ interface playerData {
 }
 
 export default class Player extends Phaser.GameObjects.Container {
-	id: number;
+	id: string;
 	playerData: playerData;
+	direction: string;
 	tintLayer!: Phaser.GameObjects.Sprite;
 	overlayLayer!: Phaser.GameObjects.Sprite;
 	eyesLayer!: Phaser.GameObjects.Sprite;
 	accessoryLayer!: Phaser.GameObjects.Sprite;
 	nametag!: Nametag;
 	message!: Phaser.GameObjects.Container;
-	movement!: Phaser.Tweens.Tween;
+	movement: Phaser.Tweens.Tween | undefined;
 
 	constructor(
 		scene: Game,
 		x: number,
 		y: number,
-		id: number,
+		direction: string,
+		id: string,
 		name: string,
 		data: playerData
 	) {
@@ -38,6 +41,7 @@ export default class Player extends Phaser.GameObjects.Container {
 		this.id = id;
 		this.name = name;
 		this.playerData = data;
+		this.direction = direction;
 
 		// create player
 		this.create();
@@ -97,16 +101,18 @@ export default class Player extends Phaser.GameObjects.Container {
 		(this.body as any).setCollideWorldBounds(true);
 
 		// update player
-		this.update({
+		this.updatePlayer({
 			x: this.x,
 			y: this.y,
+			direction: this.direction,
 			character: {
 				color: this.playerData.tint,
 			},
 		});
 	}
 
-	update(data: {
+	// update specified player data
+	updatePlayer(data?: {
 		x?: number;
 		y?: number;
 		direction?: string;
@@ -116,6 +122,15 @@ export default class Player extends Phaser.GameObjects.Container {
 		};
 		message?: string;
 	}) {
+		// update with current values
+		if (data == null) {
+			data = {};
+			data.x = this.x;
+			data.y = this.y;
+			data.direction = this.direction;
+			data.character = this.playerData;
+		}
+
 		//place x
 		if (data.x) {
 			this.x = data.x;
@@ -131,7 +146,7 @@ export default class Player extends Phaser.GameObjects.Container {
 		}
 
 		//direction
-		if (data.direction) this.setDirection(data.direction);
+		if (data.direction) this.updateDirection(data.direction);
 
 		//character
 		if (data.character) {
@@ -165,39 +180,95 @@ export default class Player extends Phaser.GameObjects.Container {
 		// }
 	}
 
-	move(x: number, y: number) {
-		//update player direction
-		this.changeDirection(x, y);
+	// move to position
+	move(newPos: { x: number; y: number }) {
+		// no change
+		if (this.x === newPos.x && this.y === newPos.y) return;
 
-		//determine targets to move
-		let targets = [this, this.nametag];
-		// if (this.message) targets.push(this.message);
+		//update player direction based on movement
+		this.updateDirection(
+			WorldLogic.player.direction(
+				{ x: this.x, y: this.y },
+				{ x: newPos.x, y: newPos.y }
+			)
+		);
 
-		//move player (and store it for alteration later)
-		try {
-			//stop current movement
-			if (this.movement) this.movement.stop();
+		// is currently moving
+		if (this.movement && !this.movement.isFinished()) {
+			//get duration of movement
+			var newDuration =
+				Phaser.Math.Distance.Between(
+					this.x,
+					this.y,
+					newPos.x,
+					newPos.y
+				) * 4;
 
-			//new movement
-			this.movement = this.scene.add.tween({
-				targets: targets,
-				x: x,
-				y: y,
-				duration:
-					Phaser.Math.Distance.Between(this.x, this.y, x, y) * 4,
-			});
-		} catch (error) {
-			console.log(
-				"[" +
-					this.scene.cache.json.get("lang_en_us").error
-						.player_movement +
-					"] " +
-					error
-			);
+			//change x
+			this.movement.updateTo("x", newPos.x, true);
+			this.nametag.movement.updateTo("x", newPos.y, true);
+			// if (this.message)
+			// 	(this as any).message.movement.updateTo("x", newX, true);
+
+			//change y
+			this.movement.updateTo("y", newPos.y, true);
+			this.nametag.movement.updateTo("y", newPos.y, true);
+			// if (this.message) this.message.movement.updateTo("y", newY, true);
+
+			//change duration
+			this.movement.updateTo("duration", newDuration, true);
+			this.nametag.movement.updateTo("duration", newDuration, true);
+			// if (this.message)
+			// 	this.message.movement.updateTo(
+			// 		"duration",
+			// 		newDuration,
+			// 		true
+			// 	);
+		}
+
+		// stationary
+		else {
+			//determine targets to move
+			let targets = [this, this.nametag];
+			// if (this.message) targets.push(this.message);
+
+			//move player (and store it for alteration later)
+			try {
+				//new movement
+				this.movement = this.scene.add.tween({
+					targets: targets,
+					x: newPos.x,
+					y: newPos.y,
+					duration:
+						Phaser.Math.Distance.Between(
+							this.x,
+							this.y,
+							newPos.x,
+							newPos.y
+						) * 4,
+					callbacks: () => {
+						// delete saved tween when done tweening
+						delete this.movement;
+					},
+					onUpdate: () => {
+						// update depth
+						this.depth = this.y;
+					},
+				});
+			} catch (error) {
+				console.log(
+					"[" +
+						this.scene.cache.json.get("lang_en_us").error
+							.player_movement +
+						"] " +
+						error
+				);
+			}
 		}
 	}
 
-	halt(newX: number = this.x, newY: number = this.y) {
+	// stop player at specified position or current position
+	halt(newPos: { x: number; y: number } = { x: this.x, y: this.y }) {
 		//stop movement
 		try {
 			if (this.movement) this.movement.stop();
@@ -212,91 +283,30 @@ export default class Player extends Phaser.GameObjects.Container {
 		}
 
 		//sync check
-		if (newX != this.x || newY != this.y) {
-			this.update({ x: newX, y: newY });
+		if (newPos.x != this.x || newPos.y != this.y) {
+			this.updatePlayer({ x: newPos.x, y: newPos.y });
 		}
 	}
 
-	changeMovement(newX: number, newY: number, newDirection: string) {
-		//get duration of movement
-		var newDuration =
-			Phaser.Math.Distance.Between(this.x, this.y, newX, newY) * 5;
+	// update direction
+	updateDirection(direction: string) {
+		// current real direction
+		let realDirection = this.getRealDirection();
 
-		//change x
-		this.movement.updateTo("x", newX, true);
-		this.nametag.movement.updateTo("x", newX, true);
-		// if (this.message)
-		// 	(this as any).message.movement.updateTo("x", newX, true);
-
-		//change y
-		this.movement.updateTo("y", newY, true);
-		this.nametag.movement.updateTo("y", newY, true);
-		// if (this.message) this.message.movement.updateTo("y", newY, true);
-
-		//change duration
-		this.movement.updateTo("duration", newDuration, true);
-		this.nametag.movement.updateTo("duration", newDuration, true);
-		// if (this.message)
-		// 	this.message.movement.updateTo(
-		// 		"duration",
-		// 		newDuration,
-		// 		true
-		// 	);
-
-		//change direction
-		if (newDirection) {
-			this.setDirection(newDirection);
-		}
-	}
-
-	changeDirection(newX: number, newY: number) {
-		//get players current direction
-		var currentDirection = this.getDirection();
-
-		//init newDirection
-		var newDirection;
-
-		//get direction as degrees
-		var targetRad = Phaser.Math.Angle.Between(this.x, this.y, newX, newY);
-		var targetDegrees = Phaser.Math.RadToDeg(targetRad);
-
-		//moving right
-		if (targetDegrees > -90 && targetDegrees < 90) {
-			newDirection = "right";
-		}
-
-		//moving left
-		else if (targetDegrees > 90 || targetDegrees < -90) {
-			newDirection = "left";
-		}
-
-		//look direction changed
+		//if specified direction is different from current real direction, change the players direction
 		if (
-			(newDirection === "right" && currentDirection === "left") ||
-			(newDirection === "left" && currentDirection === "right")
+			(direction === "right" && realDirection === "left") ||
+			(direction === "left" && realDirection === "right")
 		) {
 			this.flipDirection();
 		}
+
+		// store direction
+		this.direction = direction;
 	}
 
-	setDirection(direction: string) {
-		//if specified direction is different from current direction, change the players direction
-		if (
-			(direction == "left" && this.tintLayer.scaleX > 0) ||
-			(direction == "right" && this.tintLayer.scaleX < 0)
-		) {
-			this.flipDirection();
-		}
-	}
-
-	flipDirection() {
-		this.tintLayer.scaleX *= -1;
-		this.overlayLayer.scaleX *= -1;
-		this.eyesLayer.scaleX *= -1;
-		if (this.accessoryLayer) this.accessoryLayer.scaleX *= -1;
-	}
-
-	getDirection() {
+	// get sprite direction
+	getRealDirection() {
 		//player character is facing right
 		if (this.tintLayer.scaleX > 0) {
 			return "right";
@@ -308,6 +318,14 @@ export default class Player extends Phaser.GameObjects.Container {
 		}
 
 		return undefined;
+	}
+
+	// flip sprite
+	flipDirection() {
+		this.tintLayer.scaleX *= -1;
+		this.overlayLayer.scaleX *= -1;
+		this.eyesLayer.scaleX *= -1;
+		if (this.accessoryLayer) this.accessoryLayer.scaleX *= -1;
 	}
 
 	// get or create and cache a tinted version of the tint-able sprite

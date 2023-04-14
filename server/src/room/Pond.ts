@@ -1,5 +1,4 @@
 // imports
-// import http from "http";
 import { Room, Client } from "colyseus";
 
 // modules
@@ -12,6 +11,9 @@ import RoomData from "../internal/RoomData.ts";
 // data
 import WorldState, { Player } from "../state/WorldState.ts";
 
+// authoritative checks
+import WorldLogic from "../../../client/src/script/WorldLogic.ts";
+
 export default class Pond extends Room<WorldState> {
 	// When room is initialized
 	onCreate(_options: any) {
@@ -20,6 +22,24 @@ export default class Pond extends Room<WorldState> {
 
 		// DEBUG
 		log.debug("Pond (" + this.roomId + ")> Room Created");
+
+		// player movement
+		this.onMessage("player.move", (client: Client, data: any) => {
+			// get reference to the player who sent the message
+			const player = this.state.players.get(client.sessionId) as Player;
+
+			// check for valid navigation
+			if (WorldLogic.player.navigation(data)) {
+				// set new direction
+				player.direction = WorldLogic.player.direction(
+					{ x: player.x, y: player.y },
+					{ x: data.x, y: data.y }
+				);
+
+				// set new position
+				[player.x, player.y] = [data.x, data.y];
+			}
+		});
 	}
 
 	// // Authorize client based on provided options before WebSocket handshake is complete
@@ -28,7 +48,13 @@ export default class Pond extends Room<WorldState> {
 	// When client successfully join the room
 	onJoin(client: Client, _options: any, _auth: any) {
 		// DEBUG
-		log.debug("Pond (" + this.roomId + ")> Player (" + client.sessionId + ") joined");
+		log.debug(
+			"Pond (" +
+				this.roomId +
+				")> Player (" +
+				client.sessionId +
+				") joined"
+		);
 
 		// create player
 		const player = new Player();
@@ -43,6 +69,9 @@ export default class Pond extends Room<WorldState> {
 			RoomData.pond.spawnpoint.maxY
 		);
 
+		// random direction
+		player.direction = utility.random.fromArray(["left", "right"]);
+
 		// add to player list
 		this.state.players.set(client.sessionId, player);
 	}
@@ -50,7 +79,9 @@ export default class Pond extends Room<WorldState> {
 	// When a client leaves the room
 	onLeave(client: Client, _consented: boolean) {
 		// DEBUG
-		log.debug("Pond (" + this.roomId + ")> Player (" + client.sessionId + ") left");
+		log.debug(
+			"Pond (" + this.roomId + ")> Player (" + client.sessionId + ") left"
+		);
 
 		// remove from player list
 		this.state.players.delete(client.sessionId);

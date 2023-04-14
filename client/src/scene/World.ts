@@ -58,19 +58,6 @@ export default class World extends Core {
 		// generate room
 		this.generateRoom();
 
-		// // place client player
-		// this.clientPlayer = new Player(
-		// 	this,
-		// 	this.sys.canvas.width / 2,
-		// 	this.sys.canvas.height / 2,
-		// 	0,
-		// 	"Guest",
-		// 	{
-		// 		tint: 0,
-		// 		eyeType: "happy",
-		// 	}
-		// );
-
 		// end wait screen
 		this.endWaitScreen();
 	}
@@ -108,8 +95,17 @@ export default class World extends Core {
 					"pointerdown",
 					(pointer: Phaser.Input.Pointer) => {
 						if (this.navigationCheck(pointer.x, pointer.y)) {
+							// send movement to server
+							Server.room?.send("player.move", {
+								x: pointer.x,
+								y: pointer.y,
+							});
+
 							//move client player
-							this.clientPlayer.move(pointer.x, pointer.y);
+							this.clientPlayer.move({
+								x: pointer.x,
+								y: pointer.y,
+							});
 						}
 					},
 					this
@@ -144,19 +140,37 @@ export default class World extends Core {
 
 	// register events
 	registerEvents() {
+		// focus page
+		this.game.events.on(Phaser.Core.Events.FOCUS, () => {
+			// refresh state
+			Server.room?.state.players.forEach(
+				(playerState: PlayerState, sessionID: string) => {
+					// don't refresh client
+					if (sessionID === Server.room?.sessionId) return;
+
+					this.players[sessionID].updatePlayer({
+						x: playerState.x,
+						y: playerState.y,
+						direction: playerState.direction,
+					});
+				}
+			);
+		});
+
 		// player joined
 		Server.events.on(
-			"playerJoined",
-			(player: PlayerState, sessionID: string, client: boolean) => {
+			"player.join",
+			(playerState: PlayerState, sessionID: string, client: boolean) => {
 				// DEBUG
-				console.log(player.toJSON(), sessionID, client);
+				// console.log(playerState.toJSON(), sessionID, client);
 
 				// create player
 				this.players[sessionID] = new Player(
 					this,
-					player.x,
-					player.y,
-					0,
+					playerState.x,
+					playerState.y,
+					playerState.direction,
+					sessionID,
 					sessionID,
 					{
 						tint: 0,
@@ -172,14 +186,35 @@ export default class World extends Core {
 
 		// player left
 		Server.events.on(
-			"playerLeft",
-			(player: PlayerState, sessionID: string) => {
+			"player.leave",
+			(_playerState: PlayerState, sessionID: string) => {
 				// DEBUG
-				console.log(JSON.stringify(player.toJSON()) + " " + sessionID);
+				// console.log(
+				// 	JSON.stringify(playerState.toJSON()) + " " + sessionID
+				// );
 
 				// delete player
 				this.players[sessionID].delete();
 				delete this.players[sessionID];
+			},
+			this
+		);
+
+		// player changed
+		Server.events.on(
+			"player.change",
+			(playerState: PlayerState, sessionID: string, client: boolean) => {
+				// DEBUG
+				// if (!client)
+				// 	console.log(
+				// 		JSON.stringify(playerState.toJSON()) + " " + sessionID
+				// 	);
+
+				// update other players
+				if (!client) {
+					const player = this.players[sessionID];
+					player.move({ x: playerState.x, y: playerState.y });
+				}
 			},
 			this
 		);
