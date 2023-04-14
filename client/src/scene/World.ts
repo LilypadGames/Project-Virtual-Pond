@@ -22,9 +22,9 @@ export default class World extends Core {
 	walkableLayer: Array<Phaser.GameObjects.Image> = [];
 	unwalkableLayer: Array<Phaser.GameObjects.Image> = [];
 	clientPlayer!: Player;
-	players!: {
+	players: {
 		[id: string]: Player;
-	};
+	} = {};
 
 	constructor(data: { room: string }) {
 		super("World");
@@ -147,9 +147,25 @@ export default class World extends Core {
 		// player joined
 		Server.events.on(
 			"playerJoined",
-			(player: PlayerState, sessionID: string) => {
+			(player: PlayerState, sessionID: string, client: boolean) => {
 				// DEBUG
-				console.log(JSON.stringify(player.toJSON()) + " " + sessionID);
+				console.log(player.toJSON(), sessionID, client);
+
+				// create player
+				this.players[sessionID] = new Player(
+					this,
+					player.x,
+					player.y,
+					0,
+					sessionID,
+					{
+						tint: 0,
+						eyeType: "happy",
+					}
+				);
+
+				// set as client
+				if (client) this.clientPlayer = this.players[sessionID];
 			},
 			this
 		);
@@ -160,6 +176,10 @@ export default class World extends Core {
 			(player: PlayerState, sessionID: string) => {
 				// DEBUG
 				console.log(JSON.stringify(player.toJSON()) + " " + sessionID);
+
+				// delete player
+				this.players[sessionID].delete();
+				delete this.players[sessionID];
 			},
 			this
 		);

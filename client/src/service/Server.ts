@@ -30,7 +30,12 @@ export class Server {
 		// event: player joined
 		this.room.state.players.onAdd = (player: Player, sessionID: string) => {
 			// emit event
-			this.events.emit("playerJoined", player, sessionID);
+			this.events.emit(
+				"playerJoined",
+				player,
+				sessionID,
+				this.room?.sessionId === sessionID
+			);
 		};
 
 		// event: player left

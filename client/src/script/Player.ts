@@ -189,8 +189,8 @@ export default class Player extends Phaser.GameObjects.Container {
 		} catch (error) {
 			console.log(
 				"[" +
-					this.scene.cache.json.get("lang_en_us")
-						.error.player_movement +
+					this.scene.cache.json.get("lang_en_us").error
+						.player_movement +
 					"] " +
 					error
 			);
@@ -318,11 +318,12 @@ export default class Player extends Phaser.GameObjects.Container {
 			let baseTexture = this.scene.textures.get(sprite).getSourceImage();
 
 			//init new tinted texture
-			var tintedTexture: Phaser.Textures.CanvasTexture = this.scene.textures.createCanvas(
-				sprite + "_" + tint,
-				baseTexture.width,
-				baseTexture.height
-			) as Phaser.Textures.CanvasTexture;
+			var tintedTexture: Phaser.Textures.CanvasTexture =
+				this.scene.textures.createCanvas(
+					sprite + "_" + tint,
+					baseTexture.width,
+					baseTexture.height
+				) as Phaser.Textures.CanvasTexture;
 
 			//get tinted texture data
 			var ctx = tintedTexture.context;
