@@ -182,6 +182,6 @@ export default class Load extends Phaser.Scene {
 
 	endLoadingScreen() {
 		// Menu
-		this.scene.start("Game");
+		this.scene.start("World");
 	}
 }

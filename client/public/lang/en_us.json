@@ -1,4 +1,4 @@
 {
-    "error_player_movement": "Game.js movePlayer",
-    "error_player_halt": "Game.js haltPlayer"
+    "error_player_movement": "World Scene movePlayer",
+    "error_player_halt": "World Scene haltPlayer"
 }

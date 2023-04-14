@@ -15,7 +15,7 @@ interface roomLayer {
 	depth: string | number;
 }
 
-export default class Game extends Core {
+export default class World extends Core {
 	room: string;
 	roomData!: roomInfo;
 	walkableLayer: Array<Phaser.GameObjects.Image> = [];
@@ -26,7 +26,7 @@ export default class Game extends Core {
 	};
 
 	constructor(data: { room: string }) {
-		super("Game");
+		super("World");
 
 		// default room
 		if (data === undefined) data = { room: "pond" };

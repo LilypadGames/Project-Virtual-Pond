@@ -1,4 +1,4 @@
-import Game from "../scene/Game";
+import Game from "../scene/World";
 import Utility from "../utility/Utility";
 import Nametag from "./Nametag";
 
