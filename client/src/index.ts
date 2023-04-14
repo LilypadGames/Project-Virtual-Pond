@@ -3,6 +3,7 @@ import config from "./config";
 import World from "./scene/World";
 import Boot from "./scene/internal/Boot";
 import Load from "./scene/internal/Load";
+import Debug from "./scene/overlay/Debug";
 import { Server as ServerConnection } from "./service/Server";
 
 //
@@ -11,7 +12,7 @@ import { Server as ServerConnection } from "./service/Server";
 
 export default new Phaser.Game(
 	Object.assign(config, {
-		scene: [Boot, Load, World],
+		scene: [Boot, Load, World, Debug],
 	})
 );
 

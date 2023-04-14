@@ -10,6 +10,7 @@ import ColorScheme from "../../utility/ColorScheme";
 export default class Core extends Phaser.Scene {
 	loadingBackground!: Phaser.GameObjects.Rectangle;
 	loadingIcon!: Phaser.GameObjects.Sprite;
+	keySHIFT!: Phaser.Input.Keyboard.Key;
 
 	constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
 		super(config);
@@ -26,7 +27,39 @@ export default class Core extends Phaser.Scene {
 		},
 		create: () => {
 			// disable right-click context menu
-			(this.input.mouse as Phaser.Input.Mouse.MouseManager).disableContextMenu();
+			(
+				this.input.mouse as Phaser.Input.Mouse.MouseManager
+			).disableContextMenu();
+
+			// debug menu key
+			this.keySHIFT = (
+				this.input.keyboard as Phaser.Input.Keyboard.KeyboardPlugin
+			).addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+
+			// toggle debug info
+			this.keySHIFT.on("down", () => {
+				// if debug scene is already open, close it
+				if (
+					this.game.scene
+						.getScenes(true)
+						.some((scene) => scene.scene.key === "Debug")
+				) {
+					// stop debug scene
+					this.scene.stop("Debug");
+
+					// turn off and remove debug lines
+					this.physics.world.drawDebug = false;
+					this.physics.world.debugGraphic.clear();
+				}
+				// open debug scene
+				else {
+					// launch debug info overlay
+					this.scene.launch("Debug");
+				}
+			});
+
+			// turn off debug
+			this.physics.world.drawDebug = false;
 		},
 		// restart game
 		restart: () => {
