@@ -1,4 +1,6 @@
 {
-    "error_player_movement": "World Scene movePlayer",
-    "error_player_halt": "World Scene haltPlayer"
+    "error": {
+        "player_movement": "Player Class> movePlayer",
+        "player_halt": "Player Class> haltPlayer"
+    }
 }

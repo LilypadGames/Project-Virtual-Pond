@@ -190,7 +190,7 @@ export default class Player extends Phaser.GameObjects.Container {
 			console.log(
 				"[" +
 					this.scene.cache.json.get("lang_en_us")
-						.error_player_movement +
+						.error.player_movement +
 					"] " +
 					error
 			);
@@ -204,7 +204,7 @@ export default class Player extends Phaser.GameObjects.Container {
 		} catch (error) {
 			console.log(
 				"[" +
-					this.scene.cache.json.get("lang_en_us").error_player_halt +
+					this.scene.cache.json.get("lang_en_us").error.player_halt +
 					"] " +
 					error
 			);
