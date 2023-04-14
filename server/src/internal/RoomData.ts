@@ -7,10 +7,10 @@ export default {
     "pond": {
         "class": Pond,
         "spawnpoint": {
-            "minX": 281,
-            "maxX": 975,
-            "minY": 560,
-            "maxY": 731
+            "minX": 100,
+            "maxX": 1200,
+            "minY": 440,
+            "maxY": 560
         },
         "adjacentRooms": [
             "theatre"
