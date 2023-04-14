@@ -193,77 +193,117 @@ export default class Player extends Phaser.GameObjects.Container {
 			)
 		);
 
-		// is currently moving
-		if (this.movement && !this.movement.isFinished()) {
-			//get duration of movement
-			var newDuration =
-				Phaser.Math.Distance.Between(
-					this.x,
-					this.y,
-					newPos.x,
-					newPos.y
-				) * 4;
+		// // is currently moving
+		// if (this.movement && !this.movement.isFinished()) {
+		// 	//get duration of movement
+		// 	var newDuration =
+		// 		Phaser.Math.Distance.Between(
+		// 			this.x,
+		// 			this.y,
+		// 			newPos.x,
+		// 			newPos.y
+		// 		) * 4;
 
-			//change x
-			this.movement.updateTo("x", newPos.x, true);
-			this.nametag.movement.updateTo("x", newPos.y, true);
-			// if (this.message)
-			// 	(this as any).message.movement.updateTo("x", newX, true);
+		// 	//change x
+		// 	this.movement.updateTo("x", newPos.x, true);
+		// 	this.nametag.movement.updateTo("x", newPos.y, true);
+		// 	// if (this.message)
+		// 	// 	(this as any).message.movement.updateTo("x", newX, true);
 
-			//change y
-			this.movement.updateTo("y", newPos.y, true);
-			this.nametag.movement.updateTo("y", newPos.y, true);
-			// if (this.message) this.message.movement.updateTo("y", newY, true);
+		// 	//change y
+		// 	this.movement.updateTo("y", newPos.y, true);
+		// 	this.nametag.movement.updateTo("y", newPos.y, true);
+		// 	// if (this.message) this.message.movement.updateTo("y", newY, true);
 
-			//change duration
-			this.movement.updateTo("duration", newDuration, true);
-			this.nametag.movement.updateTo("duration", newDuration, true);
-			// if (this.message)
-			// 	this.message.movement.updateTo(
-			// 		"duration",
-			// 		newDuration,
-			// 		true
-			// 	);
-		}
+		// 	//change duration
+		// 	this.movement.updateTo("duration", newDuration, true);
+		// 	this.nametag.movement.updateTo("duration", newDuration, true);
+		// 	// if (this.message)
+		// 	// 	this.message.movement.updateTo(
+		// 	// 		"duration",
+		// 	// 		newDuration,
+		// 	// 		true
+		// 	// 	);
+		// }
 
-		// stationary
-		else {
-			//determine targets to move
-			let targets = [this, this.nametag];
-			// if (this.message) targets.push(this.message);
+		// // stationary
+		// else {
+		// 	//determine targets to move
+		// 	let targets = [this, this.nametag];
+		// 	// if (this.message) targets.push(this.message);
 
-			//move player (and store it for alteration later)
-			try {
-				//new movement
-				this.movement = this.scene.add.tween({
-					targets: targets,
-					x: newPos.x,
-					y: newPos.y,
-					duration:
-						Phaser.Math.Distance.Between(
-							this.x,
-							this.y,
-							newPos.x,
-							newPos.y
-						) * 4,
-					callbacks: () => {
-						// delete saved tween when done tweening
-						delete this.movement;
-					},
-					onUpdate: () => {
-						// update depth
-						this.depth = this.y;
-					},
-				});
-			} catch (error) {
-				console.log(
-					"[" +
-						this.scene.cache.json.get("lang_en_us").error
-							.player_movement +
-						"] " +
-						error
-				);
-			}
+		// 	//move player (and store it for alteration later)
+		// 	try {
+		// 		//new movement
+		// 		this.movement = this.scene.add.tween({
+		// 			targets: targets,
+		// 			x: newPos.x,
+		// 			y: newPos.y,
+		// 			duration:
+		// 				Phaser.Math.Distance.Between(
+		// 					this.x,
+		// 					this.y,
+		// 					newPos.x,
+		// 					newPos.y
+		// 				) * 4,
+		// 			callbacks: () => {
+		// 				// delete saved tween when done tweening
+		// 				delete this.movement;
+		// 			},
+		// 			onUpdate: () => {
+		// 				// update depth
+		// 				this.depth = this.y;
+		// 			},
+		// 		});
+		// 	} catch (error) {
+		// 		console.log(
+		// 			"[" +
+		// 				this.scene.cache.json.get("lang_en_us").error
+		// 					.player_movement +
+		// 				"] " +
+		// 				error
+		// 		);
+		// 	}
+		// }
+
+		//determine targets to move
+		let targets = [this, this.nametag];
+		// if (this.message) targets.push(this.message);
+
+		// stop old movement
+		if (this.movement) this.movement.stop();
+
+		//move player (and store it for alteration later)
+		try {
+			//new movement
+			this.movement = this.scene.add.tween({
+				targets: targets,
+				x: newPos.x,
+				y: newPos.y,
+				duration:
+					Phaser.Math.Distance.Between(
+						this.x,
+						this.y,
+						newPos.x,
+						newPos.y
+					) * 4,
+				callbacks: () => {
+					// delete saved tween when done tweening
+					delete this.movement;
+				},
+				onUpdate: () => {
+					// update depth
+					this.depth = this.y;
+				},
+			});
+		} catch (error) {
+			console.log(
+				"[" +
+					this.scene.cache.json.get("lang_en_us").error
+						.player_movement +
+					"] " +
+					error
+			);
 		}
 	}
 
