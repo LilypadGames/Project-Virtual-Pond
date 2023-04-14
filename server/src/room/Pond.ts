@@ -19,7 +19,7 @@ export default class Pond extends Room<WorldState> {
 		this.setState(new WorldState());
 
 		// DEBUG
-		log.debug("Creating Room " + this.roomId);
+		log.debug("Pond (" + this.roomId + ")> Room Created");
 	}
 
 	// // Authorize client based on provided options before WebSocket handshake is complete
@@ -28,7 +28,7 @@ export default class Pond extends Room<WorldState> {
 	// When client successfully join the room
 	onJoin(client: Client, _options: any, _auth: any) {
 		// DEBUG
-		log.debug(client.sessionId + " joined!");
+		log.debug("Pond (" + this.roomId + ")> Player (" + client.sessionId + ") joined");
 
 		// create player
 		const player = new Player();
@@ -49,7 +49,8 @@ export default class Pond extends Room<WorldState> {
 
 	// When a client leaves the room
 	onLeave(client: Client, _consented: boolean) {
-		log.debug(client.sessionId + " left!");
+		// DEBUG
+		log.debug("Pond (" + this.roomId + ")> Player (" + client.sessionId + ") left");
 
 		// remove from player list
 		this.state.players.delete(client.sessionId);
@@ -58,6 +59,6 @@ export default class Pond extends Room<WorldState> {
 	// Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
 	onDispose() {
 		// DEBUG
-		log.debug("Deleting Room " + this.roomId);
+		log.debug("Pond (" + this.roomId + ")> Room Deleted");
 	}
 }
