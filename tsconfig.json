@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"target": "ES2018",
-		"useDefineForClassFields": true,
+		"useDefineForClassFields": false,
 		"module": "ESNext",
 		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "Node",
@@ -17,7 +17,7 @@
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"allowImportingTsExtensions": true,
-		"experimentalDecorators": true
+		"experimentalDecorators": true,
 	},
 	"include": ["client/src", "server/src","/**/*.ts"],
 	"exclude": ["node_modules"]

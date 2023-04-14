@@ -19,29 +19,21 @@ ViteExpress.config({
 });
 
 // get html path
-let htmlPath =
+const htmlPath =
 	process.env.NODE_ENV === "production"
 		? config.paths.production.html
 		: config.paths.development.html;
 
 // setup express
-export let app = express();
+export const app = express();
 app.use(cors());
 app.use(express.json());
-export let webserver = createHTTPServer(app);
+export const webserver = createHTTPServer(app);
 
 export default {
 	// start web server
 	init: function () {
 		// setup paths
-		app.use(
-			"/",
-			express.static(
-				config.paths[
-					process.env.NODE_ENV as "production" | "development"
-				].client
-			)
-		);
 		app.get("/", function (_: Request, res: Response) {
 			res.sendFile("index.html", {
 				root: htmlPath,
@@ -49,11 +41,14 @@ export default {
 		});
 
 		// setup server
-		let viteServer = ViteExpress.listen(app, Number(config.server.port), () =>
-			log.message("Server initialized with port " + config.server.port)
+		webserver.listen(Number(config.server.port), () =>
+			log.info("Web Server Initialized> Port: " + config.server.port)
 		);
 
 		// setup Colyseus server
-		Colyseus.init(viteServer, app);
+		Colyseus.init(webserver, app);
+
+		// bind vite express
+		ViteExpress.bind(app, webserver);
 	},
 };

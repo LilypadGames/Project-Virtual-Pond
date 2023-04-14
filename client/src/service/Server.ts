@@ -21,9 +21,6 @@ export default class Server {
 		try {
 			// connect to room
 			this.room = await this.client.joinOrCreate(room);
-
-			// DEBUG
-			console.log("CONNECTED!!");
 		} catch (e) {
 			// DEBUG
 			console.error(e);
@@ -31,10 +28,7 @@ export default class Server {
 		}
 
 		// event: player joined
-		this.room.state.players.onAdd = (player: Player, sessionID: string) => {
-			//DEBUG
-			console.log("Player Joined: ", sessionID);
-
+		this.room.state.players.onAdd = (player: Player, _sessionID: string) => {
 			// emit event
 			this.events.emit("playerJoined", player);
 		};
@@ -42,11 +36,8 @@ export default class Server {
 		// event: player left
 		this.room.state.players.onRemove = (
 			player: Player,
-			sessionId: string
+			_sessionId: string
 		) => {
-			//DEBUG
-			console.log("Player Left: ", sessionId);
-
 			// emit event
 			this.events.emit("playerLeft", player);
 		};
