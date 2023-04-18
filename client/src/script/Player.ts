@@ -1,5 +1,5 @@
+import Utility from "../../../server/src/module/Utility";
 import Game from "../scene/World";
-import Utility from "../utility/Utility";
 import Nametag from "./Nametag";
 import WorldLogic from "./WorldLogic";
 
@@ -156,7 +156,7 @@ export default class Player extends Phaser.GameObjects.Container {
 				this.tintLayer.setTexture(
 					this.getTintedSprite(
 						this.scene.cache.json.get("playerData").texture.tint,
-						Utility.hexIntegerToString(data.character.color)
+						Utility.hex.toString(data.character.color)
 					)
 				);
 			}

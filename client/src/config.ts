@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import ColorScheme from "./utility/ColorScheme";
-import Utility from "./utility/Utility";
+import Utility from "../../server/src/module/Utility";
 
 // constants
 const gameWidth = 1280;
@@ -45,7 +45,6 @@ export default {
 		disableWebAudio: true,
 		noAudio: false,
 	},
-	plugins: {},
 	disableContextMenu: true,
 	hidePhaser: true,
 	hideBanner: true,
@@ -59,13 +58,13 @@ export default {
 	},
 	nametagClientConfig: {
 		fontFamily: "Burbin",
-		color: Utility.hexIntegerToString(ColorScheme.White),
-		stroke: Utility.hexIntegerToString(ColorScheme.Black),
+		color: Utility.hex.toString(ColorScheme.White),
+		stroke: Utility.hex.toString(ColorScheme.Black),
 		strokeThickness: 6,
 	},
 	nametagConfig: {
 		fontFamily: "Burbin",
-		color: Utility.hexIntegerToString(ColorScheme.Black),
+		color: Utility.hex.toString(ColorScheme.Black),
 	},
 	nametagFontSize: 14,
 };

@@ -1,5 +1,5 @@
+import Utility from "../../../server/src/module/Utility";
 import config from "../config";
-import Utility from "../utility/Utility";
 
 export default class Nametag extends Phaser.GameObjects.Container {
 	color?: number;
@@ -39,7 +39,7 @@ export default class Nametag extends Phaser.GameObjects.Container {
 
 			//special player name colors
 			if (this.color) {
-				this.nametagData.color = Utility.hexIntegerToString(this.color);
+				this.nametagData.color = Utility.hex.toString(this.color);
 			}
 		}
 
@@ -51,7 +51,7 @@ export default class Nametag extends Phaser.GameObjects.Container {
 
 			//special player name colors
 			if (this.color) {
-				this.nametagData.color = Utility.hexIntegerToString(this.color);
+				this.nametagData.color = Utility.hex.toString(this.color);
 				this.nametagData.strokeThickness = 6;
 			} else {
 				this.nametagData.stroke = "";
