@@ -53,8 +53,9 @@ export default {
 		ground: 0 - 1,
 		foreground: gameHeight + 1,
 		shader: gameHeight + 2,
-		info: gameHeight + 3,
-		loadingScreen: gameHeight + 4,
+		ui: gameHeight + 3,
+		info: gameHeight + 4,
+		loadingScreen: gameHeight + 5,
 	},
 	nametagClientConfig: {
 		fontFamily: "Burbin",

@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import config from "../../config";
 import ColorScheme from "../../utility/ColorScheme";
+import UI from "../overlay/UI";
 // import store from "storejs";
 
 //
@@ -10,6 +11,7 @@ import ColorScheme from "../../utility/ColorScheme";
 export default class Core extends Phaser.Scene {
 	loadingBackground!: Phaser.GameObjects.Rectangle;
 	loadingIcon!: Phaser.GameObjects.Sprite;
+	keyENTER!: Phaser.Input.Keyboard.Key;
 	keySHIFT!: Phaser.Input.Keyboard.Key;
 
 	constructor(config: string | Phaser.Types.Scenes.SettingsConfig) {
@@ -31,6 +33,23 @@ export default class Core extends Phaser.Scene {
 				this.input.mouse as Phaser.Input.Mouse.MouseManager
 			).disableContextMenu();
 
+			// general purpose enter key
+			this.keyENTER = (
+				this.input.keyboard as Phaser.Input.Keyboard.KeyboardPlugin
+			).addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+
+			// general purpose enter key
+			this.keyENTER.on("down", () => {
+				// get text input field from UI overlay scene
+				let chatbox = (this.scene.get("UI") as UI).chatbox[
+					"inputField"
+				];
+				// focus chatbox if player presses enter while it's not focused
+				if (!chatbox.isFocused) {
+					chatbox.setFocus();
+				}
+			});
+
 			// debug menu key
 			this.keySHIFT = (
 				this.input.keyboard as Phaser.Input.Keyboard.KeyboardPlugin
@@ -38,6 +57,13 @@ export default class Core extends Phaser.Scene {
 
 			// toggle debug info
 			this.keySHIFT.on("down", () => {
+				// ignore if player is typing
+				if (
+					(this.scene.get("UI") as UI).chatbox["inputField"].isFocused
+				) {
+					return;
+				}
+
 				// if debug scene is already open, close it
 				if (
 					this.game.scene

@@ -45,7 +45,7 @@ export default {
 	hex: {
 		// from number to string
 		toString(hexColor: number) {
-			return "#" + hexColor.toString(16);
+			return "#" + hexColor.toString(16).padStart(6, '0');
 		},
 
 		// from string to number
