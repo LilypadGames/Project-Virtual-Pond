@@ -58,11 +58,11 @@ export default class World extends Core {
 		// generate room
 		this.generateRoom();
 
-		// end wait screen
-		this.endWaitScreen();
-
 		// launch UI
 		this.scene.launch("UI");
+
+		// end wait screen
+		this.endWaitScreen();
 	}
 
 	// create the room
