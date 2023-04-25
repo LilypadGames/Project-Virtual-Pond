@@ -7,6 +7,7 @@ import cors from "cors";
 import log from "../module/Logs.ts";
 
 // internal
+import Auth from "../internal/Auth.ts";
 import Colyseus from "../internal/Colyseus.ts";
 
 // config
@@ -43,6 +44,9 @@ export default {
 				root: htmlPath,
 			});
 		});
+
+		// setup auth
+		Auth.init(app);
 
 		//start web server
 		webserver.listen(Number(config.server.port), () => {
