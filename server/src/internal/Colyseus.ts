@@ -1,7 +1,6 @@
+// imports
 import { Server as HTTPServer } from "http";
 import { Express } from "express";
-
-// imports
 import { Server as ColyseusServer } from "@colyseus/core";
 import { monitor } from "@colyseus/monitor";
 import { WebSocketTransport } from "@colyseus/ws-transport";
