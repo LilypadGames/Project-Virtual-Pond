@@ -50,6 +50,6 @@
     "express": "^4.18.2",
     "firebase-admin": "^11.0.0",
     "passport": "^0.6.0",
-    "passport-twitch-latest": "^1.0.0"
+    "passport-twitch-latest": "^0.0.1"
   }
 }
