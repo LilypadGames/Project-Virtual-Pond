@@ -45,7 +45,7 @@ export default {
 	hex: {
 		// from number to string
 		toString(hexColor: number) {
-			return "#" + hexColor.toString(16).padStart(6, '0');
+			return "#" + hexColor.toString(16).padStart(6, "0");
 		},
 
 		// from string to number
@@ -54,7 +54,12 @@ export default {
 		},
 
 		// from hex to rgb
-		toRGB(hexColor: string) {
+		toRGB(hexColor: string | number) {
+			// convert to string if number
+			if (typeof hexColor === "number")
+				hexColor = this.toString(hexColor);
+
+			// convert to rgb
 			const result = String(
 				/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexColor)
 			);
