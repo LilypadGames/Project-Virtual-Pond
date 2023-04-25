@@ -1,4 +1,5 @@
 // imports
+import http from "http";
 import { Room, Client } from "colyseus";
 
 // modules
@@ -47,8 +48,14 @@ export default class Pond extends Room<WorldState> {
 		});
 	}
 
-	// // Authorize client based on provided options before WebSocket handshake is complete
-	// onAuth(_client: Client, _options: any, _request: http.IncomingMessage) {}
+	// Authorize client based on provided options before WebSocket handshake is complete
+	async onAuth(
+		_client: Client,
+		_options: any,
+		_request: http.IncomingMessage
+	) {
+		return true;
+	}
 
 	// When client successfully join the room
 	onJoin(client: Client, _options: any, _auth: any) {
