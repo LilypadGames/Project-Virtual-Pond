@@ -3,7 +3,7 @@
   "name": "project-virtual-pond",
   "version": "1.0.0",
   "description": "A Physical Space for Twitch Frogs to Hang and Chat.",
-  "main": "server/Server.js",
+  "main": "server/Run.js",
   "scripts": {
     "dev": "nodemon server/Run.js",
     "run": "pm2 start server/Run.js && pm2 monit",
