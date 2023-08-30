@@ -48,6 +48,7 @@
     "tmi-emote-parse": "^2.0.0"
   },
   "devDependencies": {
-    "@twurple/eventsub-ngrok": "^5.1.8"
+    "@twurple/eventsub-ngrok": "^5.1.8",
+    "nodemon": "^3.0.1"
   }
 }
